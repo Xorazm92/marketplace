@@ -114,8 +114,13 @@ GlobalMarket is a full-stack e-commerce marketplace application built with a mod
 ## Changelog
 
 Changelog:
-- June 24, 2025. Initial setup
+- June 24, 2025. Initial setup with full e-commerce platform
+- Database schema created with PostgreSQL tables
+- Authentication system implemented with Replit OAuth
+- Multi-language support added (English, Russian, Uzbek)
+- Complete product management and cart functionality
+- Admin panel and seller dashboard completed
 
 ## User Preferences
 
-Preferred communication style: Simple, everyday language.
+Preferred communication style: Simple, everyday language (Uzbek when asked).

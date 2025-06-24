@@ -20,7 +20,10 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Auth routes
   app.get('/api/auth/user', isAuthenticated, async (req: any, res) => {
     try {
-      const userId = req.user.claims.sub;
+      const userId = req.user?.claims?.sub;
+      if (!userId) {
+        return res.status(401).json({ message: "User ID not found" });
+      }
       const user = await storage.getUser(userId);
       res.json(user);
     } catch (error) {
@@ -88,7 +91,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       // Add to recently viewed if user is authenticated
-      if (req.user) {
+      if (req.user?.claims?.sub) {
         const userId = req.user.claims.sub;
         await storage.addRecentlyViewed(userId, productId);
       }
