@@ -14,6 +14,7 @@ import {
   promotions,
   type User,
   type UpsertUser,
+  type RegisterUser,
   type Category,
   type InsertCategory,
   type Product,
@@ -37,16 +38,21 @@ import {
   type Promotion,
 } from "@shared/schema";
 
-export interface IStorage {
-  // User operations (mandatory for Replit Auth)
+import bcrypt from 'bcrypt';
+
+// The main interface for all storage operations
+export interface Storage {
+  // User operations
   getUser(id: string): Promise<User | undefined>;
+  getUserByEmail(email: string): Promise<User | undefined>;
+  createUser(user: RegisterUser): Promise<User>;
   upsertUser(user: UpsertUser): Promise<User>;
-  
+
   // Category operations
   getCategories(): Promise<Category[]>;
   getCategoryBySlug(slug: string): Promise<Category | undefined>;
   createCategory(category: InsertCategory): Promise<Category>;
-  
+
   // Product operations
   getProducts(filters?: {
     categoryId?: number;
@@ -62,7 +68,7 @@ export interface IStorage {
   deleteProduct(id: number): Promise<void>;
   getTrendingProducts(limit?: number): Promise<Product[]>;
   getProductsBySeller(sellerId: string): Promise<Product[]>;
-  
+
   // Cart operations
   getOrCreateCart(userId: string): Promise<Cart>;
   getCartItems(cartId: number): Promise<(CartItem & { product: Product })[]>;
@@ -70,36 +76,36 @@ export interface IStorage {
   updateCartItem(id: number, quantity: number): Promise<CartItem>;
   removeFromCart(id: number): Promise<void>;
   clearCart(cartId: number): Promise<void>;
-  
+
   // Order operations
-  createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order>;
+  createOrder(order: InsertOrder, items: InsertOrderItem[]): Promise<Order & { items: (OrderItem & {product: Product})[] }>;
   getOrders(userId: string): Promise<Order[]>;
-  getOrder(id: number): Promise<Order | undefined>;
+  getOrder(id: number): Promise<(Order & { items: (OrderItem & {product: Product})[] }) | undefined>;
   updateOrderStatus(id: number, status: string): Promise<Order>;
-  getOrdersByseller(sellerId: string): Promise<(Order & { items: OrderItem[] })[]>;
-  
+  getOrdersByseller(sellerId: string): Promise<(Order & { items: (OrderItem & {product: Product})[] })[]>;
+
   // Wishlist operations
   getWishlist(userId: string): Promise<(Wishlist & { product: Product })[]>;
   addToWishlist(wishlist: InsertWishlist): Promise<Wishlist>;
   removeFromWishlist(userId: string, productId: number): Promise<void>;
-  
+
   // Review operations
   getProductReviews(productId: number): Promise<(Review & { user: User })[]>;
   createReview(review: InsertReview): Promise<Review>;
-  
+
   // Notification operations
   getUserNotifications(userId: string): Promise<Notification[]>;
   createNotification(notification: InsertNotification): Promise<Notification>;
   markNotificationAsRead(id: number): Promise<void>;
-  
+
   // Message operations
   getMessages(userId: string, otherUserId: string): Promise<Message[]>;
   sendMessage(message: InsertMessage): Promise<Message>;
-  
+
   // Recently viewed
   addRecentlyViewed(userId: string, productId: number): Promise<void>;
   getRecentlyViewed(userId: string, limit?: number): Promise<(RecentlyViewed & { product: Product })[]>;
-  
+
   // Admin operations
   getPendingSellers(): Promise<User[]>;
   approveSeller(userId: string): Promise<User>;
@@ -112,7 +118,8 @@ export interface IStorage {
   }>;
 }
 
-export class MemStorage implements IStorage {
+// In-memory implementation of the Storage interface
+export class MemStorage implements Storage {
   private users: Map<string, User> = new Map();
   private categories: Map<number, Category> = new Map();
   private products: Map<number, Product> = new Map();
@@ -126,7 +133,8 @@ export class MemStorage implements IStorage {
   private messages: Map<number, Message> = new Map();
   private recentlyViewed: Map<number, RecentlyViewed> = new Map();
   private promotions: Map<number, Promotion> = new Map();
-  
+
+  // ID counters
   private nextCategoryId = 1;
   private nextProductId = 1;
   private nextCartId = 1;
@@ -140,53 +148,103 @@ export class MemStorage implements IStorage {
   private nextRecentlyViewedId = 1;
   private nextPromotionId = 1;
 
-  constructor() {
-    this.initializeDefaultData();
+  constructor() {}
+
+  public async initialize() {
+    if (this.categories.size > 0 || this.products.size > 0) {
+      return; // Already initialized
+    }
+    await this.initializeDefaultData();
   }
 
-  private initializeDefaultData() {
-    // Create default categories
-    const defaultCategories: InsertCategory[] = [
-      { name: "Electronics", slug: "electronics", description: "Electronic devices and gadgets", icon: "fas fa-laptop" },
-      { name: "Fashion", slug: "fashion", description: "Clothing and accessories", icon: "fas fa-tshirt" },
-      { name: "Home & Garden", slug: "home-garden", description: "Home improvement and garden supplies", icon: "fas fa-home" },
-      { name: "Sports", slug: "sports", description: "Sports equipment and accessories", icon: "fas fa-football-ball" },
-      { name: "Books", slug: "books", description: "Books and educational materials", icon: "fas fa-book" },
-      { name: "Health & Beauty", slug: "health-beauty", description: "Health and beauty products", icon: "fas fa-heart" },
+  private async initializeDefaultData() {
+    const defaultCategories = [
+        { name: "O'yinchoqlar", slug: "oyinchoqlar", description: "Bolalar uchun rivojlantiruvchi va qiziqarli o'yinchoqlar", icon: "fas fa-puzzle-piece" },
+        { name: "Kiyim-kechak", slug: "kiyim-kechak", description: "Chaqaloqlar va bolalar uchun kiyimlar", icon: "fas fa-tshirt" },
+        { name: "Bolalar kitoblari", slug: "bolalar-kitoblari", description: "Bolalar uchun foydali va qiziqarli kitoblar", icon: "fas fa-book" },
+        { name: "Ijodiy to'plamlar", slug: "ijodiy-toplamlar", description: "Bolalarning ijodiy qobiliyatini rivojlantirish uchun to'plamlar", icon: "fas fa-paint-brush" },
     ];
 
-    defaultCategories.forEach(category => {
-      this.createCategory(category);
-    });
+    const categoryIds: { [key: string]: number } = {};
+    for (const category of defaultCategories) {
+      const created = await this.createCategory(category);
+      categoryIds[category.slug] = created.id;
+    }
+
+    const sampleProducts = [
+        { name: "Rangli qog'oz to'plami", description: "Bolalar ijodi uchun 10 xil rangdagi yorqin qog'ozlar.", price: "25000.00", originalPrice: "30000.00", categoryId: categoryIds['ijodiy-toplamlar'], sellerId: 'system', stock: 50, isActive: true, isApproved: true, images: ['/products/rangli-qogoz.jpg'], viewCount: 0 },
+        { name: "Plastilin to'plami", description: "Bolalar uchun turli xil rangdagi plastilinlar to'plami", price: "35000.00", originalPrice: "40000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 20, isActive: true, isApproved: true, images: ['/products/plastilin.jpg'], viewCount: 0 },
+        { name: "Aqlli konstruktor", description: "Mayda motorikani rivojlantiruvchi aqlli konstruktor.", price: "150000.00", originalPrice: "180000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 15, isActive: true, isApproved: true, images: ['/products/konstruktor.jpg'], viewCount: 0 },
+        { name: "Sehrli ertaklar kitobi", description: "Bolalar uchun qiziqarli va foydali ertaklar to'plami", price: "60000.00", originalPrice: "70000.00", categoryId: categoryIds['bolalar-kitoblari'], sellerId: 'system', stock: 30, isActive: true, isApproved: true, images: ['/products/ertaklar-kitobi.jpg'], viewCount: 0 },
+        { name: "Yog'ochli jumboq", description: "Mantiqiy fikrlashni o'stiruvchi yog'ochli jumboq.", price: "45000.00", originalPrice: "50000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 40, isActive: true, isApproved: true, images: ['/products/jumboq.jpg'], viewCount: 0 },
+    ];
+
+    for (const product of sampleProducts) {
+      await this.createProduct(product as InsertProduct);
+    }
   }
 
+  // User operations
   async getUser(id: string): Promise<User | undefined> {
     return this.users.get(id);
   }
 
-  async upsertUser(userData: UpsertUser): Promise<User> {
-    const existingUser = this.users.get(userData.id);
-    const user: User = {
-      id: userData.id,
-      role: userData.role || 'buyer',
-      email: userData.email || null,
-      firstName: userData.firstName || null,
-      lastName: userData.lastName || null,
-      profileImageUrl: userData.profileImageUrl || null,
-      isApproved: userData.isApproved || null,
-      createdAt: existingUser?.createdAt || new Date(),
-      updatedAt: new Date(),
-    };
-    this.users.set(userData.id, user);
-    return user;
+  async getUserByEmail(email: string): Promise<User | undefined> {
+    return Array.from(this.users.values()).find((user) => user.email === email);
   }
 
+  async createUser(user: RegisterUser): Promise<User> {
+    const existingUser = await this.getUserByEmail(user.email);
+    if (existingUser) {
+      throw new Error("User with this email already exists");
+    }
+
+    const hashedPassword = await bcrypt.hash(user.password, 10);
+    
+    const newUser: User = {
+      ...users.$inferSelect.parse({}), // default values
+      id: crypto.randomUUID(),
+      email: user.email,
+      password: hashedPassword,
+      fullName: user.fullName,
+      role: user.role || 'buyer',
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      isApproved: user.role !== 'seller', // Auto-approve buyers
+    };
+
+    this.users.set(newUser.id, newUser);
+    return newUser;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    if (!userData.id) {
+      throw new Error("User ID is required for upsert");
+    }
+    let user = this.users.get(userData.id);
+    if (user) {
+      const updatedUser = { ...user, ...userData, updatedAt: new Date() };
+      this.users.set(userData.id, updatedUser);
+      return updatedUser;
+    } else {
+      const newUser: User = {
+        ...users.$inferSelect.parse(userData),
+        id: userData.id,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      };
+      this.users.set(newUser.id, newUser);
+      return newUser;
+    }
+  }
+
+  // Category operations
   async getCategories(): Promise<Category[]> {
-    return Array.from(this.categories.values()).filter(cat => cat.isActive);
+    return Array.from(this.categories.values());
   }
 
   async getCategoryBySlug(slug: string): Promise<Category | undefined> {
-    return Array.from(this.categories.values()).find(cat => cat.slug === slug);
+    return Array.from(this.categories.values()).find((c) => c.slug === slug);
   }
 
   async createCategory(categoryData: InsertCategory): Promise<Category> {
@@ -198,69 +256,52 @@ export class MemStorage implements IStorage {
       description: categoryData.description || null,
       parentId: categoryData.parentId || null,
       icon: categoryData.icon || null,
-      isActive: categoryData.isActive || null,
+      isActive: categoryData.isActive ?? true,
       createdAt: new Date(),
     };
     this.categories.set(id, category);
     return category;
   }
 
-  async getProducts(filters: {
-    categoryId?: number;
-    sellerId?: string;
-    isActive?: boolean;
-    search?: string;
-    limit?: number;
-    offset?: number;
-  } = {}): Promise<Product[]> {
-    let products = Array.from(this.products.values());
+  // Product operations
+  async getProducts(filters: any = {}): Promise<Product[]> {
+    let productList = Array.from(this.products.values());
 
     if (filters.categoryId) {
-      products = products.filter(p => p.categoryId === filters.categoryId);
+      productList = productList.filter(p => p.categoryId === filters.categoryId);
     }
     if (filters.sellerId) {
-      products = products.filter(p => p.sellerId === filters.sellerId);
+      productList = productList.filter(p => p.sellerId === filters.sellerId);
     }
     if (filters.isActive !== undefined) {
-      products = products.filter(p => p.isActive === filters.isActive);
+      productList = productList.filter(p => p.isActive === filters.isActive);
     }
     if (filters.search) {
-      const searchLower = filters.search.toLowerCase();
-      products = products.filter(p => 
-        p.name.toLowerCase().includes(searchLower) ||
-        p.description?.toLowerCase().includes(searchLower)
+      const searchTerm = filters.search.toLowerCase();
+      productList = productList.filter(p => 
+        p.name.toLowerCase().includes(searchTerm) ||
+        p.description?.toLowerCase().includes(searchTerm)
       );
     }
 
-    const offset = filters.offset || 0;
-    const limit = filters.limit || products.length;
-    
-    return products.slice(offset, offset + limit);
+    return productList.slice(filters.offset || 0, (filters.offset || 0) + (filters.limit || 10));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    return this.products.get(id);
+    const product = this.products.get(id);
+    if(product) {
+        const updatedProduct = { ...product, viewCount: (product.viewCount || 0) + 1 };
+        this.products.set(id, updatedProduct);
+        return updatedProduct;
+    }
+    return product;
   }
 
   async createProduct(productData: InsertProduct): Promise<Product> {
     const id = this.nextProductId++;
     const product: Product = {
+      ...products.$inferSelect.parse(productData),
       id,
-      name: productData.name,
-      description: productData.description || null,
-      price: productData.price,
-      originalPrice: productData.originalPrice || null,
-      images: productData.images || null,
-      specifications: productData.specifications || null,
-      categoryId: productData.categoryId,
-      sellerId: productData.sellerId,
-      stock: productData.stock || null,
-      isActive: productData.isActive || null,
-      isApproved: productData.isApproved || null,
-      variants: productData.variants || null,
-      rating: productData.rating || null,
-      reviewCount: productData.reviewCount || null,
-      viewCount: productData.viewCount || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -269,11 +310,11 @@ export class MemStorage implements IStorage {
   }
 
   async updateProduct(id: number, updates: Partial<Product>): Promise<Product> {
-    const existing = this.products.get(id);
-    if (!existing) throw new Error("Product not found");
-    
-    const updated: Product = {
-      ...existing,
+    const product = this.products.get(id);
+    if (!product) throw new Error("Product not found");
+    const updatedProduct = { ...product, ...updates, updatedAt: new Date() };
+    this.products.set(id, updatedProduct);
+    return updatedProduct;
       ...updates,
       updatedAt: new Date(),
     };
@@ -620,4 +661,3 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();

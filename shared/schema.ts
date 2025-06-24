@@ -27,8 +27,9 @@ export const sessions = pgTable(
 
 // User storage table (mandatory for Replit Auth)
 export const users = pgTable("users", {
-  id: varchar("id").primaryKey().notNull(),
-  email: varchar("email").unique(),
+  id: uuid("id").primaryKey().defaultRandom(),
+  email: varchar("email").unique().notNull(),
+  password: text("password").notNull(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
@@ -169,6 +170,10 @@ export const promotions = pgTable("promotions", {
 
 // Insert schemas
 export const upsertUserSchema = createInsertSchema(users);
+export const registerUserSchema = createInsertSchema(users, {
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
+}).pick({ email: true, password: true, firstName: true, lastName: true });
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, addedAt: true });
@@ -181,6 +186,7 @@ export const insertMessageSchema = createInsertSchema(messages).omit({ id: true,
 
 // Types
 export type UpsertUser = z.infer<typeof upsertUserSchema>;
+export type RegisterUser = z.infer<typeof registerUserSchema>;
 export type User = typeof users.$inferSelect;
 export type Category = typeof categories.$inferSelect;
 export type InsertCategory = z.infer<typeof insertCategorySchema>;

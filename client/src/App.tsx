@@ -16,13 +16,11 @@ import AdminPanel from "@/pages/AdminPanel";
 import Category from "@/pages/Category";
 
 function Router() {
-  const { isAuthenticated, isLoading } = useAuth();
-
-  return (
+    return (
     <Switch>
-      {isLoading || !isAuthenticated ? (
+      {/* {isLoading || !isAuthenticated ? (
         <Route path="/" component={Landing} />
-      ) : (
+      ) : ( */}
         <>
           <Route path="/" component={Home} />
           <Route path="/product/:id" component={ProductDetail} />
@@ -31,7 +29,7 @@ function Router() {
           <Route path="/seller" component={SellerDashboard} />
           <Route path="/admin" component={AdminPanel} />
         </>
-      )}
+      {/* )} */}
       <Route component={NotFound} />
     </Switch>
   );
