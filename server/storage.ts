@@ -167,7 +167,13 @@ export class MemStorage implements IStorage {
   async upsertUser(userData: UpsertUser): Promise<User> {
     const existingUser = this.users.get(userData.id);
     const user: User = {
-      ...userData,
+      id: userData.id,
+      role: userData.role || 'buyer',
+      email: userData.email || null,
+      firstName: userData.firstName || null,
+      lastName: userData.lastName || null,
+      profileImageUrl: userData.profileImageUrl || null,
+      isApproved: userData.isApproved || null,
       createdAt: existingUser?.createdAt || new Date(),
       updatedAt: new Date(),
     };
@@ -187,7 +193,12 @@ export class MemStorage implements IStorage {
     const id = this.nextCategoryId++;
     const category: Category = {
       id,
-      ...categoryData,
+      name: categoryData.name,
+      slug: categoryData.slug,
+      description: categoryData.description || null,
+      parentId: categoryData.parentId || null,
+      icon: categoryData.icon || null,
+      isActive: categoryData.isActive || null,
       createdAt: new Date(),
     };
     this.categories.set(id, category);
@@ -235,7 +246,21 @@ export class MemStorage implements IStorage {
     const id = this.nextProductId++;
     const product: Product = {
       id,
-      ...productData,
+      name: productData.name,
+      description: productData.description || null,
+      price: productData.price,
+      originalPrice: productData.originalPrice || null,
+      images: productData.images || null,
+      specifications: productData.specifications || null,
+      categoryId: productData.categoryId,
+      sellerId: productData.sellerId,
+      stock: productData.stock || null,
+      isActive: productData.isActive || null,
+      isApproved: productData.isApproved || null,
+      variants: productData.variants || null,
+      rating: productData.rating || null,
+      reviewCount: productData.reviewCount || null,
+      viewCount: productData.viewCount || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -303,13 +328,16 @@ export class MemStorage implements IStorage {
     );
 
     if (existingItem) {
-      return this.updateCartItem(existingItem.id, existingItem.quantity + cartItemData.quantity);
+      return this.updateCartItem(existingItem.id, existingItem.quantity + (cartItemData.quantity || 1));
     }
 
     const id = this.nextCartItemId++;
     const cartItem: CartItem = {
       id,
-      ...cartItemData,
+      cartId: cartItemData.cartId,
+      productId: cartItemData.productId,
+      quantity: cartItemData.quantity || 1,
+      variantId: cartItemData.variantId || null,
       addedAt: new Date(),
     };
     this.cartItems.set(id, cartItem);
@@ -341,7 +369,13 @@ export class MemStorage implements IStorage {
     const id = this.nextOrderId++;
     const order: Order = {
       id,
-      ...orderData,
+      userId: orderData.userId,
+      status: orderData.status || 'pending',
+      totalAmount: orderData.totalAmount,
+      shippingAddress: orderData.shippingAddress,
+      paymentStatus: orderData.paymentStatus || null,
+      orderNumber: orderData.orderNumber,
+      notes: orderData.notes || null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
@@ -353,7 +387,12 @@ export class MemStorage implements IStorage {
       const orderItem: OrderItem = {
         id: itemId,
         orderId: id,
-        ...itemData,
+        productId: itemData.productId,
+        quantity: itemData.quantity,
+        price: itemData.price,
+        productName: itemData.productName,
+        sellerId: itemData.sellerId,
+        variantId: itemData.variantId || null,
       };
       this.orderItems.set(itemId, orderItem);
     });
@@ -388,7 +427,7 @@ export class MemStorage implements IStorage {
     const sellerOrderItems = Array.from(this.orderItems.values())
       .filter(item => item.sellerId === sellerId);
     
-    const orderIds = [...new Set(sellerOrderItems.map(item => item.orderId))];
+    const orderIds = Array.from(new Set(sellerOrderItems.map(item => item.orderId)));
     
     return orderIds.map(orderId => {
       const order = this.orders.get(orderId)!;
@@ -439,7 +478,12 @@ export class MemStorage implements IStorage {
     const id = this.nextReviewId++;
     const review: Review = {
       id,
-      ...reviewData,
+      userId: reviewData.userId,
+      productId: reviewData.productId,
+      rating: reviewData.rating,
+      comment: reviewData.comment || null,
+      orderId: reviewData.orderId || null,
+      isApproved: reviewData.isApproved || null,
       createdAt: new Date(),
     };
     this.reviews.set(id, review);
@@ -456,7 +500,11 @@ export class MemStorage implements IStorage {
     const id = this.nextNotificationId++;
     const notification: Notification = {
       id,
-      ...notificationData,
+      userId: notificationData.userId,
+      type: notificationData.type,
+      title: notificationData.title,
+      message: notificationData.message || null,
+      isRead: notificationData.isRead || null,
       createdAt: new Date(),
     };
     this.notifications.set(id, notification);
@@ -483,7 +531,11 @@ export class MemStorage implements IStorage {
     const id = this.nextMessageId++;
     const message: Message = {
       id,
-      ...messageData,
+      senderId: messageData.senderId,
+      receiverId: messageData.receiverId,
+      content: messageData.content,
+      productId: messageData.productId || null,
+      isRead: messageData.isRead || null,
       createdAt: new Date(),
     };
     this.messages.set(id, message);
