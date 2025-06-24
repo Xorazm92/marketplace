@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, Redirect } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,6 +7,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useLanguage } from "@/context/LanguageContext";
+import { useAuth } from "@/hooks/useAuth";
 import {
   Laptop,
   Shirt,
@@ -16,14 +17,37 @@ import {
   Heart,
 } from "lucide-react";
 
+interface Category {
+  id: string;
+  name: string;
+  slug: string;
+  image?: string;
+}
+
+interface Product {
+  id: string;
+  title: string;
+  price: number;
+  image: string;
+  category: string;
+  rating?: number;
+  reviewCount?: number;
+}
+
 export default function Home() {
   const { t } = useLanguage();
+  const { user, isLoading } = useAuth();
 
-  const { data: categories = [] } = useQuery({
+  // Redirect to landing page if not authenticated
+  if (!isLoading && !user) {
+    return <Redirect to="/" />;
+  }
+
+  const { data: categories = [] } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
 
-  const { data: trendingProducts = [] } = useQuery({
+  const { data: trendingProducts = [] } = useQuery<Product[]>({
     queryKey: ['/api/products/trending'],
   });
 

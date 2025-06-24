@@ -2,8 +2,9 @@ import passport from 'passport';
 import { Strategy as LocalStrategy } from 'passport-local';
 import bcrypt from 'bcrypt';
 import { User } from '@shared/schema';
+import type { Storage } from './storage';
 
-export function configurePassport(storage: IStorage) {
+export function configurePassport(storage: Storage) {
   passport.use(
     new LocalStrategy(
       { usernameField: 'email' },

@@ -47,22 +47,44 @@ app.use((req, res, next) => {
   await storage.initialize();
 
   // Session configuration
-  app.use(
-    session({
-      secret: process.env.SESSION_SECRET || 'inbola-super-secret-key',
-      resave: false,
-      saveUninitialized: false,
-      cookie: {
-        secure: app.get('env') === 'production',
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
-      },
-    })
-  );
+  const sessionConfig: session.SessionOptions = {
+    secret: process.env.SESSION_SECRET || 'inbola-super-secret-key',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : ('lax' as const),
+      maxAge: 1000 * 60 * 60 * 24 * 7, // 1 week
+    },
+  };
+
+  if (app.get('env') === 'production') {
+    app.set('trust proxy', 1); // Trust first proxy
+    // @ts-ignore - session.CookieOptions type is not up to date
+    sessionConfig.cookie.secure = true;
+  }
+
+  app.use(session(sessionConfig));
 
   // Passport initialization
   configurePassport(storage);
   app.use(passport.initialize());
   app.use(passport.session());
+
+  // Add CORS headers for development
+  if (process.env.NODE_ENV !== 'production') {
+    app.use((req, res, next) => {
+      res.header('Access-Control-Allow-Origin', req.headers.origin || '*');
+      res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+      res.header('Access-Control-Allow-Credentials', 'true');
+      if (req.method === 'OPTIONS') {
+        return res.sendStatus(200);
+      }
+      next();
+    });
+  }
 
   const server = registerRoutes(app, storage);
 

@@ -1,7 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
-type Language = 'en' | 'ru' | 'uz';
-type Currency = 'USD' | 'EUR' | 'UZS';
+export type Language = 'en' | 'ru' | 'uz';
+export type Currency = 'USD' | 'EUR' | 'UZS';
 
 interface LanguageContextType {
   language: Language;
@@ -14,7 +14,26 @@ interface LanguageContextType {
 
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
-const translations = {
+// Define all possible translation keys as a union type
+type TranslationKey =
+  // Header
+  | 'header.searchPlaceholder' | 'header.dashboard' | 'header.sellerDashboard' | 'header.adminPanel' | 'header.login' | 'header.logout'
+  // Navigation
+  | 'nav.home' | 'nav.dashboard' | 'nav.seller' | 'nav.admin'
+  // Categories
+  | 'categories.electronics' | 'categories.fashion' | 'categories.homeGarden' | 'categories.sports' | 'categories.books' | 'categories.healthBeauty'
+  // Add other translation keys as needed
+  | string; // Fallback for dynamic keys
+
+// Define the shape of translations for a single language
+type LanguageTranslations = {
+  [key in TranslationKey]: string;
+};
+
+// Define translations type for all languages
+type Translations = Record<Language, LanguageTranslations>;
+
+const translations: Translations = {
   en: {
     // Header
     'header.searchPlaceholder': 'Search products...',
@@ -507,7 +526,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   );
 }
 
-export function useLanguage() {
+export function useLanguage(): LanguageContextType {
   const context = useContext(LanguageContext);
   if (context === undefined) {
     throw new Error('useLanguage must be used within a LanguageProvider');

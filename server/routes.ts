@@ -3,6 +3,7 @@ import { createServer, type Server } from "http";
 import { type Storage } from "./storage";
 import passport from "passport";
 import { z } from "zod";
+import upload from './upload'; // Import multer configuration
 import {
   registerUserSchema,
   insertProductSchema,
@@ -121,6 +122,16 @@ export function registerRoutes(app: Express, storage: Storage): Server {
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch trending products" });
     }
+  });
+
+  // File Upload route
+  app.post('/api/upload', isAuthenticated, upload.single('image'), (req, res) => {
+    if (!req.file) {
+      return res.status(400).json({ message: 'No file uploaded.' });
+    }
+    // The file is uploaded, return the path
+    const filePath = `/uploads/${req.file.filename}`;
+    res.status(201).json({ url: filePath });
   });
 
   app.get('/api/products/:id', async (req, res) => {

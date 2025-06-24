@@ -48,15 +48,20 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Header */}
-      <header className="bg-white shadow-sm border-b">
+      <header className="bg-white shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-primary">GlobalMarket</h1>
+          <div className="flex justify-between h-16 items-center">
+            <div className="flex-shrink-0 flex items-center">
+              <h1 className="text-xl font-bold text-gray-900">Marketplace</h1>
             </div>
-            <Button asChild>
-              <a href="/api/login">{t('landing.getStarted')}</a>
-            </Button>
+            <div className="hidden sm:ml-6 sm:flex sm:items-center space-x-4">
+              <Button variant="ghost" asChild>
+                <Link href="/login">Sign in</Link>
+              </Button>
+              <Button asChild>
+                <Link href="/register">Get started</Link>
+              </Button>
+            </div>
           </div>
         </div>
       </header>

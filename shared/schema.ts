@@ -173,7 +173,7 @@ export const upsertUserSchema = createInsertSchema(users);
 export const registerUserSchema = createInsertSchema(users, {
   email: z.string().email({ message: "Invalid email address" }),
   password: z.string().min(8, { message: "Password must be at least 8 characters long" }),
-}).pick({ email: true, password: true, firstName: true, lastName: true });
+}).pick({ email: true, password: true, firstName: true, lastName: true, role: true });
 export const insertCategorySchema = createInsertSchema(categories).omit({ id: true, createdAt: true });
 export const insertProductSchema = createInsertSchema(products).omit({ id: true, createdAt: true, updatedAt: true });
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({ id: true, addedAt: true });

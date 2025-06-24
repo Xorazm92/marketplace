@@ -1,3 +1,4 @@
+import crypto from 'crypto';
 import {
   users,
   categories,
@@ -158,29 +159,98 @@ export class MemStorage implements Storage {
   }
 
   private async initializeDefaultData() {
-    const defaultCategories = [
-        { name: "O'yinchoqlar", slug: "oyinchoqlar", description: "Bolalar uchun rivojlantiruvchi va qiziqarli o'yinchoqlar", icon: "fas fa-puzzle-piece" },
-        { name: "Kiyim-kechak", slug: "kiyim-kechak", description: "Chaqaloqlar va bolalar uchun kiyimlar", icon: "fas fa-tshirt" },
-        { name: "Bolalar kitoblari", slug: "bolalar-kitoblari", description: "Bolalar uchun foydali va qiziqarli kitoblar", icon: "fas fa-book" },
-        { name: "Ijodiy to'plamlar", slug: "ijodiy-toplamlar", description: "Bolalarning ijodiy qobiliyatini rivojlantirish uchun to'plamlar", icon: "fas fa-paint-brush" },
-    ];
-
-    const categoryIds: { [key: string]: number } = {};
-    for (const category of defaultCategories) {
-      const created = await this.createCategory(category);
-      categoryIds[category.slug] = created.id;
+    console.log('Initializing default data...');
+    console.log(`Current user count: ${this.users.size}`);
+    
+    // Log all existing users
+    console.log('Existing users:', Array.from(this.users.values()).map(u => `${u.email} (${u.role})`));
+    
+    // Create default categories if they don't exist
+    if (this.categories.size === 0) {
+      const defaultCategories: InsertCategory[] = [
+        {
+          name: "Elektronika",
+          slug: "electronics",
+          description: "Maishiy texnika va gadjetlar",
+          icon: "fas fa-laptop-code",
+        },
+        {
+          name: "Kiyim-kechak",
+          slug: "fashion",
+          description: "Erkaklar, ayollar va bolalar uchun zamonaviy kiyimlar",
+          icon: "fas fa-tshirt",
+        },
+        {
+          name: "O'yinchoqlar",
+          slug: "toys",
+          description: "Bolalar uchun rivojlantiruvchi va qiziqarli o'yinchoqlar",
+          icon: "fas fa-puzzle-piece",
+        },
+      ];
+      for (const cat of defaultCategories) {
+        await this.createCategory(cat);
+      }
     }
 
-    const sampleProducts = [
-        { name: "Rangli qog'oz to'plami", description: "Bolalar ijodi uchun 10 xil rangdagi yorqin qog'ozlar.", price: "25000.00", originalPrice: "30000.00", categoryId: categoryIds['ijodiy-toplamlar'], sellerId: 'system', stock: 50, isActive: true, isApproved: true, images: ['/products/rangli-qogoz.jpg'], viewCount: 0 },
-        { name: "Plastilin to'plami", description: "Bolalar uchun turli xil rangdagi plastilinlar to'plami", price: "35000.00", originalPrice: "40000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 20, isActive: true, isApproved: true, images: ['/products/plastilin.jpg'], viewCount: 0 },
-        { name: "Aqlli konstruktor", description: "Mayda motorikani rivojlantiruvchi aqlli konstruktor.", price: "150000.00", originalPrice: "180000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 15, isActive: true, isApproved: true, images: ['/products/konstruktor.jpg'], viewCount: 0 },
-        { name: "Sehrli ertaklar kitobi", description: "Bolalar uchun qiziqarli va foydali ertaklar to'plami", price: "60000.00", originalPrice: "70000.00", categoryId: categoryIds['bolalar-kitoblari'], sellerId: 'system', stock: 30, isActive: true, isApproved: true, images: ['/products/ertaklar-kitobi.jpg'], viewCount: 0 },
-        { name: "Yog'ochli jumboq", description: "Mantiqiy fikrlashni o'stiruvchi yog'ochli jumboq.", price: "45000.00", originalPrice: "50000.00", categoryId: categoryIds['oyinchoqlar'], sellerId: 'system', stock: 40, isActive: true, isApproved: true, images: ['/products/jumboq.jpg'], viewCount: 0 },
-    ];
+    // Create a default admin user if no users exist
+    if (this.users.size === 0) {
+      const adminData: RegisterUser = {
+        email: 'admin@example.com',
+        password: 'admin123',
+        firstName: 'Admin',
+        lastName: 'User',
+        role: 'admin',
+      };
+      const admin = await this.createUser(adminData);
+      console.log('Created default admin user:', admin);
+    }
 
-    for (const product of sampleProducts) {
-      await this.createProduct(product as InsertProduct);
+    // Create a default seller if none exists
+    const sellerExists = Array.from(this.users.values()).some(u => u.role === 'seller');
+    if (!sellerExists) {
+      const sellerData: RegisterUser = {
+        email: 'seller@example.com',
+        password: 'seller123',
+        firstName: 'Default',
+        lastName: 'Seller',
+        role: 'seller',
+      };
+      const seller = await this.createUser(sellerData);
+      console.log('Created default seller user:', seller);
+    }
+
+    // Create a default buyer if none exists
+    const buyerExists = Array.from(this.users.values()).some(u => u.role === 'buyer');
+    if (!buyerExists) {
+      const buyerData: RegisterUser = {
+        email: 'buyer@example.com',
+        password: 'buyer123',
+        firstName: 'Default',
+        lastName: 'Buyer',
+        role: 'buyer',
+      };
+      const buyer = await this.createUser(buyerData);
+      console.log('Created default buyer user:', buyer);
+    }
+
+    // Create default products if they don't exist
+    if (this.products.size === 0) {
+      const seller = Array.from(this.users.values()).find(u => u.role === 'seller');
+      const electronicsCat = Array.from(this.categories.values()).find(c => c.slug === 'elektronika');
+      if (seller && electronicsCat) {
+        const productData: InsertProduct = {
+          name: 'Sample Laptop',
+          description: 'A powerful laptop for all your needs.',
+          price: '1200.00',
+          categoryId: electronicsCat.id,
+          sellerId: seller.id,
+          stock: 10,
+          images: ['/images/laptop1.png', '/images/laptop2.png'],
+          isApproved: true,
+          isActive: true,
+        };
+        await this.createProduct(productData);
+      }
     }
   }
 
@@ -193,47 +263,56 @@ export class MemStorage implements Storage {
     return Array.from(this.users.values()).find((user) => user.email === email);
   }
 
-  async createUser(user: RegisterUser): Promise<User> {
-    const existingUser = await this.getUserByEmail(user.email);
-    if (existingUser) {
-      throw new Error("User with this email already exists");
-    }
-
-    const hashedPassword = await bcrypt.hash(user.password, 10);
-    
+  async createUser(userData: RegisterUser): Promise<User> {
+    const id = crypto.randomUUID();
+    const hashedPassword = await bcrypt.hash(userData.password, 10);
     const newUser: User = {
-      ...users.$inferSelect.parse({}), // default values
-      id: crypto.randomUUID(),
-      email: user.email,
+      id,
+      email: userData.email,
       password: hashedPassword,
-      fullName: user.fullName,
-      role: user.role || 'buyer',
+      firstName: userData.firstName ?? null,
+      lastName: userData.lastName ?? null,
+      profileImageUrl: null, // Default to null as it's not in RegisterUser
+      role: userData.role ?? 'buyer',
+      isApproved: userData.role !== 'seller', // Buyers are auto-approved
       createdAt: new Date(),
       updatedAt: new Date(),
-      isApproved: user.role !== 'seller', // Auto-approve buyers
     };
-
-    this.users.set(newUser.id, newUser);
+    this.users.set(id, newUser);
     return newUser;
   }
 
   async upsertUser(userData: UpsertUser): Promise<User> {
-    if (!userData.id) {
-      throw new Error("User ID is required for upsert");
-    }
-    let user = this.users.get(userData.id);
-    if (user) {
-      const updatedUser = { ...user, ...userData, updatedAt: new Date() };
-      this.users.set(userData.id, updatedUser);
+    const existingUser = userData.id ? this.users.get(userData.id) : undefined;
+
+    if (existingUser) {
+      // Update existing user
+      const updatedUser: User = { ...existingUser, ...userData, updatedAt: new Date() };
+      if (userData.password) {
+        updatedUser.password = await bcrypt.hash(userData.password, 10);
+      }
+      this.users.set(existingUser.id, updatedUser);
       return updatedUser;
     } else {
+      // Create new user if ID is not provided or user does not exist
+      if (!userData.password || !userData.email) {
+        throw new Error("Password and email are required to create a new user.");
+      }
+      const id = userData.id || crypto.randomUUID();
+      const hashedPassword = await bcrypt.hash(userData.password, 10);
       const newUser: User = {
-        ...users.$inferSelect.parse(userData),
-        id: userData.id,
+        id,
+        email: userData.email,
+        password: hashedPassword,
+        firstName: userData.firstName ?? null,
+        lastName: userData.lastName ?? null,
+        profileImageUrl: userData.profileImageUrl ?? null,
+        role: userData.role ?? 'buyer',
+        isApproved: userData.role !== 'seller',
         createdAt: new Date(),
         updatedAt: new Date(),
       };
-      this.users.set(newUser.id, newUser);
+      this.users.set(id, newUser);
       return newUser;
     }
   }
@@ -249,64 +328,66 @@ export class MemStorage implements Storage {
 
   async createCategory(categoryData: InsertCategory): Promise<Category> {
     const id = this.nextCategoryId++;
-    const category: Category = {
+    const newCategory: Category = {
       id,
       name: categoryData.name,
       slug: categoryData.slug,
-      description: categoryData.description || null,
-      parentId: categoryData.parentId || null,
-      icon: categoryData.icon || null,
+      description: categoryData.description ?? null,
+      parentId: categoryData.parentId ?? null,
+      icon: categoryData.icon ?? null,
       isActive: categoryData.isActive ?? true,
       createdAt: new Date(),
     };
-    this.categories.set(id, category);
-    return category;
+    this.categories.set(id, newCategory);
+    return newCategory;
   }
 
   // Product operations
   async getProducts(filters: any = {}): Promise<Product[]> {
-    let productList = Array.from(this.products.values());
-
+    let products = Array.from(this.products.values());
     if (filters.categoryId) {
-      productList = productList.filter(p => p.categoryId === filters.categoryId);
+      products = products.filter((p) => p.categoryId === filters.categoryId);
     }
     if (filters.sellerId) {
-      productList = productList.filter(p => p.sellerId === filters.sellerId);
+      products = products.filter((p) => p.sellerId === filters.sellerId);
     }
-    if (filters.isActive !== undefined) {
-      productList = productList.filter(p => p.isActive === filters.isActive);
+    if (filters.isActive) {
+      products = products.filter((p) => p.isActive === filters.isActive);
     }
     if (filters.search) {
-      const searchTerm = filters.search.toLowerCase();
-      productList = productList.filter(p => 
-        p.name.toLowerCase().includes(searchTerm) ||
-        p.description?.toLowerCase().includes(searchTerm)
+      products = products.filter((p) =>
+        p.name.toLowerCase().includes(filters.search.toLowerCase())
       );
     }
-
-    return productList.slice(filters.offset || 0, (filters.offset || 0) + (filters.limit || 10));
+    return products.slice(filters.offset ?? 0, (filters.offset ?? 0) + (filters.limit ?? 10));
   }
 
   async getProduct(id: number): Promise<Product | undefined> {
-    const product = this.products.get(id);
-    if(product) {
-        const updatedProduct = { ...product, viewCount: (product.viewCount || 0) + 1 };
-        this.products.set(id, updatedProduct);
-        return updatedProduct;
-    }
-    return product;
+    return this.products.get(id);
   }
 
   async createProduct(productData: InsertProduct): Promise<Product> {
     const id = this.nextProductId++;
-    const product: Product = {
-      ...products.$inferSelect.parse(productData),
+    const newProduct: Product = {
+      ...productData,
       id,
+      isApproved: productData.isApproved ?? false,
+      isActive: productData.isActive ?? true,
+      description: productData.description ?? null,
+      originalPrice: productData.originalPrice ?? null,
+      stock: productData.stock ?? 0,
+      viewCount: productData.viewCount ?? 0,
+      rating: productData.rating ?? '0',
+      reviewCount: productData.reviewCount ?? 0,
+      images: productData.images ?? null,
+      variants: productData.variants ?? null,
+      specifications: productData.specifications ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.products.set(id, product);
-    return product;
+
+    this.products.set(id, newProduct);
+    return newProduct;
   }
 
   async updateProduct(id: number, updates: Partial<Product>): Promise<Product> {
@@ -315,11 +396,6 @@ export class MemStorage implements Storage {
     const updatedProduct = { ...product, ...updates, updatedAt: new Date() };
     this.products.set(id, updatedProduct);
     return updatedProduct;
-      ...updates,
-      updatedAt: new Date(),
-    };
-    this.products.set(id, updated);
-    return updated;
   }
 
   async deleteProduct(id: number): Promise<void> {
@@ -406,83 +482,91 @@ export class MemStorage implements Storage {
     itemsToDelete.forEach(id => this.cartItems.delete(id));
   }
 
-  async createOrder(orderData: InsertOrder, items: InsertOrderItem[]): Promise<Order> {
-    const id = this.nextOrderId++;
-    const order: Order = {
-      id,
-      userId: orderData.userId,
-      status: orderData.status || 'pending',
-      totalAmount: orderData.totalAmount,
-      shippingAddress: orderData.shippingAddress,
-      paymentStatus: orderData.paymentStatus || null,
-      orderNumber: orderData.orderNumber,
-      notes: orderData.notes || null,
+  async createOrder(orderData: InsertOrder, itemsData: InsertOrderItem[]): Promise<Order & { items: (OrderItem & { product: Product })[] }> {
+    const orderId = this.nextOrderId++;
+    const newOrder: Order = {
+      ...orderData,
+      id: orderId,
+      status: orderData.status ?? 'pending',
+      shippingAddress: orderData.shippingAddress ?? null,
+      paymentStatus: orderData.paymentStatus ?? null,
+      notes: orderData.notes ?? null,
       createdAt: new Date(),
       updatedAt: new Date(),
     };
-    this.orders.set(id, order);
+    this.orders.set(orderId, newOrder);
 
-    // Add order items
-    items.forEach(itemData => {
+    const createdItems: (OrderItem & { product: Product })[] = [];
+    for (const itemData of itemsData) {
       const itemId = this.nextOrderItemId++;
-      const orderItem: OrderItem = {
+      const newOrderItem: OrderItem = {
+        ...itemData,
         id: itemId,
-        orderId: id,
-        productId: itemData.productId,
-        quantity: itemData.quantity,
-        price: itemData.price,
-        productName: itemData.productName,
-        sellerId: itemData.sellerId,
-        variantId: itemData.variantId || null,
+        orderId: orderId,
+        variantId: itemData.variantId ?? null,
       };
-      this.orderItems.set(itemId, orderItem);
-    });
+      this.orderItems.set(itemId, newOrderItem);
+      
+      const product = this.products.get(newOrderItem.productId);
+      if (!product) {
+        // This should ideally be a transaction that rolls back
+        throw new Error(`Product with id ${newOrderItem.productId} not found for order item.`);
+      }
+      createdItems.push({ ...newOrderItem, product });
+    }
 
-    return order;
+    return { ...newOrder, items: createdItems };
   }
 
   async getOrders(userId: string): Promise<Order[]> {
-    return Array.from(this.orders.values())
-      .filter(order => order.userId === userId)
-      .sort((a, b) => b.createdAt!.getTime() - a.createdAt!.getTime());
+    return Array.from(this.orders.values()).filter(o => o.userId === userId);
   }
 
-  async getOrder(id: number): Promise<Order | undefined> {
-    return this.orders.get(id);
+  async getOrder(id: number): Promise<(Order & { items: (OrderItem & { product: Product })[] }) | undefined> {
+    const order = this.orders.get(id);
+    if (!order) return undefined;
+
+    const items = Array.from(this.orderItems.values())
+      .filter(item => item.orderId === id)
+      .map(item => {
+        const product = this.products.get(item.productId);
+        return product ? { ...item, product } : null;
+      })
+      .filter((item): item is OrderItem & { product: Product } => item !== null);
+
+    return { ...order, items };
   }
 
   async updateOrderStatus(id: number, status: string): Promise<Order> {
-    const existing = this.orders.get(id);
-    if (!existing) throw new Error("Order not found");
-    
-    const updated: Order = {
-      ...existing,
-      status,
-      updatedAt: new Date(),
-    };
-    this.orders.set(id, updated);
-    return updated;
+    const order = this.orders.get(id);
+    if (!order) throw new Error("Order not found");
+
+    const updatedOrder = { ...order, status, updatedAt: new Date() };
+    this.orders.set(id, updatedOrder);
+    return updatedOrder;
   }
 
-  async getOrdersByseller(sellerId: string): Promise<(Order & { items: OrderItem[] })[]> {
-    const sellerOrderItems = Array.from(this.orderItems.values())
-      .filter(item => item.sellerId === sellerId);
+  async getOrdersByseller(sellerId: string): Promise<(Order & { items: (OrderItem & { product: Product })[] })[]> {
+    const sellerProducts = Array.from(this.products.values())
+      .filter(p => p.sellerId === sellerId)
+      .map(p => p.id);
+
+    const relevantOrderItems = Array.from(this.orderItems.values())
+      .filter(item => sellerProducts.includes(item.productId));
+
+    const orderIds = Array.from(new Set(relevantOrderItems.map(item => item.orderId)));
     
-    const orderIds = Array.from(new Set(sellerOrderItems.map(item => item.orderId)));
-    
-    return orderIds.map(orderId => {
-      const order = this.orders.get(orderId)!;
-      const items = sellerOrderItems.filter(item => item.orderId === orderId);
-      return { ...order, items };
-    });
+    const sellerOrders = await Promise.all(orderIds.map(id => this.getOrder(id)));
+
+    return sellerOrders.filter((order): order is Order & { items: (OrderItem & { product: Product })[] } => !!order);
   }
 
   async getWishlist(userId: string): Promise<(Wishlist & { product: Product })[]> {
     const wishlistItems = Array.from(this.wishlists.values()).filter(item => item.userId === userId);
-    return wishlistItems.map(item => ({
-      ...item,
-      product: this.products.get(item.productId)!,
-    })).filter(item => item.product);
+    return wishlistItems.map(item => {
+      const product = this.products.get(item.productId);
+      return product ? { ...item, product } : null;
+    }).filter((item): item is Wishlist & { product: Product } => item !== null);
   }
 
   async addToWishlist(wishlistData: InsertWishlist): Promise<Wishlist> {

@@ -25,7 +25,7 @@ import { useToast } from "@/hooks/use-toast";
 import { isUnauthorizedError } from "@/lib/authUtils";
 import { useLanguage } from "@/context/LanguageContext";
 import { apiRequest } from "@/lib/queryClient";
-import { insertProductSchema } from "@shared/schema";
+import { insertProductSchema, User, Product, Order, Category } from "../../../shared/schema";
 import { z } from "zod";
 
 const productFormSchema = insertProductSchema.extend({
@@ -36,11 +36,42 @@ const productFormSchema = insertProductSchema.extend({
 });
 
 export default function SellerDashboard() {
-  const { user, isAuthenticated, isLoading } = useAuth();
+  const { user, isAuthenticated, isLoading } = useAuth() as { user: User | null; isAuthenticated: boolean; isLoading: boolean };
   const { toast } = useToast();
   const { formatPrice, t } = useLanguage();
   const queryClient = useQueryClient();
   const [isAddProductOpen, setIsAddProductOpen] = useState(false);
+  const [imageUrls, setImageUrls] = useState<string[]>([]);
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append('image', file);
+
+    try {
+      const response = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Image upload failed');
+      }
+
+      const data = await response.json();
+      setImageUrls(prev => [...prev, data.url]);
+      toast({ title: "Success", description: "Image uploaded successfully." });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to upload image.",
+        variant: "destructive",
+      });
+    }
+  };
 
   useEffect(() => {
     if (!isLoading && (!isAuthenticated || user?.role !== 'seller')) {
@@ -56,17 +87,17 @@ export default function SellerDashboard() {
     }
   }, [isAuthenticated, isLoading, user, toast]);
 
-  const { data: products = [], isError: productsError, error: productsErrorDetails } = useQuery({
+  const { data: products = [], isLoading: isLoadingProducts, isError: productsError, error: productsErrorDetails } = useQuery<Product[]>({
     queryKey: ['/api/seller/products'],
     enabled: isAuthenticated && user?.role === 'seller',
   });
 
-  const { data: orders = [], isError: ordersError, error: ordersErrorDetails } = useQuery({
+  const { data: orders = [], isLoading: isLoadingOrders, isError: ordersError, error: ordersErrorDetails } = useQuery<Order[]>({
     queryKey: ['/api/seller/orders'],
     enabled: isAuthenticated && user?.role === 'seller',
   });
 
-  const { data: categories = [] } = useQuery({
+  const { data: categories = [], isLoading: isLoadingCategories, isError: categoriesError, error: categoriesErrorDetails } = useQuery<Category[]>({
     queryKey: ['/api/categories'],
   });
 
@@ -110,6 +141,7 @@ export default function SellerDashboard() {
       queryClient.invalidateQueries({ queryKey: ['/api/seller/products'] });
       setIsAddProductOpen(false);
       form.reset();
+      setImageUrls([]); // Reset images on success
       toast({
         title: "Success",
         description: "Product created successfully.",
@@ -156,7 +188,7 @@ export default function SellerDashboard() {
   });
 
   const onSubmit = (data: any) => {
-    createProductMutation.mutate(data);
+    createProductMutation.mutate({ ...data, images: imageUrls });
   };
 
   const handleDeleteProduct = (productId: number) => {
@@ -298,17 +330,16 @@ export default function SellerDashboard() {
             <Card>
               <CardHeader>
                 <div className="flex items-center justify-between">
-                  <CardTitle>{t('seller.recentProducts')}</CardTitle>
+                  <CardTitle>{t('seller.myProducts')}</CardTitle>
                   <Dialog open={isAddProductOpen} onOpenChange={setIsAddProductOpen}>
                     <DialogTrigger asChild>
                       <Button>
-                        <Plus className="h-4 w-4 mr-2" />
-                        {t('seller.addProduct')}
+                        <Plus className="mr-2 h-4 w-4" /> {t('seller.addProduct')}
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                    <DialogContent className="sm:max-w-[625px]">
                       <DialogHeader>
-                        <DialogTitle>{t('seller.addProduct')}</DialogTitle>
+                        <DialogTitle>{t('seller.newProduct')}</DialogTitle>
                       </DialogHeader>
                       <Form {...form}>
                         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -317,7 +348,7 @@ export default function SellerDashboard() {
                             name="name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Product Name</FormLabel>
+                                <FormLabel>{t('seller.productName')}</FormLabel>
                                 <FormControl>
                                   <Input {...field} />
                                 </FormControl>
@@ -325,13 +356,12 @@ export default function SellerDashboard() {
                               </FormItem>
                             )}
                           />
-                          
                           <FormField
                             control={form.control}
                             name="description"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Description</FormLabel>
+                                <FormLabel>{t('seller.description')}</FormLabel>
                                 <FormControl>
                                   <Textarea {...field} />
                                 </FormControl>
@@ -339,44 +369,13 @@ export default function SellerDashboard() {
                               </FormItem>
                             )}
                           />
-                          
                           <div className="grid grid-cols-2 gap-4">
                             <FormField
                               control={form.control}
                               name="price"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Price</FormLabel>
-                                  <FormControl>
-                                    <Input type="number" step="0.01" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                            
-                            <FormField
-                              control={form.control}
-                              name="originalPrice"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Original Price (Optional)</FormLabel>
-                                  <FormControl>
-                                    <Input type="number" step="0.01" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                                </FormItem>
-                              )}
-                            />
-                          </div>
-                          
-                          <div className="grid grid-cols-2 gap-4">
-                            <FormField
-                              control={form.control}
-                              name="stock"
-                              render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Stock</FormLabel>
+                                  <FormLabel>{t('seller.price')}</FormLabel>
                                   <FormControl>
                                     <Input type="number" {...field} />
                                   </FormControl>
@@ -384,16 +383,43 @@ export default function SellerDashboard() {
                                 </FormItem>
                               )}
                             />
-                            
+                            <FormField
+                              control={form.control}
+                              name="originalPrice"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{t('seller.originalPrice')}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <div className="grid grid-cols-2 gap-4">
+                            <FormField
+                              control={form.control}
+                              name="stock"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>{t('seller.stock')}</FormLabel>
+                                  <FormControl>
+                                    <Input type="number" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                             <FormField
                               control={form.control}
                               name="categoryId"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Category</FormLabel>
+                                  <FormLabel>{t('seller.category')}</FormLabel>
                                   <FormControl>
                                     <select {...field} className="w-full px-3 py-2 border border-gray-300 rounded-md">
-                                      <option value="">Select a category</option>
+                                      <option value="">{t('seller.selectCategory')}</option>
                                       {categories.map((category: any) => (
                                         <option key={category.id} value={category.id.toString()}>
                                           {category.name}
@@ -406,17 +432,48 @@ export default function SellerDashboard() {
                               )}
                             />
                           </div>
-                          
+
+                          <div className="space-y-2">
+                            <Label htmlFor="product-images">{t('seller.productImages')}</Label>
+                            <Input
+                              id="product-images"
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={createProductMutation.isPending}
+                            />
+                            <div className="flex space-x-2 mt-2 flex-wrap">
+                              {imageUrls.map((url, index) => (
+                                <div key={index} className="relative mt-2">
+                                  <img src={url} alt="product preview" className="w-20 h-20 object-cover rounded" />
+                                  <Button
+                                    type="button"
+                                    variant="destructive"
+                                    size="icon"
+                                    className="absolute top-0 right-0 h-5 w-5"
+                                    onClick={() => setImageUrls(urls => urls.filter(u => u !== url))}
+                                  >
+                                    <Trash2 className="h-3 w-3" />
+                                  </Button>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+
                           <div className="flex justify-end space-x-2">
                             <Button
                               type="button"
                               variant="outline"
-                              onClick={() => setIsAddProductOpen(false)}
+                              onClick={() => {
+                                setIsAddProductOpen(false);
+                                form.reset();
+                                setImageUrls([]);
+                              }}
                             >
-                              Cancel
+                              {t('seller.cancel')}
                             </Button>
                             <Button type="submit" disabled={createProductMutation.isPending}>
-                              {createProductMutation.isPending ? 'Creating...' : 'Create Product'}
+                              {createProductMutation.isPending ? t('seller.creating') : t('seller.createProduct')}
                             </Button>
                           </div>
                         </form>
@@ -436,7 +493,7 @@ export default function SellerDashboard() {
                     {products.map((product: any) => (
                       <div key={product.id} className="flex items-center space-x-4 p-4 border rounded-lg">
                         <img
-                          src={product.images?.[0] || "https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=100&h=100&fit=crop"}
+                          src={product.images?.[0] || "https://via.placeholder.com/150"}
                           alt={product.name}
                           className="w-16 h-16 object-cover rounded"
                         />

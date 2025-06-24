@@ -1,4 +1,4 @@
-import { Switch, Route } from "wouter";
+import { Switch, Route, Redirect } from "wouter";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -14,22 +14,68 @@ import UserDashboard from "@/pages/UserDashboard";
 import SellerDashboard from "@/pages/SellerDashboard";
 import AdminPanel from "@/pages/AdminPanel";
 import Category from "@/pages/Category";
+import Login from "@/pages/Login";
+import Register from "@/pages/Register";
+
+// Protected Route Component
+function ProtectedRoute({ children, requiredRole, redirectTo = '/' }: { 
+  children: React.ReactNode; 
+  requiredRole?: 'admin' | 'seller' | 'buyer';
+  redirectTo?: string;
+}) {
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  if (!user) {
+    return <Redirect to="/login" />;
+  }
+
+  if (requiredRole && user.role !== requiredRole) {
+    return <Redirect to={redirectTo} />;
+  }
+
+  return <>{children}</>;
+}
 
 function Router() {
-    return (
+  const { user, isLoading } = useAuth();
+
+  if (isLoading) {
+    return <div>Loading...</div>;
+  }
+
+  return (
     <Switch>
-      {/* {isLoading || !isAuthenticated ? (
-        <Route path="/" component={Landing} />
-      ) : ( */}
-        <>
-          <Route path="/" component={Home} />
-          <Route path="/product/:id" component={ProductDetail} />
-          <Route path="/category/:slug" component={Category} />
-          <Route path="/dashboard" component={UserDashboard} />
-          <Route path="/seller" component={SellerDashboard} />
-          <Route path="/admin" component={AdminPanel} />
-        </>
-      {/* )} */}
+      {/* Public routes */}
+      <Route path="/" component={Landing} />
+      <Route path="/login" component={Login} />
+      <Route path="/register" component={Register} />
+      <Route path="/category/:slug" component={Category} />
+      <Route path="/product/:id" component={ProductDetail} />
+
+      {/* Protected routes */}
+      <Route path="/dashboard">
+        <ProtectedRoute>
+          <UserDashboard />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/seller">
+        <ProtectedRoute requiredRole="seller">
+          <SellerDashboard />
+        </ProtectedRoute>
+      </Route>
+
+      <Route path="/admin">
+        <ProtectedRoute requiredRole="admin">
+          <AdminPanel />
+        </ProtectedRoute>
+      </Route>
+
+      {/* 404 */}
       <Route component={NotFound} />
     </Switch>
   );

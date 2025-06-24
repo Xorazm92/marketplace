@@ -13,7 +13,7 @@ import {
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/context/CartContext";
-import { useLanguage } from "@/context/LanguageContext";
+import { useLanguage, type Language, type Currency } from "@/context/LanguageContext";
 import ShoppingCartSidebar from "./ShoppingCart";
 
 export default function Header() {
@@ -24,6 +24,19 @@ export default function Header() {
   const { getTotalItems } = useCart();
   const { language, setLanguage, currency, setCurrency, t } = useLanguage();
 
+  // Type-safe language and currency handlers
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+  };
+
+  const handleCurrencyChange = (curr: Currency) => {
+    setCurrency(curr);
+  };
+  
+  // Type-safe language and currency values
+  const currentLanguage = language as Language;
+  const currentCurrency = currency as Currency;
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
@@ -32,12 +45,12 @@ export default function Header() {
   };
 
   const languages = [
-    { code: 'en', label: '🇺🇸 EN', name: 'English' },
-    { code: 'ru', label: '🇷🇺 RU', name: 'Русский' },
-    { code: 'uz', label: '🇺🇿 UZ', name: 'O\'zbek' },
-  ];
+    { code: 'en' as const, label: '🇺🇸 EN', name: 'English' },
+    { code: 'ru' as const, label: '🇷🇺 RU', name: 'Русский' },
+    { code: 'uz' as const, label: '🇺🇿 UZ', name: 'O\'zbek' },
+  ] as const;
 
-  const currencies = ['USD', 'EUR', 'UZS'];
+  const currencies = ['USD', 'EUR', 'UZS'] as const;
 
   return (
     <>
@@ -46,7 +59,7 @@ export default function Header() {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex items-center">
-              <Link href="/">
+              <Link href={isAuthenticated ? "/home" : "/"}>
                 <h1 className="text-2xl font-bold text-primary cursor-pointer">
                   GlobalMarket
                 </h1>
@@ -69,104 +82,95 @@ export default function Header() {
               </form>
             </div>
 
-            {/* Actions */}
+            {/* Right side */}
             <div className="flex items-center space-x-4">
-              {/* Language Switcher */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden sm:flex">
-                    <Globe className="h-4 w-4 mr-2" />
-                    {languages.find(l => l.code === language)?.label}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {languages.map((lang) => (
-                    <DropdownMenuItem
-                      key={lang.code}
-                      onClick={() => setLanguage(lang.code as any)}
-                    >
-                      {lang.label} {lang.name}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Currency Switcher */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm" className="hidden sm:flex">
-                    {currency}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent>
-                  {currencies.map((curr) => (
-                    <DropdownMenuItem
-                      key={curr}
-                      onClick={() => setCurrency(curr as any)}
-                    >
-                      {curr}
-                    </DropdownMenuItem>
-                  ))}
-                </DropdownMenuContent>
-              </DropdownMenu>
-
-              {/* Cart */}
-              {isAuthenticated && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="relative"
-                  onClick={() => setIsCartOpen(true)}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  {getTotalItems() > 0 && (
-                    <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-secondary">
-                      {getTotalItems()}
-                    </Badge>
-                  )}
-                </Button>
-              )}
-
-              {/* Profile */}
               {isAuthenticated ? (
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="sm" className="flex items-center space-x-2">
-                      {user?.profileImageUrl ? (
-                        <img
-                          src={user.profileImageUrl}
-                          alt="Profile"
-                          className="w-6 h-6 rounded-full object-cover"
-                        />
-                      ) : (
-                        <div className="w-6 h-6 bg-gray-300 rounded-full flex items-center justify-center">
-                          <User className="h-4 w-4 text-gray-600" />
+                <>
+                  <div className="hidden md:flex items-center space-x-2">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                          <Globe className="h-4 w-4" />
+                          <span>{currentLanguage.toUpperCase()}</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {languages.map((lang) => (
+                          <DropdownMenuItem
+                            key={lang.code}
+                            onClick={() => setLanguage(lang.code)}
+                            className={currentLanguage === lang.code ? 'bg-accent' : ''}
+                          >
+                            {lang.name}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" className="flex items-center space-x-1">
+                          <span>{currentCurrency}</span>
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        {currencies.map((curr) => (
+                          <DropdownMenuItem
+                            key={curr}
+                            onClick={() => setCurrency(curr)}
+                            className={currentCurrency === curr ? 'bg-accent' : ''}
+                          >
+                            {curr}
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    onClick={() => setIsCartOpen(true)}
+                  >
+                    <ShoppingCart className="h-5 w-5" />
+                    {getTotalItems() > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 flex items-center justify-center p-0"
+                      >
+                        {getTotalItems()}
+                      </Badge>
+                    )}
+                  </Button>
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon" className="rounded-full">
+                        <div className="h-8 w-8 rounded-full bg-primary/10 flex items-center justify-center">
+                          <span className="text-sm font-medium text-primary">
+                            {user?.firstName?.charAt(0) || user?.email?.charAt(0).toUpperCase()}
+                          </span>
                         </div>
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end">
+                      {user?.role === 'seller' && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/seller">{t('header.sellerDashboard')}</Link>
+                        </DropdownMenuItem>
                       )}
-                      <span className="hidden sm:block">
-                        {user?.firstName || 'User'}
-                      </span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem asChild>
-                      <Link href="/dashboard">{t('header.dashboard')}</Link>
-                    </DropdownMenuItem>
-                    {user?.role === 'seller' && (
+                      {user?.role === 'admin' && (
+                        <DropdownMenuItem asChild>
+                          <Link href="/admin">{t('header.adminPanel')}</Link>
+                        </DropdownMenuItem>
+                      )}
                       <DropdownMenuItem asChild>
-                        <Link href="/seller">{t('header.sellerDashboard')}</Link>
+                        <a href="/api/logout">{t('header.logout')}</a>
                       </DropdownMenuItem>
-                    )}
-                    {user?.role === 'admin' && (
-                      <DropdownMenuItem asChild>
-                        <Link href="/admin">{t('header.adminPanel')}</Link>
-                      </DropdownMenuItem>
-                    )}
-                    <DropdownMenuItem>
-                      <a href="/api/logout">{t('header.logout')}</a>
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </>
               ) : (
                 <Button asChild>
                   <a href="/api/login">{t('header.login')}</a>
