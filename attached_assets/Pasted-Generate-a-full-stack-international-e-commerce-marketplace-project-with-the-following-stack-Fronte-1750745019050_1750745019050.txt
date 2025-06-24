@@ -1,0 +1,71 @@
+Generate a full-stack international e-commerce marketplace project with the following stack:
+
+Frontend:
+- Next.js 14+ App Router
+- Full server-side rendering (SSR) and static site generation (SSG)
+- Internationalization (i18n) with language switcher (Uzbek, Russian, English)
+- Multi-currency support (UZS, USD, EUR)
+- Responsive, mobile-first design (tablet and desktop ready)
+- SEO optimized (meta tags, OpenGraph, schema.org)
+- State management with React Query or Redux Toolkit
+- Modular atomic component library (based on shadcn/ui or similar)
+- Optimized performance (lazy loading, code splitting, image optimization)
+
+Backend:
+- NestJS 10+ with PostgreSQL (latest)
+- REST API endpoints with JWT + refresh token authentication
+- Role-based access control (admin, seller, buyer)
+- Real-time notifications (WebSocket or API-ready)
+- Real-time chat between buyer and seller (WebSocket or REST)
+- Prisma ORM or TypeORM
+
+Database Schema:
+- Users (roles, status)
+- Sellers (with approval flow)
+- Categories (hierarchical)
+- Products (with variants and inventory management)
+- Orders (status flow)
+- Order items
+- Carts (per user, persistent)
+- Cart items
+- Wishlists
+- Wishlist items
+- Reviews (with moderation)
+- Notifications
+- Messages (chat)
+- CMS pages (FAQ, About, Blog)
+- Recently viewed products
+- Promotions
+
+Pages/Routes:
+- /home (hero, featured categories, trending products, deals)
+- /category/[slug] (filters, sort, pagination, breadcrumbs)
+- /product/[id] (gallery, variants, related products, reviews)
+- /cart (full cart management)
+- /checkout (shipping, payment, order confirmation)
+- /account (profile, orders, wishlist, reviews)
+- /seller/dashboard (products, orders, analytics, chat)
+- /admin (user management, seller approval, product moderation, CMS, site analytics)
+
+Components:
+- Header with search, language/currency switcher, cart link, profile link
+- Footer with links
+- ProductCard
+- FilterSidebar
+- ProductGallery
+- Cart summary
+- Checkout form
+- Profile pages
+- Seller dashboard components
+- Admin dashboard components
+
+Advanced Features:
+- Real-time order tracking
+- Recently viewed products
+- Related products
+- Push notifications (desktop and mobile)
+- SEO optimizations for product/category pages
+- Role-based protected routes
+- Full CMS with dynamic content pages
+
+The project should have a scalable, production-ready architecture and follow best practices for international e-commerce marketplaces.
