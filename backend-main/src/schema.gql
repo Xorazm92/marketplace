@@ -1,0 +1,155 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input AddToCartDto {
+  product_id: Int!
+  quantity: Int! = 1
+}
+
+input AddToWishlistDto {
+  product_id: Int!
+}
+
+type Cart {
+  createdAt: DateTime!
+  id: Int!
+  items: [CartItem!]!
+  total_amount: Float!
+  total_items: Int!
+  updatedAt: DateTime!
+  user_id: Int!
+}
+
+type CartItem {
+  cart_id: Int!
+  createdAt: DateTime!
+  id: Int!
+  product: Product
+  product_id: Int!
+  quantity: Int!
+  updatedAt: DateTime!
+}
+
+type Chatroom {
+  createdAt: DateTime
+  id: ID
+  messages: [Message!]
+  name: String
+  updatedAt: DateTime
+  users: [User!]
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Message {
+  chatroom: Chatroom
+  content: String
+  createdAt: DateTime
+  id: ID
+  imageUrl: String
+  updatedAt: DateTime
+  user: User
+}
+
+type Mutation {
+  addToCart(input: AddToCartDto!): Cart!
+  addToWishlist(input: AddToWishlistDto!): Wishlist!
+  addUsersToChatroom(chatroomId: Float!, userIds: [Float!]!): Chatroom!
+  clearCart: Cart!
+  clearWishlist: Wishlist!
+  createChatroom(id: Int!, name: String!): Chatroom!
+  deleteChatroom(chatroomId: Float!): String!
+  deleteMessage(chatroomId: Int!, messageId: Int!): Float!
+  enterChatroom(chatroomId: Float!): Boolean!
+  leaveChatroom(chatroomId: Float!): Boolean!
+  removeFromCart(input: RemoveFromCartDto!): Cart!
+  removeFromWishlist(input: RemoveFromWishlistDto!): Wishlist!
+  sendMessage(chatroomId: Float!, content: String!, image: Upload): Message!
+  updateCartItem(input: UpdateCartItemDto!): Cart!
+  updateProfile(file: Upload, first_name: String!): User!
+  userStartedTypingMutation(chatroomId: Float!): User!
+  userStoppedTypingMutation(chatroomId: Float!): User!
+}
+
+type Product {
+  id: Int!
+  price: Float!
+  product_image: [ProductImage!]
+  slug: String
+  title: String!
+}
+
+type ProductImage {
+  id: Int!
+  url: String!
+}
+
+type Query {
+  getCart: Cart!
+  getChatroomsForUser: [Chatroom!]!
+  getMessagesForChatroom(chatroomId: Float!): [Message!]!
+  getUser: User!
+  getUsersOfChatroom(chatroomId: Float!): [User!]!
+  getWishlist: Wishlist!
+  isInWishlist(product_id: Float!): Boolean!
+  searchUsers(first_name: String!): [User!]!
+}
+
+input RemoveFromCartDto {
+  cart_item_id: Int!
+}
+
+input RemoveFromWishlistDto {
+  product_id: Int!
+}
+
+type Subscription {
+  liveUsersInChatroom(chatroomId: Float!): [User!]
+  messageDeleted(chatroomId: Int!): Message!
+  newMessage(chatroomId: Float!): Message
+  userStartedTyping(chatroomId: Float!, userId: Float!): User
+  userStoppedTyping(chatroomId: Float!, userId: Float!): User
+}
+
+input UpdateCartItemDto {
+  cart_item_id: Int!
+  quantity: Int!
+}
+
+"""The `Upload` scalar type represents a file upload."""
+scalar Upload
+
+type User {
+  createdAt: DateTime
+  first_name: String!
+  id: Float
+  is_active: Boolean
+  last_name: String
+  last_online: DateTime
+  password: String
+  phone_number: String
+  profile_img: String
+  updatedAt: DateTime
+}
+
+type Wishlist {
+  createdAt: DateTime!
+  id: Int!
+  items: [WishlistItem!]!
+  total_items: Int!
+  updatedAt: DateTime!
+  user_id: Int!
+}
+
+type WishlistItem {
+  createdAt: DateTime!
+  id: Int!
+  product: Product
+  product_id: Int!
+  updatedAt: DateTime!
+  wishlist_id: Int!
+}

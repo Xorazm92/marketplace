@@ -1,0 +1,610 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id                   Int     @id @default(autoincrement())
+  first_name           String
+  last_name            String
+  email                String  @unique
+  phone_number         String
+  is_active            Boolean @default(false)
+  is_creator           Boolean @default(false)
+  activation_link      String  @unique
+  hashed_password      String
+  hashed_refresh_token String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("admin")
+}
+
+model User {
+  id                   Int             @id @default(autoincrement())
+  first_name           String
+  last_name            String
+  password             String
+  profile_img          String?
+  is_active            Boolean         @default(true)
+  is_premium           Boolean         @default(false)
+  birth_date           String?
+  hashed_refresh_token String?
+  last_online          DateTime        @default(now())
+  balance              Decimal         @default(0)
+  address              Address[]
+  phone_number         PhoneNumber[]
+  payment              Payment[]
+  product              Product[]
+  slug                 String?         @unique
+  email                Email[]
+  messages             Message[]
+  chatrooms            Chatroom[]      @relation("ChatroomUsers")
+  ChatroomUsers        ChatroomUsers[]
+
+  // E-commerce relations
+  cart                 Cart?
+  wishlist             Wishlist?
+  orders               Order[]
+  reviews              Review[]
+
+  createdAt            DateTime        @default(now())
+  updatedAt            DateTime        @updatedAt
+
+  @@map("user")
+}
+
+model Region {
+  id       Int        @id @default(autoincrement())
+  name     String
+  district District[]
+  address  Address[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("region")
+}
+
+model District {
+  id        Int       @id @default(autoincrement())
+  name      String
+  region_id Int
+  region    Region    @relation(fields: [region_id], references: [id])
+  address   Address[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("district")
+}
+
+model Address {
+  id          Int       @id @default(autoincrement())
+  user_id     Int
+  name        String
+  lat         String?
+  long        String?
+  is_main     Boolean   @default(false)
+  region_id   Int?
+  district_id Int?
+  address     String
+
+  // E-commerce fields
+  phone_number String?
+  postal_code  String?
+  address_type String?   // home, office, other
+
+  user        User      @relation(fields: [user_id], references: [id])
+  region      Region?   @relation(fields: [region_id], references: [id])
+  district    District? @relation(fields: [district_id], references: [id])
+  product     Product[]
+
+  // E-commerce relations
+  shipping_orders Order[] @relation("ShippingAddress")
+  billing_orders  Order[] @relation("BillingAddress")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("address")
+}
+
+model Brand {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  logo    String
+  model   Model[]
+  product Product[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("brand")
+}
+
+model Model {
+  id       Int       @id @default(autoincrement())
+  name     String    @unique
+  brand_id Int
+  brand    Brand     @relation(fields: [brand_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("model")
+}
+
+model Color {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  code    String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("color")
+}
+
+model Currency {
+  id      Int       @id @default(autoincrement())
+  name    String    @unique
+  code    String    @unique  // USD, UZS, EUR, etc.
+  symbol  String              // $, so'm, €, etc.
+  payment Payment[]
+  product Product[]
+  orders  Order[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("currency")
+}
+
+model PhoneNumber {
+  id           Int     @id @default(autoincrement())
+  phone_number String  @unique
+  is_main      Boolean @default(false)
+
+  user_id Int
+  user    User @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("phone_number")
+}
+
+model Email {
+  id      Int     @id @default(autoincrement())
+  email   String  @unique
+  user_id Int
+  is_main Boolean @default(false)
+  is_verified     Boolean  @default(false) // yangi qo‘shilgan maydon
+  activation_link String?
+  user    User    @relation(fields: [user_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("email")
+}
+
+model PaymentMethod {
+  id      Int       @id @default(autoincrement())
+  name    String
+  payment Payment[]
+
+  @@map("payment_method")
+}
+
+model Payment {
+  id                Int     @id @default(autoincrement())
+  user_id           Int
+  payment_method_id Int
+  amount            Decimal
+  currency_id       Int
+
+  user           User          @relation(fields: [user_id], references: [id])
+  payment_method PaymentMethod @relation(fields: [payment_method_id], references: [id])
+  currency       Currency      @relation(fields: [currency_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payment")
+}
+
+enum isChecked {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model Product {
+  id            Int            @id @default(autoincrement())
+  title         String
+  user_id       Int?
+  brand_id      Int
+  price         Decimal
+  currency_id   Int
+  description   String
+  negotiable    Boolean
+  condition     Boolean        // true = new, false = used
+  phone_number  String
+  address_id    Int?
+  slug          String?        @unique
+  is_top        Boolean        @default(false)
+  is_checked    isChecked      @default(PENDING)
+  is_active     Boolean        @default(true)
+  is_deleted    Boolean        @default(false)
+  view_count    Int            @default(0)
+  like_count    Int            @default(0)
+
+  // Universal product fields
+  category_id   Int?
+  sku           String?        @unique
+  weight        Decimal?
+  dimensions    String?        // JSON string for length, width, height
+  age_range     String?        // e.g., "3-6", "6-12", "12+"
+  material      String?        // e.g., "plastic", "wood", "fabric"
+  color         String?        // Color as string instead of relation
+  size          String?        // e.g., "small", "medium", "large"
+  manufacturer  String?        // Manufacturer name
+  safety_info   String?        // Safety information for kids products
+  features      String[]       // Array of product features
+  specifications Json?         // Flexible specifications as JSON
+  meta_title    String?
+  meta_description String?
+  tags          String[]       // Array of tags
+
+  // Relations
+  user          User?          @relation(fields: [user_id], references: [id])
+  brand         Brand          @relation(fields: [brand_id], references: [id])
+  currency      Currency       @relation(fields: [currency_id], references: [id])
+  address       Address?       @relation(fields: [address_id], references: [id])
+  category      Category?      @relation(fields: [category_id], references: [id])
+  product_image ProductImage[]
+
+  // E-commerce relations
+  cart_items    CartItem[]
+  wishlist_items WishlistItem[]
+  order_items   OrderItem[]
+  reviews       Review[]
+  inventory     Inventory?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product")
+}
+
+model ProductImage {
+  id         Int     @id @default(autoincrement())
+  url        String
+  product_id Int
+  product    Product @relation(fields: [product_id], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("product_image")
+}
+
+model Otp {
+  id           Int      @id @default(autoincrement())
+  code         String
+  is_used      Boolean  @default(false)
+  expired_time DateTime
+
+  phone_number String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("otp")
+}
+
+model Chatroom {
+  id            Int             @id @default(autoincrement())
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  users         User[]          @relation("ChatroomUsers")
+  messages      Message[]
+  ChatroomUsers ChatroomUsers[]
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  FILE
+}
+
+model Message {
+  id         Int          @id @default(autoincrement())
+  type       MessageType?
+  content    String
+  imageUrl   String?
+  userId     Int
+  chatroomId Int
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatroom   Chatroom     @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+}
+
+model ChatroomUsers {
+  chatroomId Int
+  userId     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  chatroom   Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+
+  @@id([chatroomId, userId])
+}
+
+// E-commerce Categories
+model Category {
+  id          Int           @id @default(autoincrement())
+  name        String
+  slug        String        @unique
+  description String?
+  image_url   String?
+  parent_id   Int?
+  is_active   Boolean       @default(true)
+  sort_order  Int           @default(0)
+  parent      Category?     @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children    Category[]    @relation("CategoryHierarchy")
+  products    Product[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@map("category")
+}
+
+// Shopping Cart
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user_id   Int        @unique
+  user      User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items     CartItem[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  @@map("cart")
+}
+
+model CartItem {
+  id         Int     @id @default(autoincrement())
+  cart_id    Int
+  product_id Int
+  quantity   Int     @default(1)
+  cart       Cart    @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([cart_id, product_id])
+  @@map("cart_item")
+}
+
+// Wishlist
+model Wishlist {
+  id        Int            @id @default(autoincrement())
+  user_id   Int            @unique
+  user      User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+
+  @@map("wishlist")
+}
+
+model WishlistItem {
+  id         Int      @id @default(autoincrement())
+  wishlist_id Int
+  product_id Int
+  wishlist   Wishlist @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([wishlist_id, product_id])
+  @@map("wishlist_item")
+}
+
+// Orders
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+model Order {
+  id              Int           @id @default(autoincrement())
+  order_number    String        @unique
+  user_id         Int
+  total_amount    Decimal
+  discount_amount Decimal       @default(0)
+  tax_amount      Decimal       @default(0)
+  shipping_amount Decimal       @default(0)
+  final_amount    Decimal
+  currency_id     Int
+  status          OrderStatus   @default(PENDING)
+  payment_status  PaymentStatus @default(PENDING)
+  payment_method  String?
+  shipping_address_id Int?
+  billing_address_id  Int?
+  notes           String?
+  user            User          @relation(fields: [user_id], references: [id])
+  currency        Currency      @relation(fields: [currency_id], references: [id])
+  shipping_address Address?     @relation("ShippingAddress", fields: [shipping_address_id], references: [id])
+  billing_address  Address?     @relation("BillingAddress", fields: [billing_address_id], references: [id])
+  items           OrderItem[]
+  payments        OrderPayment[]
+  tracking        OrderTracking[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("order")
+}
+
+model OrderItem {
+  id         Int     @id @default(autoincrement())
+  order_id   Int
+  product_id Int
+  quantity   Int
+  unit_price Decimal
+  total_price Decimal
+  order      Order   @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  product    Product @relation(fields: [product_id], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@map("order_item")
+}
+
+model OrderPayment {
+  id              Int           @id @default(autoincrement())
+  order_id        Int
+  amount          Decimal
+  payment_method  String
+  transaction_id  String?
+  status          PaymentStatus @default(PENDING)
+  gateway_response Json?
+  order           Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@map("order_payment")
+}
+
+model OrderTracking {
+  id          Int      @id @default(autoincrement())
+  order_id    Int
+  status      OrderStatus
+  description String?
+  location    String?
+  order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+
+  @@map("order_tracking")
+}
+
+// Product Reviews and Ratings
+model Review {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  user_id    Int
+  rating     Int      // 1-5 stars
+  title      String?
+  comment    String?
+  is_verified Boolean @default(false) // verified purchase
+  helpful_count Int   @default(0)
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  images     ReviewImage[]
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([product_id, user_id])
+  @@map("review")
+}
+
+model ReviewImage {
+  id        Int     @id @default(autoincrement())
+  review_id Int
+  url       String
+  review    Review  @relation(fields: [review_id], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@map("review_image")
+}
+
+// Coupons and Discounts
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+model Coupon {
+  id              Int        @id @default(autoincrement())
+  code            String     @unique
+  name            String
+  description     String?
+  type            CouponType
+  value           Decimal    // percentage or fixed amount
+  min_order_amount Decimal?
+  max_discount_amount Decimal?
+  usage_limit     Int?       // total usage limit
+  used_count      Int        @default(0)
+  user_usage_limit Int?      // per user limit
+  is_active       Boolean    @default(true)
+  valid_from      DateTime
+  valid_until     DateTime
+  applicable_categories String? // JSON array of category IDs
+  applicable_products   String? // JSON array of product IDs
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  @@map("coupon")
+}
+
+// Inventory Management
+model Inventory {
+  id              Int     @id @default(autoincrement())
+  product_id      Int     @unique
+  stock_quantity  Int     @default(0)
+  reserved_quantity Int   @default(0) // for pending orders
+  low_stock_threshold Int @default(10)
+  is_in_stock     Boolean @default(true)
+  product         Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  movements       InventoryMovement[]
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@map("inventory")
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  RESERVED
+  RELEASED
+}
+
+model InventoryMovement {
+  id           Int          @id @default(autoincrement())
+  inventory_id Int
+  type         MovementType
+  quantity     Int
+  reason       String?
+  reference_id String?      // order_id, return_id, etc.
+  inventory    Inventory    @relation(fields: [inventory_id], references: [id], onDelete: Cascade)
+  createdAt    DateTime     @default(now())
+
+  @@map("inventory_movement")
+}

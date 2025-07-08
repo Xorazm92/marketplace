@@ -1,0 +1,769 @@
+.productManagement {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .addButton {
+      padding: 12px 20px;
+      background: #27ae60;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #219a52;
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .filters {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    background: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    .searchBox {
+      flex: 1;
+
+      .searchInput {
+        width: 100%;
+        padding: 10px 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 6px;
+        font-size: 1rem;
+        outline: none;
+        transition: border-color 0.3s ease;
+
+        &:focus {
+          border-color: #667eea;
+        }
+      }
+    }
+
+    .filterSelect {
+      padding: 10px 15px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      cursor: pointer;
+      outline: none;
+      transition: border-color 0.3s ease;
+
+      &:focus {
+        border-color: #667eea;
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 10px;
+    }
+  }
+
+  .productsTable {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    .tableHeader {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 80px 120px 100px;
+      gap: 15px;
+      padding: 20px 25px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+      font-weight: 600;
+      color: #2c3e50;
+
+      @media (max-width: 768px) {
+        display: none;
+      }
+    }
+
+    .tableRow {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 80px 120px 100px;
+      gap: 15px;
+      padding: 20px 25px;
+      border-bottom: 1px solid #f0f0f0;
+      align-items: center;
+      transition: background 0.3s ease;
+
+      &:hover {
+        background: #f8f9fa;
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      @media (max-width: 768px) {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 15px 20px;
+      }
+
+      .productInfo {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+
+        .productImage {
+          width: 50px;
+          height: 50px;
+          flex-shrink: 0;
+
+          .imagePlaceholder {
+            width: 100%;
+            height: 100%;
+            background: #f8f9fa;
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: #6c757d;
+          }
+        }
+
+        .productDetails {
+          .productTitle {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+            line-height: 1.3;
+          }
+
+          .productBrand {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin: 0;
+          }
+        }
+      }
+
+      .productCategory {
+        color: #7f8c8d;
+        font-size: 0.9rem;
+
+        @media (max-width: 768px) {
+          &:before {
+            content: 'Kategoriya: ';
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .productPrice {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+
+        .currentPrice {
+          font-weight: 600;
+          color: #2c3e50;
+        }
+
+        .originalPrice {
+          font-size: 0.8rem;
+          color: #7f8c8d;
+          text-decoration: line-through;
+        }
+
+        @media (max-width: 768px) {
+          &:before {
+            content: 'Narx: ';
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .productStock {
+        font-weight: 600;
+        color: #27ae60;
+
+        &.lowStock {
+          color: #e74c3c;
+        }
+
+        @media (max-width: 768px) {
+          &:before {
+            content: 'Zaxira: ';
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .productStatus {
+        .statusSelect {
+          padding: 5px 8px;
+          border: 1px solid #e0e0e0;
+          border-radius: 4px;
+          background: white;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          outline: none;
+        }
+
+        @media (max-width: 768px) {
+          &:before {
+            content: 'Holat: ';
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .productActions {
+        display: flex;
+        gap: 8px;
+
+        button {
+          width: 35px;
+          height: 35px;
+          border: none;
+          border-radius: 6px;
+          cursor: pointer;
+          font-size: 1rem;
+          transition: all 0.3s ease;
+
+          &.editButton {
+            background: #3498db;
+            color: white;
+
+            &:hover {
+              background: #2980b9;
+            }
+          }
+
+          &.deleteButton {
+            background: #e74c3c;
+            color: white;
+
+            &:hover {
+              background: #c0392b;
+            }
+          }
+        }
+
+        @media (max-width: 768px) {
+          justify-content: center;
+        }
+      }
+    }
+  }
+
+  .emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    .emptyIcon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin: 0;
+    }
+  }
+
+  .productModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+
+    .modalOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modalContent {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      max-width: 800px;
+      width: 90%;
+      max-height: 90vh;
+      overflow: hidden;
+
+      .modalHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0;
+          font-size: 1.3rem;
+          color: #2c3e50;
+        }
+
+        .closeButton {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #7f8c8d;
+          transition: color 0.3s ease;
+
+          &:hover {
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .productForm {
+        padding: 25px;
+        overflow-y: auto;
+        max-height: calc(90vh - 80px);
+
+        .formSection {
+          margin-bottom: 30px;
+          padding-bottom: 20px;
+          border-bottom: 1px solid #f0f0f0;
+
+          &:last-of-type {
+            border-bottom: none;
+          }
+
+          h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 20px;
+          }
+        }
+
+        .formRow {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 20px;
+          margin-bottom: 20px;
+
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .formGroup {
+          margin-bottom: 20px;
+
+          label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          input,
+          select,
+          textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+              border-color: #667eea;
+            }
+
+            &::placeholder {
+              color: #999;
+            }
+          }
+
+          textarea {
+            resize: vertical;
+            min-height: 100px;
+          }
+        }
+
+        .featuresSection {
+          .featureRow {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+
+            input {
+              flex: 1;
+            }
+
+            .removeButton {
+              width: 35px;
+              height: 35px;
+              background: #e74c3c;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 1.2rem;
+              transition: background 0.3s ease;
+
+              &:hover {
+                background: #c0392b;
+              }
+            }
+          }
+
+          .addFeatureButton {
+            padding: 8px 15px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background 0.3s ease;
+
+            &:hover {
+              background: #2980b9;
+            }
+          }
+        }
+
+        .specificationsSection {
+          .addSpecRow {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+
+            input {
+              flex: 1;
+            }
+
+            .addSpecButton {
+              width: 40px;
+              height: 40px;
+              background: #27ae60;
+              color: white;
+              border: none;
+              border-radius: 6px;
+              cursor: pointer;
+              font-size: 1.2rem;
+              transition: background 0.3s ease;
+
+              &:hover {
+                background: #219a52;
+              }
+            }
+          }
+
+          .specsList {
+            .specRow {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              padding: 10px;
+              background: #f8f9fa;
+              border-radius: 6px;
+              margin-bottom: 8px;
+
+              .specKey {
+                font-weight: 600;
+                color: #2c3e50;
+                min-width: 120px;
+              }
+
+              .specValue {
+                flex: 1;
+                color: #7f8c8d;
+              }
+
+              .removeSpecButton {
+                width: 25px;
+                height: 25px;
+                background: #e74c3c;
+                color: white;
+                border: none;
+                border-radius: 50%;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: background 0.3s ease;
+
+                &:hover {
+                  background: #c0392b;
+                }
+              }
+            }
+          }
+        }
+
+        .formActions {
+          display: flex;
+          gap: 15px;
+          justify-content: flex-end;
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #e0e0e0;
+
+          button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &.cancelButton {
+              background: #f8f9fa;
+              color: #7f8c8d;
+              border: 1px solid #e0e0e0;
+
+              &:hover {
+                background: #e9ecef;
+              }
+            }
+
+            &.saveButton {
+              background: #27ae60;
+              color: white;
+
+              &:hover {
+                background: #219a52;
+              }
+            }
+          }
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+          }
+        }
+      }
+    }
+  }
+
+  // Image Upload Styles
+  .imageUploadSection {
+    margin-bottom: 20px;
+
+    .photoUploadContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      margin-bottom: 10px;
+
+      .photoUploadBox {
+        width: 120px;
+        height: 120px;
+        border: 2px dashed #4e46b4;
+        border-radius: 8px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background: #f9f9f9;
+
+        &:hover {
+          background: #f0f0f0;
+          border-color: #3d35a0;
+        }
+
+        span {
+          font-size: 12px;
+          color: #4e46b4;
+          font-weight: 500;
+        }
+      }
+
+      .photoBox {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        position: relative;
+        background: #fff;
+        border: 1px solid #e0e0e0;
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+      }
+    }
+
+    .imagePreview {
+      position: relative;
+
+      .removeImageBtn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.8);
+        }
+      }
+    }
+
+    .uploadPlaceholder {
+      border: 2px dashed #ccc;
+      background: #f9f9f9;
+      color: #666;
+
+      &:hover {
+        border-color: #4e46b4;
+        background: #f0f0f0;
+      }
+    }
+
+    .imageHint {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+      font-style: italic;
+    }
+  }
+
+  // Real Products Section
+  .realProductsSection {
+    margin-bottom: 2rem;
+    padding: 1.5rem;
+    background: #f8f9fa;
+    border-radius: 8px;
+
+    .sectionTitle {
+      margin-bottom: 1rem;
+      color: #2c3e50;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .realProductsGrid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1rem;
+
+      .realProductCard {
+        background: white;
+        border-radius: 8px;
+        padding: 1rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .productImageContainer {
+          width: 100%;
+          height: 150px;
+          margin-bottom: 1rem;
+          border-radius: 6px;
+          overflow: hidden;
+          background: #f5f5f5;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          .productImage {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+          }
+
+          .imagePlaceholder {
+            font-size: 2rem;
+            color: #6c757d;
+          }
+        }
+
+        .productInfo {
+          .productTitle {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+            line-height: 1.3;
+          }
+
+          .productPrice {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #27ae60;
+            margin-bottom: 0.3rem;
+          }
+
+          .productId {
+            font-size: 0.85rem;
+            color: #6c757d;
+            margin-bottom: 0.3rem;
+          }
+
+          .productDate {
+            font-size: 0.8rem;
+            color: #95a5a6;
+          }
+        }
+      }
+    }
+  }
+}

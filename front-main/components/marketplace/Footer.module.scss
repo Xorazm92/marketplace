@@ -1,0 +1,227 @@
+.footer {
+  background: #f5f5f5;
+  border-top: 1px solid var(--etsy-border);
+  margin-top: 60px;
+
+  .container {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 0 20px;
+
+    @media (max-width: 768px) {
+      padding: 0 16px;
+    }
+  }
+
+  .footerContent {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr;
+    gap: 40px;
+    padding: 48px 0;
+
+    @media (max-width: 1024px) {
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 32px;
+    }
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 32px;
+      padding: 32px 0;
+    }
+
+    .footerSection {
+      .sectionTitle {
+        color: var(--etsy-black);
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 16px;
+        line-height: 1.4;
+
+        @media (max-width: 768px) {
+          font-size: 18px;
+          margin-bottom: 12px;
+        }
+      }
+
+      .description {
+        color: var(--etsy-gray);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 20px;
+      }
+
+      .socialLinks {
+        display: flex;
+        gap: 12px;
+
+        .socialLink {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 40px;
+          height: 40px;
+          background: white;
+          border: 1px solid var(--etsy-border);
+          border-radius: 50%;
+          text-decoration: none;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: var(--etsy-orange);
+            border-color: var(--etsy-orange);
+            transform: translateY(-2px);
+
+            span {
+              filter: grayscale(1) brightness(0) invert(1);
+            }
+          }
+
+          span {
+            font-size: 18px;
+          }
+        }
+      }
+
+      .linkList {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+
+        li {
+          margin-bottom: 8px;
+
+          a {
+            color: var(--etsy-gray);
+            font-size: 14px;
+            text-decoration: none;
+            transition: color 0.2s ease;
+
+            &:hover {
+              color: var(--etsy-orange);
+            }
+          }
+        }
+      }
+
+      .newsletterText {
+        color: var(--etsy-gray);
+        font-size: 14px;
+        line-height: 1.5;
+        margin-bottom: 16px;
+      }
+
+      .newsletterForm {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+
+        .emailInput {
+          padding: 12px 16px;
+          border: 1px solid var(--etsy-border);
+          border-radius: 24px;
+          font-size: 14px;
+          outline: none;
+          transition: border-color 0.2s ease;
+
+          &:focus {
+            border-color: var(--etsy-orange);
+          }
+
+          &::placeholder {
+            color: var(--etsy-gray);
+          }
+        }
+
+        .subscribeButton {
+          background: var(--etsy-orange);
+          color: white;
+          border: none;
+          padding: 12px 24px;
+          border-radius: 24px;
+          font-size: 14px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &:hover {
+            background: #e55a00;
+            transform: translateY(-1px);
+          }
+        }
+      }
+    }
+  }
+
+  .bottomFooter {
+    border-top: 1px solid var(--etsy-border);
+    padding: 24px 0;
+
+    .bottomContent {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        text-align: center;
+        gap: 16px;
+      }
+
+      .copyright {
+        p {
+          color: var(--etsy-gray);
+          font-size: 13px;
+          margin: 0;
+        }
+      }
+
+      .paymentMethods {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: var(--etsy-gray);
+        font-size: 13px;
+
+        .paymentIcons {
+          display: flex;
+          gap: 8px;
+
+          span {
+            font-size: 20px;
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+
+            &:hover {
+              opacity: 1;
+            }
+          }
+        }
+      }
+
+      .language {
+        .languageSelect {
+          background: white;
+          border: 1px solid var(--etsy-border);
+          border-radius: 20px;
+          padding: 8px 12px;
+          font-size: 13px;
+          color: var(--etsy-black);
+          cursor: pointer;
+          outline: none;
+          transition: border-color 0.2s ease;
+
+          &:hover {
+            border-color: var(--etsy-orange);
+          }
+
+          &:focus {
+            border-color: var(--etsy-orange);
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,29 @@
+.homepage {
+  min-height: 100vh;
+  background-color: #ffffff;
+
+  main {
+    padding-top: 0;
+  }
+}
+
+// Keep some existing animations for future use
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+
+  to {
+    transform: translateX(0);
+  }
+}

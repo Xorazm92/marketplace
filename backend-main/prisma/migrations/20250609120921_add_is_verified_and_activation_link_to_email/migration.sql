@@ -1,0 +1,3 @@
+-- AlterTable
+ALTER TABLE "email" ADD COLUMN     "activation_link" TEXT,
+ADD COLUMN     "is_verified" BOOLEAN NOT NULL DEFAULT false;

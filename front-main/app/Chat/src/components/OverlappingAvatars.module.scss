@@ -1,0 +1,32 @@
+.avatarGroup {
+  position: relative;
+  height: 40px; // or match `size="lg"` of Mantine Avatar
+}
+
+.roundAvatar {
+  border-radius: 50% !important;
+}
+
+.avatarWrapper {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid white;
+  box-sizing: content-box;
+  transition: transform 0.2s;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  &:hover {
+    z-index: 20;
+    transform: scale(1.1);
+  }
+
+  // You might want to avoid stacking overlaps too tightly
+  &:not(:first-child) {
+    margin-left: -8px;
+  }
+}

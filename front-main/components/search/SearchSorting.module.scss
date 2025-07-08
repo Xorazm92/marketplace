@@ -1,0 +1,48 @@
+.searchSorting {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  .sortLabel {
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: #2c3e50;
+    white-space: nowrap;
+  }
+
+  .sortSelect {
+    padding: 8px 12px;
+    border: 1px solid #e0e0e0;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.3s ease;
+    min-width: 200px;
+
+    &:focus {
+      border-color: #667eea;
+    }
+
+    &:hover {
+      border-color: #667eea;
+    }
+
+    option {
+      padding: 8px;
+    }
+  }
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+
+    .sortSelect {
+      width: 100%;
+      min-width: auto;
+    }
+  }
+}

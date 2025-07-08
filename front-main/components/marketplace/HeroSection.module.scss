@@ -1,0 +1,305 @@
+.hero {
+  position: relative;
+  width: 100%;
+  max-width: 1240px;
+  height: 375px; // Fixed height to 375px as requested
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 12px; // Added border radius for better appearance
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1); // Added subtle shadow
+
+  // Background Images with Fade Effect
+  .backgroundSlide {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    opacity: 0;
+    transition: opacity 2s ease-in-out;
+    z-index: 1;
+
+    &.active {
+      opacity: 1;
+    }
+  }
+
+  // Dark Overlay for better text visibility
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+      135deg,
+      rgba(0, 0, 0, 0.7) 0%,
+      rgba(0, 0, 0, 0.4) 50%,
+      rgba(0, 0, 0, 0.6) 100%
+    );
+    z-index: 2;
+  }
+
+  // Content Container
+  .container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    padding: 0 40px;
+    box-sizing: border-box;
+    z-index: 3;
+
+    @media (max-width: 768px) {
+      padding: 0 20px;
+    }
+  }
+
+  .heroContent {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 100%;
+
+    @media (max-width: 768px) {
+      text-align: center;
+      justify-content: center;
+    }
+  }
+
+  // Responsive adjustments
+  @media (max-width: 1240px) {
+    margin: 0 20px;
+    max-width: calc(100% - 40px);
+  }
+
+  @media (max-width: 768px) {
+    height: 320px; // Slightly taller for mobile to fit content
+    margin: 0 10px;
+    max-width: calc(100% - 20px);
+  }
+
+  @media (max-width: 480px) {
+    height: 280px; // Compact for very small screens
+    margin: 0 5px;
+  }
+
+  .textContent {
+    max-width: 500px;
+    color: white;
+    text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9), 0 2px 4px rgba(0, 0, 0, 0.7);
+    background: rgba(0, 0, 0, 0.4); // Darker background for better contrast
+    padding: 20px;
+    border-radius: 12px;
+    backdrop-filter: blur(15px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+
+    @media (max-width: 768px) {
+      max-width: 100%;
+      padding: 15px;
+      margin: 0 10px;
+    }
+
+    @media (max-width: 480px) {
+      padding: 12px;
+      margin: 0 5px;
+    }
+
+    .title {
+      font-size: 2.8rem;
+      font-weight: 800;
+      margin-bottom: 12px;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.9);
+
+      @media (max-width: 768px) {
+        font-size: 2rem;
+        letter-spacing: -0.5px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 1.8rem;
+      }
+
+      .subtitle {
+        display: block;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: rgba(255, 255, 255, 0.95);
+        margin-top: 6px;
+        letter-spacing: 0;
+        text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
+
+        @media (max-width: 768px) {
+          font-size: 1rem;
+        }
+
+        @media (max-width: 480px) {
+          font-size: 0.9rem;
+        }
+      }
+    }
+
+    .description {
+      font-size: 1rem;
+      line-height: 1.4;
+      margin-bottom: 18px;
+      color: rgba(255, 255, 255, 0.98);
+      font-weight: 500;
+      text-shadow: 0 3px 6px rgba(0, 0, 0, 0.8);
+
+      @media (max-width: 768px) {
+        font-size: 0.9rem;
+        margin-bottom: 12px;
+      }
+
+      @media (max-width: 480px) {
+        font-size: 0.85rem;
+        margin-bottom: 10px;
+      }
+    }
+
+    .features {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+
+      @media (max-width: 768px) {
+        justify-content: center;
+        gap: 10px;
+        margin-bottom: 20px;
+      }
+
+      .feature {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.9rem;
+        font-weight: 600;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 8px 14px;
+        border-radius: 18px;
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        transition: all 0.3s ease;
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.7);
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .icon {
+          font-size: 1.2rem;
+        }
+
+        @media (max-width: 768px) {
+          font-size: 0.8rem;
+          padding: 6px 12px;
+          gap: 6px;
+
+          .icon {
+            font-size: 1rem;
+          }
+        }
+      }
+    }
+
+    .ctaButton {
+      background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+      color: white;
+      border: none;
+      padding: 12px 28px;
+      border-radius: 25px;
+      font-size: 1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 4px 15px rgba(255, 107, 53, 0.4);
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+
+      &:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(255, 107, 53, 0.6);
+        background: linear-gradient(135deg, #ff5722 0%, #ff9800 100%);
+      }
+
+      @media (max-width: 768px) {
+        padding: 10px 24px;
+        font-size: 0.9rem;
+      }
+    }
+  }
+
+  // Navigation Arrows
+  .prevButton,
+  .nextButton {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    color: var(--etsy-black);
+    border: none;
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    font-size: 28px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 10;
+    backdrop-filter: blur(10px);
+
+    &:hover {
+      background: white;
+      transform: translateY(-50%) scale(1.15);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .prevButton {
+    left: 30px;
+  }
+
+  .nextButton {
+    right: 30px;
+  }
+
+  // Dots Indicator
+  .dotsContainer {
+    position: absolute;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 16px;
+    z-index: 10;
+
+    .dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid rgba(255, 255, 255, 0.6);
+      background: transparent;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &.active {
+        background: white;
+        border-color: white;
+        transform: scale(1.3);
+      }
+
+      &:hover {
+        border-color: rgba(255, 255, 255, 0.9);
+        background: rgba(255, 255, 255, 0.3);
+      }
+    }
+  }
+}

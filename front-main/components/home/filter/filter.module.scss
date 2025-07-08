@@ -1,0 +1,398 @@
+.filterContainer {
+  width: 100%;
+  height: 100%;
+  background: white;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.title {
+  font-size: 1.25rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.closeButton {
+  height: 2rem;
+  width: 2rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #6b7280;
+  border-radius: 0.25rem;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+}
+
+.content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.label {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #111827;
+  margin: 0;
+}
+
+.selectContainer {
+  position: relative;
+}
+
+.selectTrigger {
+  width: 100%;
+  height: 3rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+
+  &:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.chevron {
+  color: #9ca3af;
+  transition: transform 0.2s;
+}
+
+.selectContent {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 50;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.selectItem {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &:focus {
+    outline: none;
+    background: #f3f4f6;
+  }
+}
+
+.toggleSection {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.switch {
+  width: 3rem;
+  height: 1.5rem;
+  background: #d1d5db;
+  border: none;
+  border-radius: 0.75rem;
+  position: relative;
+  cursor: pointer;
+  transition: background-color 0.2s;
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+}
+
+.switchOn {
+  background: #8b5cf6;
+}
+
+.switchThumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  background: white;
+  border-radius: 50%;
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  .switchOn & {
+    transform: translateX(1.5rem);
+  }
+}
+
+.radioGroup {
+  display: flex;
+  gap: 2rem;
+}
+
+.radioItem {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #374151;
+}
+
+.radioInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.radioCustom {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 2px solid #d1d5db;
+  border-radius: 50%;
+  position: relative;
+
+  &::after {
+    content: "";
+    width: 0.5rem;
+    height: 0.5rem;
+    background: #8b5cf6;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    transition: transform 0.2s;
+  }
+
+  .radioInput:checked + & {
+    border-color: #8b5cf6;
+
+    &::after {
+      transform: translate(-50%, -50%) scale(1);
+    }
+  }
+}
+
+.brandSection {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.selectButton {
+  width: 100%;
+  height: 3rem;
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0 1rem;
+  text-align: left;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #6b7280;
+
+  &:hover {
+    background: #f3f4f6;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.manualBrandContainer {
+  position: relative;
+}
+
+.manualBrandBox {
+  border: 2px dashed #a855f7;
+  border-radius: 0.5rem;
+  padding: 0.75rem;
+  background: #faf5ff;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #f3e8ff;
+  }
+}
+
+.manualBrandText {
+  color: #8b5cf6;
+  font-size: 0.875rem;
+}
+
+.manualBrandTag {
+  position: absolute;
+  bottom: -0.5rem;
+  left: 1rem;
+  background: #8b5cf6;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.manualInput {
+  width: 100%;
+  height: 3rem;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.375rem;
+  padding: 0 1rem;
+  font-size: 1rem;
+  color: #374151;
+
+  &:focus {
+    outline: none;
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+
+  &::placeholder {
+    color: #9ca3af;
+  }
+}
+
+.brandOption {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.brandLogo {
+  width: 1.5rem;
+  height: 1.5rem;
+  object-fit: contain;
+}
+
+.colorGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.colorSwatch {
+  aspect-ratio: 1;
+  border-radius: 0.5rem;
+  border: 2px solid #e5e7eb;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: none;
+
+  &:hover {
+    border-color: #d1d5db;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+}
+
+.colorSwatchSelected {
+  border-color: #8b5cf6 !important;
+  transform: scale(0.95);
+}
+
+.bottomButtons {
+  padding: 1rem;
+  display: flex;
+  gap: 0.75rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.resetButton {
+  flex: 1;
+  height: 3rem;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: #6b7280;
+
+  &:hover {
+    background: #f9fafb;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+}
+
+.applyButton {
+  flex: 1;
+  height: 3rem;
+  background: #8b5cf6;
+  border: none;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  font-size: 1rem;
+  color: white;
+
+  &:hover {
+    background: #7c3aed;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+  }
+}

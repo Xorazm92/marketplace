@@ -1,0 +1,109 @@
+// UserNav.module.scss
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  position: relative;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #fff;
+  font-size: 16px;
+  height: 100%;
+  transition: all 0.2s ease;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+
+// .avatarFallback {
+//   font-size: 14px;
+//   font-weight: 500;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   height: 100%;
+//   width: 100%;
+//   position: absolute;
+//   top: 0;
+//   left: 0;
+// }
+
+.content {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  width: 150px;
+  border-radius: 8px;
+  z-index: 50;
+  margin-top: 4px;
+  padding: 4px 0;
+  background-color: #4e46b4;
+  box-shadow: 1px 1px 10px rgb(46, 46, 46);
+}
+
+.label {
+  padding: 8px 12px;
+  font-weight: normal;
+}
+
+.userInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.userName {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  margin: 0;
+}
+
+.userEmail {
+  font-size: 12px;
+  line-height: 1;
+  margin: 0;
+}
+
+.separator {
+  height: 1px;
+  margin: 4px 0;
+}
+
+.group {
+  padding: 4px 0;
+}
+
+.menuItem {
+  display: flex;
+  align-items: center;
+  padding: 8px 12px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover{
+    background-color: #4e46b4;
+    opacity: 0.7;
+  }
+
+  span {
+    margin-left: 8px;
+  }
+}
+
+.icon {
+  height: 16px;
+  width: 16px;
+  flex-shrink: 0;
+}
