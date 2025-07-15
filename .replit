@@ -4,6 +4,7 @@ modules = ["nodejs-20", "bash"]
 channel = "stable-24_05"
 
 [workflows]
+runButton = "Production Deploy & Monitoring"
 
 [[workflows.workflow]]
 name = "Backend Dev Server"
@@ -180,3 +181,36 @@ args = "pm2 set pm2-logrotate:max_size 10M"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "pm2 set pm2-logrotate:retain 30"
+
+[[workflows.workflow]]
+name = "Production Deploy & Monitoring"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "chmod +x scripts/production-deploy.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "./scripts/production-deploy.sh"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start"

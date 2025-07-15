@@ -1,135 +1,120 @@
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { DocumentBuilder, SwaggerModule } from "@nestjs/swagger";
-import { RequestMethod, ValidationPipe } from "@nestjs/common";
-import * as cookieParser from "cookie-parser";
-import { WinstonModule } from "nest-winston";
-import { winstonConfig } from "./logger/winston-logger";
-import { AllExceptionsFilter } from "./logger/error.handling";
-import { join } from "path";
-import * as bodyParser from "body-parser";
-import { NestExpressApplication } from "@nestjs/platform-express";
-import * as graphqlUploadExpress from "graphql-upload/graphqlUploadExpress.js";
-import * as express from "express";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import { WinstonLoggerService } from './common/services/winston-logger.service';
+import { SentryService } from './common/services/sentry.service';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import * as compression from 'compression';
+import helmet from 'helmet';
+import { ConfigService } from '@nestjs/config';
 
-async function start() {
-  try {
-    const PORT = process.env.PORT || 3030;
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule, {
+    logger: false, // We'll use our custom logger
+  });
 
-    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-      logger: WinstonModule.createLogger(winstonConfig),
-    });
+  const configService = app.get(ConfigService);
+  const logger = app.get(WinstonLoggerService);
+  const sentryService = app.get(SentryService);
 
-    app.use(cookieParser());
-    app.useGlobalPipes(
-      new ValidationPipe({
-        transform: true,
-        transformOptions: { enableImplicitConversion: true },
-        whitelist: true,
-        forbidNonWhitelisted: true,
-      })
-    );
-    // app.useGlobalFilters(new AllExceptionsFilter());
+  // Use custom logger
+  app.useLogger(logger);
 
-    app.enableCors({
-      origin: [
-        "http://localhost:3000",
-        "http://localhost:3001",
-        "http://localhost:3002",
-        "https://inbola.uz",
-        "https://www.inbola.uz"
-      ],
-      allowedHeaders: [
-        "Accept",
-        "Authorization",
-        "Content-Type",
-        "X-Requested-With",
-        "apollo-require-preflight",
-      ],
-      methods: "GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS",
-      credentials: true,
-    });
+  // Security middleware
+  app.use(helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        styleSrc: ["'self'", "'unsafe-inline'"],
+        scriptSrc: ["'self'"],
+        imgSrc: ["'self'", "data:", "https:"],
+      },
+    },
+    crossOriginEmbedderPolicy: false,
+  }));
 
-    app.setGlobalPrefix('api', {
-      exclude: [
-        { path: 'graphql', method: RequestMethod.ALL },
-        { path: 'graphql/*', method: RequestMethod.ALL },
-      ],
-    });
+  // Compression
+  app.use(compression());
 
-    app.use(
-      "/graphql",
-      graphqlUploadExpress({ maxFileSize: 50_000_000, maxFiles: 1 })
-    );
+  // CORS configuration
+  app.enableCors({
+    origin: process.env.NODE_ENV === 'production' 
+      ? ['https://inbola.uz', 'https://www.inbola.uz']
+      : ['http://localhost:3000', 'http://0.0.0.0:3000'],
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  });
 
-    // Static file serving for uploads with CORS headers
-    app.use('/uploads', (req, res, next) => {
-      res.header('Access-Control-Allow-Origin', '*');
-      res.header('Access-Control-Allow-Methods', 'GET');
-      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
-      next();
-    }, express.static(join(__dirname, '..', 'uploads')));
+  // Global validation pipe
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+    transformOptions: {
+      enableImplicitConversion: true,
+    },
+  }));
 
+  // Global exception filter
+  app.useGlobalFilters(new GlobalExceptionFilter(sentryService, logger));
+
+  // Swagger documentation (only in development)
+  if (process.env.NODE_ENV !== 'production') {
     const config = new DocumentBuilder()
-      .setTitle("INBOLA Marketplace API")
-      .setDescription("Bolalar mahsulotlari marketplace API")
-      .setVersion("v-01")
-      .addBearerAuth(
-        {
-          type: "http",
-          scheme: "bearer",
-          bearerFormat: "JWT",
-          name: "JWT",
-          description: "Enter JWT token",
-          in: "header",
-        },
-        "inbola"
-      )
+      .setTitle('INBOLA Kids E-Commerce API')
+      .setDescription('Safe e-commerce platform for children and parents')
+      .setVersion('1.0')
+      .addBearerAuth()
       .build();
 
-    // Additional static file serving for public folder
-    const uploadsPath = join(process.cwd(), 'public', 'uploads');
-    console.log('Public uploads path:', uploadsPath);
-    app.use('/public/uploads', express.static(uploadsPath));
-    app.use('/images', express.static(join(process.cwd(), 'public', 'images')));
-
-    app.use(bodyParser.json({ limit: "50mb" }));
-    app.use(bodyParser.urlencoded({ limit: "50mb", extended: true }));
-
     const document = SwaggerModule.createDocument(app, config);
-
-    SwaggerModule.setup("api/docs", app, document, {
-      swaggerOptions: { defaultModelsExpandDepth: -1 },
-    });
-
-    await app.listen(PORT, () => {
-      console.log(
-        "\n\n + ====================================================================== +"
-      );
-      console.log(
-        `| |                                                                      | | `
-      );
-      console.log(
-        `| | 🚀          Server started at: http://localhost:${PORT}/api          🚀 | | `
-      );
-      console.log(
-        `| |                                                                      | | `
-      );
-      console.log(
-        `| | 📚  Swagger API documentation at: http://localhost:${PORT}/api/docs  📚 | |`
-      );
-      console.log(
-        `| |                                                                      | | `
-      );
-      console.log(
-        " + ====================================================================== +"
-      );
-    });
-  } catch (error) {
-    console.error("❌ Error starting server:", error);
+    SwaggerModule.setup('api-docs', app, document);
   }
+
+  // Health check endpoint
+  app.use('/health', (req, res) => {
+    res.status(200).json({
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      environment: process.env.NODE_ENV,
+      version: process.env.npm_package_version || '1.0.0',
+    });
+  });
+
+  // Set global prefix
+  app.setGlobalPrefix('api', {
+    exclude: ['/health'],
+  });
+
+  const port = process.env.PORT || 4000;
+  await app.listen(port, '0.0.0.0');
+
+  logger.log(`🚀 INBOLA Backend running on port ${port}`);
+  logger.log(`📱 Environment: ${process.env.NODE_ENV}`);
+  logger.log(`📊 Health check: http://0.0.0.0:${port}/health`);
+
+  if (process.env.NODE_ENV !== 'production') {
+    logger.log(`📚 API Documentation: http://0.0.0.0:${port}/api-docs`);
+  }
+
+  // Graceful shutdown
+  process.on('SIGTERM', async () => {
+    logger.log('SIGTERM received, shutting down gracefully');
+    await app.close();
+    process.exit(0);
+  });
+
+  process.on('SIGINT', async () => {
+    logger.log('SIGINT received, shutting down gracefully');
+    await app.close();
+    process.exit(0);
+  });
 }
 
-start();
+bootstrap().catch(error => {
+  console.error('Failed to start application:', error);
+  process.exit(1);
+});
