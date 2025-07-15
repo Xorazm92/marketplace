@@ -1,170 +1,110 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import { useRouter } from 'next/router';
 import styles from './HeroSection.module.scss';
+import { InputSearchIcon } from '../../public/icons/profile/src/InputSearchIcon';
 
 const HeroSection: React.FC = () => {
-  const [currentSlide, setCurrentSlide] = useState(0);
+  const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
 
-  const slides = [
-    {
-      id: 1,
-      image: "/img/hero-kids.jpg",
-      title: "INBOLA",
-      subtitle: "Bolalar dunyosi",
-      description: "0-13 yoshlar uchun mahsulotlar"
-    },
-    {
-      id: 2,
-      image: "/img/hero-kids-2.jpg",
-      title: "Yangi Kolleksiya",
-      subtitle: "Kuz-Qish 2024",
-      description: "Issiq va zamonaviy kiyimlar"
-    },
-    {
-      id: 3,
-      image: "/img/hero-kids-3.jpg",
-      title: "Ta'lim O'yinchoqlari",
-      subtitle: "Rivojlantiruvchi",
-      description: "Aqliy rivojlanish o'yinchoqlari"
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
     }
+  };
+
+  const featuredCategories = [
+    { name: 'Toys', icon: '🧸', color: '#FF6B6B' },
+    { name: 'Clothing', icon: '👕', color: '#4ECDC4' },
+    { name: 'Books', icon: '📚', color: '#45B7D1' },
+    { name: 'Sports', icon: '⚽', color: '#FFA726' },
+    { name: 'Electronics', icon: '📱', color: '#9CCC65' },
+    { name: 'Baby', icon: '🍼', color: '#FFD54F' }
   ];
-
-  // Auto slide - 12 sekund interval
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % slides.length);
-    }, 12000); // 12 sekund
-
-    return () => clearInterval(timer);
-  }, [slides.length]);
-
-  const nextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % slides.length);
-  };
-
-  const prevSlide = () => {
-    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
-  };
-
-  const goToSlide = (index: number) => {
-    setCurrentSlide(index);
-  };
 
   return (
     <section className={styles.hero}>
-      {/* Background Images - Fade Effect */}
-      {slides.map((slide, index) => (
-        <div
-          key={slide.id}
-          className={`${styles.backgroundSlide} ${index === currentSlide ? styles.active : ''}`}
-          style={{ backgroundImage: `url(${slide.image})` }}
-        />
-      ))}
+      <div className={styles.heroContent}>
+        <div className={styles.heroText}>
+          <h1>Welcome to INBOLA Kids Marketplace</h1>
+          <p>Safe, fun, and educational shopping for children and families</p>
 
-      {/* Content Overlay */}
-      <div className={styles.overlay}></div>
-
-      {/* Hero Content */}
-      <div className={styles.container}>
-        <div className={styles.heroContent}>
-          <div className={styles.textContent}>
-            <h1 className={styles.title}>
-              {slides[currentSlide].title}
-              <span className={styles.subtitle}>{slides[currentSlide].subtitle}</span>
-            </h1>
-            <p className={styles.description}>
-              {slides[currentSlide].description}
-            </p>
-            <div className={styles.features}>
-              <div className={styles.feature}>
-                <span className={styles.icon}>🚚</span>
-                <span>Tez yetkazib berish</span>
-              </div>
-              <div className={styles.feature}>
-                <span className={styles.icon}>🛡️</span>
-                <span>Xavfsiz to'lov</span>
-              </div>
-              <div className={styles.feature}>
-                <span className={styles.icon}>⭐</span>
-                <span>Sifatli mahsulotlar</span>
-              </div>
+          <form onSubmit={handleSearch} className={styles.searchForm}>
+            <div className={styles.searchContainer}>
+              <InputSearchIcon />
+              <input
+                type="text"
+                placeholder="Search for toys, books, clothing..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className={styles.searchInput}
+              />
+              <button type="submit" className={styles.searchButton}>
+                Search
+              </button>
             </div>
-            <button className={styles.ctaButton}>
-              Xarid qilish
+          </form>
+
+          <div className={styles.quickActions}>
+            <button 
+              className={styles.actionButton}
+              onClick={() => router.push('/categories')}
+            >
+              Browse Categories
+            </button>
+            <button 
+              className={styles.actionButton}
+              onClick={() => router.push('/CreateProduct')}
+            >
+              Sell Products
             </button>
           </div>
         </div>
+
+        <div className={styles.heroImage}>
+          <img src="/img/hero-kids.jpg" alt="Kids playing with toys" />
+        </div>
       </div>
 
+      <div className={styles.featuredCategories}>
+        <h2>Popular Categories</h2>
+        <div className={styles.categoriesGrid}>
+          {featuredCategories.map((category) => (
+            <div
+              key={category.name}
+              className={styles.categoryCard}
+              style={{ backgroundColor: category.color }}
+              onClick={() => router.push(`/category/${category.name.toLowerCase()}`)}
+            >
+              <span className={styles.categoryIcon}>{category.icon}</span>
+              <span className={styles.categoryName}>{category.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
 
-      {/* Navigation Arrows - Standart va chiroyli */}
-      <button
-        className={styles.prevButton}
-        onClick={prevSlide}
-        aria-label="Oldingi slayd"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          left: '20px',
-          transform: 'translateY(-50%)',
-          background: 'rgba(255, 255, 255, 0.95)',
-          color: '#333',
-          border: '2px solid rgba(255, 255, 255, 0.3)',
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          cursor: 'pointer',
-          zIndex: 10,
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '0'
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#333' }}>
-          <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-      <button
-        className={styles.nextButton}
-        onClick={nextSlide}
-        aria-label="Keyingi slayd"
-        style={{
-          position: 'absolute',
-          top: '50%',
-          right: '20px',
-          transform: 'translateY(-50%)',
-          background: 'rgba(255, 255, 255, 0.95)',
-          color: '#333',
-          border: '2px solid rgba(255, 255, 255, 0.3)',
-          width: '48px',
-          height: '48px',
-          borderRadius: '50%',
-          cursor: 'pointer',
-          zIndex: 10,
-          backdropFilter: 'blur(10px)',
-          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: '0'
-        }}
-      >
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#333' }}>
-          <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-        </svg>
-      </button>
-
-      {/* Dots Indicator */}
-      <div className={styles.dotsContainer}>
-        {slides.map((_, index) => (
-          <button
-            key={index}
-            className={`${styles.dot} ${index === currentSlide ? styles.active : ''}`}
-            onClick={() => goToSlide(index)}
-          />
-        ))}
+      <div className={styles.features}>
+        <div className={styles.feature}>
+          <div className={styles.featureIcon}>🔒</div>
+          <h3>Safe & Secure</h3>
+          <p>All transactions are encrypted and secure</p>
+        </div>
+        <div className={styles.feature}>
+          <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
+          <h3>Family-Friendly</h3>
+          <p>Content approved for children of all ages</p>
+        </div>
+        <div className={styles.feature}>
+          <div className={styles.featureIcon}>📚</div>
+          <h3>Educational</h3>
+          <p>Learn while shopping with fun activities</p>
+        </div>
+        <div className={styles.feature}>
+          <div className={styles.featureIcon}>🚚</div>
+          <h3>Fast Delivery</h3>
+          <p>Quick and reliable shipping to your door</p>
+        </div>
       </div>
     </section>
   );

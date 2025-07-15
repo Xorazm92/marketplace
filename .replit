@@ -2,3 +2,60 @@ modules = ["nodejs-20", "bash"]
 
 [nix]
 channel = "stable-24_05"
+
+[workflows]
+
+[[workflows.workflow]]
+name = "Backend Dev Server"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:dev"
+
+[[workflows.workflow]]
+name = "Frontend Dev Server"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Setup Database"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma db seed"

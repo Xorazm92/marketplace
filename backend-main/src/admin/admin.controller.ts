@@ -1,57 +1,50 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
-import { AdminService } from './admin.service';
-import { CreateAdminDto, UpdateAdminDto, UpdateAdminPasswordDto } from './dto';
-import { AdminGuard } from '../guards/admin.guard';
-import { SuperAdminGuard } from '../guards/superAdmin.guard';
-import { AdminSelfGuard } from '../guards/admin-self.guard';
-import { ApiBearerAuth, ApiOperation } from '@nestjs/swagger';
 
+import { Controller, Get, Post, Put, Delete, Param, Query, UseGuards, Body } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AdminService } from './admin.service';
+import { AdminGuard } from '../guards/admin.guard';
+
+@ApiTags('Admin')
+@ApiBearerAuth('inbola')
+@UseGuards(AdminGuard)
 @Controller('admin')
 export class AdminController {
   constructor(private readonly adminService: AdminService) {}
 
-  create(@Body() createAdminDto: CreateAdminDto) {
-    return this.adminService.create(createAdminDto);
+  @Get('dashboard')
+  @ApiOperation({ summary: 'Get dashboard statistics' })
+  async getDashboardStats() {
+    return this.adminService.getDashboardStats();
   }
 
-  
-  @ApiOperation({summary: 'Retrieve all admins'})
-  @ApiBearerAuth('inbola')   
-  @UseGuards(AdminGuard, SuperAdminGuard)
-  @Get()
-  findAll() {
-    return this.adminService.findAll();
+  @Get('users')
+  @ApiOperation({ summary: 'Get users with pagination' })
+  async getUserManagement(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10'
+  ) {
+    return this.adminService.getUserManagement(+page, +limit);
   }
-  
-  @ApiOperation({summary: 'Retrieve an admin by ID'})
-  @ApiBearerAuth('inbola')   
-  @UseGuards(AdminGuard, AdminSelfGuard)
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.adminService.findOne(+id);
+
+  @Get('products')
+  @ApiOperation({ summary: 'Get products with pagination and status filter' })
+  async getProductManagement(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+    @Query('status') status?: string
+  ) {
+    return this.adminService.getProductManagement(+page, +limit, status);
   }
-  
-  @ApiOperation({summary: 'Update an admin by ID'})
-  @ApiBearerAuth('inbola')   
-  @UseGuards(AdminGuard, AdminSelfGuard)
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateAdminDto: UpdateAdminDto) {
-    return this.adminService.update(+id, updateAdminDto);
+
+  @Put('products/:id/approve')
+  @ApiOperation({ summary: 'Approve product' })
+  async approveProduct(@Param('id') id: string) {
+    return this.adminService.approveProduct(+id);
   }
-  
-  @ApiOperation({summary: 'Update admin password by ID'})
-  @ApiBearerAuth('inbola')   
-  @UseGuards(AdminGuard, AdminSelfGuard)
-  @Patch('password/:id')
-  updatePassword(@Param('id') id: string, @Body() UpdateAdminPasswordDto: UpdateAdminPasswordDto) {
-    return this.adminService.updatePassword(+id, UpdateAdminPasswordDto);
-  }
-  
-  @ApiOperation({summary: 'Delete an admin by ID'})
-  @ApiBearerAuth('inbola')   
-  @UseGuards(AdminGuard, SuperAdminGuard)
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.adminService.remove(+id);
+
+  @Put('products/:id/reject')
+  @ApiOperation({ summary: 'Reject product' })
+  async rejectProduct(@Param('id') id: string, @Body() body: { reason?: string }) {
+    return this.adminService.rejectProduct(+id, body.reason);
   }
 }

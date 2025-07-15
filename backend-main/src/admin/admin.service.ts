@@ -1,111 +1,175 @@
-import {
-    BadRequestException,
-    Injectable,
-    NotFoundException,
-} from "@nestjs/common";
-import { PrismaService } from "../prisma/prisma.service";
-import { CreateAdminDto,UpdateAdminDto, UpdateAdminPasswordDto } from "./dto";
-import * as bcrypt from "bcrypt";
-import { v4 as uuidv4 } from "uuid";
-import { Admin } from "@prisma/client";
-import { JwtService } from "@nestjs/jwt";
+
+import { Injectable } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
 export class AdminService {
-    constructor(
-        private readonly prismaService: PrismaService,
-        private readonly jwtService: JwtService
-    ) {}
+  constructor(private prisma: PrismaService) {}
 
-    async create(createAdminDto: CreateAdminDto) {
-        const { password, confirm_password, ...data } = createAdminDto;
-        
-        if (password !== confirm_password) {
-            throw new BadRequestException("Passwords did not match");
+  async getDashboardStats() {
+    const [
+      totalUsers,
+      totalProducts,
+      totalOrders,
+      totalRevenue,
+      recentOrders,
+      topProducts,
+      monthlyStats
+    ] = await Promise.all([
+      this.prisma.user.count(),
+      this.prisma.product.count(),
+      this.prisma.order.count(),
+      this.prisma.order.aggregate({
+        _sum: { final_amount: true }
+      }),
+      this.prisma.order.findMany({
+        take: 10,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          user: true,
+          items: {
+            include: { product: true }
+          }
         }
-        const activation_link = uuidv4();
-        const hashed_password = await bcrypt.hash(password, 7);
-
-        return this.prismaService.admin.create({
-            data: { ...data, hashed_password, activation_link },
-        });
-    }
-
-    findAll() {
-        return this.prismaService.admin.findMany();
-    }
-
-    async findOne(id: number) {
-        const admin = await this.prismaService.admin.findUnique({
-            where: { id },
-        });
-        if (!admin) {
-            throw new NotFoundException(`Admin with ID ${id} not found`);
+      }),
+      this.prisma.product.findMany({
+        take: 10,
+        orderBy: { view_count: 'desc' },
+        include: {
+          product_image: true,
+          brand: true
         }
-        return admin;
-    }
+      }),
+      this.getMonthlyStats()
+    ]);
+
+    return {
+      totalUsers,
+      totalProducts,
+      totalOrders,
+      totalRevenue: totalRevenue._sum.final_amount || 0,
+      recentOrders,
+      topProducts,
+      monthlyStats
+    };
+  }
+
+  private async getMonthlyStats() {
+    const now = new Date();
+    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
+    const [ordersThisMonth, revenueThisMonth] = await Promise.all([
+      this.prisma.order.count({
+        where: {
+          createdAt: {
+            gte: startOfMonth,
+            lte: endOfMonth
+          }
+        }
+      }),
+      this.prisma.order.aggregate({
+        _sum: { final_amount: true },
+        where: {
+          createdAt: {
+            gte: startOfMonth,
+            lte: endOfMonth
+          }
+        }
+      })
+    ]);
+
+    return {
+      ordersThisMonth,
+      revenueThisMonth: revenueThisMonth._sum.final_amount || 0
+    };
+  }
+
+  async getUserManagement(page: number = 1, limit: number = 10) {
+    const skip = (page - 1) * limit;
     
-    findByEmail(email: string) {
-        return this.prismaService.admin.findUnique({ where: { email } });
-    }
+    const [users, total] = await Promise.all([
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        include: {
+          phone_number: true,
+          email: true,
+          address: true,
+          orders: {
+            select: {
+              id: true,
+              final_amount: true,
+              status: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.user.count()
+    ]);
 
-    async update(id: number, updateAdminDto: UpdateAdminDto) {
-        await this.findOne(id);
+    return {
+      users,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
 
-        return this.prismaService.admin.update({
-            where: { id },
-            data: updateAdminDto,
-        });
-    }
-    async updatePassword(id: number, updateAdminPasswordDto: UpdateAdminPasswordDto) {
-        await this.findOne(id);
-        const { password, confirm_password } = updateAdminPasswordDto;        
-        if (password !== confirm_password) {
-            throw new BadRequestException("Passwords did not match");
-        }
-
-        const hashed_password = await bcrypt.hash(password, 7);
-
-        return this.prismaService.admin.update({
-            where: { id },
-            data: {hashed_password},
-        });
-    }
-
-
-    remove(id: number) {
-        return this.prismaService.admin.delete({ where: { id } });
-    }
+  async getProductManagement(page: number = 1, limit: number = 10, status?: string) {
+    const skip = (page - 1) * limit;
+    const where = status ? { is_checked: status } : {};
     
-    async getToken(admin: Admin) {
-        const payload = {
-            id: admin.id,
-            is_active: admin.is_active,
-            is_creator: admin.is_creator,
-            email: admin.email,
-            role:"admin"
-        };
-        const [accessToken, refreshToken] = await Promise.all([
-            this.jwtService.signAsync(payload, {
-                secret: process.env.ACCESS_TOKEN_KEY,
-                expiresIn: process.env.ACCESS_TOKEN_TIME,
-            }),
-            this.jwtService.signAsync(payload, {
-                secret: process.env.REFRESH_TOKEN_KEY,
-                expiresIn: process.env.REFRESH_TOKEN_TIME,
-            }),
-        ]);
-        return {
-            access_token: accessToken,
-            refresh_token: refreshToken,
-        };
-    }
-    async updateRefreshToken(id: number, hashed_refresh_token: string | null) {
-        const updatedAdmin = await this.prismaService.admin.update({
-            where: { id },
-            data: { hashed_refresh_token },
-        });
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        skip,
+        take: limit,
+        where,
+        include: {
+          user: true,
+          brand: true,
+          category: true,
+          product_image: true,
+          reviews: {
+            select: {
+              rating: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.product.count({ where })
+    ]);
 
-        return updatedAdmin;
-    }
+    return {
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
+  async approveProduct(productId: number) {
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: { is_checked: 'APPROVED' }
+    });
+  }
+
+  async rejectProduct(productId: number, reason?: string) {
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: { 
+        is_checked: 'REJECTED',
+        // Add rejection reason if you have this field
+      }
+    });
+  }
 }
