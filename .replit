@@ -92,11 +92,19 @@ args = "cd backend-main"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run build"
+args = "npm install"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run test"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate deploy"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -104,7 +112,7 @@ args = "node scripts/pre-launch-checklist.js"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "npm run start:prod"
+args = "pm2 restart all || npm run start:prod"
 
 [[workflows.workflow]]
 name = "Load Testing"
@@ -122,3 +130,53 @@ args = "npm install -g k6"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "k6 run scripts/load-test.js"
+
+[[workflows.workflow]]
+name = "Health Check"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "curl -f http://localhost:4000/health || echo \"Backend health check failed\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "curl -f http://localhost:3000 || echo \"Frontend health check failed\""
+
+[[workflows.workflow]]
+name = "Setup Monitoring"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "node scripts/monitoring-setup.js"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install -g pm2"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pm2 install pm2-logrotate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pm2 set pm2-logrotate:max_size 10M"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "pm2 set pm2-logrotate:retain 30"
