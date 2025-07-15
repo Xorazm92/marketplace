@@ -1,0 +1,149 @@
+Men bolalar va ularning ota-onalari uchun mo‘ljallangan, ta’limiy va xavfsiz e-commerce marketplace platformasini ishlab chiqyapman. U quyidagi funksiyalarni o‘z ichiga oladi va yuqori darajadagi modular arxitekturaga asoslangan:
+
+✅ Admin Dashboard (mahsulot tasdiqlash, analitika)
+✅ Review System (verified purchase, reyting, moderatsiya)
+✅ To‘lov tizimlari (Click, Payme, karta to‘lovlari)
+✅ Notification (SMS + email transaction xabarnomalari)
+✅ AI qidiruv va tavsiya tizimi
+✅ Multi-role access (admin, seller, user, guest)
+✅ Bolalar uchun xavfsizlik, ota-onalar nazorati, maxsus interfeys
+✅ Wishlist, featured products, responsive UI
+✅ Mobile-first dizayn + PWA qo‘llab-quvvatlash
+
+Shularni hisobga olgan holda, iltimos, quyidagilarni chuqur va texnik jihatdan mukammal tahlil qiling:
+
+1. 🔧 Texnik Arxitektura (Stack tanlovi bilan)
+Monolit vs Microservices: Qaysi biri optimal? (Scalability, team structure, maintenance asosida)
+
+Stack tavsiyasi:
+
+Frontend: React / Next.js / Tailwind CSS
+
+Backend: NestJS / Express / Fastify
+
+DB: PostgreSQL (asosiy), Redis (cache), MongoDB (reviews, logs)
+
+Infra: Docker, Nginx, CI/CD (GitHub Actions, GitLab CI), PM2, Sentry, Grafana
+
+Queue: BullMQ / RabbitMQ (email/sms joblar)
+
+2. 🛒 Core Functional Modules
+Har birini komponent darajasida tushuntiring:
+
+Product catalog (multi-variant, image gallery, stock, SKU, age-group tagging)
+
+Order management (checkout, delivery, status flow, refund/review eligibility)
+
+Payment integration (Click, Payme, Stripe style sandbox testing)
+
+Notification engine (SMS/Email templates, async jobs, queue)
+
+Review system (verified user, spam prevention, moderation dashboard)
+
+Wishlist, product comparison, recent views
+
+3. 🧑‍🤝‍🧑 Foydalanuvchi Rollari (RBAC)
+Har bir rol uchun:
+
+Interfeyslar (UI)
+
+Imkoniyatlar (create, update, read, moderate, buy)
+
+Xavfsizlik chegaralari (auth guard, rate limit, audit log)
+
+4. 🎨 Frontend UX/UI Dizayn Strategiyasi
+Har bir rolga mos UX:
+
+Bolalar uchun soddalashtirilgan interfeys: ranglar, katta tugmalar, minimal text
+
+Ota-onalar interfeysi: ota-ona paneli, xarid tarixini ko‘rish, vaqt nazorati
+
+Admin va Seller uchun analytics-driven UI
+
+Accessibility (WCAG, keyboard navigation, ARIA labels)
+
+5. 🛡️ Security Layer
+Har bir hujum turiga qarshi amaliy choralar:
+
+Auth: JWT + Refresh Token + 2FA + parental PIN
+
+Xavflar: XSS, CSRF, SQL Injection, IDOR, SSRF, Session Hijacking
+
+Child-safe filters (ma’lumotlarni filtrlash, tasdiqlovchi modullar, NSFW detection)
+
+6. 📱 Mobil Ilova va PWA Imkoniyatlari
+Offline mode
+
+Push notification
+
+Responsive layout (flex + grid)
+
+Face ID yoki biometrik login imkoniyati
+
+7. 📊 Admin Panel Va Analitika
+Real-time stats (sales, products, top sellers, complaints)
+
+Moderatsiya jarayonlari
+
+Notification audit
+
+Review heatmap (qaysi mahsulotda ko‘p sharh)
+
+8. 📚 Bolalar Uchun Xavfsiz Muhit
+Mahsulotlar uchun yoshi mos filtr
+
+Ota-onalar nazorati (kunlik sarf limiti, qidiruv nazorati)
+
+Kontent avtomatik filtratsiyasi (AI asosida)
+
+"Safe zone" UX: reklamasiz, ta’limga yo‘naltirilgan kontent
+
+9. 🧪 Test & QA Strategiya (Senior QA tajribasi bilan)
+Test darajalari: Unit, Integration, End-to-End (Playwright, Postman)
+
+Coverage tools: Istanbul/NYC, Allure Report
+
+CI/CD test pipeline (test-before-deploy, rollback triggers)
+
+Regression suite + performance testing (k6, JMeter)
+
+10. 📈 Performance & Scalability
+Horizontal scaling
+
+Redis caching strategy
+
+CDN (Cloudflare, Akamai)
+
+DB optimization: indexing, read replicas
+
+Queue prioritization for notifications
+
+11. 📜 Legal & Privacy (Bolalar uchun)
+COPPA compliance (yoshga mos kontent)
+
+GDPR (foydalanuvchi ma’lumotlarini boshqarish)
+
+Parental consent modeli (ro‘yxatdan o‘tishda tasdiqlovchi jarayon)
+
+BONUS: ⚙️ Extensibility & Plugin Arxitektura
+API-first design (GraphQL/REST mix)
+
+Seller uchun plugin tizimi (promokodlar, chegirma engine, chatbot qo‘shish imkoniyati)
+
+CMS-bloklar (home page uchun custom banner builder)
+
+Yuqoridagi barcha bo‘limlarni har bir modulning:
+
+Texnik strukturasi
+
+UX foydalanuvchi oqimi
+
+Backend logikasi
+
+Frontend komponentlari
+
+Xavfsizlik choralari
+
+QA test ssenariylari
+
+Skalabillik strategiyalari bilan to‘liq, mutaxassis darajasida tushuntirib bering.
