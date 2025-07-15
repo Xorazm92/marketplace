@@ -1,6 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { Line, Bar, Doughnut } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 import styles from './AdminDashboard.module.scss';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  ArcElement,
+  Title,
+  Tooltip,
+  Legend
+);
+import { useRouter } from 'next/router';
 import { getAllProducts, approveProduct, rejectProduct } from '../../endpoints/product';
 import { getUsersAdmin } from '../../endpoints/user';
 
