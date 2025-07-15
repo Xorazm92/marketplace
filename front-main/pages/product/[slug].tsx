@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Header from '../../components/marketplace/Header';
 import ProductImageGallery from '../../components/product/ProductImageGallery';
 import ProductInfo from '../../components/product/ProductInfo';
 import ProductTabs from '../../components/product/ProductTabs';
@@ -93,8 +92,6 @@ const ProductDetailPage: React.FC = () => {
         <title>{product.title} - INBOLA</title>
         <meta name="description" content={product.description} />
       </Head>
-      
-      <Header />
       
       <main className={styles.productDetail}>
         <div className={styles.container}>

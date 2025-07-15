@@ -11,6 +11,23 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class BrandService {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async createWithoutImage(createBrandDto: CreateBrandDto) {
+    const existingBrand = await this.prismaService.brand.findUnique({
+      where: { name: createBrandDto.name },
+    });
+
+    if (existingBrand) {
+      return existingBrand; // Return existing brand instead of throwing error
+    }
+
+    return await this.prismaService.brand.create({
+      data: {
+        name: createBrandDto.name,
+        logo: 'default-brand-logo.png'
+      },
+    });
+  }
+
   async create(createBrandDto: CreateBrandDto, image?: Express.Multer.File) {
     const existingBrand = await this.prismaService.brand.findUnique({
       where: { name: createBrandDto.name },

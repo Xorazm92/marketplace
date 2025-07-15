@@ -26,7 +26,7 @@ const CategorySide = () => {
   if (!categories || categories.length === 0) {
     return (
       <div className={style.empty_message}>
-        <p>Категории не найдены</p>
+        <p>Kategoriyalar topilmadi</p>
       </div>
     );
   }
@@ -41,16 +41,26 @@ const CategorySide = () => {
 
   return (
     <div className={style.category_card_wrapper}>
-      {categories.slice(0, visibleCount).map((category: any) => (
-        <CategoryCard key={category.id} category={category} />
-      ))}
+      {categories.slice(0, visibleCount).map((category: any) => {
+        // Safe category rendering
+        const safeCategory = {
+          id: category?.id || Math.random(),
+          name: category?.name || category?.title || 'Kategoriya',
+          logo: category?.logo || 'default-logo.png',
+          slug: category?.slug || 'category'
+        };
+
+        return (
+          <CategoryCard key={safeCategory.id} category={safeCategory} />
+        );
+      })}
 
       {!isAllShown && (
         <div className={style.view_all} onClick={handleViewAll}>
           <div className={style.view_all_img_wrapper}>
             <Image src={PlusImg} alt="plus_img" />
           </div>
-          <p>Смотреть все</p>
+          <p>Barchasini ko'rish</p>
         </div>
       )}
     </div>

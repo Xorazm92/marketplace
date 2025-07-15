@@ -1,17 +1,6 @@
 import { Field, ObjectType, Int, Float } from '@nestjs/graphql';
 
-// Placeholder User type
-@ObjectType()
-export class User {
-  @Field(() => Int)
-  id: number;
-  @Field()
-  first_name: string;
-  @Field()
-  last_name: string;
-  @Field()
-  email: string;
-}
+// User type is imported from user module to avoid duplication
 
 // Placeholder Address type
 @ObjectType()

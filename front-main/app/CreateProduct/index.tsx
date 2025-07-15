@@ -110,34 +110,54 @@ const CreateProduct = () => {
     }
   }, [isAuthenticated, router]);
 
+  // Input sanitization function
+  const sanitizeInput = (input: string): string => {
+    return input
+      .replace(/[<>]/g, '') // Remove < and > characters
+      .replace(/javascript:/gi, '') // Remove javascript: protocol
+      .replace(/on\w+=/gi, '') // Remove event handlers
+      .trim();
+  };
+
   const handleClickPublishing = async () => {
     try {
+      // Input sanitization
+      const sanitizedData = {
+        ...productData,
+        title: sanitizeInput(productData.title),
+        description: sanitizeInput(productData.description),
+        manufacturer: sanitizeInput(productData.manufacturer || ''),
+        color: sanitizeInput(productData.color || ''),
+        material: sanitizeInput(productData.material || ''),
+        phone_number: productData.phone_number.replace(/[^\d+\-\s()]/g, '') // Only allow phone number characters
+      };
+
       // Basic validation
-      if (!productData.title.trim()) {
+      if (!sanitizedData.title.trim()) {
         toast.info("Mahsulot nomini kiriting");
         return;
-      } else if (!productData.brand_id) {
+      } else if (!sanitizedData.brand_id) {
         toast.info("Brand tanlang");
         return;
-      } else if (!productData.category_id) {
+      } else if (!sanitizedData.category_id) {
         toast.info("Kategoriya tanlang");
         return;
       } else if (!images.length) {
         toast.info("Kamida bitta rasm yuklang");
         return;
-      } else if (!productData.description.trim()) {
+      } else if (!sanitizedData.description.trim()) {
         toast.info("Mahsulot tavsifini kiriting");
         return;
-      } else if (!productData.price) {
-        toast.info("Narxni kiriting");
+      } else if (!sanitizedData.price || sanitizedData.price <= 0) {
+        toast.info("To'g'ri narx kiriting");
         return;
-      } else if (!productData.phone_number) {
+      } else if (!sanitizedData.phone_number) {
         toast.info("Telefon raqamni kiriting");
         return;
       }
 
       const response = await createProduct({
-        data: productData,
+        data: sanitizedData,
         images: images,
         addressData: addressData,
       });

@@ -102,7 +102,7 @@ const Settings: React.FC = () => {
         onClick={() => toast("O'chirishning hozir iloji yo'q")}
       >
         <span>
-          <RiDeleteBin5Line /> Удалить учетную запись
+          <RiDeleteBin5Line /> Hisobni o'chirish
         </span>
       </div>
     </div>

@@ -11,6 +11,13 @@ input AddToWishlistDto {
   product_id: Int!
 }
 
+type Address {
+  city: String!
+  country: String!
+  id: Int!
+  street: String!
+}
+
 type Cart {
   createdAt: DateTime!
   id: Int!
@@ -40,6 +47,25 @@ type Chatroom {
   users: [User!]
 }
 
+input CreateOrderInput {
+  billing_address_id: Int
+  currency_id: Int!
+  discount_amount: Float
+  items: [OrderItemInput!]!
+  notes: String
+  payment_method: String
+  shipping_address_id: Int
+  shipping_amount: Float
+  tax_amount: Float
+  user_id: Int!
+}
+
+type Currency {
+  code: String!
+  id: Int!
+  symbol: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -56,12 +82,15 @@ type Message {
 }
 
 type Mutation {
+  addOrderTracking(description: String, location: String, orderId: Int!, status: String!): Boolean!
   addToCart(input: AddToCartDto!): Cart!
   addToWishlist(input: AddToWishlistDto!): Wishlist!
   addUsersToChatroom(chatroomId: Float!, userIds: [Float!]!): Chatroom!
+  cancelOrder(id: Int!, reason: String): Order!
   clearCart: Cart!
   clearWishlist: Wishlist!
   createChatroom(id: Int!, name: String!): Chatroom!
+  createOrder(createOrderInput: CreateOrderInput!): Order!
   deleteChatroom(chatroomId: Float!): String!
   deleteMessage(chatroomId: Int!, messageId: Int!): Float!
   enterChatroom(chatroomId: Float!): Boolean!
@@ -70,9 +99,78 @@ type Mutation {
   removeFromWishlist(input: RemoveFromWishlistDto!): Wishlist!
   sendMessage(chatroomId: Float!, content: String!, image: Upload): Message!
   updateCartItem(input: UpdateCartItemDto!): Cart!
+  updateOrder(id: Int!, updateOrderInput: UpdateOrderInput!): Order!
   updateProfile(file: Upload, first_name: String!): User!
   userStartedTypingMutation(chatroomId: Float!): User!
   userStoppedTypingMutation(chatroomId: Float!): User!
+}
+
+type Order {
+  billing_address: Address
+  billing_address_id: Int
+  createdAt: DateTime!
+  currency: Currency
+  currency_id: Int!
+  discount_amount: Float
+  final_amount: Float!
+  id: Int!
+  items: [OrderItem!]!
+  items_total: Float!
+  notes: String
+  order_number: String!
+  payment_method: String
+  payment_status: String!
+  payments: [OrderPayment!]!
+  shipping_address: Address
+  shipping_address_id: Int
+  shipping_amount: Float
+  status: String!
+  tax_amount: Float
+  total_amount: Float!
+  total_items: Int!
+  tracking: [OrderTracking!]!
+  updatedAt: DateTime!
+  user: User
+  user_id: Int!
+}
+
+type OrderItem {
+  createdAt: DateTime!
+  id: Int!
+  order_id: Int!
+  product: Product
+  product_id: Int!
+  quantity: Int!
+  total_price: Float!
+  unit_price: Float!
+  updatedAt: DateTime!
+}
+
+input OrderItemInput {
+  product_id: Int!
+  quantity: Int!
+  unit_price: Float!
+}
+
+type OrderPayment {
+  amount: Float!
+  createdAt: DateTime!
+  gateway_response: String
+  id: Int!
+  order_id: Int!
+  payment_method: String!
+  status: String!
+  transaction_id: String
+  updatedAt: DateTime!
+}
+
+type OrderTracking {
+  createdAt: DateTime!
+  description: String
+  id: Int!
+  location: String
+  order_id: Int!
+  status: String!
 }
 
 type Product {
@@ -89,6 +187,7 @@ type ProductImage {
 }
 
 type Query {
+  allOrders(limit: Int! = 20, page: Int! = 1, status: String, userId: Int): [Order!]!
   getCart: Cart!
   getChatroomsForUser: [Chatroom!]!
   getMessagesForChatroom(chatroomId: Float!): [Message!]!
@@ -96,6 +195,11 @@ type Query {
   getUsersOfChatroom(chatroomId: Float!): [User!]!
   getWishlist: Wishlist!
   isInWishlist(product_id: Float!): Boolean!
+  myOrderStatistics: String!
+  myOrders(limit: Int! = 10, page: Int! = 1, status: String): [Order!]!
+  order(id: Int!): Order!
+  orderByNumber(orderNumber: String!): Order!
+  orderStatistics: String!
   searchUsers(first_name: String!): [User!]!
 }
 
@@ -118,6 +222,12 @@ type Subscription {
 input UpdateCartItemDto {
   cart_item_id: Int!
   quantity: Int!
+}
+
+input UpdateOrderInput {
+  notes: String
+  payment_status: String
+  status: String
 }
 
 """The `Upload` scalar type represents a file upload."""

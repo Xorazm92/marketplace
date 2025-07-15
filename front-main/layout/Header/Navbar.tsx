@@ -9,16 +9,19 @@ import {
   FaChevronDown,
   FaBars,
   FaXmark,
+  FaShoppingCart,
 } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { getLocalStorage } from "../../utils/local-storege";
 import { DropDown } from "./components";
+import { getCart } from "../../endpoints/cart";
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const token = getLocalStorage("accessToken");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -54,6 +57,30 @@ const Navbar = () => {
       document.body.style.overflow = "";
     };
   }, [isMenuOpen]);
+
+  // Load cart count
+  useEffect(() => {
+    const loadCartCount = async () => {
+      if (token && isAuthenticated) {
+        try {
+          const cartData = await getCart();
+          setCartCount(cartData.total_items || 0);
+        } catch (error) {
+          console.error("Error loading cart count:", error);
+        }
+      }
+    };
+
+    loadCartCount();
+
+    // Listen for storage events to update cart count
+    const handleStorageChange = () => {
+      loadCartCount();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, [token, isAuthenticated]);
 
   const closeMenu = () => {
     setIsMenuOpen(false);
@@ -92,7 +119,22 @@ const Navbar = () => {
             >
               <div className={style.navItem}>
                 <FaRegHeart size={18} />
-                <span>Избранное</span>
+                <span>Sevimlilar</span>
+              </div>
+            </Link>
+
+            <Link
+              href={token && isAuthenticated ? "/cart" : "/login"}
+              onClick={closeMenu}
+            >
+              <div className={style.navItem}>
+                <div className={style.cartIcon}>
+                  <FaShoppingCart size={18} />
+                  {cartCount > 0 && (
+                    <span className={style.cartBadge}>{cartCount}</span>
+                  )}
+                </div>
+                <span>Savatcha</span>
               </div>
             </Link>
 

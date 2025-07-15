@@ -22,32 +22,32 @@ interface AdminLayoutProps {
 const menuItems = [
   {
     id: 'dashboard' as AdminTab,
-    label: 'Dashboard',
-    icon: '📊',
-    description: 'Umumiy ko\'rinish'
+    label: 'Boshqaruv paneli',
+    icon: '🏠',
+    description: 'Umumiy ko\'rinish va statistika'
   },
   {
     id: 'products' as AdminTab,
     label: 'Mahsulotlar',
-    icon: '📦',
-    description: 'Mahsulot boshqaruvi'
+    icon: '🧸',
+    description: 'Bolalar mahsulotlari boshqaruvi'
   },
   {
     id: 'orders' as AdminTab,
     label: 'Buyurtmalar',
-    icon: '🛒',
-    description: 'Buyurtma boshqaruvi'
+    icon: '📋',
+    description: 'Buyurtmalar va yetkazib berish'
   },
   {
     id: 'users' as AdminTab,
     label: 'Foydalanuvchilar',
-    icon: '👥',
-    description: 'Foydalanuvchi boshqaruvi'
+    icon: '👨‍👩‍👧‍👦',
+    description: 'Mijozlar va sotuvchilar'
   },
   {
     id: 'analytics' as AdminTab,
-    label: 'Analitika',
-    icon: '📈',
+    label: 'Hisobotlar',
+    icon: '📊',
     description: 'Hisobotlar va statistika'
   },
   {

@@ -1,52 +1,19 @@
 import React from 'react';
 import styles from './AdminDashboard.module.scss';
 
-// Mock data - real loyihada API dan keladi
+// Demo ma'lumotlar o'chirildi - real API ma'lumotlari ishlatiladi
 const dashboardStats = {
-  totalProducts: 1247,
-  totalOrders: 856,
-  totalUsers: 2341,
-  totalRevenue: 45670000,
-  todayOrders: 23,
-  pendingOrders: 12,
-  lowStockProducts: 8,
-  newUsers: 15
+  totalProducts: 0,
+  totalOrders: 0,
+  totalUsers: 0,
+  totalRevenue: 0,
+  todayOrders: 0,
+  pendingOrders: 0,
+  lowStockProducts: 0,
+  newUsers: 0
 };
 
-const recentOrders = [
-  {
-    id: 1,
-    orderNumber: 'INB-2024-001',
-    customer: 'Malika Karimova',
-    total: 125000,
-    status: 'pending',
-    date: '2024-01-20'
-  },
-  {
-    id: 2,
-    orderNumber: 'INB-2024-002',
-    customer: 'Akmal Toshmatov',
-    total: 89000,
-    status: 'processing',
-    date: '2024-01-20'
-  },
-  {
-    id: 3,
-    orderNumber: 'INB-2024-003',
-    customer: 'Dilnoza Rahimova',
-    total: 156000,
-    status: 'shipped',
-    date: '2024-01-19'
-  },
-  {
-    id: 4,
-    orderNumber: 'INB-2024-004',
-    customer: 'Bobur Karimov',
-    total: 67000,
-    status: 'delivered',
-    date: '2024-01-19'
-  }
-];
+const recentOrders: any[] = [];
 
 const topProducts = [
   {

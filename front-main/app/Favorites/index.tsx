@@ -19,7 +19,7 @@ const Favorites = () => {
     return (
       <div className={`${styles.favorites} ${styles.container}`}>
         <Breadcrumb />
-        <h1 className={styles.title}>Избранное</h1>
+        <h1 className={styles.title}>Sevimlilar</h1>
         <div className={styles.hrLine} />
       </div>
     );
@@ -29,9 +29,9 @@ const Favorites = () => {
     return (
       <div className={`${styles.favorites} ${styles.container}`}>
         <Breadcrumb />
-        <h1 className={styles.title}>Избранное</h1>
+        <h1 className={styles.title}>Sevimlilar</h1>
         <div className={styles.hrLine} />
-        <p>Произошла ошибка при загрузке товаров.</p>
+        <p>Mahsulotlarni yuklashda xatolik yuz berdi.</p>
       </div>
     );
   }
@@ -40,14 +40,14 @@ const Favorites = () => {
     return (
       <div className={`${styles.favorites} ${styles.container}`}>
         <Breadcrumb />
-        <h1 className={styles.title}>Избранное</h1>
+        <h1 className={styles.title}>Sevimlilar</h1>
         <div className={styles.hrLine} />
         <div className={styles.emptyState}>
           <div className={styles.emptyIcon}>
             <HeartIcon />
           </div>
-          <h3>Нет избранных товаров</h3>
-          <p>Добавьте товары в избранное, нажав на сердечко</p>
+          <h3>Sevimli mahsulotlar yo'q</h3>
+          <p>Mahsulotlarni sevimlilar ro'yxatiga qo'shish uchun yurakchani bosing</p>
         </div>
       </div>
     );
@@ -56,7 +56,7 @@ const Favorites = () => {
   return (
     <div className={`${styles.favorites} ${styles.container}`}>
       <Breadcrumb />
-      <h1 className={styles.title}>Избранное</h1>
+      <h1 className={styles.title}>Sevimlilar</h1>
       <div className={styles.hrLine} />
       <div className={styles.cardGrid}>
         {favoriteProducts.map((product: Product) => (

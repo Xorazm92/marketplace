@@ -12,7 +12,7 @@ import { Product } from "../../types";
 import Chat from "../Chat";
 import { useRouter } from "next/router";
 
-type TabType = "Объявления" | "Сообщения" | "Избранное" | "Настройки";
+type TabType = "E'lonlar" | "Xabarlar" | "Sevimlilar" | "Sozlamalar";
 
 const Profile = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +41,7 @@ const Profile = () => {
 
   const userProfile = {
     first_name: me ? `${me.first_name} ${me.last_name}` : "",
-    balance: me?.balance ? `${me.balance} сум` : "0 сум",
+    balance: me?.balance ? `${me.balance} so'm` : "0 so'm",
     profile_img:
       `${process.env.NEXT_PUBLIC_BASE_URL}/uploads/${me?.profile_img}` ||
       "/img/profile/Avatar.svg",
@@ -75,7 +75,7 @@ const Profile = () => {
   return (
     <div className={`${styles.profile} ${styles.container}`}>
       <Breadcrumb />
-      <h1 className={styles.title}>Профиль</h1>
+      <h1 className={styles.title}>Profil</h1>
       <div className={styles.hrLine} />
 
       <div className={styles.userInfo}>
@@ -87,19 +87,19 @@ const Profile = () => {
         <div>
           <h2>{userProfile.first_name}</h2>
           <p>
-            Баланс:{" "}
+            Balans:{" "}
             <span className={styles.balance}>{userProfile.balance}</span>
           </p>
         </div>
         <button className={styles.editButton} onClick={openModal}>
           <div className={styles.edit}>
-            <PenIcon /> Редактировать
+            <PenIcon /> Tahrirlash
           </div>
         </button>
       </div>
 
       <div className={styles.tabs}>
-        {["Объявления", "Сообщения", "Избранное", "Настройки"].map((tab) => (
+        {["E'lonlar", "Xabarlar", "Sevimlilar", "Sozlamalar"].map((tab) => (
           <div
             onClick={() => handleClick(tab as TabType)}
             key={tab}
@@ -112,24 +112,24 @@ const Profile = () => {
 
       <div className={styles.hrLine} />
 
-      {router.query.tab !== "Сообщения" && router.query.tab !== "Настройки" && (
+      {router.query.tab !== "Xabarlar" && router.query.tab !== "Sozlamalar" && (
         <div className={styles.search}>
           <div className={styles.searchInput}>
             <SearchIcon />
-            <input type="text" placeholder="Type e.g Slots games" />
+            <input type="text" placeholder="Mahsulot qidirish..." />
           </div>
-          <button className={styles.searchButton}>Поиск</button>
+          <button className={styles.searchButton}>Qidirish</button>
         </div>
       )}
 
-      {router.query.tab === "Избранное" ? (
+      {router.query.tab === "Sevimlilar" ? (
         favoriteProducts.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
               <HeartIcon />
             </div>
-            <h3>Нет избранных товаров</h3>
-            <p>Добавьте товары в избранное, нажав на сердечко</p>
+            <h3>Sevimli mahsulotlar yo'q</h3>
+            <p>Mahsulotlarni sevimlilar ro'yxatiga qo'shish uchun yurakchani bosing</p>
           </div>
         ) : (
           <div className={styles.cardGrid}>
@@ -143,9 +143,9 @@ const Profile = () => {
             ))}
           </div>
         )
-      ) : router.query.tab === "Настройки" ? (
+      ) : router.query.tab === "Sozlamalar" ? (
         <Settings />
-      ) : router.query.tab === "Сообщения" ? (
+      ) : router.query.tab === "Xabarlar" ? (
         <Chat />
       ) : (
         <div className={styles.cardGrid}>

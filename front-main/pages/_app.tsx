@@ -12,7 +12,7 @@ export default function App({ Component, pageProps }: AppProps) {
   const queryClient = new QueryClient();
   const router = useRouter();
 
-  const noLayoutPages = ["/sign-up", "/login", "/forgot-password"];
+  const noLayoutPages = ["/sign-up", "/login", "/forgot-password", "/admin"];
   const shouldShowLayout = !noLayoutPages.includes(router.pathname);
 
   return (

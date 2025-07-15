@@ -158,31 +158,31 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                   style={{ display: "none" }}
                 />
                 <UploadIcon />
-                Загрузить
+                Yuklash
               </label>
             </div>
 
             <div className={styles.formGroup}>
-              <label>Имя</label>
+              <label>Ism</label>
               <input
                 type="text"
                 name="first_name"
                 value={formik.values.first_name}
                 onChange={formik.handleChange}
-                placeholder="Введите имя"
+                placeholder="Ismingizni kiriting"
                 className={styles.textInput}
                 required
               />
             </div>
 
             <div className={styles.formGroup}>
-              <label>Фамилия</label>
+              <label>Familiya</label>
               <input
                 type="text"
                 name="last_name"
                 value={formik.values.last_name}
                 onChange={formik.handleChange}
-                placeholder="Введите фамилию"
+                placeholder="Familiyangizni kiriting"
                 className={styles.textInput}
                 required
               />
@@ -197,7 +197,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 >
                   <div className={styles.leftIcon}>
                     <DateIcon />
-                    <span className={styles.dateLabel}>День рождения</span>
+                    <span className={styles.dateLabel}>Tug'ilgan kun</span>
                   </div>
                   <div className={styles.rightIcon}>
                     <span className={styles.dateValue}>
@@ -232,7 +232,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 !formik.values.last_name.trim()
               }
             >
-              Сохранить
+              Saqlash
             </button>
           </div>
         </form>

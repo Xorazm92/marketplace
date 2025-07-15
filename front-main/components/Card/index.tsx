@@ -29,11 +29,14 @@ const Card: React.FC<CardProps> = ({
       <img
         src={
           product_image && product_image.length > 0
-            ? `${process.env.NEXT_PUBLIC_BASE_URL}/${product_image[0].url}`
-            : "mobile_phone_image.jpg"
+            ? `${process.env.NEXT_PUBLIC_BASE_URL}/public/${product_image[0].url || product_image[0].image}`
+            : "/img/placeholder-product.jpg"
         }
         alt={title}
         className={styles.image}
+        onError={(e) => {
+          e.currentTarget.src = '/img/placeholder-product.jpg';
+        }}
       />
       <div className={styles.info}>
         <div className={styles.title}>

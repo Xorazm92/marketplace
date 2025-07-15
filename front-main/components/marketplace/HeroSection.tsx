@@ -96,12 +96,64 @@ const HeroSection: React.FC = () => {
       </div>
 
 
-      {/* Navigation Arrows */}
-      <button className={styles.prevButton} onClick={prevSlide}>
-        ‹
+      {/* Navigation Arrows - Standart va chiroyli */}
+      <button
+        className={styles.prevButton}
+        onClick={prevSlide}
+        aria-label="Oldingi slayd"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '20px',
+          transform: 'translateY(-50%)',
+          background: 'rgba(255, 255, 255, 0.95)',
+          color: '#333',
+          border: '2px solid rgba(255, 255, 255, 0.3)',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          zIndex: 10,
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0'
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#333' }}>
+          <path d="M15 18L9 12L15 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </button>
-      <button className={styles.nextButton} onClick={nextSlide}>
-        ›
+      <button
+        className={styles.nextButton}
+        onClick={nextSlide}
+        aria-label="Keyingi slayd"
+        style={{
+          position: 'absolute',
+          top: '50%',
+          right: '20px',
+          transform: 'translateY(-50%)',
+          background: 'rgba(255, 255, 255, 0.95)',
+          color: '#333',
+          border: '2px solid rgba(255, 255, 255, 0.3)',
+          width: '48px',
+          height: '48px',
+          borderRadius: '50%',
+          cursor: 'pointer',
+          zIndex: 10,
+          backdropFilter: 'blur(10px)',
+          boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '0'
+        }}
+      >
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" style={{ color: '#333' }}>
+          <path d="M9 18L15 12L9 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
       </button>
 
       {/* Dots Indicator */}

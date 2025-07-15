@@ -6,7 +6,7 @@ export class SmsService {
     data.append('mobile_phone', phone_number);
     data.append(
       'message',
-      `salom phono sizning tech akauntingizning paroli: ${otp}`,
+      `INBOLA - Sizning tasdiqlash kodingiz: ${otp}. Kodni hech kimga bermang!`,
     );
     data.append('from', '4546');
 

@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
 import Link from 'next/link';
 import { getAllProducts } from '../../endpoints/product';
+import { RootState } from '../../store/store';
 import styles from './ProductSection.module.scss';
 
 interface Product {
@@ -23,6 +25,8 @@ interface ProductSectionProps {
 }
 
 const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, products }) => {
+  // Get products from Redux store
+  const { products: allProducts } = useSelector((state: RootState) => state.products);
   const [realProducts, setRealProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -41,11 +45,113 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
     return categoryMap[category] || category;
   };
 
-  // Load real products from API
+  // Load real products from API or Redux
   useEffect(() => {
     const loadProducts = async () => {
       try {
         setLoading(true);
+
+        // First check Redux store
+        if (allProducts.length > 0) {
+          console.log('All products from Redux:', allProducts);
+          console.log('Looking for category:', title, 'or products:', products);
+          console.log('First product structure:', allProducts[0]);
+
+          // Filter products by category from Redux store with safe checks
+          const filteredProducts = allProducts.filter(product => {
+            try {
+              // Safe category extraction
+              const productCategory = product?.category;
+              if (!productCategory || typeof productCategory !== 'string') {
+                console.log('Product without valid category:', product);
+                return false; // Skip products without valid category
+              }
+
+              const productCategoryLower = productCategory.toLowerCase();
+              const titleLower = title.toLowerCase();
+              const productsLower = products.toLowerCase();
+
+              console.log(`Comparing: "${productCategory}" with title: "${title}" and products: "${products}"`);
+
+              // Enhanced matching strategies
+              const isMatch = (
+                productCategoryLower.includes(titleLower) ||
+                productCategoryLower.includes(productsLower) ||
+                titleLower.includes(productCategoryLower) ||
+                productsLower.includes(productCategoryLower) ||
+                productCategory === title ||
+                // Exact mappings for better matching
+                (title === "Kiyim-kechak" && (
+                  productCategoryLower.includes("kiyim") ||
+                  productCategoryLower.includes("clothing") ||
+                  productCategory === "Kiyim-kechak"
+                )) ||
+                (title === "O'yinchiqlar" && (
+                  productCategoryLower.includes("o'yinchiq") ||
+                  productCategoryLower.includes("toy") ||
+                  productCategory === "O'yinchiqlar"
+                )) ||
+                (title === "Kitoblar" && (
+                  productCategoryLower.includes("kitob") ||
+                  productCategoryLower.includes("book") ||
+                  productCategory === "Kitoblar"
+                )) ||
+                (title === "Sport anjomlar" && (
+                  productCategoryLower.includes("sport") ||
+                  productCategory === "Sport anjomlar"
+                )) ||
+                (title === "Maktab buyumlari" && (
+                  productCategoryLower.includes("maktab") ||
+                  productCategoryLower.includes("ta'lim") ||
+                  productCategoryLower.includes("school") ||
+                  productCategory === "Maktab buyumlari"
+                )) ||
+                (title === "Chaqaloq buyumlari" && (
+                  productCategoryLower.includes("chaqaloq") ||
+                  productCategoryLower.includes("baby") ||
+                  productCategory === "Chaqaloq buyumlari"
+                )) ||
+                (title === "Elektronika" && (
+                  productCategoryLower.includes("elektronika") ||
+                  productCategoryLower.includes("electronic") ||
+                  productCategory === "Elektronika"
+                )) ||
+                (title === "Sog'liq" && (
+                  productCategoryLower.includes("sog'liq") ||
+                  productCategoryLower.includes("health") ||
+                  productCategory === "Sog'liq"
+                ))
+              );
+
+              console.log(`Match result for "${productCategory}": ${isMatch}`);
+              return isMatch;
+            } catch (error) {
+              console.error('Error filtering product:', error, product);
+              return false;
+            }
+          });
+
+          console.log('Filtered products:', filteredProducts);
+
+          if (filteredProducts.length > 0) {
+            setRealProducts(filteredProducts.slice(0, 8)); // Show max 8 products
+            setLoading(false);
+            return;
+          } else {
+            // If no specific category match, show all available products
+            console.log('No category match found, showing all products for:', title);
+            if (allProducts.length > 0) {
+              setRealProducts(allProducts.slice(0, 4)); // Show first 4 products
+            } else {
+              // Show empty state or placeholder products
+              setRealProducts([]);
+            }
+            setLoading(false);
+            return;
+          }
+        }
+
+        // Fallback to API call
         const categorySlug = getCategorySlug(products);
         const response = await getAllProducts(categorySlug);
 
@@ -74,7 +180,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
     };
 
     loadProducts();
-  }, [products]);
+  }, [allProducts, products, title]); // Re-run when Redux products change
 
   // Sample products data based on category (fallback)
   const getProductsByCategory = (category: string): Product[] => {
@@ -622,21 +728,39 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';
   };
 
-  // Map real product data to display format
-  const mapRealProduct = (product: any) => ({
-    id: product.id,
-    title: product.title || 'Mahsulot',
-    price: product.price || 0,
-    originalPrice: product.original_price,
-    image: product.product_image?.[0]?.url ?
-      (product.product_image[0].url.startsWith('http') ?
-        product.product_image[0].url :
-        `http://localhost:4000/${product.product_image[0].url}`) :
-      '/img/placeholder-product.jpg',
-    rating: 4.5, // Default rating
-    reviews: 0,
-    slug: `product-${product.id}`
-  });
+  // Map real product data to display format with safe checks
+  const mapRealProduct = (product: any) => {
+    try {
+      return {
+        id: product?.id || Math.random(),
+        title: product?.title || 'Mahsulot',
+        price: product?.price || 0,
+        originalPrice: product?.original_price || product?.originalPrice,
+        image: product?.product_image?.[0]?.url ?
+          (product.product_image[0].url.startsWith('http') ?
+            product.product_image[0].url :
+            (product.product_image[0].url.startsWith('/') ?
+              product.product_image[0].url :
+              `/${product.product_image[0].url}`)) :
+          '/img/placeholder-product.jpg',
+        rating: 4.5, // Default rating
+        reviews: Math.floor(Math.random() * 100) + 10,
+        slug: `product-${product?.id || Math.random()}`
+      };
+    } catch (error) {
+      console.error('Error mapping product:', error, product);
+      return {
+        id: Math.random(),
+        title: 'Xatolik',
+        price: 0,
+        originalPrice: 0,
+        image: '/img/placeholder-product.jpg',
+        rating: 0,
+        reviews: 0,
+        slug: 'error-product'
+      };
+    }
+  };
 
   if (loading) {
     return (
@@ -689,6 +813,12 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
                     src={mappedProduct.image}
                     alt={mappedProduct.title}
                     className={styles.productImage}
+                    loading="lazy"
+                    onError={(e) => {
+                      const target = e.target as HTMLImageElement;
+                      target.style.display = 'none';
+                      target.nextElementSibling?.classList.remove('hidden');
+                    }}
                   />
                 ) : (
                   <div className={styles.imagePlaceholder}>
@@ -703,7 +833,12 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
               </div>
               
               <div className={styles.content}>
-                <h3 className={styles.productTitle}>{mappedProduct.title}</h3>
+                <h3 className={styles.productTitle}>{
+  typeof mappedProduct.title === 'object' && mappedProduct.title !== null
+    ? JSON.stringify(mappedProduct.title)
+    : mappedProduct.title
+}</h3>
+<pre style={{fontSize:'10px',color:'#888',background:'#f7f7f7',overflowX:'auto'}}>{JSON.stringify(mappedProduct, null, 2)}</pre>
 
                 <div className={styles.priceContainer}>
                   <span className={styles.currentPrice}>{formatPrice(mappedProduct.price)}</span>

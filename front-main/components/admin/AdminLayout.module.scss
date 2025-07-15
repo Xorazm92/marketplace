@@ -2,19 +2,22 @@
   display: flex;
   min-height: 100vh;
   background: #f8f9fa;
+  position: relative;
 
   .sidebar {
-    width: 280px;
-    background: #2c3e50;
+    width: 300px;
+    background: linear-gradient(180deg, #2c3e50 0%, #34495e 100%);
     color: white;
     transition: all 0.3s ease;
     position: fixed;
     height: 100vh;
     z-index: 1000;
     overflow-y: auto;
+    box-shadow: 4px 0 20px rgba(0, 0, 0, 0.15);
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
 
     &.collapsed {
-      width: 70px;
+      width: 80px;
 
       .sidebarHeader .logoText {
         display: none;
@@ -30,24 +33,35 @@
     }
 
     .sidebarHeader {
-      padding: 20px;
-      border-bottom: 1px solid #34495e;
+      padding: 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
 
       .logo {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: 16px;
 
         .logoIcon {
-          font-size: 1.8rem;
+          font-size: 2.2rem;
+          background: linear-gradient(135deg, #ff6b6b 0%, #ee5a24 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
         }
 
         .logoText {
-          font-size: 1.3rem;
-          font-weight: 700;
+          font-size: 1.5rem;
+          font-weight: 800;
+          background: linear-gradient(135deg, #ffffff 0%, #ecf0f1 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+          text-transform: uppercase;
+          letter-spacing: 1px;
         }
       }
 
@@ -161,11 +175,15 @@
 
   .mainContent {
     flex: 1;
-    margin-left: 280px;
+    margin-left: 300px;
     transition: margin-left 0.3s ease;
+    min-height: 100vh;
+    background: #f8f9fa;
+    position: relative;
+    z-index: 1;
 
     .sidebar.collapsed + & {
-      margin-left: 70px;
+      margin-left: 80px;
     }
 
     @media (max-width: 768px) {

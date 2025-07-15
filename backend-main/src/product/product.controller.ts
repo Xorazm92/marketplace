@@ -59,7 +59,7 @@ export class ProductController {
   
   @ApiOperation({ summary: "Create new product" })
   @ApiBearerAuth("inbola")
-  // @UseGuards(UserGuard)
+  // @UseGuards(UserGuard) // Temporarily disabled for admin testing
   @Post("create")
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(
@@ -73,17 +73,45 @@ export class ProductController {
     @Body() createProductDto: CreateProductDto
   ) {
     try {
+      console.log('=== PRODUCT CREATION DEBUG ===');
+      console.log('Received product data:', createProductDto);
+      console.log('Data types:', {
+        title: typeof createProductDto.title,
+        price: typeof createProductDto.price,
+        currency_id: typeof createProductDto.currency_id,
+        category_id: typeof createProductDto.category_id,
+        brand_id: typeof createProductDto.brand_id,
+        negotiable: typeof createProductDto.negotiable,
+        condition: typeof createProductDto.condition
+      });
+      console.log('Received files:', files);
+      console.log('Files count:', files?.images?.length || 0);
+
       return await this.productService.create(createProductDto, files);
     } catch (error) {
-      console.log(error);
-      
+      console.error('=== PRODUCT CREATION ERROR ===');
+      console.error('Error details:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+
+      // Handle validation errors
+      if (error.response && error.response.message) {
+        throw new BadRequestException(error.response.message);
+      }
+
       // Handle Prisma foreign key constraint errors
       if (error.code === "P2003") {
         throw new BadRequestException(
           `Foreign key constraint failed: ${error.meta?.field || "Unknown field"}`
         );
       }
-      throw new InternalServerErrorException(
+
+      // Handle other Prisma errors
+      if (error.code) {
+        throw new BadRequestException(`Database error: ${error.message}`);
+      }
+
+      throw new BadRequestException(
         error.message || "An unexpected error occurred"
       );
     }

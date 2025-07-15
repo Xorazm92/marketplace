@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   UseGuards,
+  BadRequestException,
 } from '@nestjs/common';
 import { CurrencyService } from './currency.service';
 import { CreateCurrencyDto } from './dto/create-currency.dto';
@@ -28,6 +29,35 @@ export class CurrencyController {
     return this.currencyService.create(createCurrencyDto);
   }
   
+  @Post('seed')
+  @ApiOperation({ summary: 'Seed default currencies' })
+  @ApiResponse({ status: 201, description: 'Currencies seeded successfully' })
+  async seed() {
+    try {
+      // Check if currencies already exist
+      const existingCurrencies = await this.currencyService.findAll();
+      if (existingCurrencies.length > 0) {
+        return { message: 'Currencies already exist' };
+      }
+
+      // Create default currencies
+      const defaultCurrencies = [
+        { name: 'O\'zbek so\'mi', code: 'UZS', symbol: 'so\'m' },
+        { name: 'US Dollar', code: 'USD', symbol: '$' },
+        { name: 'Euro', code: 'EUR', symbol: '€' },
+        { name: 'Russian Ruble', code: 'RUB', symbol: '₽' }
+      ];
+
+      for (const currency of defaultCurrencies) {
+        await this.currencyService.create(currency);
+      }
+
+      return { message: 'Currencies seeded successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to seed currencies');
+    }
+  }
+
   @Get()
   @ApiOperation({ summary: 'Get all currencies' })
   @ApiResponse({ status: 200, description: 'List of currencies' })

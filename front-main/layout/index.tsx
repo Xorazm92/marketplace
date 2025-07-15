@@ -1,6 +1,6 @@
 import React, { FC } from "react";
 import style from "./layout.module.scss";
-import Navbar from "./Header/Navbar";
+import MarketplaceHeader from "../components/marketplace/Header";
 interface MainLayoutProps {
   children: React.ReactNode;
 }
@@ -9,7 +9,7 @@ const MainLayout: FC<MainLayoutProps> = (props) => {
   return (
     <div className={style.layout_wrapper}>
       <div>
-        <Navbar />
+        <MarketplaceHeader />
         {props.children}
       </div>
     </div>

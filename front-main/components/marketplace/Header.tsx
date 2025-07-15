@@ -3,18 +3,38 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from './Header.module.scss';
 import { getAllCategories } from '../../endpoints/category';
+import { getCart } from '../../endpoints/cart';
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [categories, setCategories] = useState<any[]>([]);
+  const [cartItemsCount, setCartItemsCount] = useState(0);
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
       router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+    }
+  };
+
+  const loadCartCount = async () => {
+    try {
+      const token = localStorage.getItem('accessToken');
+      if (token) {
+        const cartData = await getCart();
+        setCartItemsCount(cartData?.total_items || 0);
+      } else {
+        // Agar login qilmagan bo'lsa, cart count 0
+        setCartItemsCount(0);
+      }
+    } catch (error) {
+      console.error('Error loading cart count:', error);
+      // Xatolik bo'lsa ham cart count 0 qo'yamiz
+      setCartItemsCount(0);
     }
   };
 
@@ -49,7 +69,36 @@ const Header: React.FC = () => {
     };
 
     loadCategories();
+    loadCartCount();
   }, []);
+
+  // Reload cart count when user logs in/out
+  useEffect(() => {
+    const handleStorageChange = () => {
+      loadCartCount();
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
+  }, []);
+
+  // Click outside to close categories dropdown
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest(`.${styles.categoriesDropdown}`)) {
+        setIsCategoriesOpen(false);
+      }
+    };
+
+    if (isCategoriesOpen) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [isCategoriesOpen]);
 
   return (
     <header className={styles.header}>
@@ -63,10 +112,56 @@ const Header: React.FC = () => {
             </Link>
 
             {/* Categories Button - aynan Etsy kabi */}
-            <button className={styles.categoriesButton}>
-              <span className={styles.hamburgerIcon}>☰</span>
-              <span>Categories</span>
-            </button>
+            <div className={styles.categoriesDropdown}>
+              <button
+                className={styles.categoriesButton}
+                onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
+              >
+                <span className={styles.hamburgerIcon}>☰</span>
+                <span>Kategoriyalar</span>
+              </button>
+
+              {isCategoriesOpen && (
+                <div className={styles.categoriesMenu}>
+                  <div className={styles.categoriesGrid}>
+                    {categories.map((category, index) => {
+                      // Safe category rendering
+                      const categoryName = typeof category === 'object' ?
+                        (category.name || category.title || 'Kategoriya') :
+                        String(category);
+                      const categoryHref = typeof category === 'object' ?
+                        (category.href || `/category/${category.slug || category.id || 'category'}`) :
+                        '/category/default';
+
+                      return (
+                        <Link
+                          key={index}
+                          href={categoryHref}
+                          className={styles.categoryMenuItem}
+                          onClick={() => setIsCategoriesOpen(false)}
+                        >
+                          {categoryName}
+                        </Link>
+                      );
+                    })}
+                    <Link
+                      href="/deals"
+                      className={styles.categoryMenuItem}
+                      onClick={() => setIsCategoriesOpen(false)}
+                    >
+                      Chegirmalar
+                    </Link>
+                    <Link
+                      href="/categories"
+                      className={`${styles.categoryMenuItem} ${styles.viewAll}`}
+                      onClick={() => setIsCategoriesOpen(false)}
+                    >
+                      Barchasini ko'rish →
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
 
             {/* Search - aynan Etsy kabi */}
             <div className={styles.searchContainer}>
@@ -86,20 +181,23 @@ const Header: React.FC = () => {
 
             {/* Header Actions - aynan Etsy kabi */}
             <div className={styles.headerActions}>
-              <Link href="/login" className={styles.signInLink}>
-                Sign in
+              <Link href="/orders" className={styles.signInLink}>
+                Buyurtmalar
               </Link>
 
               <Link href="/wishlist" className={styles.iconLink}>
                 <span className={styles.icon}>🤍</span>
               </Link>
 
-              <Link href="/gifts" className={styles.iconLink}>
-                <span className={styles.icon}>🎁</span>
+              <Link href="/login" className={styles.iconLink}>
+                <span className={styles.icon}>👤</span>
               </Link>
 
               <Link href="/cart" className={styles.iconLink}>
                 <span className={styles.icon}>🛒</span>
+                {cartItemsCount > 0 && (
+                  <span className={styles.cartBadge}>{cartItemsCount}</span>
+                )}
               </Link>
             </div>
 
@@ -119,25 +217,7 @@ const Header: React.FC = () => {
         </div>
       </div>
 
-      {/* Categories Navigation - Etsy kabi oddiy */}
-      <nav className={styles.categoriesNav}>
-        <div className={styles.container}>
-          <div className={styles.categoriesList}>
-            {categories.map((category, index) => (
-              <Link
-                key={index}
-                href={category.href}
-                className={styles.categoryItem}
-              >
-                {category.name}
-              </Link>
-            ))}
-            <Link href="/deals" className={styles.categoryItem}>
-              Chegirmalar
-            </Link>
-          </div>
-        </div>
-      </nav>
+
 
       {/* Mobile Menu Overlay */}
       {isMenuOpen && (
@@ -153,17 +233,30 @@ const Header: React.FC = () => {
               </button>
             </div>
             <div className={styles.mobileMenuContent}>
-              {categories.map((category, index) => (
-                <Link
-                  key={index}
-                  href={category.href}
-                  className={styles.mobileNavLink}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  <span className={styles.mobileIcon}>{category.icon}</span>
-                  <span>{category.name}</span>
-                </Link>
-              ))}
+              {categories.map((category, index) => {
+                // Safe category rendering for mobile
+                const categoryName = typeof category === 'object' ?
+                  (category.name || category.title || 'Kategoriya') :
+                  String(category);
+                const categoryHref = typeof category === 'object' ?
+                  (category.href || `/category/${category.slug || category.id || 'category'}`) :
+                  '/category/default';
+                const categoryIcon = typeof category === 'object' ?
+                  (category.icon || '📦') :
+                  '📦';
+
+                return (
+                  <Link
+                    key={index}
+                    href={categoryHref}
+                    className={styles.mobileNavLink}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    <span className={styles.mobileIcon}>{categoryIcon}</span>
+                    <span>{categoryName}</span>
+                  </Link>
+                );
+              })}
               <Link
                 href="/deals"
                 className={styles.mobileNavLink}

@@ -73,9 +73,14 @@ export class OtpService {
 
     const encodedData = await encode(JSON.stringify(details));
 
+    // Development mode: log OTP to console
+    if (process.env.NODE_ENV === 'development') {
+      console.log(`🔐 OTP for ${phone_number}: ${otp}`);
+    }
+
     const res = await SmsService.sendSMS(phone_number, otp);
 
-    return { key: encodedData, message: "successfully send otp", status: 200 };
+    return { key: encodedData, message: "successfully send otp", status: 200, otp: process.env.NODE_ENV === 'development' ? otp : undefined };
   }
 
   async verifyOtp(dto: VerifyDto) {

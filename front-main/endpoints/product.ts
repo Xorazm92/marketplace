@@ -168,13 +168,34 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     // Add default user_id for development
     const productDataWithUser = {
       ...productData,
-      user_id: productData.user_id || "1" // Default to user ID 1
+      user_id: productData.user_id || 1 // Default to user ID 1 as number
     };
 
-    // Add product data to formData
+    // Add product data to formData with proper type conversion
     Object.entries(productDataWithUser).forEach(([key, value]) => {
       if (value !== undefined && value !== null) {
-        formData.append(key, value as string);
+        // Handle arrays (like features)
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            // For arrays, append each item separately
+            value.forEach((item) => {
+              formData.append(key, String(item));
+            });
+          }
+          // Don't append empty arrays
+        }
+        // Convert boolean values to string
+        else if (typeof value === 'boolean') {
+          formData.append(key, value.toString());
+        }
+        // Convert numbers to string
+        else if (typeof value === 'number') {
+          formData.append(key, value.toString());
+        }
+        // Everything else as string
+        else {
+          formData.append(key, String(value));
+        }
       }
     });
 
@@ -182,6 +203,12 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     images.forEach((img) => {
       formData.append("images", img);
     });
+
+    // Debug FormData contents
+    console.log("=== FORMDATA DEBUG ===");
+    for (let [key, value] of formData.entries()) {
+      console.log(`${key}:`, value);
+    }
 
     const res = await instance.post("/product/create", formData, {
       headers: {
@@ -192,8 +219,15 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
 
     return res.data;
   } catch (error: any) {
-    console.error("Error creating admin product:", error);
-    toast.error(error.response?.data?.message || "Failed to create product");
+    console.error("=== FRONTEND API ERROR ===");
+    console.error("Full error object:", error);
+    console.error("Error response:", error.response);
+    console.error("Error response data:", error.response?.data);
+    console.error("Error response status:", error.response?.status);
+    console.error("Error message:", error.message);
+
+    const errorMessage = error.response?.data?.message || error.message || "Failed to create product";
+    toast.error(`API Error: ${errorMessage}`);
     throw error;
   }
 };
@@ -252,13 +286,79 @@ export const updateProduct = async (id: number, data: UpdateProductProps, addres
   }
 };
 
-// export const getReviews = async (productId: number) => {
-//   try {
-//     const res = await instance.get(`/reviews/product/${productId}`);
-//     return res.data;
-//   } catch (error: any) {
-//     console.error(error);
-//     toast.error(error.response?.data?.message || "Fikrlarni olishda muammo bo'ldi");
-//     throw error;
-//   }
-// };
+// Search products with filters
+export const searchProducts = async (params: {
+  search?: string;
+  category?: string;
+  brand?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  rating?: number;
+  availability?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}) => {
+  try {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const res = await instance.get(`/product/search?${queryParams.toString()}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error searching products:", error);
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      toast.error(error.message);
+      throw new Error(error.message);
+    } else {
+      toast.error("Mahsulotlarni qidirishda xatolik yuz berdi");
+      throw new Error("Mahsulotlarni qidirishda xatolik yuz berdi");
+    }
+  }
+};
+
+// Get all products with filters
+export const getAllProductsWithFilters = async (params: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  category?: string;
+  brand?: string;
+  color?: string;
+  condition?: boolean;
+  region?: string;
+  sort?: string;
+}) => {
+  try {
+    const queryParams = new URLSearchParams();
+
+    Object.entries(params).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        queryParams.append(key, value.toString());
+      }
+    });
+
+    const res = await instance.get(`/product?${queryParams.toString()}`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error loading products:", error);
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      toast.error(error.message);
+      throw new Error(error.message);
+    } else {
+      toast.error("Mahsulotlarni yuklashda xatolik yuz berdi");
+      throw new Error("Mahsulotlarni yuklashda xatolik yuz berdi");
+    }
+  }
+};

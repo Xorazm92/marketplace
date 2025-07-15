@@ -2,10 +2,17 @@ import { usePathname } from "next/navigation";
 import Link from "next/link";
 import styles from "./Breadcrumb.module.scss";
 
-const rusNamesMap: Record<string, string> = {
-  profile: "Профиль",
-  product: "Мои объявления",
-  productdetails: "Объявления",
+const uzNamesMap: Record<string, string> = {
+  profile: "Profil",
+  product: "Mening e'lonlarim",
+  productdetails: "Mahsulot tafsilotlari",
+  favorites: "Sevimlilar",
+  admin: "Admin panel",
+  createproduct: "Mahsulot qo'shish",
+  search: "Qidiruv",
+  category: "Kategoriya",
+  login: "Kirish",
+  signup: "Ro'yxatdan o'tish",
 };
 
 const isIdSegment = (segment: string) => {
@@ -24,7 +31,7 @@ const Breadcrumb = () => {
   const segments = pathname.split("/").filter(Boolean);
 
   const breadcrumbs = [
-    { name: "Главная", href: "/" },
+    { name: "Bosh sahifa", href: "/" },
     ...segments
       .filter((segment) => !isIdSegment(segment))
       .map((segment, index) => {
@@ -35,7 +42,7 @@ const Breadcrumb = () => {
             .filter((s) => !isIdSegment(s))
             .join("/");
         const name =
-          rusNamesMap[segment.toLowerCase()] ||
+          uzNamesMap[segment.toLowerCase()] ||
           decodeURIComponent(segment)
             .replace(/-/g, " ")
             .replace(/\b\w/g, (char) => char.toUpperCase());

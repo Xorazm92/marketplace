@@ -1,6 +1,6 @@
 import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
 import { Product } from '../../shared/shared.types';
-import { User } from '../../shared/shared.types';
+import { User } from '../../chat/user/user.type';
 import { Address } from '../../shared/shared.types';
 import { Currency } from '../../shared/shared.types';
 

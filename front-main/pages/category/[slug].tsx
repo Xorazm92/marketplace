@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Header from '../../components/marketplace/Header';
 import SearchFilters from '../../components/search/SearchFilters';
 import SearchResults from '../../components/search/SearchResults';
 import SearchSorting from '../../components/search/SearchSorting';
@@ -156,7 +155,6 @@ const CategoryPage: React.FC = () => {
   if (!category) {
     return (
       <>
-        <Header />
         <div className={styles.notFound}>
           <h1>Kategoriya topilmadi</h1>
           <p>Siz qidirayotgan kategoriya mavjud emas.</p>
@@ -171,8 +169,6 @@ const CategoryPage: React.FC = () => {
         <title>{category.name} - INBOLA</title>
         <meta name="description" content={category.description} />
       </Head>
-      
-      <Header />
       
       <main className={styles.categoryPage}>
         <div className={styles.container}>

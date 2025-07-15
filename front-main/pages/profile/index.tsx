@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import Head from 'next/head';
-import Header from '../../components/marketplace/Header';
 import ProfileSidebar from '../../components/profile/ProfileSidebar';
 import ProfileOverview from '../../components/profile/ProfileOverview';
 import OrderHistory from '../../components/profile/OrderHistory';
@@ -51,8 +50,6 @@ const ProfilePage: React.FC = () => {
         <title>Profil - INBOLA</title>
         <meta name="description" content="Shaxsiy profil va hisob sozlamalari" />
       </Head>
-      
-      <Header />
       
       <main className={styles.profilePage}>
         <div className={styles.container}>

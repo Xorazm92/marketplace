@@ -92,16 +92,17 @@ export class ProductService {
         })) || [];
       console.log(imagePaths);
 
-      if (!imagePaths.length) {
-        throw new BadRequestException("No images uploaded");
-      }
+      let newProductImages = null;
 
-      const newProductImages = await this.prisma.productImage.createMany({
-        data: imagePaths.map((path: any) => ({
-          product_id: updatedProduct.id,
-          url: path.image,
-        })),
-      });
+      // Only create images if they exist
+      if (imagePaths.length > 0) {
+        newProductImages = await this.prisma.productImage.createMany({
+          data: imagePaths.map((path: any) => ({
+            product_id: updatedProduct.id,
+            url: path.image,
+          })),
+        });
+      }
 
       return { product: updatedProduct, productImages: newProductImages };
     } catch (error) {

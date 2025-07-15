@@ -28,61 +28,8 @@ interface OrderItem {
   total: number;
 }
 
-// Mock data
-const mockOrders: Order[] = [
-  {
-    id: 1,
-    orderNumber: 'INB-2024-001',
-    customer: {
-      name: 'Malika Karimova',
-      email: 'malika@example.com',
-      phone: '+998 90 123 45 67'
-    },
-    items: [
-      {
-        id: 1,
-        productId: 1,
-        title: 'Bolalar uchun rangli qalam to\'plami',
-        price: 45000,
-        quantity: 2,
-        total: 90000
-      }
-    ],
-    total: 90000,
-    status: 'pending',
-    paymentMethod: 'Naqd pul',
-    paymentStatus: 'pending',
-    shippingAddress: 'Toshkent sh., Yunusobod t., 15-uy',
-    createdAt: '2024-01-20T10:30:00Z',
-    updatedAt: '2024-01-20T10:30:00Z'
-  },
-  {
-    id: 2,
-    orderNumber: 'INB-2024-002',
-    customer: {
-      name: 'Akmal Toshmatov',
-      email: 'akmal@example.com',
-      phone: '+998 91 234 56 78'
-    },
-    items: [
-      {
-        id: 2,
-        productId: 2,
-        title: 'Yumshoq ayiq o\'yinchoq',
-        price: 120000,
-        quantity: 1,
-        total: 120000
-      }
-    ],
-    total: 120000,
-    status: 'processing',
-    paymentMethod: 'Plastik karta',
-    paymentStatus: 'paid',
-    shippingAddress: 'Toshkent sh., Mirzo Ulug\'bek t., 25-uy',
-    createdAt: '2024-01-19T14:15:00Z',
-    updatedAt: '2024-01-20T09:00:00Z'
-  }
-];
+// Demo ma'lumotlar o'chirildi - real API ma'lumotlari qo'shilganda ishlatiladi
+const mockOrders: Order[] = [];
 
 const OrderManagement: React.FC = () => {
   const [orders, setOrders] = useState<Order[]>(mockOrders);
@@ -151,26 +98,56 @@ const OrderManagement: React.FC = () => {
     return matchesSearch && matchesStatus && matchesPayment;
   });
 
+  const totalRevenue = orders.reduce((sum, order) => sum + order.total, 0);
+  const todayOrders = orders.filter(order => {
+    const orderDate = new Date(order.createdAt);
+    const today = new Date();
+    return orderDate.toDateString() === today.toDateString();
+  }).length;
+
   return (
     <div className={styles.orderManagement}>
       <div className={styles.header}>
-        <h2>Buyurtma boshqaruvi</h2>
+        <h2>📦 Buyurtma boshqaruvi</h2>
         <div className={styles.stats}>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>{orders.length}</span>
-            <span className={styles.statLabel}>Jami buyurtmalar</span>
+            <div className={styles.statIcon}>📦</div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{orders.length}</span>
+              <span className={styles.statLabel}>Jami buyurtmalar</span>
+            </div>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>
-              {orders.filter(o => o.status === 'pending').length}
-            </span>
-            <span className={styles.statLabel}>Kutilayotgan</span>
+            <div className={styles.statIcon}>⏳</div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>
+                {orders.filter(o => o.status === 'pending').length}
+              </span>
+              <span className={styles.statLabel}>Kutilayotgan</span>
+            </div>
           </div>
           <div className={styles.statItem}>
-            <span className={styles.statValue}>
-              {orders.filter(o => o.paymentStatus === 'pending').length}
-            </span>
-            <span className={styles.statLabel}>To'lov kutilmoqda</span>
+            <div className={styles.statIcon}>💳</div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>
+                {orders.filter(o => o.paymentStatus === 'pending').length}
+              </span>
+              <span className={styles.statLabel}>To'lov kutilmoqda</span>
+            </div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>💰</div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{formatPrice(totalRevenue)}</span>
+              <span className={styles.statLabel}>Jami daromad</span>
+            </div>
+          </div>
+          <div className={styles.statItem}>
+            <div className={styles.statIcon}>📅</div>
+            <div className={styles.statContent}>
+              <span className={styles.statValue}>{todayOrders}</span>
+              <span className={styles.statLabel}>Bugungi buyurtmalar</span>
+            </div>
           </div>
         </div>
       </div>

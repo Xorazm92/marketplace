@@ -23,7 +23,7 @@ const UserLoginPage = () => {
     e.preventDefault();
 
     if (!phone || !password || !isPhoneValid) {
-      toast.error("Пожалуйста, заполните все поля");
+      toast.error("Iltimos, barcha maydonlarni to'ldiring");
       return;
     }
 
@@ -31,7 +31,7 @@ const UserLoginPage = () => {
       const res = await login({ phone_number: phone, password });
       console.log(res);
       if (res?.status_code === 200) {
-        toast.success("Успешный вход");
+        toast.success("Muvaffaqiyatli kirish");
         const { data } = res;
         dispatch(
           loginSuccess({
@@ -43,17 +43,17 @@ const UserLoginPage = () => {
         setLocalStorage("accessToken", data.accessToken);
         router.push("/");
       } else {
-        toast.error("Ошибка входа");
+        toast.error("Kirish xatosi");
       }
     } catch (error) {
-      toast.error("Ошибка сервера");
+      toast.error("Server xatosi");
     }
   };
 
   return (
     <div className={style.sign_up}>
       <div className={style.form_wrapper}>
-        <h3 className={style.title}>Вход в аккаунт</h3>
+        <h3 className={style.title}>Hisobga kirish</h3>
         <form onSubmit={handleSubmit} className={style.form}>
           <input
             type="tel"
@@ -67,20 +67,20 @@ const UserLoginPage = () => {
           />
           <input
             type="password"
-            placeholder="Пароль"
+            placeholder="Parol"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className={style.input}
             required
           />
           <button type="submit" className={style.button} disabled={loading}>
-            {loading ? <span className={style.loading_spinner} /> : "Войти"}
+            {loading ? <span className={style.loading_spinner} /> : "Kirish"}
           </button>
         </form>
         <p className={style.link_text}>
-          Нет аккаунта?{" "}
+          Hisobingiz yo'qmi?{" "}
           <a href="/sign-up" className={style.link}>
-            Зарегистрируйтесь
+            Ro'yxatdan o'ting
           </a>
         </p>
       </div>

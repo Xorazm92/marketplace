@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './SearchResults.module.scss';
-import { getAllProducts } from '../../endpoints/product';
+import { getAllProducts, searchProducts, getAllProductsWithFilters } from '../../endpoints/product';
 
 interface Product {
   id: number;
@@ -174,19 +174,28 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             case 'newest':
               results.sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
               break;
-      case 'popular':
-        results.sort((a, b) => b.reviews - a.reviews);
-        break;
-      case 'discount':
-        results.sort((a, b) => (b.discount || 0) - (a.discount || 0));
-        break;
-      default:
-        // relevance - keep original order
-        break;
-    }
+            case 'popular':
+              results.sort((a: any, b: any) => (b.reviews || 0) - (a.reviews || 0));
+              break;
+            case 'discount':
+              results.sort((a: any, b: any) => (b.discount || 0) - (a.discount || 0));
+              break;
+            default:
+              // relevance - keep original order
+              break;
+          }
 
-    setFilteredProducts(results);
-    setCurrentPage(1);
+          setFilteredProducts(results);
+          setCurrentPage(1);
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
   }, [searchQuery, filters, sortBy]);
 
   const formatPrice = (price: number) => {

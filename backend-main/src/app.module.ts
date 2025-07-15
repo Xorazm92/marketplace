@@ -19,15 +19,16 @@ import { PhoneNumberModule } from "./phone_number/phone_number.module";
 import { PaymentModule } from "./payment/payment.module";
 import { PaymentMethodModule } from "./payment_method/payment_method.module";
 import { ChatModule } from './chat/chat.module';
+import { CartModule } from './cart/cart.module';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver } from '@nestjs/apollo';
 import { TokenService } from './chat/token/token.service';
-import { CartModule } from './cart/cart.module';
 import { WishlistModule } from './wishlist/wishlist.module';
 import { CategoryModule } from './category/category.module';
+import { OrderModule } from './order/order.module';
 
 
 const pubSub = new RedisPubSub({
@@ -65,6 +66,7 @@ const pubSub = new RedisPubSub({
     PaymentModule,
     PaymentMethodModule,
     ChatModule,
+    CartModule,
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '..', 'public'),
       serveRoot: '/',
@@ -111,6 +113,7 @@ const pubSub = new RedisPubSub({
     CartModule,
     WishlistModule,
     CategoryModule,
+    OrderModule,
   ],
   controllers: [],
   providers: [],

@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './CategoryGrid.module.scss';
+import { getAllCategories } from '../../services/api/category';
 
 interface Category {
   id: number;
@@ -11,74 +12,72 @@ interface Category {
   slug: string;
 }
 
+// Demo kategoriyalar o'chirildi - real API ma'lumotlari ishlatiladi
 const categories: Category[] = [
-  {
-    id: 1,
-    name: 'Kiyim-kechak',
-    icon: '👕',
-    image: '/img/categories/clothing.jpg',
-    itemCount: 1250,
-    slug: 'clothing'
-  },
-  {
-    id: 2,
-    name: "O'yinchoqlar",
-    icon: '🧸',
-    image: '/img/categories/toys.jpg',
-    itemCount: 890,
-    slug: 'toys'
-  },
-  {
-    id: 3,
-    name: 'Kitoblar',
-    icon: '📚',
-    image: '/img/categories/books.jpg',
-    itemCount: 650,
-    slug: 'books'
-  },
-  {
-    id: 4,
-    name: 'Sport anjomlar',
-    icon: '⚽',
-    image: '/img/categories/sports.jpg',
-    itemCount: 420,
-    slug: 'sports'
-  },
-  {
-    id: 5,
-    name: 'Maktab buyumlari',
-    icon: '🎒',
-    image: '/img/categories/school.jpg',
-    itemCount: 780,
-    slug: 'school'
-  },
-  {
-    id: 6,
-    name: 'Chaqaloq buyumlari',
-    icon: '🍼',
-    image: '/img/categories/baby.jpg',
-    itemCount: 560,
-    slug: 'baby'
-  },
-  {
-    id: 7,
-    name: 'Elektronika',
-    icon: '📱',
-    image: '/img/categories/electronics.jpg',
-    itemCount: 340,
-    slug: 'electronics'
-  },
-  {
-    id: 8,
-    name: 'Sog\'liq',
-    icon: '🏥',
-    image: '/img/categories/health.jpg',
-    itemCount: 290,
-    slug: 'health'
-  }
+  // Real kategoriyalar API dan yuklanadi
 ];
 
 const CategoryGrid: React.FC = () => {
+  const [realCategories, setRealCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllCategories();
+        console.log('Categories API response:', response);
+
+        // Safe processing of categories
+        if (response && response.data && Array.isArray(response.data)) {
+          const processedCategories = response.data.map((cat: any, index: number) => {
+            // Ensure all properties are strings or primitives
+            const safeCat = {
+              id: cat.id || index + 1,
+              name: String(cat.name || cat.title || `Kategoriya ${index + 1}`),
+              slug: String(cat.slug || `category-${index + 1}`),
+              description: String(cat.description || ''),
+              image_url: String(cat.image_url || ''),
+              parent_id: cat.parent_id || null,
+              is_active: Boolean(cat.is_active !== false),
+              sort_order: Number(cat.sort_order || 0),
+              createdAt: String(cat.createdAt || new Date().toISOString()),
+              updatedAt: String(cat.updatedAt || new Date().toISOString())
+            };
+            console.log('Processed category:', safeCat);
+            return safeCat;
+          });
+          setRealCategories(processedCategories);
+        } else {
+          setRealCategories([]);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+        setRealCategories([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const getCategoryIcon = (name: string) => {
+    const iconMap: { [key: string]: string } = {
+      'kiyim': '👕',
+      'oyinchoq': '🧸',
+      'kitob': '📚',
+      'sport': '⚽',
+      'maktab': '🎒',
+      'chaqaloq': '🍼',
+      'elektronika': '📱',
+      'soglik': '🏥'
+    };
+
+    const key = name.toLowerCase();
+    return iconMap[key] || '📦';
+  };
+
   return (
     <section className={styles.categorySection}>
       <div className={styles.container}>
@@ -86,18 +85,47 @@ const CategoryGrid: React.FC = () => {
           <h2 className={styles.title}>Kategoriyalar</h2>
           <p className={styles.subtitle}>Bolalar uchun barcha kerakli mahsulotlar</p>
         </div>
-        
+
         <div className={styles.grid}>
-          {categories.map((category) => (
-            <Link
-              href={`/category/${category.slug}`}
-              key={category.id}
-              className={styles.categoryCard}
-            >
-              <div className={styles.categoryIcon}>{category.icon}</div>
-              <div className={styles.categoryName}>{category.name}</div>
-            </Link>
-          ))}
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 8 }).map((_, index) => (
+              <div key={index} className={styles.categoryCard}>
+                <div className={styles.loadingSkeleton}>
+                  <div className={styles.skeletonIcon}></div>
+                  <div className={styles.skeletonText}></div>
+                </div>
+              </div>
+            ))
+          ) : realCategories.length > 0 ? (
+            realCategories.map((category) => {
+              // Safe category rendering
+              const categoryName = typeof category === 'object' ?
+                (category.name || category.title || 'Kategoriya') :
+                String(category);
+              const categorySlug = typeof category === 'object' ?
+                (category.slug || category.id || 'category') :
+                'category';
+
+              return (
+                <Link
+                  href={`/category/${categorySlug}`}
+                  key={category.id || Math.random()}
+                  className={styles.categoryCard}
+                >
+                  <div className={styles.categoryIcon}>{getCategoryIcon(categoryName)}</div>
+                  <div className={styles.categoryName}>{categoryName}</div>
+                  <div className={styles.categoryCount}>0 mahsulot</div>
+                </Link>
+              );
+            })
+          ) : (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📂</div>
+              <h3>Kategoriyalar topilmadi</h3>
+              <p>Hozircha kategoriyalar mavjud emas.</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

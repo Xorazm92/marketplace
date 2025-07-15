@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './FeaturedProducts.module.scss';
+import { getAllProducts } from '../../services/api/product';
 
 interface Product {
   id: number;
@@ -15,75 +16,33 @@ interface Product {
   slug: string;
 }
 
+// Demo ma'lumotlar o'chirildi - real API ma'lumotlari ishlatiladi
 const featuredProducts: Product[] = [
-  {
-    id: 1,
-    title: 'Bolalar uchun rangli qalam to\'plami',
-    price: 45000,
-    originalPrice: 60000,
-    image: '/img/products/colored-pencils.jpg',
-    rating: 4.8,
-    reviews: 124,
-    discount: 25,
-    badge: 'Bestseller',
-    slug: 'colored-pencils-set'
-  },
-  {
-    id: 2,
-    title: 'Yumshoq ayiq o\'yinchoq',
-    price: 120000,
-    originalPrice: 150000,
-    image: '/img/products/teddy-bear.jpg',
-    rating: 4.9,
-    reviews: 89,
-    discount: 20,
-    slug: 'soft-teddy-bear'
-  },
-  {
-    id: 3,
-    title: 'Bolalar sport kiyimi',
-    price: 85000,
-    image: '/img/products/kids-sportswear.jpg',
-    rating: 4.7,
-    reviews: 156,
-    badge: 'New',
-    slug: 'kids-sportswear'
-  },
-  {
-    id: 4,
-    title: 'Ta\'lim kitoblari to\'plami',
-    price: 95000,
-    originalPrice: 120000,
-    image: '/img/products/education-books.jpg',
-    rating: 4.6,
-    reviews: 203,
-    discount: 21,
-    slug: 'education-books-set'
-  },
-  {
-    id: 5,
-    title: 'Bolalar velosipedi',
-    price: 450000,
-    originalPrice: 550000,
-    image: '/img/products/kids-bicycle.jpg',
-    rating: 4.8,
-    reviews: 67,
-    discount: 18,
-    badge: 'Popular',
-    slug: 'kids-bicycle'
-  },
-  {
-    id: 6,
-    title: 'Maktab sumkasi',
-    price: 75000,
-    image: '/img/products/school-bag.jpg',
-    rating: 4.5,
-    reviews: 134,
-    slug: 'school-backpack'
-  }
+  // Real mahsulotlar API dan yuklanadi
 ];
 
 const FeaturedProducts: React.FC = () => {
+  const [realProducts, setRealProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await getAllProducts();
+        // Faqat birinchi 6 ta mahsulotni olish
+        setRealProducts(response.data.slice(0, 6));
+      } catch (error) {
+        console.error('Error loading products:', error);
+        setRealProducts([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadProducts();
+  }, []);
+
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';
   };
@@ -115,45 +74,64 @@ const FeaturedProducts: React.FC = () => {
         </div>
         
         <div className={styles.grid}>
-          {featuredProducts.map((product) => (
-            <Link 
-              href={`/product/${product.slug}`} 
-              key={product.id}
-              className={styles.productCard}
-            >
-              <div className={styles.imageContainer}>
-                <div className={styles.imagePlaceholder}>
-                  <span className={styles.productIcon}>📦</span>
+          {loading ? (
+            // Loading skeleton
+            Array.from({ length: 6 }).map((_, index) => (
+              <div key={index} className={styles.productCard}>
+                <div className={styles.loadingSkeleton}>
+                  <div className={styles.skeletonImage}></div>
+                  <div className={styles.skeletonText}></div>
+                  <div className={styles.skeletonPrice}></div>
                 </div>
-                {product.badge && (
-                  <span className={`${styles.badge} ${styles[product.badge.toLowerCase()]}`}>
-                    {product.badge}
-                  </span>
-                )}
-                {product.discount && (
-                  <span className={styles.discount}>-{product.discount}%</span>
-                )}
               </div>
-              
-              <div className={styles.content}>
-                <h3 className={styles.productTitle}>{product.title}</h3>
-                
-                <div className={styles.rating}>
-                  <div className={styles.stars}>
-                    {renderStars(product.rating)}
-                  </div>
-                  <span className={styles.reviewCount}>({product.reviews})</span>
-                </div>
-                
-                <div className={styles.priceContainer}>
-                  <span className={styles.currentPrice}>{formatPrice(product.price)}</span>
-                  {product.originalPrice && (
-                    <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}</span>
+            ))
+          ) : realProducts.length > 0 ? (
+            realProducts.map((product) => (
+              <Link
+                href={`/product/${product.id}`}
+                key={product.id}
+                className={styles.productCard}
+              >
+                <div className={styles.imageContainer}>
+                  {product.product_image?.[0]?.url ? (
+                    <img
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/${product.product_image[0].url}`}
+                      alt={product.title}
+                      className={styles.productImage}
+                    />
+                  ) : (
+                    <div className={styles.imagePlaceholder}>
+                      <span className={styles.productIcon}>📦</span>
+                    </div>
                   )}
+                  <span className={styles.badge}>Yangi</span>
                 </div>
-              </div>
-            </Link>
-          ))}
+
+                <div className={styles.content}>
+                  <h3 className={styles.productTitle}>{product.title}</h3>
+
+                  <div className={styles.rating}>
+                    <div className={styles.stars}>
+                      {renderStars(4.5)} {/* Default rating */}
+                    </div>
+                    <span className={styles.reviewCount}>(0)</span>
+                  </div>
+
+                  <div className={styles.priceContainer}>
+                    <span className={styles.currentPrice}>
+                      {product.price ? formatPrice(product.price) : 'Narx so\'ralsin'}
+                    </span>
+                  </div>
+                </div>
+              </Link>
+            ))
+          ) : (
+            <div className={styles.emptyState}>
+              <div className={styles.emptyIcon}>📦</div>
+              <h3>Hozircha mahsulotlar yo'q</h3>
+              <p>Tez orada yangi mahsulotlar qo'shiladi!</p>
+            </div>
+          )}
         </div>
       </div>
     </section>

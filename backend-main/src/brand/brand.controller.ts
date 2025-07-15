@@ -60,6 +60,36 @@ export class BrandController {
     return this.brandService.create(createBrandDto, image);
   }
 
+  @Post('seed')
+  @ApiOperation({ summary: 'Seed default brands' })
+  @ApiResponse({ status: 201, description: 'Brands seeded successfully' })
+  async seed() {
+    try {
+      // Check if brands already exist
+      const existingBrands = await this.brandService.findAll();
+      if (existingBrands.length > 0) {
+        return { message: 'Brands already exist' };
+      }
+
+      // Create default brands without image requirement
+      const defaultBrands = [
+        { name: 'INBOLA' },
+        { name: 'Fisher-Price' },
+        { name: 'LEGO' },
+        { name: 'Mattel' },
+        { name: 'Hasbro' }
+      ];
+
+      for (const brand of defaultBrands) {
+        await this.brandService.createWithoutImage(brand);
+      }
+
+      return { message: 'Brands seeded successfully' };
+    } catch (error) {
+      throw new BadRequestException('Failed to seed brands');
+    }
+  }
+
   @Get()
   @ApiOperation({ summary: "Get all brands" })
   @ApiResponse({ status: 200, description: "List of all brands" })

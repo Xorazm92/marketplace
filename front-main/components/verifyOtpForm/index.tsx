@@ -69,7 +69,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
       inputRefs.current[0]?.focus();
       const res = await sendOtp(user?.phoneNumber);
       if (res?.status == 200) {
-        toast.info("Введите код, отправленный на номер телефона");
+        toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
         setLocalStorage("signup-user", { ...user, key: res?.key });
       }
     } else {
@@ -97,8 +97,8 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     return (
       <div className={style.sign_up}>
         <div className={style.form_wrapper}>
-          <h3 className={style.title}>Недопустимый доступ</h3>
-          <p>Пожалуйста, перейдите к регистрации.</p>
+          <h3 className={style.title}>Noto'g'ri kirish</h3>
+          <p>Iltimos, ro'yxatdan o'tishga o'ting.</p>
         </div>
       </div>
     );
@@ -109,7 +109,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     const user = getLocalStorage("signup-user");
 
     if (!user) {
-      toast.error("Произошла ошибка");
+      toast.error("Xatolik yuz berdi");
       return onNext();
     }
     const code = otp.join("");
@@ -136,7 +136,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
 
         setLocalStorage("accessToken", accessToken);
         removeLocalStorage("signup-user");
-        toast.success("Успешная регистрация", {});
+        toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz", {});
       } else {
         return onNext();
       }
@@ -150,7 +150,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
           verifyLoading ? style.loading_overlay : ""
         }`}
       >
-        <h3 className={style.title}>Введите код, отправленный на {phone}</h3>
+        <h3 className={style.title}>{phone} raqamiga yuborilgan kodni kiriting</h3>
 
         <div className={style.otp_container}>
           {otp.map((digit, index) => (
@@ -174,16 +174,16 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
           onClick={handleVerify}
           className={style.button}
         >
-          Подтвердить
+          Tasdiqlash
         </button>
 
         {resendEnabled ? (
           <button onClick={handleResend} className={style.resend_button}>
-            Отправить код снова
+            Kodni qayta yuborish
           </button>
         ) : (
           <p className={style.timer}>
-            Код истекает через {Math.floor(timer / 60)}:
+            Kod tugash vaqti {Math.floor(timer / 60)}:
             {String(timer % 60).padStart(2, "0")}
           </p>
         )}

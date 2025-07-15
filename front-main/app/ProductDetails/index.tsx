@@ -16,6 +16,7 @@ import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Link from "next/link";
 import ProductCard from "@/components/home/product-card";
 import { getAllProducts } from "@/endpoints";
+import { addToCart } from "../../endpoints/cart";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/client";
 import { CREATE_CHATROOM } from "@/app/Chat/src/graphql/mutations/CreateChatroom";
@@ -58,6 +59,8 @@ const ProductDetails = () => {
   );
   const { toggleFavorite, isFavorite } = useFavorites();
   const [productsList, setProductsList] = useState<any[]>([]); // 🔥
+  const [quantity, setQuantity] = useState(1);
+  const [isAddingToCart, setIsAddingToCart] = useState(false);
 
   const likedProducts = JSON.parse(localStorage.getItem("favorites") || "[]");
   const token = JSON.parse(localStorage.getItem("accessToken") || "null");
@@ -70,14 +73,14 @@ const ProductDetails = () => {
     return {
       id: backendData.id,
       title: backendData.title,
-      price: backendData.price + " " + (backendData.currency?.name || "USD"),
-      location: backendData.address?.name || "Неизвестно",
-      condition: backendData.condition ? "Новый" : "Б/у",
+      price: `${parseInt(backendData.price).toLocaleString('uz-UZ')} ${backendData.currency?.symbol || "so'm"}`,
+      location: backendData.address?.name || "Manzil ko'rsatilmagan",
+      condition: backendData.condition ? "Yangi" : "Ishlatilgan",
       memory: `${backendData.storage} GB / ${backendData.ram} GB RAM`,
-      year: backendData.year || "Не указан",
-      color: backendData.color?.name || "Неизвестно",
+      year: backendData.year || "Ko'rsatilmagan",
+      color: backendData.color?.name || "Ko'rsatilmagan",
       hasDocuments: backendData.has_document || false,
-      publishDate: new Date(backendData.createdAt).toLocaleDateString("ru-RU", {
+      publishDate: new Date(backendData.createdAt).toLocaleDateString("uz-UZ", {
         day: "numeric",
         month: "long",
         year: "numeric",
@@ -86,8 +89,8 @@ const ProductDetails = () => {
       description: backendData.description || "",
       isNegotiable: backendData.negotiable || false,
       images: backendData.product_image?.map(
-        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/${img.url}`,
-      ) || ["/placeholder.svg"],
+        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/public/${img.url || img.image}`,
+      ) || ["/img/placeholder-product.jpg"],
       userId: backendData.user_id,
     };
   };
@@ -189,6 +192,62 @@ const ProductDetails = () => {
     setShowPhone(true);
   };
 
+  const handleAddToCart = async () => {
+    if (!productData2?.id) {
+      toast.error("Mahsulot ma'lumotlari topilmadi");
+      return;
+    }
+
+    if (!token) {
+      toast.error("Savatchaga qo'shish uchun tizimga kiring");
+      router.push("/login");
+      return;
+    }
+
+    setIsAddingToCart(true);
+    try {
+      await addToCart(productData2.id, quantity);
+      // Trigger cart count update in header
+      window.dispatchEvent(new Event('storage'));
+    } catch (error) {
+      console.error("Error adding to cart:", error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const handleBuyNow = async () => {
+    if (!productData2?.id) {
+      toast.error("Mahsulot ma'lumotlari topilmadi");
+      return;
+    }
+
+    if (!token) {
+      toast.error("Sotib olish uchun tizimga kiring");
+      router.push("/login");
+      return;
+    }
+
+    // Add to cart first, then redirect to checkout
+    setIsAddingToCart(true);
+    try {
+      await addToCart(productData2.id, quantity);
+      // Trigger cart count update in header
+      window.dispatchEvent(new Event('storage'));
+      router.push("/checkout");
+    } catch (error) {
+      console.error("Error in buy now:", error);
+    } finally {
+      setIsAddingToCart(false);
+    }
+  };
+
+  const handleQuantityChange = (newQuantity: number) => {
+    if (newQuantity >= 1) {
+      setQuantity(newQuantity);
+    }
+  };
+
   return (
     <>
       <div className={styles.detailsPage}>
@@ -262,69 +321,95 @@ const ProductDetails = () => {
             <div className={styles.price}>
               {productData.price}
               {productData.isNegotiable && (
-                <span className={styles.negotiable}>Торг есть</span>
+                <span className={styles.negotiable}>Kelishish mumkin</span>
               )}
             </div>
 
             <div className={styles.location}>
-              <LocationIcon /> {productData.location}
+              <LocationIcon /> {productData.location || "Manzil ko'rsatilmagan"}
             </div>
 
             <div className={styles.actions}>
-              <button className={styles.write} onClick={handlewriteClick}>
-                <MessageIcon /> Написать
+              <button
+                className={styles.addToCartBtn}
+                onClick={handleAddToCart}
+                disabled={isAddingToCart}
+              >
+                {isAddingToCart ? "Qo'shilmoqda..." : "🛒 Savatchaga qo'shish"}
               </button>
-              <button className={styles.phone} onClick={handlePhone}>
-                <PhoneIcon />
-                {showPhone
-                  ? phoneNumber || "Номер недоступен"
-                  : "Показать номер"}
+              <button
+                className={styles.buyNowBtn}
+                onClick={handleBuyNow}
+                disabled={isAddingToCart}
+              >
+                {isAddingToCart ? "Kutilmoqda..." : "⚡ Darhol sotib olish"}
+              </button>
+              <button className={styles.contactSellerBtn} onClick={handlewriteClick}>
+                <MessageIcon /> Sotuvchi bilan bog'lanish
               </button>
             </div>
 
-            <ul className={styles.specs}>
-              <li>
-                <span className={styles.label}>Состояние</span>
-                <span className={`${styles.value} ${styles.valueOne}`}>
-                  {productData.condition}
-                </span>
-              </li>
-              <li>
-                <span className={styles.label}>Память</span>
-                <span className={styles.value}>{productData.memory}</span>
-              </li>
-              <li>
-                <span className={styles.label}>Год выпуска</span>
-                <span className={styles.value}>{productData.year}</span>
-              </li>
-              <li>
-                <span className={styles.label}>Цвет</span>
-                <span className={styles.value}>
-                  <span
-                    className={styles.dot}
-                    style={{
-                      backgroundColor: `${productData2.color.code || productData2.color.name
-                        }`,
-                    }}
-                  ></span>{" "}
-                  {productData.color}
-                </span>
-              </li>
-              <li>
-                <span className={styles.label}>Коробка с документами</span>
-                <span className={styles.value}>
-                  {productData.hasDocuments ? "Есть" : "Нет"}
-                </span>
-              </li>
-              <li>
-                <span className={styles.label}>Размещено</span>
-                <span className={styles.value}>{productData.publishDate}</span>
-              </li>
-              <li>
-                <span className={styles.label}>Просмотров</span>
-                <span className={styles.value}>{productData.views}</span>
-              </li>
-            </ul>
+            <div className={styles.productInfo}>
+              <div className={styles.stockStatus}>
+                <span className={styles.inStock}>✅ Mavjud</span>
+              </div>
+
+              <div className={styles.quantitySelector}>
+                <label>Miqdor:</label>
+                <div className={styles.quantityControls}>
+                  <button onClick={() => handleQuantityChange(quantity - 1)}>-</button>
+                  <span>{quantity}</span>
+                  <button onClick={() => handleQuantityChange(quantity + 1)}>+</button>
+                </div>
+              </div>
+
+              <div className={styles.productSpecs}>
+                <h3>Mahsulot xususiyatlari</h3>
+                <ul className={styles.specs}>
+                  <li>
+                    <span className={styles.label}>Brand</span>
+                    <span className={styles.value}>{productData2?.brand?.name || "Ko'rsatilmagan"}</span>
+                  </li>
+                  <li>
+                    <span className={styles.label}>Material</span>
+                    <span className={styles.value}>{productData2?.material || "Ko'rsatilmagan"}</span>
+                  </li>
+                  <li>
+                    <span className={styles.label}>Yosh chegarasi</span>
+                    <span className={styles.value}>{productData2?.age_range || "Ko'rsatilmagan"}</span>
+                  </li>
+                  <li>
+                    <span className={styles.label}>Rang</span>
+                    <span className={styles.value}>
+                      <span
+                        className={styles.dot}
+                        style={{
+                          backgroundColor: "#3448f0",
+                        }}
+                      ></span>{" "}
+                      {productData2?.color || "Ko'rsatilmagan"}
+                    </span>
+                  </li>
+                  <li>
+                    <span className={styles.label}>Ishlab chiqaruvchi</span>
+                    <span className={styles.value}>
+                      {productData2?.manufacturer || "Ko'rsatilmagan"}
+                    </span>
+                  </li>
+                  <li>
+                    <span className={styles.label}>SKU</span>
+                    <span className={styles.value}>{productData2?.sku || `INB-${productData2?.id}`}</span>
+                  </li>
+                </ul>
+              </div>
+
+              <div className={styles.deliveryInfo}>
+                <h3>Yetkazib berish</h3>
+                <p>🚚 Bepul yetkazib berish (50,000 so'm dan yuqori)</p>
+                <p>⏰ 1-3 ish kuni ichida</p>
+                <p>📦 Xavfsiz qadoqlash</p>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -333,27 +418,53 @@ const ProductDetails = () => {
             className={activeTab === "description" ? styles.activeTab : ""}
             onClick={() => setActiveTab("description")}
           >
-            Описание
+            Tavsif
           </span>
           <span
             className={activeTab === "reviews" ? styles.activeTab : ""}
             onClick={() => setActiveTab("reviews")}
           >
-            Отзывы (0)
+            Sharhlar (0)
           </span>
         </div>
 
-        <div className={styles.description}>
-          <div>
-            <div></div>
-          </div>
-          {activeTab === "description" && <p>{productData.description}</p>}
+        <div className={styles.tabContent}>
+          {activeTab === "description" && (
+            <div className={styles.descriptionContent}>
+              <h3>Mahsulot haqida</h3>
+              <p>{productData.description}</p>
+
+              {productData2?.features && productData2.features.length > 0 && (
+                <div className={styles.features}>
+                  <h4>Asosiy xususiyatlar:</h4>
+                  <ul>
+                    {productData2.features.map((feature: string, index: number) => (
+                      <li key={index}>{feature}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {productData2?.safety_info && (
+                <div className={styles.safetyInfo}>
+                  <h4>⚠️ Xavfsizlik ma'lumotlari:</h4>
+                  <p>{productData2.safety_info}</p>
+                </div>
+              )}
+            </div>
+          )}
           {activeTab === "reviews" && (
-            <p>Отзывы пользователей будут отображаться здесь.</p>
+            <div className={styles.reviewsContent}>
+              <h3>Mijozlar sharhlari</h3>
+              <div className={styles.noReviews}>
+                <p>Hozircha sharhlar yo'q. Birinchi bo'lib sharh qoldiring!</p>
+                <button className={styles.writeReviewBtn}>Sharh yozish</button>
+              </div>
+            </div>
           )}
         </div>
 
-        <h2 className={styles.title}>Вам может понравиться</h2>
+        <h2 className={styles.title}>O'xshash mahsulotlar</h2>
         <div className={styles.cardGrid}>
           {productsList
             .filter((p) => p.id !== productData?.id)

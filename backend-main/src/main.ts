@@ -34,7 +34,13 @@ async function start() {
     // app.useGlobalFilters(new AllExceptionsFilter());
 
     app.enableCors({
-      origin: ["http://localhost:3000", "http://localhost:3001", "https://phono-front.vercel.app","http://3.72.21.103:3000", "https://www.phone-tech.uz", "https://phone-tech.uz"],
+      origin: [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
+        "https://inbola.uz",
+        "https://www.inbola.uz"
+      ],
       allowedHeaders: [
         "Accept",
         "Authorization",
@@ -42,7 +48,7 @@ async function start() {
         "X-Requested-With",
         "apollo-require-preflight",
       ],
-      methods: "GET, HEAD, PUT, PATCH, POST, DELETE",
+      methods: "GET, HEAD, PUT, PATCH, POST, DELETE, OPTIONS",
       credentials: true,
     });
 
@@ -57,6 +63,14 @@ async function start() {
       "/graphql",
       graphqlUploadExpress({ maxFileSize: 50_000_000, maxFiles: 1 })
     );
+
+    // Static file serving for uploads with CORS headers
+    app.use('/uploads', (req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      next();
+    }, express.static(join(__dirname, '..', 'uploads')));
 
     const config = new DocumentBuilder()
       .setTitle("INBOLA Marketplace API")
@@ -75,10 +89,10 @@ async function start() {
       )
       .build();
 
-    // Static file serving - serve files directly from public folder
+    // Additional static file serving for public folder
     const uploadsPath = join(process.cwd(), 'public', 'uploads');
-    console.log('Uploads path:', uploadsPath);
-    app.use('/uploads', express.static(uploadsPath));
+    console.log('Public uploads path:', uploadsPath);
+    app.use('/public/uploads', express.static(uploadsPath));
     app.use('/images', express.static(join(process.cwd(), 'public', 'images')));
 
     app.use(bodyParser.json({ limit: "50mb" }));

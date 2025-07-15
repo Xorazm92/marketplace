@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import Header from '../components/marketplace/Header';
 import SearchFilters from '../components/search/SearchFilters';
 import SearchResults from '../components/search/SearchResults';
 import SearchSorting from '../components/search/SearchSorting';
@@ -120,9 +119,7 @@ const SearchPage: React.FC = () => {
         </title>
         <meta name="description" content={`INBOLA da ${searchQuery} uchun qidiruv natijalari`} />
       </Head>
-      
-      <Header />
-      
+
       <main className={styles.searchPage}>
         <div className={styles.container}>
           <div className={styles.searchHeader}>

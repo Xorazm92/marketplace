@@ -33,23 +33,23 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
     if (res?.status == 200) {
       setLocalStorage("signup-user", { ...user, key: res?.key });
       onNext();
-      toast.info("Введите код, отправленный на номер телефона");
+      toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
     }
   };
 
   return (
     <div className={style.sign_up}>
       <div className={style.form_wrapper}>
-        <h2 className={style.form_title}>Регистрация</h2>
+        <h2 className={style.form_title}>Ro'yxatdan o'tish</h2>
 
         <div className={style.input_group}>
           <label htmlFor="firstName" className={style.input_label}>
-            Имя
+            Ism
           </label>
           <input
             id="firstName"
             name="firstName"
-            placeholder="Введите ваше имя"
+            placeholder="Ismingizni kiriting"
             onChange={handleChange}
             value={user.firstName}
             className={style.input}
@@ -60,12 +60,12 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
 
         <div className={style.input_group}>
           <label htmlFor="lastName" className={style.input_label}>
-            Фамилия
+            Familiya
           </label>
           <input
             id="lastName"
             name="lastName"
-            placeholder="Введите вашу фамилию"
+            placeholder="Familiyangizni kiriting"
             onChange={handleChange}
             value={user.lastName}
             className={style.input}
@@ -76,13 +76,13 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
 
         <div className={style.input_group}>
           <label htmlFor="password" className={style.input_label}>
-            Пароль
+            Parol
           </label>
           <input
             id="password"
             name="password"
             type="password"
-            placeholder="Создайте пароль"
+            placeholder="Parol yarating"
             required
             onChange={handleChange}
             value={user.password}
@@ -95,7 +95,7 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
 
         <div className={style.input_group}>
           <label htmlFor="phoneNumber" className={style.input_label}>
-            Номер телефона
+            Telefon raqam
           </label>
           <input
             id="phoneNumber"
@@ -111,7 +111,7 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
           />
           {!isPhoneValid && user.phoneNumber && (
             <p className={style.error_message}>
-              Введите корректный номер телефона
+              To'g'ri telefon raqam kiriting
             </p>
           )}
         </div>
@@ -124,13 +124,13 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
           {isPending ? (
             <span className={style.loading_spinner}></span>
           ) : (
-            "Зарегистрироваться"
+            "Ro'yxatdan o'tish"
           )}
         </button>
         <p className={style.link_text}>
-          Уже есть аккаунт?{" "}
+          Hisobingiz bormi?{" "}
           <a href="/login" className={style.link}>
-            Войти
+            Kirish
           </a>
         </p>
       </div>

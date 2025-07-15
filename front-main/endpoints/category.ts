@@ -6,8 +6,17 @@ export const getAllCategories = async () => {
     const res = await instance.get("/category");
     return res.data;
   } catch (error: any) {
-    console.log(error);
-    toast.error(` ${error.response.data.message}`);
+    console.error("Error loading categories:", error);
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      toast.error(error.message);
+      throw new Error(error.message);
+    } else {
+      toast.error("Kategoriyalarni yuklashda xatolik yuz berdi");
+      throw new Error("Kategoriyalarni yuklashda xatolik yuz berdi");
+    }
   }
 };
 
