@@ -13,15 +13,33 @@ export class ProductService {
   constructor(private prisma: PrismaService) {}
 
   async create(createProductDto: CreateProductDto, userId?: number) {
-    const { product_images, ...productData } = createProductDto;
-    
+    const { images, user_id, ...productData } = createProductDto;
+
     const product = await this.prisma.product.create({
       data: {
-        ...productData,
-        user_id: userId,
-        product_image: product_images ? {
-          create: product_images.map(url => ({ url }))
-        } : undefined
+        title: productData.title,
+        brand_id: productData.brand_id,
+        price: productData.price,
+        currency_id: productData.currency_id,
+        description: productData.description,
+        negotiable: productData.negotiable,
+        condition: productData.condition,
+        phone_number: productData.phone_number,
+        address_id: productData.address_id ? +productData.address_id : null,
+        category_id: productData.category_id,
+        age_range: productData.age_range,
+        material: productData.material,
+        color: productData.color,
+        size: productData.size,
+        manufacturer: productData.manufacturer,
+        safety_info: productData.safety_info,
+        weight: productData.weight,
+        dimensions: productData.dimensions,
+        user_id: userId || user_id || 1,
+        is_checked: 'PENDING',
+        is_active: false,
+        is_deleted: false,
+        view_count: 0
       },
       include: {
         product_image: true,
@@ -268,23 +286,38 @@ export class ProductService {
   }
 
   async update(id: number, updateProductDto: UpdateProductDto) {
-    const { product_images, ...productData } = updateProductDto;
+    const { images, user_id, ...productData } = updateProductDto;
 
-    if (product_images) {
-      // Delete existing images
-      await this.prisma.productImage.deleteMany({
-        where: { product_id: id }
-      });
-    }
+    // Only include fields that exist in the Product model
+    const allowedFields = {
+      title: productData.title,
+      brand_id: productData.brand_id,
+      price: productData.price,
+      currency_id: productData.currency_id,
+      description: productData.description,
+      negotiable: productData.negotiable,
+      condition: productData.condition,
+      phone_number: productData.phone_number,
+      address_id: productData.address_id ? +productData.address_id : undefined,
+      category_id: productData.category_id,
+      age_range: productData.age_range,
+      material: productData.material,
+      color: productData.color,
+      size: productData.size,
+      manufacturer: productData.manufacturer,
+      safety_info: productData.safety_info,
+      weight: productData.weight,
+      dimensions: productData.dimensions
+    };
+
+    // Remove undefined values
+    const updateData = Object.fromEntries(
+      Object.entries(allowedFields).filter(([_, value]) => value !== undefined)
+    );
 
     return this.prisma.product.update({
       where: { id },
-      data: {
-        ...productData,
-        product_image: product_images ? {
-          create: product_images.map(url => ({ url }))
-        } : undefined
-      },
+      data: updateData,
       include: {
         product_image: true,
         brand: true,
@@ -305,6 +338,117 @@ export class ProductService {
     return this.prisma.product.update({
       where: { id },
       data: { is_deleted: true, is_active: false }
+    });
+  }
+
+  // Additional methods needed by controller
+  async createProductImage(productId: number, image: any) {
+    return this.prisma.productImage.create({
+      data: {
+        product_id: productId,
+        url: image.filename || image.path
+      }
+    });
+  }
+
+  async getAllProduct(category?: string) {
+    const where: any = { is_deleted: false, is_active: true };
+    if (category) {
+      where.category = { slug: category };
+    }
+
+    return this.prisma.product.findMany({
+      where,
+      include: {
+        product_image: true,
+        brand: true,
+        category: true,
+        user: {
+          select: { id: true, first_name: true, last_name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async getProductByTitleQuery(search: string) {
+    return this.prisma.product.findMany({
+      where: {
+        AND: [
+          { is_deleted: false },
+          { is_active: true },
+          {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { description: { contains: search, mode: 'insensitive' } }
+            ]
+          }
+        ]
+      },
+      include: {
+        product_image: true,
+        brand: true,
+        category: true
+      }
+    });
+  }
+
+  async getProductByUserId(userId: number) {
+    return this.prisma.product.findMany({
+      where: {
+        user_id: userId,
+        is_deleted: false
+      },
+      include: {
+        product_image: true,
+        brand: true,
+        category: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async getPendingProducts() {
+    return this.prisma.product.findMany({
+      where: {
+        is_checked: 'PENDING',
+        is_deleted: false
+      },
+      include: {
+        product_image: true,
+        brand: true,
+        category: true,
+        user: {
+          select: { id: true, first_name: true, last_name: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async approvProduct(productId: number) {
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        is_checked: 'APPROVED',
+        is_active: true
+      }
+    });
+  }
+
+  async rejectProduct(productId: number) {
+    return this.prisma.product.update({
+      where: { id: productId },
+      data: {
+        is_checked: 'REJECTED',
+        is_active: false
+      }
+    });
+  }
+
+  async deleteProductImage(imageId: number) {
+    return this.prisma.productImage.delete({
+      where: { id: imageId }
     });
   }
 }

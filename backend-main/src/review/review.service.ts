@@ -130,12 +130,13 @@ export class ReviewService {
   }
 
   async update(id: number, updateReviewDto: UpdateReviewDto, userId: number) {
+    const { product_id, images, ...updateData } = updateReviewDto;
     const review = await this.prisma.review.update({
-      where: { 
+      where: {
         id,
         user_id: userId // Ensure user can only update their own reviews
       },
-      data: updateReviewDto,
+      data: updateData,
       include: {
         user: {
           select: {

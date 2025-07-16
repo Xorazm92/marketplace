@@ -2,6 +2,13 @@ import { Resolver, Query, Context, Mutation, Args } from '@nestjs/graphql';
 import { UserService } from './user.service';
 import { User } from './user.type';
 import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    phone_number: string;
+  };
+}
 import { UnauthorizedException, UseGuards } from '@nestjs/common';
 import { GraphqlAuthGuard } from '../guards/graphql-auth.guard';
 import { createWriteStream } from 'fs';
@@ -18,7 +25,7 @@ export class UserResolver {
     @Args('first_name') first_name: string,
     @Args('file', { type: () => GraphQLUpload, nullable: true })
     file: GraphQLUpload.FileUpload,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     const profile_img = file ? await this.storeImageAndGetUrl(file) : null;
     const userId = context.req.user?.id;
@@ -44,7 +51,7 @@ export class UserResolver {
   @Query(() => [User])
   async searchUsers(
     @Args('first_name') first_name: string,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user)
       return this.userService.searchUsers(first_name, context.req.user?.id);
@@ -52,7 +59,7 @@ export class UserResolver {
 
   @UseGuards(GraphqlAuthGuard)
   @Query(() => User)
-  async getUser(@Context() context: { req: Request }) {
+  async getUser(@Context() context: { req: AuthenticatedRequest }) {
     return this.userService.getUser(context.req.user.id);
   }
 

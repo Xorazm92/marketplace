@@ -14,6 +14,13 @@ import { UseFilters, UseGuards } from '@nestjs/common';
 import { GraphqlAuthGuard } from '../guards/graphql-auth.guard';
 import { Chatroom, Message } from './chatroom.types';
 import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    phone_number: string;
+  };
+}
 import { PubSub } from 'graphql-subscriptions';
 import { User } from '../user/user.type';
 
@@ -77,7 +84,7 @@ export class ChatroomResolver {
   @Mutation((returns) => User)
   async userStartedTypingMutation(
     @Args('chatroomId') chatroomId: number,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user?.id) {
       const user = await this.userService.getUser(context.req.user?.id);
@@ -94,7 +101,7 @@ export class ChatroomResolver {
   @Mutation(() => User, {})
   async userStoppedTypingMutation(
     @Args('chatroomId') chatroomId: number,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user?.id) {
       const user = await this.userService.getUser(context.req.user.id);
@@ -113,7 +120,7 @@ export class ChatroomResolver {
   async sendMessage(
     @Args('chatroomId') chatroomId: number,
     @Args('content') content: string,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
     @Args('image', { type: () => GraphQLUpload, nullable: true })
     image?: GraphQLUpload,
   ) {
@@ -157,7 +164,7 @@ export class ChatroomResolver {
   async createChatroom(
     @Args('name') name: string,
     @Args('id', { type: () => Int }) id: number,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user?.id)
       return await this.chatroomService.createChatroom(`${name} ${context.req.user?.id}`, [context.req.user?.id, id]);
@@ -175,7 +182,7 @@ export class ChatroomResolver {
   @UseGuards(GraphqlAuthGuard)
   @Query(() => [Chatroom])
   async getChatroomsForUser(
-    @Context() context: { req: Request }
+    @Context() context: { req: AuthenticatedRequest }
   ) {
     return this.chatroomService.getChatroomsForUser(context.req.user.id);
   }

@@ -182,7 +182,7 @@ export class PaymentService {
     const refundAmount = amount || payment.amount;
     
     // Process refund based on payment method
-    const refundResult = await this.processRefund(payment, refundAmount);
+    const refundResult = await this.processRefund(payment, Number(refundAmount));
 
     // Update payment status
     await this.prisma.orderPayment.update({
@@ -204,5 +204,56 @@ export class PaymentService {
       amount,
       message: 'Refund processed successfully'
     };
+  }
+
+  // CRUD methods needed by controller
+  async create(createPaymentDto: CreatePaymentDto) {
+    return this.createPayment(createPaymentDto);
+  }
+
+  async findAll() {
+    return this.prisma.payment.findMany({
+      include: {
+        user: {
+          select: { id: true, first_name: true, last_name: true }
+        },
+        payment_method: true,
+        currency: true
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.payment.findUnique({
+      where: { id },
+      include: {
+        user: {
+          select: { id: true, first_name: true, last_name: true }
+        },
+        payment_method: true,
+        currency: true
+      }
+    });
+  }
+
+  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
+    return this.prisma.payment.update({
+      where: { id },
+      data: updatePaymentDto,
+      include: {
+        user: {
+          select: { id: true, first_name: true, last_name: true }
+        },
+        payment_method: true,
+        currency: true
+      }
+    });
+  }
+
+  async remove(id: number) {
+    return this.prisma.payment.delete({
+      where: { id }
+    });
   }
 }

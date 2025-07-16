@@ -47,4 +47,72 @@ export class MailService {
     });
     console.log('mail.service: result: ', result);
   }
+
+  // Additional methods needed by notification service
+  async sendOrderConfirmation(userEmail: string, order: any) {
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject: 'Buyurtmangiz tasdiqlandi',
+      template: './order-confirmation',
+      context: {
+        orderId: order.id,
+        orderTotal: order.final_amount
+      }
+    });
+  }
+
+  async sendOrderStatusUpdate(userEmail: string, order: any, newStatus: string) {
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject: 'Buyurtma holati yangilandi',
+      template: './order-status-update',
+      context: {
+        orderId: order.id,
+        status: newStatus
+      }
+    });
+  }
+
+  async sendWelcomeEmail(userEmail: string, user: any) {
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject: 'INBOLA ga xush kelibsiz!',
+      template: './welcome',
+      context: {
+        name: `${user.first_name} ${user.last_name}`
+      }
+    });
+  }
+
+  async sendPasswordReset(email: string, resetToken: string) {
+    const url = `${process.env.FRONTEND_URL}/reset-password?token=${resetToken}`;
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Parolni tiklash',
+      template: './password-reset',
+      context: {
+        url
+      }
+    });
+  }
+
+  async sendProductApprovalNotification(userEmail: string, product: any, approved: boolean) {
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject: approved ? 'Mahsulotingiz tasdiqlandi' : 'Mahsulotingiz rad etildi',
+      template: './product-approval',
+      context: {
+        productTitle: product.title,
+        approved
+      }
+    });
+  }
+
+  async sendBulkEmail(userEmail: string, subject: string, content: string) {
+    await this.mailerService.sendMail({
+      to: userEmail,
+      subject,
+      html: content
+    });
+  }
 }

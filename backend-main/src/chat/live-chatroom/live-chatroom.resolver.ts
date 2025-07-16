@@ -5,6 +5,13 @@ import { LiveChatroomService } from './live-chatroom.service';
 import { UserService } from '../user/user.service';
 import { Subscription, Args, Context, Mutation } from '@nestjs/graphql';
 import { Request } from 'express';
+
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    phone_number: string;
+  };
+}
 import { UseFilters, UseGuards } from '@nestjs/common';
 import { GraphqlAuthGuard } from '../guards/graphql-auth.guard';
 import { GraphQLErrorFilter } from '../filters/custom-exception.filter';
@@ -34,7 +41,7 @@ export class LiveChatroomResolver {
   @Mutation(() => Boolean)
   async enterChatroom(
     @Args('chatroomId') chatroomId: number,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user?.id) {
       const user = await this.userService.getUser(context.req.user.id);
@@ -63,7 +70,7 @@ export class LiveChatroomResolver {
   @Mutation(() => Boolean)
   async leaveChatroom(
     @Args('chatroomId') chatroomId: number,
-    @Context() context: { req: Request },
+    @Context() context: { req: AuthenticatedRequest },
   ) {
     if (context.req.user?.id) {
       const user = await this.userService.getUser(context.req.user.id);

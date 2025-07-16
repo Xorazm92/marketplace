@@ -25,8 +25,8 @@ export class SentryService {
       environment,
       tracesSampleRate: environment === 'production' ? 0.1 : 1.0,
       integrations: [
-        new Sentry.Integrations.Http({ tracing: true }),
-        new Sentry.Integrations.Express({ app: undefined }),
+        Sentry.httpIntegration(),
+        Sentry.expressIntegration(),
       ],
       beforeSend(event) {
         // Filter out sensitive data

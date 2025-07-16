@@ -58,7 +58,7 @@ async function bootstrap() {
   }));
 
   // Global exception filter
-  app.useGlobalFilters(new GlobalExceptionFilter(sentryService, logger));
+  app.useGlobalFilters(new GlobalExceptionFilter());
 
   // Swagger documentation (only in development)
   if (process.env.NODE_ENV !== 'production') {

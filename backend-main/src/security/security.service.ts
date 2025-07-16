@@ -14,13 +14,11 @@ export class SecurityService {
   constructor(private configService: ConfigService) {
     // Rate limiting configuration
     this.rateLimiter = new RateLimiterMemory({
-      keyGenerator: (req) => req.ip,
       points: 100, // Number of requests
       duration: 900, // Per 15 minutes
     });
 
     this.loginAttemptLimiter = new RateLimiterMemory({
-      keyGenerator: (req) => req.ip,
       points: 5, // Number of attempts
       duration: 900, // Per 15 minutes
       blockDuration: 900, // Block for 15 minutes

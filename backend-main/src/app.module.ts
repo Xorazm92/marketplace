@@ -1,8 +1,7 @@
-` tags. I will ensure that no parts of the original code are skipped, the indentation and structure are preserved, and no forbidden words are included.
 
-```
-<replit_final_file>
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { JwtModule } from '@nestjs/jwt';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { join } from 'path';
@@ -31,9 +30,18 @@ import { MailModule } from './mail/mail.module';
 import { ChatModule } from './chat/chat.module';
 import { NotificationModule } from './notification/notification.module';
 import { ReviewModule } from './review/review.module';
+import { CommonModule } from './common/common.module';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    JwtModule.register({
+      global: true,
+      secret: process.env.ACCESS_TOKEN_KEY || 'default-secret',
+      signOptions: { expiresIn: process.env.ACCESS_TOKEN_TIME || '15m' },
+    }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
@@ -47,6 +55,7 @@ import { ReviewModule } from './review/review.module';
         res,
       }),
     }),
+    CommonModule,
     PrismaModule,
     AdminModule,
     UserModule,

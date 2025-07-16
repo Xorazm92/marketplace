@@ -6,13 +6,20 @@ import { AddToWishlistDto, RemoveFromWishlistDto } from './dto/wishlist.dto';
 import { GraphqlAuthGuard } from '../chat/guards/graphql-auth.guard';
 import { Request } from 'express';
 
+interface AuthenticatedRequest extends Request {
+  user?: {
+    id: number;
+    phone_number: string;
+  };
+}
+
 @Resolver(() => Wishlist)
 export class WishlistResolver {
   constructor(private readonly wishlistService: WishlistService) {}
 
   @UseGuards(GraphqlAuthGuard)
   @Query(() => Wishlist)
-  async getWishlist(@Context() context: { req: Request }) {
+  async getWishlist(@Context() context: { req: AuthenticatedRequest }) {
     const userId = context.req.user?.id;
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -24,7 +31,7 @@ export class WishlistResolver {
   @Mutation(() => Wishlist)
   async addToWishlist(
     @Args('input') addToWishlistDto: AddToWishlistDto,
-    @Context() context: { req: Request }
+    @Context() context: { req: AuthenticatedRequest }
   ) {
     const userId = context.req.user?.id;
     if (!userId) {
@@ -37,7 +44,7 @@ export class WishlistResolver {
   @Mutation(() => Wishlist)
   async removeFromWishlist(
     @Args('input') removeFromWishlistDto: RemoveFromWishlistDto,
-    @Context() context: { req: Request }
+    @Context() context: { req: AuthenticatedRequest }
   ) {
     const userId = context.req.user?.id;
     if (!userId) {
@@ -48,7 +55,7 @@ export class WishlistResolver {
 
   @UseGuards(GraphqlAuthGuard)
   @Mutation(() => Wishlist)
-  async clearWishlist(@Context() context: { req: Request }) {
+  async clearWishlist(@Context() context: { req: AuthenticatedRequest }) {
     const userId = context.req.user?.id;
     if (!userId) {
       throw new UnauthorizedException('User not authenticated');
@@ -60,7 +67,7 @@ export class WishlistResolver {
   @Query(() => Boolean)
   async isInWishlist(
     @Args('product_id') productId: number,
-    @Context() context: { req: Request }
+    @Context() context: { req: AuthenticatedRequest }
   ) {
     const userId = context.req.user?.id;
     if (!userId) {

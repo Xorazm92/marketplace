@@ -87,7 +87,7 @@ export class ProductController {
       console.log('Received files:', files);
       console.log('Files count:', files?.images?.length || 0);
 
-      return await this.productService.create(createProductDto, files);
+      return await this.productService.create(createProductDto, createProductDto.user_id);
     } catch (error) {
       console.error('=== PRODUCT CREATION ERROR ===');
       console.error('Error details:', error);
@@ -139,10 +139,10 @@ export class ProductController {
       search,
       color,
       memory,
-      othermodel,
-      brand,
+      +othermodel || 0,
+      +brand || 0,
       region,
-      condition
+      condition ? 'desc' : 'asc'
     );
   }
   

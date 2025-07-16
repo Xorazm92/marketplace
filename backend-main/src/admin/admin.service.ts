@@ -1,10 +1,15 @@
 
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AdminService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService
+  ) {}
 
   async getDashboardStats() {
     const [
@@ -122,7 +127,10 @@ export class AdminService {
 
   async getProductManagement(page: number = 1, limit: number = 10, status?: string) {
     const skip = (page - 1) * limit;
-    const where = status ? { is_checked: status } : {};
+    const where: any = {};
+    if (status) {
+      where.is_checked = status as any;
+    }
     
     const [products, total] = await Promise.all([
       this.prisma.product.findMany({
@@ -166,10 +174,50 @@ export class AdminService {
   async rejectProduct(productId: number, reason?: string) {
     return this.prisma.product.update({
       where: { id: productId },
-      data: { 
+      data: {
         is_checked: 'REJECTED',
         // Add rejection reason if you have this field
       }
+    });
+  }
+
+  // Auth methods for AdminService
+  async findByEmail(email: string) {
+    return this.prisma.admin.findUnique({
+      where: { email }
+    });
+  }
+
+  async create(createAdminDto: any) {
+    const hashedPassword = await bcrypt.hash(createAdminDto.password, 10);
+    return this.prisma.admin.create({
+      data: {
+        ...createAdminDto,
+        hashed_password: hashedPassword,
+        activation_link: `activation_${Date.now()}`
+      }
+    });
+  }
+
+  async findOne(id: number) {
+    return this.prisma.admin.findUnique({
+      where: { id }
+    });
+  }
+
+  async getToken(admin: any) {
+    const payload = { sub: admin.id, email: admin.email };
+    return {
+      access_token: this.jwtService.sign(payload),
+      refresh_token: this.jwtService.sign(payload, { expiresIn: '7d' })
+    };
+  }
+
+  async updateRefreshToken(adminId: number, refreshToken: string) {
+    const hashedRefreshToken = refreshToken ? await bcrypt.hash(refreshToken, 10) : null;
+    return this.prisma.admin.update({
+      where: { id: adminId },
+      data: { hashed_refresh_token: hashedRefreshToken }
     });
   }
 }
