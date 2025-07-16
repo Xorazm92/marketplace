@@ -1,8 +1,10 @@
+
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as compression from 'compression';
+import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 
 async function bootstrap() {
   try {
@@ -12,17 +14,19 @@ async function bootstrap() {
       logger: ['log', 'error', 'warn', 'debug'],
     });
 
-    // CORS configuration
+    // CORS configuration - Allow all origins for development
     app.enableCors({
       origin: [
         'http://0.0.0.0:3000',
         'http://localhost:3000',
         'http://0.0.0.0:3001',
-        'http://localhost:3001'
+        'http://localhost:3001',
+        'http://127.0.0.1:3000',
+        'http://127.0.0.1:3001'
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
     });
 
     // Compression
@@ -37,6 +41,9 @@ async function bootstrap() {
         enableImplicitConversion: true,
       },
     }));
+
+    // Global exception filter
+    app.useGlobalFilters(new GlobalExceptionFilter());
 
     // Swagger documentation
     const config = new DocumentBuilder()

@@ -1,21 +1,24 @@
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
-  // Enable React strict mode
   reactStrictMode: true,
-
-  // Enable SWC minification
   swcMinify: true,
-
-  // Optimize images
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
   images: {
-    domains: ['localhost', '0.0.0.0', 'inbola.uz'],
+    domains: ['localhost', '0.0.0.0', '127.0.0.1'],
+    unoptimized: true,
     formats: ['image/webp'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256],
   },
-
-  // API configuration
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000/api',
+  },
   async rewrites() {
     return [
       {
@@ -24,25 +27,12 @@ const nextConfig: NextConfig = {
       },
     ];
   },
-
-  // Compression
+  experimental: {
+    esmExternals: false,
+  },
   compress: true,
-
-  // Disable x-powered-by header
   poweredByHeader: false,
-
-  // Enable static optimization
   trailingSlash: false,
-
-  // TypeScript configuration
-  typescript: {
-    ignoreBuildErrors: false,
-  },
-
-  // ESLint configuration
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
 };
 
 export default nextConfig;

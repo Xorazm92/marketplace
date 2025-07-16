@@ -314,7 +314,7 @@ mode = "sequential"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"🔧 Setting up development environment...\""
+args = "echo \"🔧 Setting up INBOLA development environment...\""
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
@@ -354,7 +354,7 @@ args = "echo \"🎉 Development environment ready!\""
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"💡 Use 'Backend Dev Server' and 'Frontend Dev Server' workflows to start\""
+args = "echo \"💡 Run 'Full Development Stack' to start both servers\""
 
 [[workflows.workflow]]
 name = "Backend Development"
@@ -397,8 +397,29 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd backend-main && echo \"🚀 Starting Backend...\" && npm run start:dev"
+args = "cd backend-main && echo \"🚀 Starting Backend on port 4000...\" && npm run start:dev"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd front-main && echo \"🎨 Starting Frontend...\" && npm run dev"
+args = "cd front-main && echo \"🎨 Starting Frontend on port 3000...\" && npm run dev"
+
+[[workflows.workflow]]
+name = "Setup Test Data"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📊 Setting up test data...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma db seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"✅ Test data created successfully\""

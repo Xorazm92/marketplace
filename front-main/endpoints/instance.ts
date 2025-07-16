@@ -1,31 +1,26 @@
 
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://api.inbola.uz/api'
-  : 'http://0.0.0.0:4000/api';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000/api';
 
-export const $axios = axios.create({
+export const instance = axios.create({
   baseURL: API_BASE_URL,
-  timeout: 10000,
+  timeout: 30000,
   headers: {
     'Content-Type': 'application/json',
+    'Accept': 'application/json',
   },
-  withCredentials: true,
 });
 
-// Request interceptor
-$axios.interceptors.request.use(
+// Request interceptor to add auth token
+instance.interceptors.request.use(
   (config) => {
-    // Add auth token if available
-    const token = typeof window !== 'undefined' 
-      ? localStorage.getItem('access_token') 
-      : null;
-    
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
     }
-    
     return config;
   },
   (error) => {
@@ -33,14 +28,11 @@ $axios.interceptors.request.use(
   }
 );
 
-// Response interceptor
-$axios.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+// Response interceptor for error handling
+instance.interceptors.response.use(
+  (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear tokens on unauthorized
       if (typeof window !== 'undefined') {
         localStorage.removeItem('access_token');
         localStorage.removeItem('refresh_token');
@@ -51,4 +43,4 @@ $axios.interceptors.response.use(
   }
 );
 
-export default $axios;
+export default instance;
