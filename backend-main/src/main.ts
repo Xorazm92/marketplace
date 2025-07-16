@@ -1,94 +1,100 @@
 
 import { NestFactory } from '@nestjs/core';
+import { ValidationPipe, Logger } from '@nestjs/common';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import { AppModule } from './app.module';
-import { ValidationPipe } from '@nestjs/common';
-import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import * as compression from 'compression';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
+import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
+import { SecurityMiddleware } from './common/middleware/security.middleware';
 
-async function bootstrap() {
+async function bootstrap(): Promise<void> {
+  const logger = new Logger('Bootstrap');
+  
   try {
-    console.log('🚀 Starting INBOLA Backend...');
-
     const app = await NestFactory.create(AppModule, {
-      logger: ['log', 'error', 'warn', 'debug'],
+      logger: ['error', 'warn', 'log', 'debug', 'verbose'],
     });
 
-    // CORS configuration - Allow all origins for development
+    // CORS konfiguratsiyasi
     app.enableCors({
       origin: [
-        'http://0.0.0.0:3000',
         'http://localhost:3000',
-        'http://0.0.0.0:3001',
-        'http://localhost:3001',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:3001'
+        'http://0.0.0.0:3000',
+        process.env.FRONTEND_URL || 'http://0.0.0.0:3000'
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
-      allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
+      allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
     });
 
-    // Compression
-    app.use(compression());
+    // Global pipes va filters
+    app.useGlobalPipes(
+      new ValidationPipe({
+        whitelist: true,
+        forbidNonWhitelisted: true,
+        transform: true,
+        transformOptions: {
+          enableImplicitConversion: true,
+        },
+      }),
+    );
 
-    // Global validation pipe
-    app.useGlobalPipes(new ValidationPipe({
-      whitelist: true,
-      forbidNonWhitelisted: false,
-      transform: true,
-      transformOptions: {
-        enableImplicitConversion: true,
-      },
-    }));
-
-    // Global exception filter
     app.useGlobalFilters(new GlobalExceptionFilter());
+    app.useGlobalInterceptors(new LoggingInterceptor());
 
-    // Swagger documentation
+    // Swagger konfiguratsiyasi
     const config = new DocumentBuilder()
-      .setTitle('INBOLA Kids E-Commerce API')
-      .setDescription('Safe e-commerce platform for children and parents')
+      .setTitle('INBOLA Kids Marketplace API')
+      .setDescription('Bolalar uchun xavfsiz va ta\'limiy elektron tijorat platformasi')
       .setVersion('1.0')
-      .addBearerAuth()
+      .addBearerAuth(
+        {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          name: 'JWT',
+          description: 'Enter JWT token',
+          in: 'header',
+        },
+        'JWT-auth',
+      )
+      .addTag('Authentication', 'Foydalanuvchi autentifikatsiyasi')
+      .addTag('Products', 'Mahsulotlar boshqaruvi')
+      .addTag('Users', 'Foydalanuvchilar boshqaruvi')
+      .addTag('Orders', 'Buyurtmalar boshqaruvi')
+      .addTag('Admin', 'Administrator funksiyalari')
       .build();
 
     const document = SwaggerModule.createDocument(app, config);
-    SwaggerModule.setup('api-docs', app, document);
+    SwaggerModule.setup('api-docs', app, document, {
+      swaggerOptions: {
+        persistAuthorization: true,
+      },
+    });
 
     // Health check endpoint
-    app.use('/health', (req, res) => {
+    app.getHttpAdapter().get('/health', (req, res) => {
       res.status(200).json({
-        status: 'ok',
+        status: 'OK',
         timestamp: new Date().toISOString(),
         uptime: process.uptime(),
         environment: process.env.NODE_ENV || 'development',
         version: '1.0.0',
-        database: 'connected',
-        services: {
-          auth: 'running',
-          products: 'running',
-          cart: 'running',
-          orders: 'running'
-        }
       });
     });
 
-    // Set global prefix
-    app.setGlobalPrefix('api', {
-      exclude: ['/health'],
-    });
+    const PORT = process.env.PORT || 4000;
+    const HOST = '0.0.0.0';
 
-    const port = process.env.PORT || 4000;
-    await app.listen(port, '0.0.0.0');
-
-    console.log('✅ INBOLA Backend successfully started!');
-    console.log(`🌐 Backend running on: http://0.0.0.0:${port}`);
-    console.log(`📚 API Documentation: http://0.0.0.0:${port}/api-docs`);
-    console.log(`💚 Health check: http://0.0.0.0:${port}/health`);
-
+    await app.listen(PORT, HOST);
+    
+    logger.log(`🚀 INBOLA Backend server running on http://${HOST}:${PORT}`);
+    logger.log(`📚 API Documentation available at http://${HOST}:${PORT}/api-docs`);
+    logger.log(`💚 Health check available at http://${HOST}:${PORT}/health`);
+    logger.log(`🌍 Environment: ${process.env.NODE_ENV || 'development'}`);
+    
   } catch (error) {
-    console.error('❌ Failed to start application:', error);
+    logger.error('❌ Serverni ishga tushirishda xato:', error);
     process.exit(1);
   }
 }

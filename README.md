@@ -1,147 +1,244 @@
+
 # 🎯 INBOLA Kids Marketplace
 
-> Safe, fun, and educational e-commerce platform for children and families
+> **Bolalar va ularning ota-onalari uchun xavfsiz, ta'limiy va zamonaviy elektron tijorat platformasi**
 
-[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2015-blue)](https://nextjs.org/)
-[![Backend](https://img.shields.io/badge/Backend-NestJS-red)](https://nestjs.com/)
-[![Database](https://img.shields.io/badge/Database-SQLite-green)](https://sqlite.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://typescriptlang.org/)
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2015-blue?style=for-the-badge)](https://nextjs.org/)
+[![Backend](https://img.shields.io/badge/Backend-NestJS-red?style=for-the-badge)](https://nestjs.com/)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL-blue?style=for-the-badge)](https://postgresql.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue?style=for-the-badge)](https://typescriptlang.org/)
+[![Clean Code](https://img.shields.io/badge/Code%20Quality-Clean%20Code-green?style=for-the-badge)](https://clean-code-developer.com/)
 
-## 🚀 Quick Start
+## 📋 Loyiha Haqida
 
-### 1. Setup Development Environment
-Click the "Run" button or use the "Start Development Environment" workflow to automatically:
-- Install all dependencies
-- Setup database
-- Generate Prisma client
+INBOLA Kids Marketplace - bu 3-12 yosh oralig'idagi bolalar uchun maxsus ishlab chiqilgan e-commerce platforma. Platform bolalar xavfsizligi, ta'lim va o'yin elementlarini o'zida mujassamlashtirgan.
 
-### 2. Start Backend
-Use the "Backend Development" workflow or run:
-```bash
-cd backend-main
-npm run start:dev
-```
-Backend will run on: **http://0.0.0.0:4000**
+### ✨ Asosiy Xususiyatlar
 
-### 3. Start Frontend
-Use the "Frontend Development" workflow or run:
-```bash
-cd front-main
-npm run dev
-```
-Frontend will run on: **http://0.0.0.0:3000**
+- 🛡️ **Xavfsizlik birinchi o'rinda**: Barcha mahsulotlar bolalar xavfsizligi bo'yicha tekshirilgan
+- 🎨 **Bolalar uchun qulay dizayn**: Yorqin ranglar va oddiy navigatsiya
+- 📚 **Ta'limiy mahsulotlar**: Kitoblar, o'yinchoqlar va ta'lim materiallarl
+- 👨‍👩‍👧‍👦 **Ota-ona nazorati**: Kattalar uchun maxsus nazorat paneli
+- 🔒 **JWT autentifikatsiya**: Xavfsiz login tizimi
+- 📱 **PWA qo'llab-quvvatlash**: Mobil qurilmalarda app kabi ishlaydi
 
-### 4. Start Both (Parallel)
-Use the "Full Development Stack" workflow to start both frontend and backend simultaneously.
-
-## 🔗 Application URLs
-- **Frontend**: http://0.0.0.0:3000
-- **Backend API**: http://0.0.0.0:4000/api
-- **API Documentation**: http://0.0.0.0:4000/api-docs
-- **Health Check**: http://0.0.0.0:4000/health
-
-## 🏗️ Architecture
+## 🏗️ Texnik Arxitektura
 
 ### Backend (NestJS)
-- **Framework**: NestJS with TypeScript
-- **Database**: SQLite (development), PostgreSQL (production)
-- **ORM**: Prisma
-- **Authentication**: JWT with refresh tokens
-- **API Documentation**: Swagger/OpenAPI
-- **File Upload**: Multer with image optimization
-
-### Frontend (Next.js)
-- **Framework**: Next.js 15 with TypeScript
-- **Styling**: SCSS modules
-- **State Management**: Redux Toolkit
-- **API Client**: Axios with interceptors
-- **Image Optimization**: Next.js Image component
-
-## 🎨 Features
-
-### For Children (Age 3-12)
-- **Safe Shopping**: Child-friendly interface with parental controls
-- **Fun Categories**: Toys, Books, Educational materials, Clothing
-- **Interactive Elements**: Colorful design and engaging animations
-- **Learning Focus**: Educational products prioritized
-
-### For Parents
-- **Safety First**: All products reviewed for child safety
-- **Order Management**: Track orders and manage preferences
-- **Secure Payments**: Multiple payment options with security
-- **Communication**: Direct messaging with sellers
-
-### For Sellers
-- **Product Management**: Easy listing and inventory management
-- **Order Processing**: Streamlined order fulfillment
-- **Analytics**: Sales insights and performance metrics
-- **Customer Communication**: Direct messaging system
-
-## 🔧 Available Workflows
-
-1. **Start Development Environment** (Run button) - Setup everything
-2. **Backend Development** - Start backend only
-3. **Frontend Development** - Start frontend only  
-4. **Full Development Stack** - Start both (parallel)
-5. **Setup Database** - Database operations
-6. **Run Tests** - Run all tests
-7. **Health Check** - Check application health
-
-## 🧪 Testing
-
-```bash
-# Backend tests
-cd backend-main
-npm run test              # Unit tests
-npm run test:e2e          # Integration tests
-npm run test:cov          # Coverage report
-
-# Frontend tests
-cd front-main
-npm run test              # Jest tests
+```
+📁 backend-main/
+├── 🔧 src/
+│   ├── 🛡️ auth/           # JWT autentifikatsiya
+│   ├── 📦 product/        # Mahsulot boshqaruvi
+│   ├── 👤 user/           # Foydalanuvchi boshqaruvi
+│   ├── 🛒 order/          # Buyurtma tizimi
+│   ├── 💳 payment/        # To'lov integratsiyasi
+│   ├── 🛡️ child-safety/   # Bolalar xavfsizligi
+│   ├── 📧 mail/           # Email xizmati
+│   ├── 💬 chat/           # Real-time chat
+│   └── 🏛️ admin/          # Admin panel
+├── 🗄️ prisma/            # Database schema
+├── 📜 scripts/           # Production scripts
+└── 🧪 test/              # Test fayllar
 ```
 
-## 🚀 Production Deployment
+### Frontend (Next.js)
+```
+📁 front-main/
+├── 📄 pages/             # Next.js sahifalar
+├── 🧩 components/        # Qayta ishlatiladigan komponentlar
+├── 🎨 styles/           # SCSS stillar
+├── 🔗 endpoints/        # API endpoints
+├── 🏪 store/            # Redux store
+├── 🎣 hooks/            # Custom hooks
+├── 🏗️ layout/           # Layout komponentlar
+└── 📱 app/              # App komponentlar
+```
 
-Use Replit Deployments:
-1. Click "Deploy" button in Replit
-2. Select "Autoscale Deployment"
-3. Configure machine power and instances
-4. Deploy
+## 🚀 Ishga Tushirish
 
-## 🔒 Security Features
+### 1. Tez Boshlash
+```bash
+# Run tugmasini bosing yoki
+# "Start Development Environment" workflow ishlatiladi
+```
 
-- Input validation and sanitization
-- JWT authentication with refresh tokens
-- Role-based access control (RBAC)
-- Rate limiting and security headers
-- Child safety content filtering
-- Secure file upload handling
+### 2. Backend Alohida Ishga Tushirish
+```bash
+cd backend-main
+npm install
+npx prisma generate
+npx prisma migrate dev
+npm run start:dev
+```
+**Backend manzil**: http://0.0.0.0:4000
+
+### 3. Frontend Alohida Ishga Tushirish
+```bash
+cd front-main
+npm install
+npm run dev
+```
+**Frontend manzil**: http://0.0.0.0:3000
+
+### 4. Ikkalasini Parallel Ishga Tushirish
+```bash
+# "Full Development Stack" workflow ishlatiladi
+```
+
+## 🔗 Muhim Manzillar
+
+| Xizmat | URL | Tavsif |
+|--------|-----|--------|
+| 🎨 Frontend | http://0.0.0.0:3000 | Asosiy web interfeys |
+| 🔧 Backend API | http://0.0.0.0:4000/api | REST API |
+| 📚 API Docs | http://0.0.0.0:4000/api-docs | Swagger dokumentatsiya |
+| 💚 Health Check | http://0.0.0.0:4000/health | Server holati |
+| 🔗 GraphQL | http://0.0.0.0:4000/graphql | GraphQL endpoint |
+
+## 🛠️ Mavjud Workflows
+
+| Workflow | Tavsif | Ishlatilishi |
+|----------|--------|-------------|
+| **Start Development Environment** | Barcha setup | Run tugmasi |
+| **Backend Development** | Faqat backend | Backend ishlab chiqish |
+| **Frontend Development** | Faqat frontend | Frontend ishlab chiqish |
+| **Full Development Stack** | Ikkalasi parallel | To'liq development |
+| **Setup Database** | Database operatsiyalari | DB sozlash |
+| **Run Tests** | Barcha testlar | Sifat nazorati |
+| **Production Deploy** | Production deploy | Ishlab chiqarish |
+
+## 🧪 Testlash
+
+### Backend Testlar
+```bash
+cd backend-main
+npm run test              # Unit testlar
+npm run test:e2e          # Integration testlar
+npm run test:cov          # Coverage hisobot
+```
+
+### Frontend Testlar
+```bash
+cd front-main
+npm run test              # Jest testlar
+npm run build             # Build test
+```
+
+### Load Testing
+```bash
+# "Load Testing" workflow ishlatiladi
+k6 run backend-main/scripts/load-test.js
+```
+
+## 🚀 Production Deploy
+
+### Replit Deployments orqali:
+1. **Deploy** tugmasini bosing
+2. **Autoscale Deployment** tanlang
+3. Machine power va max instances sozlang
+4. Deploy tugmasini bosing
+
+### Manual Deploy:
+```bash
+# "Production Deploy" workflow ishlatiladi
+cd backend-main
+chmod +x scripts/production-deploy.sh
+./scripts/production-deploy.sh
+```
+
+## 🔒 Xavfsizlik Xususiyatlari
+
+- ✅ **Input validation**: Barcha kiritilgan ma'lumotlar tekshiriladi
+- ✅ **JWT tokens**: Access va refresh tokenlar
+- ✅ **RBAC**: Rol asosidagi kirish nazorati
+- ✅ **Rate limiting**: So'rovlar cheklash
+- ✅ **CORS**: Cross-origin so'rovlar nazorati
+- ✅ **File upload security**: Xavfsiz fayl yuklash
+- ✅ **Child safety filters**: Bolalar uchun kontent filtri
 
 ## 📱 Progressive Web App (PWA)
 
-- Offline support for browsing
-- Push notifications for order updates
-- App-like experience on mobile devices
-- Fast loading with caching strategies
+- 📱 **Mobil qulay**: App kabi tajriba
+- 🔄 **Offline qo'llab-quvvatlash**: Internet yo'qligida ishlaydi
+- 🔔 **Push notifications**: Buyurtma yangilanishlari
+- ⚡ **Fast loading**: Tez yuklash
+- 💾 **Caching**: Ma'lumotlarni keshlash
 
-## 🌍 Internationalization
+## 🌍 Tillar
 
-- **Primary**: Uzbek (uz)
-- **Secondary**: English (en) - Coming soon
-- **Planned**: Russian (ru)
+- **🇺🇿 Uzbek**: Asosiy til
+- **🇺🇸 English**: Qo'shimcha qo'llab-quvvatlash
+- **🇷🇺 Russian**: Rejalashtirilgan
 
-## 🤝 Contributing
+## 📊 Monitoring va Analytics
 
-1. Use the development workflows for local testing
-2. Follow TypeScript best practices
-3. Add tests for new features
-4. Update documentation as needed
+### Production Monitoring
+```bash
+# "Setup Monitoring" workflow ishlatiladi
+node backend-main/scripts/monitoring-setup.js
+pm2 monit
+```
 
-## 📄 License
+### Health Checks
+```bash
+# "Health Check" workflow ishlatiladi
+curl http://0.0.0.0:4000/health
+curl http://0.0.0.0:3000
+```
 
-This project is licensed under the MIT License.
+## 🤝 Development Guidelines
+
+### Clean Code Qoidalari
+- ✅ **Tushunarli nomenklatura**: O'zbekcha/inglizcha aralash
+- ✅ **Kichik funksiyalar**: Har biri bitta vazifa
+- ✅ **DRY principle**: Takrorlanuvchi kod yo'q
+- ✅ **SOLID principles**: OOP tamoyillari
+- ✅ **TypeScript**: Strict type checking
+- ✅ **ESLint va Prettier**: Kod formatlash
+
+### Git Workflow
+```bash
+# Feature branch yaratish
+git checkout -b feature/new-functionality
+
+# Commit qilish
+git commit -m "feat: yangi funksiyani qo'shish"
+
+# Pull request yaratish
+git push origin feature/new-functionality
+```
+
+## 🔧 Environment Variables
+
+### Backend (.env)
+```env
+DATABASE_URL="file:./dev.db"
+JWT_SECRET="your-jwt-secret"
+JWT_REFRESH_SECRET="your-refresh-secret"
+REDIS_URL="redis://localhost:6379"
+SMTP_HOST="smtp.gmail.com"
+PORT=4000
+```
+
+### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://0.0.0.0:4000
+NEXT_PUBLIC_FRONTEND_URL=http://0.0.0.0:3000
+NEXT_PUBLIC_APP_NAME="INBOLA Kids Marketplace"
+```
+
+## 📞 Qo'llab-quvvatlash
+
+- 📧 **Email**: support@inbola.uz
+- 💬 **Chat**: Real-time chat tizimi orqali
+- 📱 **Telegram**: @inbola_support
+- 🌐 **Website**: https://inbola.uz
+
+## 📄 Litsenziya
+
+Bu loyiha **MIT** litsenziyasi ostida tarqatiladi. Ko'proq ma'lumot uchun [LICENSE](LICENSE) faylini ko'ring.
 
 ---
 
-**Made with ❤️ for children and families in Uzbekistan**
+> **💡 Eslatma**: Ushbu loyiha bolalar xavfsizligi va ta'limi uchun ishlab chiqilgan. Barcha kod clean code printsiplari va best practices asosida yozilgan.

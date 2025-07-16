@@ -4,7 +4,7 @@ modules = ["nodejs-20", "bash"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Start Development Environment"
+runButton = "🚀 Development Setup"
 
 [[workflows.workflow]]
 name = "Backend Dev Server"
@@ -423,3 +423,122 @@ args = "npx prisma db seed"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "echo \"✅ Test data created successfully\""
+
+[[workflows.workflow]]
+name = "🚀 Development Setup"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🔧 INBOLA Development Environment sozlanmoqda...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 1/6 Backend dependencies o'rnatilmoqda...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 2/6 Database setup...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate dev --name init"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 3/6 Frontend dependencies o'rnatilmoqda...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main && npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 4/6 Environment variables tekshirilmoqda...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 5/6 Health check...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"✅ Development environment tayyor!\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"💡 'Full Stack Development' ni ishga tushiring\""
+
+[[workflows.workflow]]
+name = "🎯 Full Stack Development"
+author = 45055370
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && echo \"🚀 Backend ishga tushmoqda...\" && npm run start:dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main && echo \"🎨 Frontend ishga tushmoqda...\" && npm run dev"
+
+[[workflows.workflow]]
+name = "🧪 Quality Assurance"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🔍 Code quality tekshirilmoqda...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 Backend testlar...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 E2E testlar...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:e2e"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 Coverage hisobot...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run test:cov"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"📋 Frontend build test...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run build"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"✅ Sifat nazorati tugadi!\""

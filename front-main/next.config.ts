@@ -1,38 +1,79 @@
+
 import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
+  // React Strict Mode yoqish
   reactStrictMode: true,
-  swcMinify: true,
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
+  
+  // Performance optimizatsiyalari
+  poweredByHeader: false,
+  compress: true,
+  
+  // Image optimizatsiyasi
   images: {
-    domains: ['localhost', '0.0.0.0', '127.0.0.1'],
-    unoptimized: true,
-    formats: ['image/webp'],
-    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
-    imageSizes: [16, 32, 48, 64, 96, 128, 256],
+    domains: ['localhost', '0.0.0.0'],
+    formats: ['image/webp', 'image/avif'],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
+    imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000/api',
-  },
+  
+  // API konfiguratsiyasi
   async rewrites() {
     return [
       {
         source: '/api/:path*',
-        destination: 'http://0.0.0.0:4000/api/:path*',
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000'}/api/:path*`,
       },
     ];
   },
-  experimental: {
-    esmExternals: false,
+  
+  // Headers xavfsizlik uchun
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+          {
+            key: 'Permissions-Policy',
+            value: 'camera=(), microphone=(), geolocation=()',
+          },
+        ],
+      },
+    ];
   },
-  compress: true,
-  poweredByHeader: false,
-  trailingSlash: false,
+  
+  // Environment variables
+  env: {
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000',
+    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://0.0.0.0:3000',
+  },
+  
+  // Build konfiguratsiyasi
+  experimental: {
+    optimizeCss: true,
+  },
+  
+  // ESLint konfiguratsiyasi
+  eslint: {
+    dirs: ['pages', 'components', 'layout', 'store', 'hooks', 'types', 'utils'],
+  },
+  
+  // TypeScript konfiguratsiyasi
+  typescript: {
+    ignoreBuildErrors: false,
+  },
 };
 
 export default nextConfig;
