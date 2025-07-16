@@ -214,3 +214,95 @@ args = "npm run build"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "npm run start"
+
+[[workflows.workflow]]
+name = "Start Backend Development"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:dev"
+
+[[workflows.workflow]]
+name = "Start Frontend Development"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Setup Development Environment"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma db seed"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Development environment setup complete!\""
+
+[[workflows.workflow]]
+name = "Run Full Application"
+author = 45055370
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && npm run start:dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main && npm run dev"

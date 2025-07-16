@@ -1,259 +1,224 @@
-# 🧸 INBOLA Kids Marketplace
+# 🎯 INBOLA Kids Marketplace
 
-A safe, fun, and educational e-commerce platform designed specifically for children and families. Built with modern technologies and a focus on child-friendly design and parental control.
+> Safe, fun, and educational e-commerce platform for children and families
 
-## 🌟 Overview
+[![Frontend](https://img.shields.io/badge/Frontend-Next.js%2015-blue)](https://nextjs.org/)
+[![Backend](https://img.shields.io/badge/Backend-NestJS-red)](https://nestjs.com/)
+[![Database](https://img.shields.io/badge/Database-PostgreSQL-blue)](https://postgresql.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://typescriptlang.org/)
 
-INBOLA Kids Marketplace transforms the traditional e-commerce experience into a safe, engaging environment where children can learn about shopping while parents maintain full control. The platform features bright colors, large buttons, emoji-based navigation, and comprehensive parental controls.
-
-## ✨ Key Features
-
-### 👶 For Children
-- **Kid-Friendly Interface**: Bright colors, large buttons, and emoji-based navigation
-- **Gift Registry**: Create wishlists for birthdays and special occasions
-- **Age-Appropriate Products**: Content filtered by age groups (0-2, 3-5, 6-8, 9-12, 13+)
-- **Educational Shopping**: Learn about money, choices, and responsibility
-- **Safe Environment**: Moderated content and secure transactions
-
-### 👨‍👩‍👧‍👦 For Parents
-- **Parental Dashboard**: Monitor children's activities and spending
-- **Purchase Approval System**: Control and approve children's purchases
-- **Spending Limits**: Set daily/monthly spending limits for each child
-- **Family Management**: Manage multiple children accounts
-- **Activity Monitoring**: Track browsing and purchase history
-
-### 🛍️ For Everyone
-- **Multi-User Support**: Parent, Child, Seller, and Admin roles
-- **Secure Payments**: Safe and encrypted payment processing
-- **Real-time Notifications**: Instant updates on orders and approvals
-- **Mobile-First Design**: Optimized for tablets and smartphones
-- **Multi-Language Support**: Currently supports Uzbek
-
-## 🏗️ Architecture
-
-### Backend (NestJS + PostgreSQL)
-```
-backend-main/
-├── src/
-│   ├── auth/                 # Authentication & authorization
-│   ├── user/                 # User management with family support
-│   ├── product/              # Product management with kids features
-│   ├── category/             # Kids-specific categories
-│   ├── gift-registry/        # Wishlist management
-│   ├── purchase-approval/    # Parental control system
-│   ├── cart/                 # Shopping cart
-│   ├── order/                # Order processing
-│   └── prisma/               # Database schema and migrations
-└── prisma/
-    └── schema.prisma         # Database schema with family relations
-```
-
-### Frontend (Next.js + React + TypeScript)
-```
-front-main/
-├── components/
-│   ├── marketplace/          # Main marketplace components
-│   ├── home/                 # Home page components
-│   └── Layout.tsx           # Main layout wrapper
-├── pages/
-│   ├── gift-registry/       # Gift registry management
-│   ├── parent-dashboard/    # Parent control panel
-│   └── index.tsx           # Home page
-├── styles/
-│   ├── kids-theme.scss     # Kids marketplace theme
-│   └── globals.css         # Global styles
-└── store/                  # Redux store configuration
-```
-
-## 🎨 Design System
-
-### Color Palette
-- **Primary**: Coral Red (#FF6B6B) - Warm and friendly
-- **Secondary**: Turquoise (#4ECDC4) - Calming and fun
-- **Accent**: Sunny Yellow (#FFE66D) - Energetic and bright
-- **Supporting**: Mint Green, Peach Orange, Light Pink, Sky Blue
-
-### Typography
-- **Headings**: Fredoka One - Playful and bold
-- **Body Text**: Nunito - Readable and friendly
-- **Accent**: Comic Neue - Casual and fun
-
-### UI Principles
-- **Large Touch Targets**: Minimum 48px for easy interaction
-- **High Contrast**: Ensures readability for all ages
-- **Rounded Corners**: Soft, friendly appearance
-- **Generous Spacing**: Prevents accidental taps
-- **Emoji Icons**: Universal understanding across languages
-
-## 🛒 Product Categories
-
-- 🧸 **Toys & Games**: Educational and fun toys for all ages
-- 👕 **Kids Clothing**: Comfortable and stylish clothing
-- 📚 **Books & Educational**: Learning materials and storybooks
-- ⚽ **Sports Equipment**: Active play and sports gear
-- 📝 **School Supplies**: Everything needed for school
-- 🍼 **Baby Products**: Safe products for infants and toddlers
-- 📱 **Kid-Safe Electronics**: Age-appropriate technology
-- 🧴 **Health & Hygiene**: Personal care products for children
-
-## 🚀 Getting Started
+## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 16+
-- PostgreSQL 12+
+- Node.js 18+ 
+- PostgreSQL 14+
 - npm or yarn
 
-### Installation
-
-1. **Clone the repository**
+### 1. Clone Repository
 ```bash
 git clone https://github.com/your-username/inbola-kids-marketplace.git
 cd inbola-kids-marketplace
 ```
 
-2. **Setup Backend**
+### 2. Backend Setup
 ```bash
 cd backend-main
 npm install
 cp .env.example .env
-# Configure your database and environment variables
+# Configure your database URL in .env
+npx prisma generate
 npx prisma migrate dev
 npx prisma db seed
 npm run start:dev
 ```
 
-3. **Setup Frontend**
+Backend will run on: http://0.0.0.0:4000
+
+### 3. Frontend Setup
 ```bash
 cd front-main
 npm install
-cp .env.example .env.local
-# Configure your API endpoints
 npm run dev
 ```
 
-4. **Access the application**
-- Frontend: http://localhost:3000
-- Backend API: http://localhost:4000
-- API Documentation: http://localhost:4000/api/docs
+Frontend will run on: http://0.0.0.0:3000
 
-## 🔧 Configuration
+### 4. Access Application
+- **Frontend**: http://0.0.0.0:3000
+- **Backend API**: http://0.0.0.0:4000/api
+- **API Documentation**: http://0.0.0.0:4000/api-docs
+- **Health Check**: http://0.0.0.0:4000/health
 
-### Environment Variables
+## 🏗️ Architecture
 
-**Backend (.env)**
-```env
-DATABASE_URL="postgresql://username:password@localhost:5432/inbola_kids"
-JWT_SECRET="your-jwt-secret"
-JWT_REFRESH_SECRET="your-refresh-secret"
-SMTP_HOST="your-smtp-host"
-SMTP_PORT=587
-SMTP_USER="your-email"
-SMTP_PASS="your-password"
-```
+### Backend (NestJS + PostgreSQL)
+- **Authentication**: JWT-based with RBAC
+- **Database**: PostgreSQL with Prisma ORM
+- **File Upload**: Local storage with image optimization
+- **Real-time**: WebSocket for chat and notifications
+- **Security**: Helmet, CORS, rate limiting
+- **Monitoring**: Winston logging, Sentry error tracking
 
-**Frontend (.env.local)**
-```env
-NEXT_PUBLIC_BASE_URL=http://localhost:4000
-NEXT_PUBLIC_API_URL=http://localhost:4000/api
-```
+### Frontend (Next.js + React + TypeScript)
+- **UI Framework**: React 19 with TypeScript
+- **Styling**: SCSS modules (Etsy-inspired design)
+- **State Management**: Redux Toolkit
+- **API Client**: Axios with interceptors
+- **Performance**: Image optimization, code splitting
+- **SEO**: Meta tags, structured data
+
+## 🎨 Features
+
+### 👶 For Children
+- **Safe Browsing**: Age-appropriate content filtering
+- **Easy Navigation**: Large buttons and emoji icons
+- **Educational Content**: Learning through shopping
+- **Parental Controls**: Purchase approval system
+
+### 👨‍👩‍👧‍👦 For Parents
+- **Family Dashboard**: Manage children's accounts
+- **Purchase Approval**: Review and approve purchases
+- **Spending Limits**: Set budget controls
+- **Activity Monitoring**: Track browsing and purchase history
+
+### 🛍️ For Sellers
+- **Product Management**: Easy listing with safety guidelines
+- **Analytics Dashboard**: Sales insights and metrics
+- **Communication Tools**: Safe messaging with families
+- **Inventory Management**: Stock tracking and alerts
+
+### 🔧 For Admins
+- **Content Moderation**: Review products and content
+- **User Management**: Handle disputes and support
+- **Analytics**: Platform-wide insights
+- **System Health**: Monitoring and maintenance tools
 
 ## 🧪 Testing
 
 ### Backend Tests
 ```bash
 cd backend-main
-npm run test          # Unit tests
-npm run test:e2e      # End-to-end tests
-npm run test:cov      # Coverage report
+npm run test              # Unit tests
+npm run test:e2e          # Integration tests
+npm run test:cov          # Coverage report
 ```
 
 ### Frontend Tests
 ```bash
 cd front-main
-npm run test          # Jest tests
-npm run test:watch    # Watch mode
-npm run cypress       # E2E tests
+npm run test              # Jest tests
+npm run test:watch        # Watch mode
 ```
 
-## 📱 Mobile Support
+### Load Testing
+```bash
+cd backend-main
+npm install -g k6
+k6 run scripts/load-test.js
+```
 
-The platform is designed mobile-first with:
-- Touch-friendly interface
-- Responsive design for all screen sizes
-- Optimized performance for mobile devices
-- Progressive Web App (PWA) capabilities
+## 🚀 Production Deployment
+
+### Using Replit Deployments
+1. Click "Deploy" button in Replit
+2. Select "Autoscale Deployment"
+3. Configure machine power and max instances
+4. Deploy
+
+### Manual Production Setup
+```bash
+# Backend
+cd backend-main
+npm install --only=production
+npx prisma generate
+npx prisma migrate deploy
+npm run build
+npm run start:prod
+
+# Frontend
+cd front-main
+npm install --only=production
+npm run build
+npm run start
+```
+
+## 📊 Performance Optimizations
+
+- **Image Optimization**: WebP/AVIF formats, responsive images
+- **Code Splitting**: Dynamic imports, lazy loading
+- **Caching**: Redis for sessions, CDN for static assets
+- **Bundle Analysis**: Webpack bundle analyzer
+- **Core Web Vitals**: Optimized for speed and UX
 
 ## 🔒 Security Features
 
-- **Input Validation**: All user inputs are validated and sanitized
-- **Authentication**: JWT-based authentication with refresh tokens
+- **Input Validation**: All inputs sanitized and validated
+- **Authentication**: JWT with refresh tokens
 - **Authorization**: Role-based access control (RBAC)
 - **Data Protection**: Encrypted sensitive data
-- **Parental Controls**: Comprehensive family safety features
-- **Content Moderation**: All products are reviewed before listing
+- **Security Headers**: Helmet.js security middleware
+- **Rate Limiting**: Prevent abuse and spam
 
 ## 🌍 Internationalization
 
-Currently supports:
-- **Uzbek**: Primary language
-- **English**: Secondary language (planned)
-- **Russian**: Additional language (planned)
+- **Primary**: Uzbek (uz)
+- **Secondary**: English (en) - Coming soon
+- **Additional**: Russian (ru) - Planned
 
-## 📊 Performance
+## 📱 Progressive Web App (PWA)
 
-- **Lighthouse Score**: 95+ on all metrics
-- **Core Web Vitals**: Optimized for fast loading
-- **Image Optimization**: Automatic image compression and resizing
-- **Code Splitting**: Efficient bundle loading
-- **Caching**: Redis-based caching for improved performance
+- **Offline Support**: Cached content for offline browsing
+- **Push Notifications**: Order updates and promotions
+- **App-like Experience**: Install on mobile devices
+- **Performance**: Lighthouse score 95+
 
-## 🚀 Deployment
+## 🔧 Development Commands
 
-### Production Deployment
-
-**Backend (Docker)**
 ```bash
-cd backend-main
-docker build -t inbola-backend .
-docker run -p 4000:4000 inbola-backend
+# Start development servers (parallel)
+npm run dev:all
+
+# Setup development environment
+npm run setup:dev
+
+# Run all tests
+npm run test:all
+
+# Build for production
+npm run build:all
+
+# Health check
+npm run health:check
+
+# Load testing
+npm run load:test
 ```
 
-**Frontend (Vercel)**
-```bash
-cd front-main
-vercel --prod
-```
+## 📄 API Documentation
 
-### Environment Setup
-- **Development**: Local development with hot reload
-- **Staging**: Testing environment with production-like data
-- **Production**: Live environment with full security
+- **Swagger UI**: http://0.0.0.0:4000/api-docs
+- **GraphQL Playground**: http://0.0.0.0:4000/graphql
+- **Postman Collection**: `docs/postman-collection.json`
 
 ## 🤝 Contributing
 
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
 1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+2. Create feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open Pull Request
 
-## 📄 License
+## 📝 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License - see [LICENSE](LICENSE) file for details.
 
-## 🙏 Acknowledgments
+## 🆘 Support
 
-- **Design Inspiration**: Modern kids' apps and educational platforms
-- **Icons**: Emoji sets for universal understanding
-- **Fonts**: Google Fonts (Fredoka One, Nunito, Comic Neue)
-- **Community**: Built with love for children and families worldwide
-
-## 📞 Support
-
-For support, email support@inbola.uz or join our community Discord server.
+- **Documentation**: [Wiki](https://github.com/your-repo/wiki)
+- **Issues**: [GitHub Issues](https://github.com/your-repo/issues)
+- **Discord**: [Community Chat](https://discord.gg/inbola)
+- **Email**: support@inbola.uz
 
 ---
 
-**Made with ❤️ for children and families**
+Made with ❤️ for children and families

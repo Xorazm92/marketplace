@@ -1,463 +1,321 @@
 .header {
+  background: white;
+  border-bottom: 1px solid #e1e3df;
   position: sticky;
   top: 0;
   z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.mainHeader {
+  padding: 12px 0;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  font-size: 35px;
+  font-weight: 700;
+  color: #f56500;
+  text-decoration: none;
+  letter-spacing: -1px;
+  min-width: 120px;
+}
+
+.categoriesDropdown {
+  position: relative;
+}
+
+.categoriesButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: none;
+  border: 1px solid #222;
+  border-radius: 24px;
+  color: #222;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+}
+
+.categoriesButton:hover {
+  background: #222;
+  color: white;
+}
+
+.hamburgerIcon {
+  font-size: 16px;
+}
+
+.categoriesMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
   background: white;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
-  backdrop-filter: blur(10px);
+  border: 1px solid #e1e3df;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 16px;
+  min-width: 280px;
+  z-index: 1001;
+}
 
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
 
+.categoryMenuItem {
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  display: block;
+}
 
-  .mainHeader {
-    background: white;
-    padding: 16px 0;
-    border-bottom: 1px solid #e1e3df;
+.categoryMenuItem:hover {
+  background: #f5f5f5;
+}
 
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 16px;
-      width: 100%;
-      box-sizing: border-box;
+.viewAll {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #f56500;
+  border-top: 1px solid #e1e3df;
+  margin-top: 8px;
+  padding-top: 16px;
+}
 
-      @media (max-width: 1256px) {
-        max-width: calc(100% - 32px);
-      }
+.searchContainer {
+  flex: 1;
+  max-width: 400px;
+}
 
-      @media (max-width: 768px) {
-        padding: 0 12px;
-        max-width: calc(100% - 24px);
-      }
-    }
+.searchForm {
+  position: relative;
+  display: flex;
+}
 
-    .headerContent {
-      display: flex;
-      align-items: center;
-      gap: 24px;
+.searchInput {
+  width: 100%;
+  padding: 12px 20px;
+  border: 2px solid #222;
+  border-radius: 24px;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease;
+}
 
-      @media (max-width: 1024px) {
-        gap: 16px;
-      }
+.searchInput:focus {
+  border-color: #f56500;
+}
 
-      @media (max-width: 768px) {
-        gap: 12px;
-      }
+.searchButton {
+  position: absolute;
+  right: 4px;
+  top: 4px;
+  bottom: 4px;
+  background: #f56500;
+  border: none;
+  border-radius: 20px;
+  padding: 0 16px;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
 
-      .logo {
-        text-decoration: none;
-        color: #f56500;
-        font-size: 35px;
-        font-weight: 600;
-        letter-spacing: -1px;
-        transition: all 0.2s ease;
+.searchButton:hover {
+  background: #e55a00;
+}
 
-        &:hover {
-          opacity: 0.7;
-        }
+.searchIcon {
+  font-size: 16px;
+}
 
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
 
+.signInLink {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 8px 16px;
+  border-radius: 24px;
+  transition: background 0.2s ease;
+}
 
-        @media (max-width: 768px) {
-          font-size: 28px;
-        }
-      }
+.signInLink:hover {
+  background: #f5f5f5;
+}
 
-      // Categories Dropdown - aynan Etsy kabi
-      .categoriesDropdown {
-        position: relative;
+.iconLink {
+  position: relative;
+  color: #222;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-        .categoriesButton {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          background: none;
-          border: 1px solid #222;
-          color: #222;
-          font-size: 14px;
-          font-weight: 500;
-          padding: 10px 16px;
-          border-radius: 24px;
-          cursor: pointer;
-          transition: all 0.2s ease;
+.iconLink:hover {
+  background: #f5f5f5;
+}
 
-          &:hover {
-            background: #222;
-            color: white;
-          }
+.icon {
+  font-size: 20px;
+}
 
-          .hamburgerIcon {
-            font-size: 14px;
-          }
+.cartBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #f56500;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+}
 
-          @media (max-width: 768px) {
-            display: none;
-          }
-        }
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
 
-        .categoriesMenu {
-          position: absolute;
-          top: 100%;
-          left: 0;
-          background: white;
-          border: 1px solid #e1e3df;
-          border-radius: 12px;
-          box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12);
-          padding: 16px;
-          min-width: 320px;
-          z-index: 1001;
-          margin-top: 8px;
+.hamburger {
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
 
-          .categoriesGrid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 8px;
+.hamburger span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #222;
+  margin: 4px 0;
+  transition: 0.3s;
+}
 
-            .categoryMenuItem {
-              display: block;
-              padding: 12px 16px;
-              text-decoration: none;
-              color: #222;
-              font-size: 14px;
-              font-weight: 500;
-              border-radius: 8px;
-              transition: all 0.2s ease;
-
-              &:hover {
-                background: #f7f7f7;
-                color: #f56500;
-              }
-
-              &.viewAll {
-                grid-column: 1 / -1;
-                background: #f56500;
-                color: white;
-                text-align: center;
-                font-weight: 600;
-                margin-top: 8px;
-
-                &:hover {
-                  background: #e55a00;
-                  color: white;
-                }
-              }
-            }
-          }
-        }
-      }
-
-      // Search Container - aynan Etsy kabi
-      .searchContainer {
-        flex: 1;
-        max-width: 600px;
-        margin: 0 20px;
-
-        @media (max-width: 768px) {
-          margin: 0 10px;
-        }
-
-        .searchForm {
-          display: flex;
-          position: relative;
-          width: 100%;
-
-          .searchInput {
-            flex: 1;
-            border: 2px solid #222;
-            border-right: none;
-            border-radius: 24px 0 0 24px;
-            padding: 12px 20px;
-            font-size: 16px;
-            outline: none;
-            background: white;
-            color: #222;
-
-            &::placeholder {
-              color: #767676;
-              font-weight: 400;
-            }
-
-            &:focus {
-              border-color: #f56500;
-            }
-
-            @media (max-width: 768px) {
-              font-size: 14px;
-              padding: 10px 16px;
-            }
-          }
-
-          .searchButton {
-            background: #f56500;
-            border: 2px solid #222;
-            border-left: none;
-            border-radius: 0 24px 24px 0;
-            padding: 12px 16px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            &:hover {
-              background: #e55a00;
-            }
-
-            .searchIcon {
-              font-size: 16px;
-              color: white;
-            }
-
-            @media (max-width: 768px) {
-              padding: 10px 12px;
-            }
-          }
-        }
-      }
-
-
-
-      .headerActions {
-        display: flex;
-        gap: 20px;
-
-        @media (max-width: 768px) {
-          display: none;
-        }
-
-        .signInLink {
-          text-decoration: none;
-          color: #222;
-          font-size: 14px;
-          font-weight: 500;
-          padding: 8px 12px;
-          border-radius: 24px;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: #f5f5f5;
-          }
-        }
-
-        .iconLink {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          text-decoration: none;
-          color: #222;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          transition: all 0.2s ease;
-          position: relative;
-
-          &:hover {
-            background: #f5f5f5;
-          }
-
-          .icon {
-            font-size: 20px;
-          }
-
-          .cartBadge {
-            position: absolute;
-            top: -2px;
-            right: -2px;
-            background: #f56500;
-            color: white;
-            border-radius: 50%;
-            width: 20px;
-            height: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 12px;
-            font-weight: 600;
-            min-width: 20px;
-            border: 2px solid white;
-          }
-        }
-      }
-
-      .mobileMenuButton {
-        display: none;
-        background: none;
-        border: none;
-        font-size: 1.5rem;
-        cursor: pointer;
-
-        @media (max-width: 768px) {
-          display: block;
-        }
-      }
-    }
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .headerContent {
+    gap: 16px;
   }
 
-  .categoriesNav {
-    background: white;
-    border-bottom: 1px solid var(--etsy-border);
-    padding: 0;
-
-    @media (max-width: 768px) {
-      display: none;
-    }
-
-    .container {
-      max-width: 1240px;
-      margin: 0 auto;
-      padding: 0 16px;
-      width: 100%;
-      box-sizing: border-box;
-
-      @media (max-width: 1256px) {
-        max-width: calc(100% - 32px);
-      }
-
-      @media (max-width: 768px) {
-        padding: 0 12px;
-        max-width: calc(100% - 24px);
-      }
-    }
-
-    .categoriesList {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-
-      @media (max-width: 1024px) {
-        justify-content: space-around;
-      }
-
-      @media (max-width: 768px) {
-        justify-content: space-between;
-      }
-    }
-
-    .categoryItem {
-      text-decoration: none;
-      color: var(--etsy-black);
-      font-size: 14px;
-      font-weight: 700;
-      padding: 16px 12px;
-      transition: all 0.2s ease;
-      border-bottom: 3px solid transparent;
-      flex: 1;
-      text-align: center;
-
-      &:hover {
-        color: var(--etsy-orange);
-        border-bottom-color: var(--etsy-orange);
-      }
-
-      @media (max-width: 1024px) {
-        padding: 16px 8px;
-        font-size: 13px;
-      }
-
-      @media (max-width: 768px) {
-        padding: 16px 6px;
-        font-size: 12px;
-      }
-    }
+  .categoriesDropdown {
+    display: none;
   }
 
-  .mobileMenuOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(0, 0, 0, 0.5);
-    z-index: 1001;
-    backdrop-filter: blur(4px);
-    animation: fadeIn 0.3s ease;
+  .searchContainer {
+    display: none;
+  }
 
-    .mobileMenu {
-      position: absolute;
-      top: 0;
-      right: 0;
-      width: 300px;
-      height: 100%;
-      background: white;
-      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.1);
-      animation: slideInRight 0.3s ease;
+  .headerActions {
+    gap: 12px;
+  }
 
-      .mobileMenuHeader {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 20px;
-        border-bottom: 1px solid #e0e0e0;
-        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  .signInLink {
+    display: none;
+  }
 
-        h3 {
-          color: white;
-          margin: 0;
-          font-size: 18px;
-          font-weight: 600;
-        }
+  .mobileMenuButton {
+    display: block;
+  }
 
-        .closeButton {
-          background: none;
-          border: none;
-          color: white;
-          font-size: 20px;
-          cursor: pointer;
-          padding: 4px;
-          border-radius: 50%;
-          transition: background 0.2s ease;
-
-          &:hover {
-            background: rgba(255, 255, 255, 0.1);
-          }
-        }
-      }
-
-      .mobileMenuContent {
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-
-        .mobileNavLink {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 16px 12px;
-          text-decoration: none;
-          color: #212121;
-          font-weight: 500;
-          border-radius: 8px;
-          transition: all 0.2s ease;
-
-          &:hover {
-            background: #f8f8f8;
-            color: #667eea;
-          }
-
-          .mobileIcon {
-            font-size: 20px;
-            width: 24px;
-          }
-        }
-      }
-    }
+  .logo {
+    font-size: 28px;
   }
 }
 
-// Animations
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
 }
 
-@keyframes slideInRight {
-  from { transform: translateX(100%); }
-  to { transform: translateX(0); }
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  padding: 20px;
+  overflow-y: auto;
 }
 
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.1); }
-  100% { transform: scale(1); }
+.mobileMenuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e1e3df;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.mobileMenuContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #222;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.mobileNavLink:hover {
+  background: #f5f5f5;
+}
+
+.mobileIcon {
+  font-size: 20px;
+  min-width: 20px;
 }

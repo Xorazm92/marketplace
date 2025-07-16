@@ -10,20 +10,10 @@ const nextConfig: NextConfig = {
   
   // Optimize images
   images: {
-    domains: ['localhost', 'inbola.uz', 'api.inbola.uz'],
+    domains: ['localhost', '0.0.0.0', 'inbola.uz', 'api.inbola.uz'],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
-  },
-  
-  // PWA configuration
-  experimental: {
-    appDir: true,
-  },
-  
-  // Environment variables
-  env: {
-    CUSTOM_KEY: process.env.CUSTOM_KEY,
   },
   
   // API configuration
@@ -38,7 +28,7 @@ const nextConfig: NextConfig = {
     ];
   },
   
-  // Headers for security
+  // Headers for security and performance
   async headers() {
     return [
       {
@@ -60,26 +50,19 @@ const nextConfig: NextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
     ];
   },
   
-  // Bundle analyzer (only in development)
-  ...(process.env.ANALYZE === 'true' && {
-    webpack: (config: any) => {
-      config.resolve.alias = {
-        ...config.resolve.alias,
-        '@': __dirname,
-      };
-      return config;
-    },
-  }),
-  
   // Compression
   compress: true,
   
-  // Output configuration for production
+  // Output configuration
   output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined,
   
   // Disable x-powered-by header
@@ -96,6 +79,26 @@ const nextConfig: NextConfig = {
   // ESLint configuration
   eslint: {
     ignoreDuringBuilds: false,
+  },
+
+  // Custom webpack config for better performance
+  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
+    // Optimize bundle size
+    config.optimization = {
+      ...config.optimization,
+      splitChunks: {
+        chunks: 'all',
+        cacheGroups: {
+          vendor: {
+            test: /[\\/]node_modules[\\/]/,
+            name: 'vendors',
+            chunks: 'all',
+          },
+        },
+      },
+    };
+
+    return config;
   },
 };
 
