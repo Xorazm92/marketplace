@@ -4,7 +4,7 @@ modules = ["nodejs-20", "bash"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "🚀 Development Setup"
+runButton = "🎯 Full Stack Development"
 
 [[workflows.workflow]]
 name = "Backend Dev Server"
@@ -484,11 +484,11 @@ mode = "parallel"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd backend-main && echo \"🚀 Backend ishga tushmoqda...\" && npm run start:dev"
+args = "cd backend-main && echo \"🚀 Backend server ishga tushmoqda (Port: 4000)...\" && npm run start:dev"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd front-main && echo \"🎨 Frontend ishga tushmoqda...\" && npm run dev"
+args = "cd front-main && echo \"🎨 Frontend server ishga tushmoqda (Port: 3000)...\" && npm run dev"
 
 [[workflows.workflow]]
 name = "🧪 Quality Assurance"

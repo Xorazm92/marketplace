@@ -1,165 +1,158 @@
 
-import axios, { 
-  AxiosInstance, 
-  AxiosRequestConfig, 
-  AxiosResponse, 
-  AxiosError,
-  InternalAxiosRequestConfig 
-} from 'axios';
+import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
-// Constants
+// API base URL
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000';
-const DEFAULT_TIMEOUT = 10000;
-
-// Types
-interface ApiError {
-  message: string;
-  statusCode: number;
-  error?: string;
-}
-
-interface AuthTokens {
-  accessToken: string;
-  refreshToken: string;
-}
-
-// Utility functions
-const getStoredTokens = (): AuthTokens | null => {
-  if (typeof window === 'undefined') return null;
-  
-  try {
-    const accessToken = localStorage.getItem('accessToken');
-    const refreshToken = localStorage.getItem('refreshToken');
-    
-    if (!accessToken || !refreshToken) return null;
-    
-    return { accessToken, refreshToken };
-  } catch (error) {
-    console.error('Error reading tokens from localStorage:', error);
-    return null;
-  }
-};
-
-const setStoredTokens = (tokens: AuthTokens): void => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    localStorage.setItem('accessToken', tokens.accessToken);
-    localStorage.setItem('refreshToken', tokens.refreshToken);
-  } catch (error) {
-    console.error('Error storing tokens to localStorage:', error);
-  }
-};
-
-const clearStoredTokens = (): void => {
-  if (typeof window === 'undefined') return;
-  
-  try {
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-  } catch (error) {
-    console.error('Error clearing tokens from localStorage:', error);
-  }
-};
 
 // Axios instance yaratish
-const createApiInstance = (): AxiosInstance => {
-  const instance = axios.create({
-    baseURL: `${API_BASE_URL}/api`,
-    timeout: DEFAULT_TIMEOUT,
-    headers: {
-      'Content-Type': 'application/json',
-      'Accept': 'application/json',
-    },
-    withCredentials: true,
-  });
+const instance: AxiosInstance = axios.create({
+  baseURL: `${API_BASE_URL}/api`,
+  timeout: 30000,
+  withCredentials: true,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest',
+  },
+});
 
-  // Request interceptor
-  instance.interceptors.request.use(
-    (config: InternalAxiosRequestConfig) => {
-      const tokens = getStoredTokens();
-      
-      if (tokens?.accessToken) {
-        config.headers.Authorization = `Bearer ${tokens.accessToken}`;
+// Request interceptor
+instance.interceptors.request.use(
+  (config) => {
+    // Token qo'shish
+    if (typeof window !== 'undefined') {
+      const token = localStorage.getItem('access_token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
       }
-      
-      // Request logging (development only)
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`🚀 API Request: ${config.method?.toUpperCase()} ${config.url}`);
-      }
-      
-      return config;
-    },
-    (error: AxiosError) => {
-      console.error('❌ Request error:', error);
-      return Promise.reject(error);
     }
-  );
 
-  // Response interceptor
-  instance.interceptors.response.use(
-    (response: AxiosResponse) => {
-      // Response logging (development only)
-      if (process.env.NODE_ENV === 'development') {
-        console.log(`✅ API Response: ${response.status} ${response.config.url}`);
-      }
-      
-      return response;
-    },
-    async (error: AxiosError<ApiError>) => {
-      const originalRequest = error.config;
-      
-      // 401 xatosi - token eskirgan
-      if (error.response?.status === 401 && originalRequest && !originalRequest._retry) {
-        originalRequest._retry = true;
+    // Debug log
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
+      console.log('🔗 API Request:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        baseURL: config.baseURL,
+        headers: config.headers,
+      });
+    }
+
+    return config;
+  },
+  (error) => {
+    console.error('❌ Request error:', error);
+    return Promise.reject(error);
+  }
+);
+
+// Response interceptor
+instance.interceptors.response.use(
+  (response: AxiosResponse) => {
+    // Debug log
+    if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
+      console.log('✅ API Response:', {
+        status: response.status,
+        url: response.config.url,
+        data: response.data,
+      });
+    }
+
+    return response;
+  },
+  (error: AxiosError) => {
+    // Error handling
+    console.error('❌ API Error:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      url: error.config?.url,
+      message: error.message,
+      data: error.response?.data,
+    });
+
+    // 401 - Unauthorized
+    if (error.response?.status === 401) {
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        localStorage.removeItem('user_data');
         
-        const tokens = getStoredTokens();
-        
-        if (tokens?.refreshToken) {
-          try {
-            const refreshResponse = await axios.post(
-              `${API_BASE_URL}/api/auth/refresh`,
-              { refreshToken: tokens.refreshToken }
-            );
-            
-            const newTokens: AuthTokens = refreshResponse.data;
-            setStoredTokens(newTokens);
-            
-            // Original requestni qayta yuborish
-            originalRequest.headers.Authorization = `Bearer ${newTokens.accessToken}`;
-            return instance(originalRequest);
-            
-          } catch (refreshError) {
-            console.error('❌ Token refresh failed:', refreshError);
-            clearStoredTokens();
-            
-            // Login sahifasiga yo'naltirish
-            if (typeof window !== 'undefined') {
-              window.location.href = '/login';
-            }
-          }
+        // Login sahifasiga yo'naltirish
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login';
         }
       }
-      
-      // Error logging
-      console.error('❌ API Error:', {
-        status: error.response?.status,
-        message: error.response?.data?.message || error.message,
-        url: error.config?.url,
-      });
-      
-      return Promise.reject(error);
     }
-  );
 
-  return instance;
+    // 403 - Forbidden
+    if (error.response?.status === 403) {
+      console.warn('🚫 Access denied');
+    }
+
+    // 500 - Server Error
+    if (error.response?.status >= 500) {
+      console.error('🔥 Server error occurred');
+    }
+
+    // Network Error
+    if (!error.response) {
+      console.error('🌐 Network error - Server mavjud emas');
+    }
+
+    return Promise.reject(error);
+  }
+);
+
+// Health check funksiyasi
+export const checkApiHealth = async (): Promise<boolean> => {
+  try {
+    const response = await axios.get(`${API_BASE_URL}/health`, {
+      timeout: 5000,
+    });
+    console.log('💚 API Health Check:', response.data);
+    return response.status === 200;
+  } catch (error) {
+    console.error('❌ API Health Check failed:', error);
+    return false;
+  }
 };
 
-// API instance
-export const apiInstance = createApiInstance();
+// API connection test
+export const testApiConnection = async (): Promise<void> => {
+  try {
+    console.log('🔍 Testing API connection...');
+    const isHealthy = await checkApiHealth();
+    
+    if (isHealthy) {
+      console.log('✅ API connection successful');
+    } else {
+      console.error('❌ API connection failed');
+    }
+  } catch (error) {
+    console.error('❌ API connection test error:', error);
+  }
+};
+
+// Initial connection test
+if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
+  testApiConnection();
+}
+
+export default instance;
 
 // Export utility functions
-export { getStoredTokens, setStoredTokens, clearStoredTokens };
+export { API_BASE_URL };
 
-// Default export
-export default apiInstance;
+// Types
+export interface ApiResponse<T = any> {
+  data: T;
+  message: string;
+  status: string;
+  timestamp: string;
+}
+
+export interface ApiError {
+  message: string;
+  statusCode: number;
+  error: string;
+  timestamp: string;
+}

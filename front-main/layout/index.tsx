@@ -1,148 +1,243 @@
 
-import React, { ReactNode, useEffect, useState } from 'react';
-import Head from 'next/head';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import dynamic from 'next/dynamic';
+import Head from 'next/head';
 import { Navbar } from './Header/Navbar';
-import { Footer } from '../components/marketplace/Footer';
-import { LoadingSpinner } from '../components/ui/LoadingSpinner';
-import { ErrorBoundary } from '../components/ui/ErrorBoundary';
-import { Toast } from '../components/ui/Toast';
+import { checkApiHealth } from '../endpoints/instance';
 import styles from './layout.module.scss';
 
-// Types
+// Dynamic imports for better performance
+const AdminLayout = dynamic(() => import('../components/admin/AdminLayout'), {
+  ssr: false,
+  loading: () => <div className={styles.loading}>Admin panel yuklanmoqda...</div>
+});
+
+const KidsInterface = dynamic(() => import('../components/child-interface/KidsInterface'), {
+  ssr: false,
+  loading: () => <div className={styles.loading}>Bolalar interfeysi yuklanmoqda...</div>
+});
+
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
   title?: string;
   description?: string;
-  showHeader?: boolean;
-  showFooter?: boolean;
-  className?: string;
+  keywords?: string;
+  noIndex?: boolean;
 }
 
-interface SEOProps {
-  title: string;
-  description: string;
-}
-
-// Components
-const SEOHead: React.FC<SEOProps> = ({ title, description }) => (
-  <Head>
-    <title>{title}</title>
-    <meta name="description" content={description} />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="robots" content="index, follow" />
-    <meta name="keywords" content="bolalar, o'yinchoqlar, kitoblar, ta'lim, xavfsizlik" />
-    
-    {/* Open Graph tags */}
-    <meta property="og:title" content={title} />
-    <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
-    <meta property="og:site_name" content="INBOLA Kids" />
-    
-    {/* Twitter Card tags */}
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content={title} />
-    <meta name="twitter:description" content={description} />
-    
-    {/* Favicon */}
-    <link rel="icon" href="/favicon.ico" />
-    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-    
-    {/* Fonts */}
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-  </Head>
-);
-
-const LoadingOverlay: React.FC = () => (
-  <div className={styles.loadingOverlay}>
-    <LoadingSpinner size="large" />
-    <p>Yuklanmoqda...</p>
-  </div>
-);
-
-// Main Layout Component
-export const Layout: React.FC<LayoutProps> = ({
-  children,
-  title = 'INBOLA Kids - Bolalar uchun xavfsiz marketplace',
-  description = 'Bolalar va ularning ota-onalari uchun mo\'ljallangan ta\'limiy va xavfsiz elektron tijorat platformasi',
-  showHeader = true,
-  showFooter = true,
-  className = '',
+const Layout: React.FC<LayoutProps> = ({ 
+  children, 
+  title = 'INBOLA Kids Marketplace',
+  description = 'Bolalar va ota-onalar uchun xavfsiz va ta\'limiy elektron tijorat platformasi',
+  keywords = 'bolalar, o\'yinchoq, kitob, ta\'lim, xavfsiz, marketplace',
+  noIndex = false
 }) => {
   const router = useRouter();
-  const [isLoading, setIsLoading] = useState(false);
+  const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
+  const [isKidsMode, setIsKidsMode] = useState(false);
 
-  // Router events handling
+  // Route-based layout detection
+  const isAdminRoute = router.pathname.startsWith('/admin');
+  const isAuthRoute = ['/login', '/sign-up'].includes(router.pathname);
+  const isProfileRoute = router.pathname.startsWith('/profile');
+
+  // API health check
   useEffect(() => {
-    const handleStart = () => setIsLoading(true);
-    const handleComplete = () => setIsLoading(false);
-
-    router.events.on('routeChangeStart', handleStart);
-    router.events.on('routeChangeComplete', handleComplete);
-    router.events.on('routeChangeError', handleComplete);
-
-    return () => {
-      router.events.off('routeChangeStart', handleStart);
-      router.events.off('routeChangeComplete', handleComplete);
-      router.events.off('routeChangeError', handleComplete);
-    };
-  }, [router]);
-
-  // PWA install prompt
-  useEffect(() => {
-    let deferredPrompt: any;
-
-    const handleBeforeInstallPrompt = (e: Event) => {
-      e.preventDefault();
-      deferredPrompt = e;
+    const checkApi = async () => {
+      try {
+        const isHealthy = await checkApiHealth();
+        setApiStatus(isHealthy ? 'connected' : 'disconnected');
+      } catch (error) {
+        console.error('API health check error:', error);
+        setApiStatus('disconnected');
+      }
     };
 
-    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-
-    return () => {
-      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    };
+    checkApi();
+    
+    // Periodic health check
+    const interval = setInterval(checkApi, 30000); // 30 seconds
+    return () => clearInterval(interval);
   }, []);
 
-  const layoutClasses = `${styles.layout} ${className}`;
+  // Kids mode detection
+  useEffect(() => {
+    const kidsMode = localStorage.getItem('kids_mode') === 'true';
+    setIsKidsMode(kidsMode);
+  }, []);
 
+  // Page title generation
+  const pageTitle = title !== 'INBOLA Kids Marketplace' 
+    ? `${title} | INBOLA Kids Marketplace`
+    : title;
+
+  // Meta tags
+  const metaTags = {
+    title: pageTitle,
+    description,
+    keywords,
+    'og:title': pageTitle,
+    'og:description': description,
+    'og:type': 'website',
+    'og:url': typeof window !== 'undefined' ? window.location.href : '',
+    'og:image': '/img/hero-kids.jpg',
+    'twitter:card': 'summary_large_image',
+    'twitter:title': pageTitle,
+    'twitter:description': description,
+    'twitter:image': '/img/hero-kids.jpg',
+  };
+
+  // API status indicator
+  const ApiStatusIndicator = () => (
+    <div className={`${styles.apiStatus} ${styles[apiStatus]}`}>
+      <span className={styles.indicator}></span>
+      <span className={styles.text}>
+        {apiStatus === 'checking' && 'API tekshirilmoqda...'}
+        {apiStatus === 'connected' && 'Server ulanган'}
+        {apiStatus === 'disconnected' && 'Server uzilgan'}
+      </span>
+    </div>
+  );
+
+  // Loading component
+  if (apiStatus === 'checking') {
+    return (
+      <div className={styles.loadingContainer}>
+        <div className={styles.loadingSpinner}></div>
+        <p>INBOLA platformasi yuklanmoqda...</p>
+        <ApiStatusIndicator />
+      </div>
+    );
+  }
+
+  // Admin layout
+  if (isAdminRoute) {
+    return (
+      <>
+        <Head>
+          <title>{pageTitle}</title>
+          <meta name="description" content={description} />
+          {noIndex && <meta name="robots" content="noindex,nofollow" />}
+        </Head>
+        <AdminLayout>
+          {children}
+        </AdminLayout>
+        <ApiStatusIndicator />
+      </>
+    );
+  }
+
+  // Kids mode layout
+  if (isKidsMode && !isAuthRoute) {
+    return (
+      <>
+        <Head>
+          <title>{pageTitle}</title>
+          <meta name="description" content={description} />
+          <meta name="keywords" content={keywords} />
+          {Object.entries(metaTags).map(([key, value]) => (
+            <meta key={key} property={key} content={value} />
+          ))}
+        </Head>
+        <KidsInterface>
+          {children}
+        </KidsInterface>
+        <ApiStatusIndicator />
+      </>
+    );
+  }
+
+  // Default layout
   return (
-    <ErrorBoundary>
-      <SEOHead title={title} description={description} />
-      
-      <div className={layoutClasses}>
-        {/* Loading Overlay */}
-        {isLoading && <LoadingOverlay />}
+    <>
+      <Head>
+        <title>{pageTitle}</title>
+        <meta name="description" content={description} />
+        <meta name="keywords" content={keywords} />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#FF6B6B" />
+        <link rel="icon" href="/favicon.ico" />
+        <link rel="manifest" href="/manifest.json" />
         
-        {/* Header */}
-        {showHeader && (
+        {/* Open Graph tags */}
+        {Object.entries(metaTags).map(([key, value]) => (
+          <meta key={key} property={key} content={value} />
+        ))}
+        
+        {/* PWA meta tags */}
+        <meta name="application-name" content="INBOLA" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="INBOLA" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        
+        {noIndex && <meta name="robots" content="noindex,nofollow" />}
+      </Head>
+
+      <div className={styles.layout}>
+        {/* API Status Indicator */}
+        <ApiStatusIndicator />
+
+        {/* Navigation */}
+        {!isAuthRoute && (
           <header className={styles.header}>
             <Navbar />
           </header>
         )}
-        
+
         {/* Main Content */}
-        <main className={styles.main} role="main">
+        <main className={`${styles.main} ${isAuthRoute ? styles.authMain : ''}`}>
+          {/* Connection Error Banner */}
+          {apiStatus === 'disconnected' && (
+            <div className={styles.errorBanner}>
+              <span>⚠️ Server bilan aloqa yo'q. Ba'zi funksiyalar ishlamasligi mumkin.</span>
+              <button onClick={() => window.location.reload()}>
+                🔄 Qayta yuklash
+              </button>
+            </div>
+          )}
+
           {children}
         </main>
-        
+
         {/* Footer */}
-        {showFooter && (
+        {!isAuthRoute && !isAdminRoute && (
           <footer className={styles.footer}>
-            <Footer />
+            <div className={styles.footerContent}>
+              <div className={styles.footerSection}>
+                <h3>🎯 INBOLA</h3>
+                <p>Bolalar uchun xavfsiz va ta'limiy marketplace</p>
+              </div>
+              <div className={styles.footerSection}>
+                <h4>Havolalar</h4>
+                <ul>
+                  <li><a href="/categories">Kategoriyalar</a></li>
+                  <li><a href="/favorites">Sevimlilar</a></li>
+                  <li><a href="/cart">Savat</a></li>
+                </ul>
+              </div>
+              <div className={styles.footerSection}>
+                <h4>Yordam</h4>
+                <ul>
+                  <li><a href="/help">Yordam markazi</a></li>
+                  <li><a href="/contact">Aloqa</a></li>
+                  <li><a href="/safety">Xavfsizlik</a></li>
+                </ul>
+              </div>
+            </div>
+            <div className={styles.footerBottom}>
+              <p>&copy; 2024 INBOLA Kids Marketplace. Barcha huquqlar himoyalangan.</p>
+              <div className={styles.footerMeta}>
+                <span>API: {apiStatus}</span>
+                <span>v1.0.0</span>
+              </div>
+            </div>
           </footer>
         )}
-        
-        {/* Toast Notifications */}
-        <Toast />
-        
-        {/* Skip to main content for accessibility */}
-        <a href="#main-content" className={styles.skipLink}>
-          Asosiy mazmun
-        </a>
       </div>
-    </ErrorBoundary>
+    </>
   );
 };
 
