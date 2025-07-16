@@ -1,26 +1,20 @@
-
-import React, { ReactNode } from 'react';
+import React from 'react';
+import { Navbar } from './Header/Navbar';
+import styles from './layout.module.scss';
 import Head from 'next/head';
-import Header from '../components/marketplace/Header';
-import Footer from '../components/marketplace/Footer';
-import { ToastContainer } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
 
 interface LayoutProps {
-  children: ReactNode;
+  children: React.ReactNode;
   title?: string;
   description?: string;
   keywords?: string;
 }
 
-const Layout: React.FC<LayoutProps> = ({ 
-  children, 
-  title = 'INBOLA - Kids Marketplace',
+const Layout: React.FC<LayoutProps> = ({ children,  title = 'INBOLA - Kids Marketplace',
   description = 'Safe and fun marketplace for children and families',
-  keywords = 'kids marketplace, children products, safe shopping, family'
-}) => {
+  keywords = 'kids marketplace, children products, safe shopping, family' }) => {
   return (
-    <>
+    <div className={styles.layout}>
       <Head>
         <title>{title}</title>
         <meta name="description" content={description} />
@@ -41,28 +35,11 @@ const Layout: React.FC<LayoutProps> = ({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#f56500" />
       </Head>
-      
-      <div id="layout-wrapper">
-        <Header />
-        <main id="main-content" role="main">
-          {children}
-        </main>
-        <Footer />
-        
-        <ToastContainer
-          position="top-right"
-          autoClose={5000}
-          hideProgressBar={false}
-          newestOnTop={false}
-          closeOnClick
-          rtl={false}
-          pauseOnFocusLoss
-          draggable
-          pauseOnHover
-          theme="light"
-        />
-      </div>
-    </>
+      <Navbar />
+      <main className={styles.main}>
+        {children}
+      </main>
+    </div>
   );
 };
 

@@ -1,22 +1,31 @@
-import axios from "axios";
 
-const instance = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL,
+import axios from 'axios';
+
+const API_BASE_URL = process.env.NODE_ENV === 'production' 
+  ? 'https://api.inbola.uz/api'
+  : 'http://0.0.0.0:4000/api';
+
+export const $axios = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 10000,
   headers: {
-    "Content-Type": "application/json",
+    'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
 
-// Add auth token to requests
-instance.interceptors.request.use(
+// Request interceptor
+$axios.interceptors.request.use(
   (config) => {
-    if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken');
-      if (token) {
-        const parsedToken = JSON.parse(token);
-        config.headers.Authorization = `Bearer ${parsedToken}`;
-      }
+    // Add auth token if available
+    const token = typeof window !== 'undefined' 
+      ? localStorage.getItem('access_token') 
+      : null;
+    
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
     }
+    
     return config;
   },
   (error) => {
@@ -24,4 +33,22 @@ instance.interceptors.request.use(
   }
 );
 
-export default instance;
+// Response interceptor
+$axios.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response?.status === 401) {
+      // Clear tokens on unauthorized
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('access_token');
+        localStorage.removeItem('refresh_token');
+        window.location.href = '/login';
+      }
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default $axios;

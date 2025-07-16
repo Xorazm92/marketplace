@@ -4,7 +4,7 @@ modules = ["nodejs-20", "bash"]
 channel = "stable-24_05"
 
 [workflows]
-runButton = "Production Deploy & Monitoring"
+runButton = "Start Development Environment"
 
 [[workflows.workflow]]
 name = "Backend Dev Server"
@@ -306,3 +306,99 @@ args = "cd backend-main && npm run start:dev"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd front-main && npm run dev"
+
+[[workflows.workflow]]
+name = "Start Development Environment"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🔧 Setting up development environment...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma generate"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npx prisma migrate dev --name init"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"✅ Backend setup complete\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd ../front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm install"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"✅ Frontend setup complete\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🎉 Development environment ready!\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"💡 Use 'Backend Dev Server' and 'Frontend Dev Server' workflows to start\""
+
+[[workflows.workflow]]
+name = "Backend Development"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🚀 Starting Backend Development Server...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run start:dev"
+
+[[workflows.workflow]]
+name = "Frontend Development"
+author = 45055370
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"🎨 Starting Frontend Development Server...\""
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "npm run dev"
+
+[[workflows.workflow]]
+name = "Full Development Stack"
+author = 45055370
+mode = "parallel"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && echo \"🚀 Starting Backend...\" && npm run start:dev"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main && echo \"🎨 Starting Frontend...\" && npm run dev"
