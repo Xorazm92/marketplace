@@ -259,4 +259,21 @@
       margin: 0;
     }
   }
+
+  .wishlistBtn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: background 0.2s ease;
+
+    &:hover {
+      background: rgba(0,0,0,0.1);
+    }
+
+    .heartIcon {
+      font-size: 20px;
+    }
+  }
 }

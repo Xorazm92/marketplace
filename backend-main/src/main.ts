@@ -6,7 +6,7 @@ import { AppModule } from './app.module';
 import { GlobalExceptionFilter } from './common/filters/global-exception.filter';
 import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import * as compression from 'compression';
-import * as helmet from 'helmet';
+import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 
 async function bootstrap(): Promise<void> {

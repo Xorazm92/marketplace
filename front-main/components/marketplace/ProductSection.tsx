@@ -777,7 +777,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
               <div key={i} className={styles.productCard}>
                 <div className={styles.imageContainer}>
                   <div className={styles.imagePlaceholder}>
-                    <span>Loading...</span>
+                    <span>Yuklanmoqda...</span>
                   </div>
                 </div>
               </div>

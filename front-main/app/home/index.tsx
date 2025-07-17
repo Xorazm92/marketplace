@@ -205,54 +205,75 @@ const HomePage: React.FC = () => {
       <main className={styles.mainContent}>
         <HeroSection />
 
+        {/* Tavsiya etiladigan mahsulotlar */}
+        <section className={styles.section}>
+          <FeaturedProducts />
+        </section>
+
         {/* Kategoriya bo'yicha mahsulotlar */}
-        <ProductSection
-          title="Kiyim-kechak"
-          viewAllLink="/category/clothing"
-          products="clothing"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Kiyim-kechak"
+            viewAllLink="/category/clothing"
+            products="clothing"
+          />
+        </section>
 
-        <ProductSection
-          title="O'yinchoqlar"
-          viewAllLink="/category/toys"
-          products="toys"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="O'yinchoqlar"
+            viewAllLink="/category/toys"
+            products="toys"
+          />
+        </section>
 
-        <ProductSection
-          title="Kitoblar"
-          viewAllLink="/category/books"
-          products="books"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Kitoblar"
+            viewAllLink="/category/books"
+            products="books"
+          />
+        </section>
 
-        <ProductSection
-          title="Sport anjomlar"
-          viewAllLink="/category/sports"
-          products="sports"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Sport anjomlar"
+            viewAllLink="/category/sports"
+            products="sports"
+          />
+        </section>
 
-        <ProductSection
-          title="Maktab buyumlari"
-          viewAllLink="/category/school"
-          products="school"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Maktab buyumlari"
+            viewAllLink="/category/school"
+            products="school"
+          />
+        </section>
 
-        <ProductSection
-          title="Chaqaloq buyumlari"
-          viewAllLink="/category/baby"
-          products="baby"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Chaqaloq buyumlari"
+            viewAllLink="/category/baby"
+            products="baby"
+          />
+        </section>
 
-        <ProductSection
-          title="Elektronika"
-          viewAllLink="/category/electronics"
-          products="electronics"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Elektronika"
+            viewAllLink="/category/electronics"
+            products="electronics"
+          />
+        </section>
 
-        <ProductSection
-          title="Sog'liq"
-          viewAllLink="/category/health"
-          products="health"
-        />
+        <section className={styles.section}>
+          <ProductSection
+            title="Sog'liq"
+            viewAllLink="/category/health"
+            products="health"
+          />
+        </section>
       </main>
 
       {/* O'zbek Footer */}

@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -229,11 +228,11 @@ model Product {
   size             String?
   manufacturer     String?
   safety_info      String?
-  features         String[]
+  features         String?
   specifications   Json?
   meta_title       String?
   meta_description String?
-  tags             String[]
+  tags             String?
   createdAt        DateTime       @default(now())
   updatedAt        DateTime       @updatedAt
   cart_items       CartItem[]

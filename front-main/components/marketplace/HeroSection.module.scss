@@ -1,6 +1,4 @@
-` tags.
 
-<replit_final_file>
 .hero {
   background: linear-gradient(135deg, #fff5f0 0%, #ffeee6 100%);
   padding: 60px 0;
@@ -48,13 +46,14 @@
   max-width: 400px;
 }
 
-.searchContainer svg {
+.searchIcon {
   position: absolute;
   left: 16px;
   top: 50%;
   transform: translateY(-50%);
   color: #666;
   z-index: 1;
+  font-size: 18px;
 }
 
 .searchInput {

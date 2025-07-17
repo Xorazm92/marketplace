@@ -86,7 +86,14 @@
   text-decoration: none;
   font-weight: 500;
   transition: background 0.2s ease;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryIcon {
+  font-size: 18px;
+  min-width: 18px;
 }
 
 .categoryMenuItem:hover {

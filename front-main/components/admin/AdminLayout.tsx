@@ -13,9 +13,9 @@ interface AdminUser {
 }
 
 interface AdminLayoutProps {
-  activeTab: AdminTab;
-  onTabChange: (tab: AdminTab) => void;
-  adminUser: AdminUser;
+  activeTab?: AdminTab;
+  onTabChange?: (tab: AdminTab) => void;
+  adminUser?: AdminUser;
   children: React.ReactNode;
 }
 
@@ -59,9 +59,15 @@ const menuItems = [
 ];
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({
-  activeTab,
-  onTabChange,
-  adminUser,
+  activeTab = 'dashboard',
+  onTabChange = () => {},
+  adminUser = {
+    id: 1,
+    name: 'Admin User',
+    email: 'admin@inbola.uz',
+    role: 'Administrator',
+    avatar: null
+  },
   children
 }) => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -135,17 +141,17 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
                 <div className={styles.userAvatar}>
-                  {adminUser.avatar ? (
+                  {adminUser?.avatar ? (
                     <img src={adminUser.avatar} alt={adminUser.name} />
                   ) : (
                     <span className={styles.avatarPlaceholder}>
-                      {adminUser.name.charAt(0)}
+                      {adminUser?.name?.charAt(0) || 'A'}
                     </span>
                   )}
                 </div>
                 <div className={styles.userInfo}>
-                  <span className={styles.userName}>{adminUser.name}</span>
-                  <span className={styles.userRole}>{adminUser.role}</span>
+                  <span className={styles.userName}>{adminUser?.name || 'Admin'}</span>
+                  <span className={styles.userRole}>{adminUser?.role || 'Administrator'}</span>
                 </div>
                 <span className={styles.dropdownArrow}>▼</span>
               </button>

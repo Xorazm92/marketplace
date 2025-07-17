@@ -112,7 +112,8 @@ export const getAllProducts = async (category?: string) => {
   try {
     const params = category ? { category } : {};
     const res = await instance.get(`/product/all`, { params });
-    return res.data;
+    // API returns {products: [...], pagination: {...}}
+    return res.data.products || [];
   } catch (error: any) {
     console.error(error);
     toast.warning(`${error.response?.data?.message || "Something went wrong"}`);

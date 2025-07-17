@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
 import styles from './HeroSection.module.scss';
-import { InputSearchIcon } from '../../public/icons/profile/src/InputSearchIcon';
 
 const HeroSection: React.FC = () => {
   const router = useRouter();
@@ -15,49 +14,49 @@ const HeroSection: React.FC = () => {
   };
 
   const featuredCategories = [
-    { name: 'Toys', icon: '🧸', color: '#FF6B6B' },
-    { name: 'Clothing', icon: '👕', color: '#4ECDC4' },
-    { name: 'Books', icon: '📚', color: '#45B7D1' },
-    { name: 'Sports', icon: '⚽', color: '#FFA726' },
-    { name: 'Electronics', icon: '📱', color: '#9CCC65' },
-    { name: 'Baby', icon: '🍼', color: '#FFD54F' }
+    { name: "O'yinchoqlar", icon: '🧸', color: '#FF6B6B', slug: 'oyinchoqlar' },
+    { name: 'Kiyim-kechak', icon: '👕', color: '#4ECDC4', slug: 'kiyim-kechak' },
+    { name: 'Kitoblar', icon: '📚', color: '#45B7D1', slug: 'kitoblar' },
+    { name: 'Sport', icon: '⚽', color: '#FFA726', slug: 'sport' },
+    { name: 'Elektronika', icon: '📱', color: '#9CCC65', slug: 'elektronika' },
+    { name: 'Chaqaloq', icon: '🍼', color: '#FFD54F', slug: 'chaqaloq' }
   ];
 
   return (
     <section className={styles.hero}>
       <div className={styles.heroContent}>
         <div className={styles.heroText}>
-          <h1>Welcome to INBOLA Kids Marketplace</h1>
-          <p>Safe, fun, and educational shopping for children and families</p>
+          <h1>INBOLA Bolalar Bozoriga Xush Kelibsiz</h1>
+          <p>Bolalar va oilalar uchun xavfsiz, qiziqarli va ta'limli xaridlar</p>
 
           <form onSubmit={handleSearch} className={styles.searchForm}>
             <div className={styles.searchContainer}>
-              <InputSearchIcon />
+              <span className={styles.searchIcon}>🔍</span>
               <input
                 type="text"
-                placeholder="Search for toys, books, clothing..."
+                placeholder="Bolalar uchun o'yinchoq, kitob, kiyim qidiring..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className={styles.searchInput}
               />
               <button type="submit" className={styles.searchButton}>
-                Search
+                Qidirish
               </button>
             </div>
           </form>
 
           <div className={styles.quickActions}>
-            <button 
+            <button
               className={styles.actionButton}
               onClick={() => router.push('/categories')}
             >
-              Browse Categories
+              Kategoriyalarni Ko'rish
             </button>
-            <button 
+            <button
               className={styles.actionButton}
               onClick={() => router.push('/CreateProduct')}
             >
-              Sell Products
+              Mahsulot Sotish
             </button>
           </div>
         </div>
@@ -68,14 +67,14 @@ const HeroSection: React.FC = () => {
       </div>
 
       <div className={styles.featuredCategories}>
-        <h2>Popular Categories</h2>
+        <h2>Mashhur Kategoriyalar</h2>
         <div className={styles.categoriesGrid}>
           {featuredCategories.map((category) => (
             <div
               key={category.name}
               className={styles.categoryCard}
               style={{ backgroundColor: category.color }}
-              onClick={() => router.push(`/category/${category.name.toLowerCase()}`)}
+              onClick={() => router.push(`/category/${category.slug}`)}
             >
               <span className={styles.categoryIcon}>{category.icon}</span>
               <span className={styles.categoryName}>{category.name}</span>
@@ -87,23 +86,23 @@ const HeroSection: React.FC = () => {
       <div className={styles.features}>
         <div className={styles.feature}>
           <div className={styles.featureIcon}>🔒</div>
-          <h3>Safe & Secure</h3>
-          <p>All transactions are encrypted and secure</p>
+          <h3>Xavfsiz va Ishonchli</h3>
+          <p>Barcha to'lovlar shifrlangan va xavfsiz</p>
         </div>
         <div className={styles.feature}>
           <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
-          <h3>Family-Friendly</h3>
-          <p>Content approved for children of all ages</p>
+          <h3>Oila Uchun Qulay</h3>
+          <p>Barcha yoshdagi bolalar uchun tasdiqlangan kontent</p>
         </div>
         <div className={styles.feature}>
           <div className={styles.featureIcon}>📚</div>
-          <h3>Educational</h3>
-          <p>Learn while shopping with fun activities</p>
+          <h3>Ta'limli</h3>
+          <p>Qiziqarli faoliyatlar bilan o'rganish va xarid qilish</p>
         </div>
         <div className={styles.feature}>
           <div className={styles.featureIcon}>🚚</div>
-          <h3>Fast Delivery</h3>
-          <p>Quick and reliable shipping to your door</p>
+          <h3>Tez Yetkazib Berish</h3>
+          <p>Uyingizgacha tez va ishonchli yetkazib berish</p>
         </div>
       </div>
     </section>

@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import styles from './FeaturedProducts.module.scss';
 import { getAllProducts } from '../../endpoints/product';
-import { HeartIcon } from '../../public/icons/profile/src/HeartIcon';
 
 interface Product {
   id: number;
@@ -31,15 +30,24 @@ const FeaturedProducts: React.FC = () => {
   const loadFeaturedProducts = async () => {
     try {
       setLoading(true);
-      const response = await getAllProducts({
-        page: 1,
-        limit: 12,
-        sortBy: filter === 'top' ? 'view_count' : filter === 'new' ? 'createdAt' : undefined,
-        sortOrder: 'desc'
-      });
-      setProducts(response.products);
+      const response = await getAllProducts();
+      if (response && Array.isArray(response)) {
+        // Filter and sort products based on filter
+        let filteredProducts = response;
+
+        if (filter === 'top') {
+          filteredProducts = response.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+        } else if (filter === 'new') {
+          filteredProducts = response.sort((a, b) =>
+            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+          );
+        }
+
+        setProducts(filteredProducts.slice(0, 12));
+      }
     } catch (error) {
       console.error('Error loading featured products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
@@ -119,10 +127,10 @@ const FeaturedProducts: React.FC = () => {
     return (
       <section className={styles.featured}>
         <div className={styles.container}>
-          <h2>Featured Products</h2>
+          <h2>Tavsiya Etiladigan Mahsulotlar</h2>
           <div className={styles.loading}>
             <div className={styles.spinner}></div>
-            <p>Loading products...</p>
+            <p>Mahsulotlar yuklanmoqda...</p>
           </div>
         </div>
       </section>
@@ -133,25 +141,25 @@ const FeaturedProducts: React.FC = () => {
     <section className={styles.featured}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <h2>Featured Products</h2>
+          <h2>Tavsiya Etiladigan Mahsulotlar</h2>
           <div className={styles.filters}>
-            <button 
+            <button
               className={filter === 'all' ? styles.active : ''}
               onClick={() => setFilter('all')}
             >
-              All Products
+              Barcha Mahsulotlar
             </button>
-            <button 
+            <button
               className={filter === 'top' ? styles.active : ''}
               onClick={() => setFilter('top')}
             >
-              Most Popular
+              Eng Mashhur
             </button>
-            <button 
+            <button
               className={filter === 'new' ? styles.active : ''}
               onClick={() => setFilter('new')}
             >
-              Newest
+              Eng Yangi
             </button>
           </div>
         </div>
@@ -165,11 +173,11 @@ const FeaturedProducts: React.FC = () => {
                   alt={product.title}
                   onClick={() => router.push(`/product/${product.slug}`)}
                 />
-                <button 
+                <button
                   className={styles.wishlistBtn}
                   onClick={() => addToWishlist(product.id)}
                 >
-                  <HeartIcon />
+                  <span className={styles.heartIcon}>🤍</span>
                 </button>
               </div>
 

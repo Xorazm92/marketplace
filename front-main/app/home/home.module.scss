@@ -1,9 +1,43 @@
 .homepage {
   min-height: 100vh;
-  background-color: #ffffff;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
 
   main {
     padding-top: 0;
+  }
+}
+
+.section {
+  padding: 60px 0;
+
+  &:nth-child(even) {
+    background: rgba(245, 101, 0, 0.02);
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.sectionTitle {
+  text-align: center;
+  margin-bottom: 50px;
+
+  h2 {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.6;
   }
 }
 

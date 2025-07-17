@@ -12,8 +12,10 @@ const nextConfig: NextConfig = {
   // Experimental features
   experimental: {
     optimizeCss: true,
-    serverComponentsExternalPackages: ['@apollo/client'],
   },
+
+  // Server external packages
+  serverExternalPackages: ['@apollo/client'],
 
   // Image optimizatsiyasi
   images: {

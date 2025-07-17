@@ -132,6 +132,9 @@ const Header: React.FC = () => {
                       const categoryHref = typeof category === 'object' ?
                         (category.href || `/category/${category.slug || category.id || 'category'}`) :
                         '/category/default';
+                      const categoryIcon = typeof category === 'object' ?
+                        (category.icon || '📦') :
+                        '📦';
 
                       return (
                         <Link
@@ -140,7 +143,8 @@ const Header: React.FC = () => {
                           className={styles.categoryMenuItem}
                           onClick={() => setIsCategoriesOpen(false)}
                         >
-                          {categoryName}
+                          <span className={styles.categoryIcon}>{categoryIcon}</span>
+                          <span>{categoryName}</span>
                         </Link>
                       );
                     })}
@@ -168,7 +172,7 @@ const Header: React.FC = () => {
               <form onSubmit={handleSearch} className={styles.searchForm}>
                 <input
                   type="text"
-                  placeholder="Search for anything"
+                  placeholder="Har qanday narsani qidiring"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={styles.searchInput}

@@ -5,7 +5,7 @@ import { useRouter } from 'next/router';
 import AdminLayout from '../../components/admin/AdminLayout';
 import { getOrderStatistics } from '../../endpoints/order';
 import { getAllProducts } from '../../endpoints/product';
-import styles from '../../styles/AdminDashboard.module.scss';
+import styles from '../../components/admin/AdminDashboard.module.scss';
 
 interface DashboardStats {
   totalOrders: number;
@@ -31,6 +31,15 @@ const AdminDashboard: React.FC = () => {
     topProducts: []
   });
   const [isLoading, setIsLoading] = useState(true);
+
+  // Mock admin user data
+  const adminUser = {
+    id: 1,
+    name: 'Admin User',
+    email: 'admin@inbola.uz',
+    role: 'Administrator',
+    avatar: null
+  };
 
   useEffect(() => {
     loadDashboardData();
@@ -65,7 +74,11 @@ const AdminDashboard: React.FC = () => {
 
   if (isLoading) {
     return (
-      <AdminLayout>
+      <AdminLayout
+        activeTab="dashboard"
+        onTabChange={(tab) => console.log('Tab changed:', tab)}
+        adminUser={adminUser}
+      >
         <div className={styles.loading}>
           <div className={styles.spinner}></div>
           <p>Dashboard yuklanmoqda...</p>
@@ -81,7 +94,11 @@ const AdminDashboard: React.FC = () => {
         <meta name="description" content="Admin dashboard" />
       </Head>
 
-      <AdminLayout>
+      <AdminLayout
+        activeTab="dashboard"
+        onTabChange={(tab) => console.log('Tab changed:', tab)}
+        adminUser={adminUser}
+      >
         <div className={styles.dashboard}>
           <div className={styles.header}>
             <h1>Dashboard</h1>

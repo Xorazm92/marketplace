@@ -9,7 +9,7 @@ import {
   FaChevronDown,
   FaBars,
   FaXmark,
-  FaShoppingCart,
+  FaCartShopping,
 } from "react-icons/fa6";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
@@ -129,7 +129,7 @@ const Navbar = () => {
             >
               <div className={style.navItem}>
                 <div className={style.cartIcon}>
-                  <FaShoppingCart size={18} />
+                  <FaCartShopping size={18} />
                   {cartCount > 0 && (
                     <span className={style.cartBadge}>{cartCount}</span>
                   )}

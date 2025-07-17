@@ -79,9 +79,9 @@ export class ProductService {
 
     if (search) {
       where.OR = [
-        { title: { contains: search, mode: 'insensitive' } },
-        { description: { contains: search, mode: 'insensitive' } },
-        { tags: { has: search } }
+        { title: { contains: search } },
+        { description: { contains: search } },
+        { tags: { contains: search } }
       ];
     }
 
@@ -246,11 +246,11 @@ export class ProductService {
       is_active: true,
       is_checked: 'APPROVED' as const,
       OR: [
-        { title: { contains: query, mode: 'insensitive' as const } },
-        { description: { contains: query, mode: 'insensitive' as const } },
-        { tags: { has: query } },
-        { brand: { name: { contains: query, mode: 'insensitive' as const } } },
-        { category: { name: { contains: query, mode: 'insensitive' as const } } }
+        { title: { contains: query } },
+        { description: { contains: query } },
+        { tags: { contains: query } },
+        { brand: { name: { contains: query } } },
+        { category: { name: { contains: query } } }
       ]
     };
 
@@ -379,8 +379,8 @@ export class ProductService {
           { is_active: true },
           {
             OR: [
-              { title: { contains: search, mode: 'insensitive' } },
-              { description: { contains: search, mode: 'insensitive' } }
+              { title: { contains: search } },
+              { description: { contains: search } }
             ]
           }
         ]
