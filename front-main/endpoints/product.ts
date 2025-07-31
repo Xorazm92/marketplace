@@ -1,6 +1,7 @@
 // api/index.ts
 
 import instance from "./instance";
+import axios from "axios";
 import { toast } from "react-toastify";
 import { AddressData } from "../types/userData";
 import { Address, AddressRes, CreateProductProps, UpdateProductProps } from "../types";
@@ -211,7 +212,9 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       console.log(`${key}:`, value);
     }
 
-    const res = await instance.post("/product/create", formData, {
+    // Use direct URL to ensure correct endpoint
+    const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+    const res = await axios.post(`${API_URL}/api/v1/product/create`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,
