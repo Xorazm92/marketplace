@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styles from './ProductManagement.module.scss';
 import { MdOutlineCameraAlt } from 'react-icons/md';
@@ -49,40 +49,40 @@ const ProductManagement: React.FC = () => {
   });
   const [images, setImages] = useState<File[]>([]);
 
-  // Load products
+  // Load products function (useCallback bilan)
+  const loadProducts = useCallback(async () => {
+    try {
+      dispatch(setLoading(true));
+
+      // Load real products from API
+      console.log('Loading products from API...');
+      const apiProducts = await getAllProducts();
+
+      if (apiProducts && Array.isArray(apiProducts)) {
+        dispatch(setProducts(apiProducts));
+        toast.success(`${apiProducts.length} ta mahsulot yuklandi`);
+      } else {
+        // Fallback to empty array
+        dispatch(setProducts([]));
+        toast.info('Hech qanday mahsulot topilmadi');
+      }
+
+    } catch (error) {
+      console.error('Error loading products:', error);
+      // Fallback to empty array on error
+      dispatch(setProducts([]));
+      toast.error('Mahsulotlarni yuklashda xatolik');
+    } finally {
+      dispatch(setLoading(false));
+    }
+  }, [dispatch]);
+
+  // Load products on component mount
   useEffect(() => {
     console.log('=== ADMIN PANEL LOADING ===');
-    console.log('Current products in Redux:', products);
-
-    const loadProducts = async () => {
-      try {
-        dispatch(setLoading(true));
-
-        // Load real products from API
-        console.log('Loading products from API...');
-        const apiProducts = await getAllProducts();
-
-        if (apiProducts && Array.isArray(apiProducts)) {
-          dispatch(setProducts(apiProducts));
-          toast.success(`${apiProducts.length} ta mahsulot yuklandi`);
-        } else {
-          // Fallback to empty array
-          dispatch(setProducts([]));
-          toast.info('Hech qanday mahsulot topilmadi');
-        }
-
-      } catch (error) {
-        console.error('Error loading products:', error);
-        // Fallback to empty array on error
-        dispatch(setProducts([]));
-        toast.error('Mahsulotlarni yuklashda xatolik');
-      } finally {
-        dispatch(setLoading(false));
-      }
-    };
-
+    console.log('Current products in Redux:', realProducts);
     loadProducts();
-  }, [dispatch]);
+  }, [loadProducts]);
 
   // Load categories
   useEffect(() => {

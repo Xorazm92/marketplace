@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import { FiSearch, FiUser, FiShoppingCart, FiHeart, FiMenu, FiX, FiGift, FiStar } from 'react-icons/fi';
+import { BiCategory } from 'react-icons/bi';
+import { MdChildCare, MdFavorite } from 'react-icons/md';
 import styles from './Header.module.scss';
 import { getAllCategories } from '../../endpoints/category';
 import { getCart } from '../../endpoints/cart';
@@ -102,22 +105,38 @@ const Header: React.FC = () => {
 
   return (
     <header className={styles.header}>
+      {/* Top Banner - Etsy style */}
+      <div className={styles.topBanner}>
+        <div className={styles.container}>
+          <div className={styles.bannerContent}>
+            <span className={styles.bannerText}>
+              <FiGift className={styles.bannerIcon} />
+              Bolalar uchun xavfsiz va ta'limiy mahsulotlar
+            </span>
+            <Link href="/safety" className={styles.bannerLink}>
+              Xavfsizlik haqida
+            </Link>
+          </div>
+        </div>
+      </div>
+
       {/* Main Header */}
       <div className={styles.mainHeader}>
         <div className={styles.container}>
           <div className={styles.headerContent}>
-            {/* Logo - aynan Etsy kabi */}
+            {/* Logo - Etsy style */}
             <Link href="/" className={styles.logo}>
-              INBOLA
+              <MdChildCare className={styles.logoIcon} />
+              <span className={styles.logoText}>INBOLA</span>
             </Link>
 
-            {/* Categories Button - aynan Etsy kabi */}
+            {/* Categories Button - Etsy style */}
             <div className={styles.categoriesDropdown}>
               <button
                 className={styles.categoriesButton}
                 onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
               >
-                <span className={styles.hamburgerIcon}>☰</span>
+                <BiCategory className={styles.categoriesIcon} />
                 <span>Kategoriyalar</span>
               </button>
 
@@ -167,38 +186,49 @@ const Header: React.FC = () => {
               )}
             </div>
 
-            {/* Search - aynan Etsy kabi */}
+            {/* Search - Etsy style */}
             <div className={styles.searchContainer}>
               <form onSubmit={handleSearch} className={styles.searchForm}>
                 <input
                   type="text"
-                  placeholder="Har qanday narsani qidiring"
+                  placeholder="Bolalar uchun mahsulotlarni qidiring"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className={styles.searchInput}
+                  onFocus={() => setIsSearchFocused(true)}
+                  onBlur={() => setIsSearchFocused(false)}
                 />
                 <button type="submit" className={styles.searchButton}>
-                  <span className={styles.searchIcon}>🔍</span>
+                  <FiSearch className={styles.searchIcon} />
                 </button>
               </form>
+              {isSearchFocused && (
+                <div className={styles.searchSuggestions}>
+                  <div className={styles.suggestionItem}>
+                    <FiStar className={styles.suggestionIcon} />
+                    <span>Mashhur qidiruvlar</span>
+                  </div>
+                  <div className={styles.suggestionItem}>O'yinchoqlar</div>
+                  <div className={styles.suggestionItem}>Kitoblar</div>
+                  <div className={styles.suggestionItem}>Kiyim-kechak</div>
+                </div>
+              )}
             </div>
 
-            {/* Header Actions - aynan Etsy kabi */}
+            {/* Header Actions - Etsy style */}
             <div className={styles.headerActions}>
-              <Link href="/orders" className={styles.signInLink}>
-                Buyurtmalar
+              <Link href="/login" className={styles.signInLink}>
+                Kirish
               </Link>
 
-              <Link href="/wishlist" className={styles.iconLink}>
-                <span className={styles.icon}>🤍</span>
+              <Link href="/wishlist" className={styles.iconLink} title="Sevimlilar">
+                <FiHeart className={styles.icon} />
+                <span className={styles.iconLabel}>Sevimlilar</span>
               </Link>
 
-              <Link href="/login" className={styles.iconLink}>
-                <span className={styles.icon}>👤</span>
-              </Link>
-
-              <Link href="/cart" className={styles.iconLink}>
-                <span className={styles.icon}>🛒</span>
+              <Link href="/cart" className={styles.iconLink} title="Savatcha">
+                <FiShoppingCart className={styles.icon} />
+                <span className={styles.iconLabel}>Savatcha</span>
                 {cartItemsCount > 0 && (
                   <span className={styles.cartBadge}>{cartItemsCount}</span>
                 )}

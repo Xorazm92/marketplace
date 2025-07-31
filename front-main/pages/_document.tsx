@@ -5,7 +5,6 @@ export default function Document() {
     <Html lang="uz">
       <Head>
         <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <meta name="theme-color" content="#f56500" />
         <meta name="description" content="INBOLA - Bolalar uchun eng yaxshi mahsulotlar. Kiyim, o'yinchoqlar, kitoblar va boshqa zarur narsalar." />
         <meta name="keywords" content="bolalar, o'yinchoqlar, kiyim, kitoblar, maktab, chaqaloq, sport, elektronika" />

@@ -91,7 +91,7 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
 
 export const getOrderStatistics = async () => {
   try {
-    const res = await instance.get("/orders/statistics");
+    const res = await instance.get("/orders/admin/statistics");
     return res.data;
   } catch (error: any) {
     console.error("Error loading order statistics:", error);

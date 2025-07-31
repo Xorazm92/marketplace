@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import styles from './AdminLayout.module.scss';
 
 type AdminTab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'settings';
@@ -29,19 +30,19 @@ const menuItems = [
   {
     id: 'products' as AdminTab,
     label: 'Mahsulotlar',
-    icon: '🧸',
+    icon: '📦',
     description: 'Bolalar mahsulotlari boshqaruvi'
   },
   {
     id: 'orders' as AdminTab,
     label: 'Buyurtmalar',
-    icon: '📋',
+    icon: '🛒',
     description: 'Buyurtmalar va yetkazib berish'
   },
   {
     id: 'users' as AdminTab,
     label: 'Foydalanuvchilar',
-    icon: '👨‍👩‍👧‍👦',
+    icon: '👥',
     description: 'Mijozlar va sotuvchilar'
   },
   {
@@ -70,23 +71,33 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   },
   children
 }) => {
+  const router = useRouter();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
+  // Tab o'zgarganda URL'ni yangilash
+  const handleTabChange = (tab: AdminTab) => {
+    onTabChange(tab);
+    // URL'ni yangilash (agar kerak bo'lsa)
+    if (router.pathname === '/admin') {
+      router.push(`/admin?tab=${tab}`, undefined, { shallow: true });
+    }
+  };
+
   return (
     <div className={styles.adminLayout}>
-      {/* Sidebar */}
+      {/* Sidebar - Etsy Style */}
       <aside className={`${styles.sidebar} ${sidebarCollapsed ? styles.collapsed : ''}`}>
         <div className={styles.sidebarHeader}>
           <div className={styles.logo}>
-            <span className={styles.logoIcon}>🏪</span>
+            <span className={styles.logoIcon}>🧸</span>
             {!sidebarCollapsed && <span className={styles.logoText}>INBOLA Admin</span>}
           </div>
-          <button 
+          <button
             className={styles.collapseButton}
             onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
           >
-            {sidebarCollapsed ? '→' : '←'}
+            {sidebarCollapsed ? '☰' : '✕'}
           </button>
         </div>
 
@@ -95,7 +106,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
             <button
               key={item.id}
               className={`${styles.navItem} ${activeTab === item.id ? styles.active : ''}`}
-              onClick={() => onTabChange(item.id)}
+              onClick={() => handleTabChange(item.id)}
               title={sidebarCollapsed ? item.label : ''}
             >
               <span className={styles.navIcon}>{item.icon}</span>
@@ -119,15 +130,30 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
       {/* Main Content */}
       <div className={styles.mainContent}>
-        {/* Top Header */}
+        {/* Top Header - Etsy Style */}
         <header className={styles.topHeader}>
           <div className={styles.headerLeft}>
             <h1 className={styles.pageTitle}>
               {menuItems.find(item => item.id === activeTab)?.label || 'Dashboard'}
             </h1>
+            <div className={styles.breadcrumb}>
+              <span>Admin</span>
+              <span className={styles.breadcrumbSeparator}>/</span>
+              <span>{menuItems.find(item => item.id === activeTab)?.label}</span>
+            </div>
           </div>
 
           <div className={styles.headerRight}>
+            {/* Search */}
+            <div className={styles.searchContainer}>
+              <span className={styles.searchIcon}>🔍</span>
+              <input
+                type="text"
+                placeholder="Qidirish..."
+                className={styles.searchInput}
+              />
+            </div>
+
             {/* Notifications */}
             <button className={styles.notificationButton}>
               <span className={styles.notificationIcon}>🔔</span>
@@ -136,7 +162,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
 
             {/* User Menu */}
             <div className={styles.userMenu}>
-              <button 
+              <button
                 className={styles.userButton}
                 onClick={() => setShowUserMenu(!showUserMenu)}
               >
@@ -153,7 +179,6 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                   <span className={styles.userName}>{adminUser?.name || 'Admin'}</span>
                   <span className={styles.userRole}>{adminUser?.role || 'Administrator'}</span>
                 </div>
-                <span className={styles.dropdownArrow}>▼</span>
               </button>
 
               {showUserMenu && (

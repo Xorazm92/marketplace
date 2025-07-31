@@ -108,16 +108,16 @@ export const getProductById = async (id: number) => {
   }
 };
 
-export const getAllProducts = async (category?: string) => {
+export const getAllProducts = async (params?: { category?: string; limit?: number }) => {
   try {
-    const params = category ? { category } : {};
-    const res = await instance.get(`/product/all`, { params });
-    // API returns {products: [...], pagination: {...}}
-    return res.data.products || [];
+    const queryParams = params || {};
+    const res = await instance.get(`/v1/product/all`, { params: queryParams });
+    // API returns array directly
+    return { data: res.data || [] };
   } catch (error: any) {
     console.error(error);
     toast.warning(`${error.response?.data?.message || "Something went wrong"}`);
-    return [];
+    return { data: [] };
   }
 };
 

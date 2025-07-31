@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { FiHeart, FiStar, FiShoppingCart, FiEye, FiArrowRight } from 'react-icons/fi';
+import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import styles from './FeaturedProducts.module.scss';
 import { getAllProducts } from '../../endpoints/product';
 
@@ -140,87 +143,100 @@ const FeaturedProducts: React.FC = () => {
   return (
     <section className={styles.featured}>
       <div className={styles.container}>
+        {/* Section Header - Etsy style */}
         <div className={styles.header}>
-          <h2>Tavsiya Etiladigan Mahsulotlar</h2>
-          <div className={styles.filters}>
-            <button
-              className={filter === 'all' ? styles.active : ''}
-              onClick={() => setFilter('all')}
-            >
-              Barcha Mahsulotlar
-            </button>
-            <button
-              className={filter === 'top' ? styles.active : ''}
-              onClick={() => setFilter('top')}
-            >
-              Eng Mashhur
-            </button>
-            <button
-              className={filter === 'new' ? styles.active : ''}
-              onClick={() => setFilter('new')}
-            >
-              Eng Yangi
-            </button>
-          </div>
+          <h2>Sizga yoqishi mumkin bo'lgan mahsulotlar</h2>
+          <p className={styles.subtitle}>Kichik do'konlardan maxsus tanlovlar</p>
         </div>
 
+        {/* Filter Tabs - Etsy style */}
+        <div className={styles.filterTabs}>
+          <button
+            className={`${styles.filterTab} ${filter === 'all' ? styles.active : ''}`}
+            onClick={() => setFilter('all')}
+          >
+            Barchasi
+          </button>
+          <button
+            className={`${styles.filterTab} ${filter === 'top' ? styles.active : ''}`}
+            onClick={() => setFilter('top')}
+          >
+            <FiStar className={styles.tabIcon} />
+            Eng mashhur
+          </button>
+          <button
+            className={`${styles.filterTab} ${filter === 'new' ? styles.active : ''}`}
+            onClick={() => setFilter('new')}
+          >
+            ✨ Yangi
+          </button>
+        </div>
+
+        {/* Products Grid - Etsy style */}
         <div className={styles.productsGrid}>
           {products.map((product) => (
-            <div key={product.id} className={styles.productCard}>
-              <div className={styles.productImage}>
+            <Link key={product.id} href={`/product/${product.slug}`} className={styles.productCard}>
+              <div className={styles.productImageContainer}>
                 <img
                   src={product.product_image[0]?.url || '/img/placeholder-product.jpg'}
                   alt={product.title}
-                  onClick={() => router.push(`/product/${product.slug}`)}
+                  className={styles.productImage}
                 />
                 <button
                   className={styles.wishlistBtn}
-                  onClick={() => addToWishlist(product.id)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    addToWishlist(product.id);
+                  }}
                 >
-                  <span className={styles.heartIcon}>🤍</span>
+                  <MdFavoriteBorder className={styles.heartIcon} />
                 </button>
+                {product.view_count > 100 && (
+                  <div className={styles.popularBadge}>
+                    <FiStar className={styles.badgeIcon} />
+                    Mashhur
+                  </div>
+                )}
               </div>
 
               <div className={styles.productInfo}>
-                <h3 onClick={() => router.push(`/product/${product.slug}`)}>
-                  {product.title}
-                </h3>
-                <p className={styles.brand}>{product.brand.name}</p>
-                <p className={styles.category}>{product.category.name}</p>
-                
+                <div className={styles.shopName}>{product.brand.name}</div>
+                <h3 className={styles.productTitle}>{product.title}</h3>
+
                 <div className={styles.rating}>
-                  {renderStars(calculateAverageRating(product.reviews))}
+                  <div className={styles.stars}>
+                    {renderStars(calculateAverageRating(product.reviews))}
+                  </div>
                   <span className={styles.reviewCount}>
                     ({product.reviews.length})
                   </span>
                 </div>
 
-                <div className={styles.productFooter}>
-                  <div className={styles.price}>${product.price}</div>
-                  <button 
-                    className={styles.addToCartBtn}
-                    onClick={() => addToCart(product.id)}
-                  >
-                    Add to Cart
-                  </button>
+                <div className={styles.priceContainer}>
+                  <span className={styles.currency}>UZS</span>
+                  <span className={styles.price}>{Number(product.price).toLocaleString()}</span>
                 </div>
 
-                <div className={styles.productStats}>
-                  <span>👀 {product.view_count}</span>
-                  <span>❤️ {product.like_count}</span>
+                <div className={styles.productMeta}>
+                  <span className={styles.category}>{product.category.name}</span>
+                  <div className={styles.stats}>
+                    <span className={styles.stat}>
+                      <FiEye className={styles.statIcon} />
+                      {product.view_count}
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
+        {/* View More - Etsy style */}
         <div className={styles.viewMore}>
-          <button 
-            className={styles.viewMoreBtn}
-            onClick={() => router.push('/categories')}
-          >
-            View All Products
-          </button>
+          <Link href="/categories" className={styles.viewMoreBtn}>
+            <span>Barcha mahsulotlarni ko'rish</span>
+            <FiArrowRight className={styles.arrowIcon} />
+          </Link>
         </div>
       </div>
     </section>

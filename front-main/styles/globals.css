@@ -28,11 +28,26 @@ a {
 
 /* Etsy kabi ranglar */
 :root {
-  --etsy-orange: #f56500;
+  --etsy-orange: #f16521;
+  --etsy-pink: #e1306c;
   --etsy-black: #222;
   --etsy-gray: #767676;
   --etsy-light-gray: #f5f5f5;
   --etsy-border: #e1e3df;
+  --etsy-white: #ffffff;
+  --etsy-success: #00a652;
+  --etsy-warning: #ffa500;
+  --etsy-error: #d32f2f;
+
+  /* Transitions */
+  --transition-fast: 0.15s ease;
+  --transition-normal: 0.2s ease;
+  --transition-slow: 0.3s ease;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

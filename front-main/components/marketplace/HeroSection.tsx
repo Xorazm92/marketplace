@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { FiArrowRight, FiStar, FiShield, FiHeart } from 'react-icons/fi';
+import { MdChildCare, MdSecurity } from 'react-icons/md';
 import styles from './HeroSection.module.scss';
 
 const HeroSection: React.FC = () => {
@@ -24,85 +27,91 @@ const HeroSection: React.FC = () => {
 
   return (
     <section className={styles.hero}>
-      <div className={styles.heroContent}>
-        <div className={styles.heroText}>
-          <h1>INBOLA Bolalar Bozoriga Xush Kelibsiz</h1>
-          <p>Bolalar va oilalar uchun xavfsiz, qiziqarli va ta'limli xaridlar</p>
-
-          <form onSubmit={handleSearch} className={styles.searchForm}>
-            <div className={styles.searchContainer}>
-              <span className={styles.searchIcon}>🔍</span>
-              <input
-                type="text"
-                placeholder="Bolalar uchun o'yinchoq, kitob, kiyim qidiring..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className={styles.searchInput}
-              />
-              <button type="submit" className={styles.searchButton}>
-                Qidirish
-              </button>
+      {/* Main Hero Banner - Etsy style */}
+      <div className={styles.mainBanner}>
+        <div className={styles.bannerContent}>
+          <div className={styles.bannerText}>
+            <div className={styles.bannerBadge}>
+              <MdChildCare className={styles.badgeIcon} />
+              <span>Bolalar uchun xavfsiz</span>
             </div>
-          </form>
-
-          <div className={styles.quickActions}>
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/categories')}
-            >
-              Kategoriyalarni Ko'rish
-            </button>
-            <button
-              className={styles.actionButton}
-              onClick={() => router.push('/CreateProduct')}
-            >
-              Mahsulot Sotish
-            </button>
+            <h1 className={styles.bannerTitle}>
+              Bolalar dunyosiga xush kelibsiz
+            </h1>
+            <p className={styles.bannerSubtitle}>
+              Kichik do'konlardan maxsus ta'limiy va xavfsiz mahsulotlar oling
+            </p>
+            <Link href="/categories" className={styles.bannerCTA}>
+              <span>Maxsus tanlovlarni ko'ring</span>
+              <FiArrowRight className={styles.ctaIcon} />
+            </Link>
+          </div>
+          <div className={styles.bannerImage}>
+            <div className={styles.imageCard}>
+              <img
+                src="/img/hero-kids.jpg"
+                alt="Bolalar mahsulotlari"
+                className={styles.heroImage}
+                onError={(e) => {
+                  e.currentTarget.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAwIiBoZWlnaHQ9IjMwMCIgdmlld0JveD0iMCAwIDQwMCAzMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSI0MDAiIGhlaWdodD0iMzAwIiBmaWxsPSIjRjVGNUY1Ii8+CjxwYXRoIGQ9Ik0yMDAgMTUwQzIyNy42MTQgMTUwIDI1MCAyMjcuNjE0IDI1MCAyMDBDMjUwIDE3Mi4zODYgMjI3LjYxNCAxNTAgMjAwIDE1MFoiIGZpbGw9IiNEREREREQiLz4KPHN2Zz4K';
+                }}
+              />
+            </div>
           </div>
         </div>
+      </div>
 
-        <div className={styles.heroImage}>
-          <img src="/img/hero-kids.jpg" alt="Kids playing with toys" />
+      {/* Featured Interests - Etsy style */}
+      <div className={styles.featuredSection}>
+        <div className={styles.container}>
+          <h2 className={styles.sectionTitle}>Qiziqarli kategoriyalarni kashf eting</h2>
+          <div className={styles.categoriesGrid}>
+            {featuredCategories.map((category, index) => (
+              <Link
+                key={index}
+                href={`/category/${category.slug}`}
+                className={styles.categoryCard}
+                style={{ '--category-color': category.color } as React.CSSProperties}
+              >
+                <div className={styles.categoryImage}>
+                  <span className={styles.categoryIcon}>{category.icon}</span>
+                </div>
+                <div className={styles.categoryInfo}>
+                  <h3 className={styles.categoryName}>{category.name}</h3>
+                  <p className={styles.categoryDesc}>Qiziqarli va xavfsiz</p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className={styles.featuredCategories}>
-        <h2>Mashhur Kategoriyalar</h2>
-        <div className={styles.categoriesGrid}>
-          {featuredCategories.map((category) => (
-            <div
-              key={category.name}
-              className={styles.categoryCard}
-              style={{ backgroundColor: category.color }}
-              onClick={() => router.push(`/category/${category.slug}`)}
-            >
-              <span className={styles.categoryIcon}>{category.icon}</span>
-              <span className={styles.categoryName}>{category.name}</span>
+      {/* Trust Indicators - Etsy style */}
+      <div className={styles.trustSection}>
+        <div className={styles.container}>
+          <div className={styles.trustGrid}>
+            <div className={styles.trustItem}>
+              <MdSecurity className={styles.trustIcon} />
+              <div className={styles.trustContent}>
+                <h3>Xavfsiz xaridlar</h3>
+                <p>Barcha mahsulotlar tekshirilgan</p>
+              </div>
             </div>
-          ))}
-        </div>
-      </div>
-
-      <div className={styles.features}>
-        <div className={styles.feature}>
-          <div className={styles.featureIcon}>🔒</div>
-          <h3>Xavfsiz va Ishonchli</h3>
-          <p>Barcha to'lovlar shifrlangan va xavfsiz</p>
-        </div>
-        <div className={styles.feature}>
-          <div className={styles.featureIcon}>👨‍👩‍👧‍👦</div>
-          <h3>Oila Uchun Qulay</h3>
-          <p>Barcha yoshdagi bolalar uchun tasdiqlangan kontent</p>
-        </div>
-        <div className={styles.feature}>
-          <div className={styles.featureIcon}>📚</div>
-          <h3>Ta'limli</h3>
-          <p>Qiziqarli faoliyatlar bilan o'rganish va xarid qilish</p>
-        </div>
-        <div className={styles.feature}>
-          <div className={styles.featureIcon}>🚚</div>
-          <h3>Tez Yetkazib Berish</h3>
-          <p>Uyingizgacha tez va ishonchli yetkazib berish</p>
+            <div className={styles.trustItem}>
+              <FiStar className={styles.trustIcon} />
+              <div className={styles.trustContent}>
+                <h3>Sifatli mahsulotlar</h3>
+                <p>Faqat eng yaxshi brendlar</p>
+              </div>
+            </div>
+            <div className={styles.trustItem}>
+              <FiHeart className={styles.trustIcon} />
+              <div className={styles.trustContent}>
+                <h3>Bolalar uchun</h3>
+                <p>Maxsus tanlangan mahsulotlar</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </section>
