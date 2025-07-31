@@ -15,12 +15,36 @@ INBOLA Kids Marketplace - bu 3-12 yosh oralig'idagi bolalar uchun maxsus ishlab 
 
 ### ✨ Asosiy Xususiyatlar
 
-- 🛡️ **Xavfsizlik birinchi o'rinda**: Barcha mahsulotlar bolalar xavfsizligi bo'yicha tekshirilgan
-- 🎨 **Bolalar uchun qulay dizayn**: Yorqin ranglar va oddiy navigatsiya
-- 📚 **Ta'limiy mahsulotlar**: Kitoblar, o'yinchoqlar va ta'lim materiallarl
-- 👨‍👩‍👧‍👦 **Ota-ona nazorati**: Kattalar uchun maxsus nazorat paneli
-- 🔒 **JWT autentifikatsiya**: Xavfsiz login tizimi
-- 📱 **PWA qo'llab-quvvatlash**: Mobil qurilmalarda app kabi ishlaydi
+#### 🛒 E-commerce Funksiyalari
+- ✅ **To'liq mahsulot katalogi**: Kategoriyalar, brendlar, qidiruv
+- ✅ **Savatcha va checkout**: Real-time savatcha, to'lov integratsiyasi
+- ✅ **Buyurtma boshqaruvi**: To'liq buyurtma lifecycle
+- ✅ **Sevimlilar tizimi**: Wishlist funksiyasi
+- ✅ **Mahsulot sharhlari**: Verified purchase reviews
+
+#### 🛡️ Bolalar Xavfsizligi
+- ✅ **Yosh cheklovi**: Yoshga mos mahsulotlar
+- ✅ **Ota-ona nazorati**: Kattalar uchun maxsus panel
+- ✅ **Kontent filtri**: Noto'g'ri kontent bloklash
+- ✅ **Xarajat cheklovi**: Maksimal xarajat nazorati
+- ✅ **Vaqt cheklovi**: Foydalanish vaqti nazorati
+
+#### 💳 To'lov Tizimlari
+- ✅ **Click integratsiyasi**: O'zbekiston #1 to'lov tizimi
+- ✅ **Payme integratsiyasi**: Mashhur mobil to'lov
+- ✅ **Naqd to'lov**: Yetkazib berishda to'lov
+
+#### 👥 Foydalanuvchi Tizimlari
+- ✅ **Multi-role RBAC**: Admin, Parent, Child, Guest, Seller, Moderator
+- ✅ **JWT Authentication**: Xavfsiz login/logout
+- ✅ **OTP Verification**: SMS orqali tasdiqlash
+- ✅ **User Dashboard**: Shaxsiy kabinet
+
+#### 📱 Zamonaviy Texnologiyalar
+- ✅ **PWA Support**: Mobil app kabi ishlash
+- ✅ **Offline Mode**: Internetisiz ishlash
+- ✅ **Push Notifications**: Real-time xabarlar
+- ✅ **Service Worker**: Caching va performance
 
 ## 🏗️ Texnik Arxitektura
 
@@ -57,21 +81,109 @@ INBOLA Kids Marketplace - bu 3-12 yosh oralig'idagi bolalar uchun maxsus ishlab 
 
 ## 🚀 Ishga Tushirish
 
-### 1. Tez Boshlash
+### 1. To'liq Deployment (Tavsiya etiladi)
 ```bash
-# Run tugmasini bosing yoki
-# "Start Development Environment" workflow ishlatiladi
+# Barcha tizimni avtomatik o'rnatish
+chmod +x final-deployment.sh
+./final-deployment.sh
 ```
 
-### 2. Backend Alohida Ishga Tushirish
+### 2. Manual Development Setup
 ```bash
+# Backend
 cd backend-main
 npm install
 npx prisma generate
 npx prisma migrate dev
+npx prisma db seed
 npm run start:dev
+
+# Frontend (yangi terminal)
+cd front-main
+npm install
+npm run dev
 ```
-**Backend manzil**: http://0.0.0.0:4000
+
+### 3. Docker bilan Production
+```bash
+# Production muhitda ishga tushirish
+docker-compose -f docker-compose.prod.yml up -d --build
+```
+
+**Manzillar:**
+- 🌐 Frontend: http://localhost:3000
+- 🔧 Backend API: http://localhost:3001
+- 👨‍💼 Admin Panel: http://localhost:3000/admin
+- 📊 API Docs: http://localhost:3001/api
+
+## 🔐 Default Login Ma'lumotlari
+
+### Admin Panel
+- **Email**: admin@inbola.uz
+- **Parol**: admin123
+
+### Test Foydalanuvchilar
+- **Ota-ona**: +998901234567 / user123
+- **Bola**: child-user / user123
+
+## 📱 PWA O'rnatish
+
+### Desktop (Chrome/Edge)
+1. Saytga kiring
+2. Address bar'da "Install" tugmasini bosing
+3. Yoki ⋮ → "Install INBOLA Kids..."
+
+### Mobile (Android/iOS)
+1. Browser'da saytni oching
+2. "Add to Home Screen" tugmasini bosing
+3. App kabi ishlatishni boshlang
+
+## 🛠️ Development
+
+### Backend Development
+```bash
+cd backend-main
+npm run start:dev    # Development mode
+npm run test         # Run tests
+npm run build        # Production build
+```
+
+### Frontend Development
+```bash
+cd front-main
+npm run dev          # Development server
+npm run build        # Production build
+npm run test         # Run tests
+npm run lint         # Code linting
+```
+
+### Database Management
+```bash
+cd backend-main
+npx prisma studio    # Database GUI
+npx prisma migrate dev # Create migration
+npx prisma db seed   # Seed database
+npx prisma generate  # Generate client
+```
+
+## 🐳 Docker Commands
+
+```bash
+# Start all services
+docker-compose -f docker-compose.prod.yml up -d
+
+# View logs
+docker-compose -f docker-compose.prod.yml logs -f
+
+# Restart services
+docker-compose -f docker-compose.prod.yml restart
+
+# Stop all services
+docker-compose -f docker-compose.prod.yml down
+
+# Rebuild and start
+docker-compose -f docker-compose.prod.yml up -d --build
+```
 
 ### 3. Frontend Alohida Ishga Tushirish
 ```bash
