@@ -82,6 +82,10 @@ const ProductManagement: React.FC = () => {
   useEffect(() => {
     console.log('=== ADMIN PANEL LOADING ===');
     console.log('Current products in Redux:', realProducts);
+    console.log('Environment variables:', {
+      NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
+      NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL
+    });
     loadProducts();
   }, [loadProducts]);
 
@@ -378,7 +382,11 @@ const ProductManagement: React.FC = () => {
                       src={`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1${product.product_image[0].url}`}
                       alt={product.title}
                       className={styles.productImage}
+                      onLoad={() => {
+                        console.log('✅ Image loaded successfully:', `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1${product.product_image[0].url}`);
+                      }}
                       onError={(e) => {
+                        console.log('❌ Image failed to load:', `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1${product.product_image[0].url}`);
                         e.currentTarget.src = '/img/placeholder-product.jpg';
                       }}
                     />

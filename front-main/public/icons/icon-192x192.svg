@@ -1,0 +1,12 @@
+<svg width="192" height="192" xmlns="http://www.w3.org/2000/svg">
+  <rect width="192" height="192" fill="#667eea" rx="24"/>
+  <circle cx="96" cy="70" r="25" fill="#FFE66D"/>
+  <rect x="71" y="100" width="50" height="30" fill="#4ECDC4" rx="15"/>
+  <text x="96" y="150" font-family="Arial" font-size="16" fill="white" text-anchor="middle">
+    INBOLA
+  </text>
+  <circle cx="60" cy="40" r="8" fill="#FF6B6B"/>
+  <circle cx="132" cy="40" r="8" fill="#FF6B6B"/>
+  <circle cx="60" cy="160" r="8" fill="#FF6B6B"/>
+  <circle cx="132" cy="160" r="8" fill="#FF6B6B"/>
+</svg>

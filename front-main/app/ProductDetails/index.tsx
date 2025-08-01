@@ -89,7 +89,7 @@ const ProductDetails = () => {
       description: backendData.description || "",
       isNegotiable: backendData.negotiable || false,
       images: backendData.product_image?.map(
-        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/public/${img.url || img.image}`,
+        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/api/v1${img.url || img.image}`,
       ) || ["/img/placeholder-product.jpg"],
       userId: backendData.user_id,
     };
@@ -107,12 +107,13 @@ const ProductDetails = () => {
 
   useEffect(() => {
     getAllProducts()
-      .then((products) => {
-        if (products) {
-          setProductsList(products);
+      .then((response) => {
+        if (response && response.data) {
+          setProductsList(response.data);
         }
       })
       .catch((error) => {
+        console.error("Failed to fetch products:", error);
         toast.error("Failed to fetch products");
       });
   }, []);
