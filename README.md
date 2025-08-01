@@ -88,6 +88,10 @@ INBOLA Kids Marketplace - bu 3-12 yosh oralig'idagi bolalar uchun maxsus ishlab 
 # Barcha tizimni avtomatik o'rnatish
 chmod +x final-deployment.sh
 ./final-deployment.sh
+
+# Yoki professional deployment
+chmod +x deploy-professional.sh
+./deploy-professional.sh
 ```
 
 ### 2. Manual Development Setup
@@ -204,11 +208,11 @@ npm run dev
 
 | Xizmat | URL | Tavsif |
 |--------|-----|--------|
-| 🎨 Frontend | http://0.0.0.0:3000 | Asosiy web interfeys |
-| 🔧 Backend API | http://0.0.0.0:4000/api | REST API |
-| 📚 API Docs | http://0.0.0.0:4000/api-docs | Swagger dokumentatsiya |
-| 💚 Health Check | http://0.0.0.0:4000/health | Server holati |
-| 🔗 GraphQL | http://0.0.0.0:4000/graphql | GraphQL endpoint |
+| 🎨 Frontend | http://localhost:3000 | Asosiy web interfeys |
+| 🔧 Backend API | http://localhost:4001/api | REST API (Updated Port) |
+| 📚 API Docs | http://localhost:4001/api-docs | Swagger dokumentatsiya |
+| 💚 Health Check | http://localhost:4001/health | Server holati |
+| 🔗 GraphQL | http://localhost:4001/graphql | GraphQL endpoint |
 
 ## 🛠️ Mavjud Workflows
 
@@ -352,6 +356,20 @@ NEXT_PUBLIC_APP_NAME="INBOLA Kids Marketplace"
 ## 📄 Litsenziya
 
 Bu loyiha **MIT** litsenziyasi ostida tarqatiladi. Ko'proq ma'lumot uchun [LICENSE](LICENSE) faylini ko'ring.
+
+---
+
+## 📊 **CURRENT SERVER STATUS**
+
+```bash
+✅ Backend Server: http://localhost:4001 - RUNNING
+✅ Frontend Server: http://localhost:3000 - RUNNING
+✅ Database: SQLite - CONNECTED
+✅ API Endpoints: 100+ endpoints - WORKING
+✅ Health Check: http://localhost:4001/health - OK
+```
+
+**Last Updated**: August 1, 2025 - All systems operational! 🚀
 
 ---
 
