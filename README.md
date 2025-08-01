@@ -1,7 +1,9 @@
 
-# 🎯 INBOLA Kids Marketplace
+# 🎯 INBOLA Kids Marketplace - Professional E-commerce Platform
 
-> **Bolalar va ularning ota-onalari uchun xavfsiz, ta'limiy va zamonaviy elektron tijorat platformasi**
+> **Amazon/Uzum Market darajasidagi professional e-commerce | Etsy.com dizayni**
+>
+> **Bolalar va ota-onalar uchun dunyodagi eng zamonaviy va xavfsiz marketplace**
 
 [![Frontend](https://img.shields.io/badge/Frontend-Next.js%2015-blue?style=for-the-badge)](https://nextjs.org/)
 [![Backend](https://img.shields.io/badge/Backend-NestJS-red?style=for-the-badge)](https://nestjs.com/)
