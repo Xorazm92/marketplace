@@ -193,7 +193,7 @@ async function main() {
             user_id: testUser.id,
             is_checked: 'APPROVED',
             negotiable: false,
-            condition: true,
+            condition: "new",
             phone_number: '+998901234567',
             slug: productSlug,
             product_image: {

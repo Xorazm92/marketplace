@@ -23,7 +23,7 @@ export class ProductService {
         currency_id: productData.currency_id,
         description: productData.description,
         negotiable: productData.negotiable,
-        condition: productData.condition,
+        condition: productData.condition ? "new" : "used",
         phone_number: productData.phone_number,
         address_id: productData.address_id ? +productData.address_id : null,
         category_id: productData.category_id,

@@ -60,28 +60,43 @@ export class CartService {
     const cart = await this.getOrCreateCart(userId);
 
     // Check if item already exists in cart
-    const existingItem = await this.prisma.cartItem.findUnique({
+    const existingItem = await this.prisma.cartItem.findFirst({
       where: {
-        cart_id_product_id: {
-          cart_id: cart.id,
-          product_id,
-        },
+        cart_id: cart.id,
+        product_id,
       },
     });
 
     if (existingItem) {
-      // Update quantity
+      // Update quantity and total price
+      const newQuantity = existingItem.quantity + quantity;
+      const newTotalPrice = Number(existingItem.unit_price) * newQuantity;
+
       await this.prisma.cartItem.update({
         where: { id: existingItem.id },
-        data: { quantity: existingItem.quantity + quantity },
+        data: {
+          quantity: newQuantity,
+          total_price: newTotalPrice
+        },
       });
     } else {
+      // Get product price
+      const product = await this.prisma.product.findUnique({
+        where: { id: product_id },
+        select: { price: true }
+      });
+
+      const unitPrice = product?.price || 0;
+      const totalPrice = Number(unitPrice) * quantity;
+
       // Create new cart item
       await this.prisma.cartItem.create({
         data: {
           cart_id: cart.id,
           product_id,
           quantity,
+          unit_price: unitPrice,
+          total_price: totalPrice,
         },
       });
     }

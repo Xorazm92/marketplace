@@ -3,6 +3,7 @@ import { useSelector } from 'react-redux';
 import Link from 'next/link';
 import { getAllProducts } from '../../endpoints/product';
 import { RootState } from '../../store/store';
+import EtsyStyleProductCard from './EtsyStyleProductCard';
 import styles from './ProductSection.module.scss';
 
 interface Product {

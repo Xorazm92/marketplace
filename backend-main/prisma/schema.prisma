@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "sqlite"
   url      = env("DATABASE_URL")
 }
 
@@ -206,12 +206,12 @@ model Product {
   title                 String
   user_id               Int?
   brand_id              Int
-  price                 Decimal        @db.Decimal(10, 2)
-  original_price        Decimal?       @db.Decimal(10, 2)
+  price                 Decimal
+  original_price        Decimal?
   discount_percentage   Int?           @default(0)
   currency_id           Int
-  description           String         @db.Text
-  short_description     String?        @db.VarChar(500)
+  description           String
+  short_description     String?
   negotiable            Boolean        @default(false)
   condition             String         @default("new") // new, used, refurbished
   phone_number          String
@@ -230,7 +230,7 @@ model Product {
   subcategory_id        Int?
   sku                   String?        @unique
   barcode               String?        @unique
-  weight                Decimal?       @db.Decimal(8, 3)
+  weight                Decimal?
   dimensions            Json?          // {length, width, height}
   age_range             String?
   material              String?
@@ -238,25 +238,25 @@ model Product {
   size                  String?
   manufacturer          String?
   brand_name            String?
-  safety_info           String?        @db.Text
+  safety_info           String?
   features              Json?          // Array of features
   specifications        Json?          // Detailed specs
-  meta_title            String?        @db.VarChar(255)
-  meta_description      String?        @db.VarChar(500)
-  tags                  String?        @db.Text
-  search_keywords       String?        @db.Text
+  meta_title            String?
+  meta_description      String?
+  tags                  String?
+  search_keywords       String?
   availability_status   String         @default("in_stock") // in_stock, out_of_stock, pre_order
   min_order_quantity    Int            @default(1)
   max_order_quantity    Int?
-  shipping_weight       Decimal?       @db.Decimal(8, 3)
+  shipping_weight       Decimal?
   shipping_dimensions   Json?
   origin_country        String?
   warranty_period       String?
-  return_policy         String?        @db.Text
-  care_instructions     String?        @db.Text
-  safety_warnings       String?        @db.Text
+  return_policy         String?
+  care_instructions     String?
+  safety_warnings       String?
   certifications        Json?          // Array of certifications
-  educational_value     String?        @db.Text
+  educational_value     String?
   skill_development     Json?          // Array of skills
   play_pattern          String?
   assembly_required     Boolean        @default(false)
@@ -378,9 +378,9 @@ model CartItem {
   product_id      Int
   variant_id      Int?
   quantity        Int             @default(1)
-  unit_price      Decimal         @db.Decimal(10, 2)
-  total_price     Decimal         @db.Decimal(10, 2)
-  notes           String?         @db.Text
+  unit_price      Decimal
+  total_price     Decimal
+  notes           String?
   createdAt       DateTime        @default(now())
   updatedAt       DateTime        @updatedAt
 
@@ -574,7 +574,7 @@ model ProductVariant {
   product_id        Int
   name              String      // Color, Size, etc.
   value             String      // Red, Large, etc.
-  price_adjustment  Decimal     @default(0) @db.Decimal(10, 2)
+  price_adjustment  Decimal     @default(0)
   sku               String?     @unique
   stock_quantity    Int         @default(0)
   is_active         Boolean     @default(true)
@@ -584,7 +584,6 @@ model ProductVariant {
 
   product           Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
   cart_items        CartItem[]
-  order_items       OrderItem[]
 
   @@map("product_variants")
 }
@@ -593,7 +592,7 @@ model ProductCollection {
   id                Int                      @id @default(autoincrement())
   name              String
   slug              String                   @unique
-  description       String?                  @db.Text
+  description       String?
   image_url         String?
   is_active         Boolean                  @default(true)
   sort_order        Int                      @default(0)
@@ -641,7 +640,7 @@ model ProductAttributeValue {
   id           Int              @id @default(autoincrement())
   product_id   Int
   attribute_id Int
-  value        String           @db.Text
+  value        String
   createdAt    DateTime         @default(now())
   updatedAt    DateTime         @updatedAt
 
@@ -657,7 +656,7 @@ model ProductRecommendation {
   product_id            Int
   recommended_product_id Int
   type                  String   // related, similar, frequently_bought_together, upsell, cross_sell
-  score                 Decimal  @default(0) @db.Decimal(3, 2)
+  score                 Decimal  @default(0)
   is_active             Boolean  @default(true)
   createdAt             DateTime @default(now())
   updatedAt             DateTime @updatedAt
@@ -674,8 +673,8 @@ model ProductView {
   product_id Int
   user_id    Int?
   ip_address String?
-  user_agent String?  @db.Text
-  referrer   String?  @db.Text
+  user_agent String?
+  referrer   String?
   viewed_at  DateTime @default(now())
 
   product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)

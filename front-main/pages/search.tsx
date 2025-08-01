@@ -4,6 +4,7 @@ import Head from 'next/head';
 import SearchFilters from '../components/search/SearchFilters';
 import SearchResults from '../components/search/SearchResults';
 import SearchSorting from '../components/search/SearchSorting';
+import EtsyStyleProductCard from '../components/marketplace/EtsyStyleProductCard';
 import styles from '../styles/Search.module.scss';
 
 interface SearchFilters {

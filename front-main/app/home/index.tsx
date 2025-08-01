@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import HeroSection from '../../components/marketplace/HeroSection';
+import EtsyStyleHero from '../../components/marketplace/EtsyStyleHero';
 import FeaturedProducts from '../../components/marketplace/FeaturedProducts';
 import ProductSection from '../../components/marketplace/ProductSection';
 import Footer from '../../components/marketplace/Footer';
@@ -203,7 +203,7 @@ const HomePage: React.FC = () => {
   return (
     <div className={styles.homepage}>
       <main className={styles.mainContent}>
-        <HeroSection />
+        <EtsyStyleHero />
 
         {/* Tavsiya etiladigan mahsulotlar */}
         <section className={styles.section}>
