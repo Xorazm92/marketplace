@@ -28,7 +28,8 @@ interface DashboardStats {
 const AdminPage: React.FC = () => {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoading, setIsLoading] = useState(false);
+  const [databaseConnected, setDatabaseConnected] = useState(true);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
     totalOrders: 0,
     totalRevenue: 0,
@@ -54,46 +55,54 @@ const AdminPage: React.FC = () => {
     try {
       setIsLoading(true);
 
-      // Hozircha mock data ishlatamiz (authentication kerak bo'lganda real API'ga o'tamiz)
-      console.log('📊 Loading dashboard data with mock data...');
+      console.log('📊 Loading dashboard data from API...');
 
-      const mockOrderStats = {
-        totalOrders: 45,
-        totalRevenue: 2850000,
-        pendingOrders: 12,
-        completedOrders: 33,
-        recentOrders: [
-          { id: 1, orderNumber: 'ORD-001', customerName: 'Ali Valiyev', total: 125000, status: 'pending' },
-          { id: 2, orderNumber: 'ORD-002', customerName: 'Malika Karimova', total: 89000, status: 'completed' },
-          { id: 3, orderNumber: 'ORD-003', customerName: 'Bobur Toshmatov', total: 156000, status: 'processing' },
-          { id: 4, orderNumber: 'ORD-004', customerName: 'Dilnoza Rahimova', total: 75000, status: 'pending' },
-          { id: 5, orderNumber: 'ORD-005', customerName: 'Jasur Karimov', total: 95000, status: 'completed' }
-        ]
-      };
+      let orderStats = { totalOrders: 0, totalRevenue: 0, pendingOrders: 0, completedOrders: 0, recentOrders: [] };
+      let products = { data: [] };
 
-      const mockProducts = {
-        data: [
-          { id: 1, title: 'Bolalar o\'yinchoq mashina', price: 45000, category: { name: 'O\'yinchoqlar' } },
-          { id: 2, title: 'Bolalar kiyimi', price: 89000, category: { name: 'Kiyim' } },
-          { id: 3, title: 'Ta\'lim kitoblari', price: 25000, category: { name: 'Kitoblar' } },
-          { id: 4, title: 'Sport anjomlar', price: 120000, category: { name: 'Sport' } },
-          { id: 5, title: 'Maktab sumkalari', price: 65000, category: { name: 'Maktab' } },
-          { id: 6, title: 'Bolalar velosipedi', price: 350000, category: { name: 'Transport' } }
-        ]
-      };
+      try {
+        // Real API'dan mahsulotlarni yuklash
+        products = await getAllProducts({ limit: 100 });
+        console.log('✅ Products loaded from database:', products.data?.length);
+        setDatabaseConnected(true);
 
-      // Kichik kechikish (real API'ni taqlid qilish uchun)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+        // Hozircha order statistics uchun mock data (keyinroq real API qo'shamiz)
+        orderStats = {
+          totalOrders: 45,
+          totalRevenue: 2850000,
+          pendingOrders: 12,
+          completedOrders: 33,
+          recentOrders: [
+            { id: 1, orderNumber: 'ORD-001', customerName: 'Ali Valiyev', total: 125000, status: 'pending' },
+            { id: 2, orderNumber: 'ORD-002', customerName: 'Malika Karimova', total: 89000, status: 'completed' },
+            { id: 3, orderNumber: 'ORD-003', customerName: 'Bobur Toshmatov', total: 156000, status: 'processing' },
+            { id: 4, orderNumber: 'ORD-004', customerName: 'Dilnoza Rahimova', total: 75000, status: 'pending' },
+            { id: 5, orderNumber: 'ORD-005', customerName: 'Jasur Karimov', total: 95000, status: 'completed' }
+          ]
+        };
+      } catch (error) {
+        console.log('❌ API failed, using fallback data:', error);
+        setDatabaseConnected(false);
+        // Fallback data
+        products = { data: [] };
+        orderStats = {
+          totalOrders: 45,
+          totalRevenue: 2850000,
+          pendingOrders: 12,
+          completedOrders: 33,
+          recentOrders: []
+        };
+      }
 
       setDashboardStats({
-        totalOrders: mockOrderStats.totalOrders,
-        totalRevenue: mockOrderStats.totalRevenue,
-        totalProducts: mockProducts.data.length + 150, // Jami 156 ta mahsulot
+        totalOrders: orderStats.totalOrders,
+        totalRevenue: orderStats.totalRevenue,
+        totalProducts: products.data?.length || 0,
         totalUsers: 89,
-        pendingOrders: mockOrderStats.pendingOrders,
-        completedOrders: mockOrderStats.completedOrders,
-        recentOrders: mockOrderStats.recentOrders,
-        topProducts: mockProducts.data.slice(0, 5)
+        pendingOrders: orderStats.pendingOrders,
+        completedOrders: orderStats.completedOrders,
+        recentOrders: orderStats.recentOrders,
+        topProducts: products.data?.slice(0, 5) || []
       });
 
       console.log('✅ Dashboard data loaded successfully');
@@ -142,7 +151,7 @@ const AdminPage: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard stats={dashboardStats} isLoading={isLoading} />;
+        return <Dashboard stats={dashboardStats} isLoading={isLoading} databaseConnected={databaseConnected} />;
       case 'products':
         return <ProductManagement />;
       case 'orders':

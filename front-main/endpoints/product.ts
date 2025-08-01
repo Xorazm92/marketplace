@@ -57,7 +57,7 @@ export const createProduct = async ({
     try {
       console.log(formData.get("address_id"));
 
-      const res = await instance.post("/product/create", formData, {
+      const res = await instance.post("/v1/product/create", formData, {
         headers: {
           "Content-Type": "multipart/form-data",
           Authorization: `Bearer ${token}`,
@@ -83,7 +83,7 @@ export const getProducts = async (
   filters: Record<string, string> = {},
 ) => {
   try {
-    const res = await instance.get(`/product`, {
+    const res = await instance.get(`/v1/product`, {
       params: {
         page,
         ...filters,
@@ -99,7 +99,7 @@ export const getProducts = async (
 
 export const getProductById = async (id: number) => {
   try {
-    const res = await instance.get(`/product/${id}`);
+    const res = await instance.get(`/v1/product/${id}`);
     return res.data;
   } catch (error: any) {
     console.error(error);
@@ -129,7 +129,7 @@ export const addProductImage = async (productId: number, image: File) => {
     const formData = new FormData();
     formData.append('image', image); // The field name should match what your backend expects, typically 'image' or 'file'
 
-    const res = await instance.post(`/product/image/${productId}`, formData, {
+    const res = await instance.post(`/v1/product/image/${productId}`, formData, {
       headers: {
         'Content-Type': 'multipart/form-data',
         Authorization: `Bearer ${JSON.parse(localStorage.getItem("accessToken") || "")}`,
@@ -211,12 +211,17 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       console.log(`${key}:`, value);
     }
 
-    const res = await instance.post("/product/create", formData, {
+    const res = await instance.post("/v1/product/create", formData, {
       headers: {
         "Content-Type": "multipart/form-data",
-        Authorization: `Bearer ${token}`,
+        // Authorization: `Bearer ${token}`, // Temporarily disabled for admin testing
       },
     });
+
+    console.log('=== API RESPONSE SUCCESS ===');
+    console.log('Response status:', res.status);
+    console.log('Response data:', res.data);
+    console.log('Response type:', typeof res.data);
 
     return res.data;
   } catch (error: any) {
@@ -237,7 +242,7 @@ export const deleteProductImage = async (productId: number, imageId: number) => 
   try {
     console.log(productId, imageId);
     
-    const res = await instance.delete(`/product/${productId}/image/${imageId}`, {
+    const res = await instance.delete(`/v1/product/${productId}/image/${imageId}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(localStorage.getItem("accessToken") || "")}`,
       },
@@ -274,7 +279,7 @@ export const updateProduct = async (id: number, data: UpdateProductProps, addres
       },
     );
     //@ts-ignore
-    const res = await instance.put(`/product/${id}`, {...data, address_id: address.data?.id}, {
+    const res = await instance.put(`/v1/product/${id}`, {...data, address_id: address.data?.id}, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -309,7 +314,7 @@ export const searchProducts = async (params: {
       }
     });
 
-    const res = await instance.get(`/product/search?${queryParams.toString()}`);
+    const res = await instance.get(`/v1/product/search?${queryParams.toString()}`);
     return res.data;
   } catch (error: any) {
     console.error("Error searching products:", error);
@@ -347,7 +352,7 @@ export const getAllProductsWithFilters = async (params: {
       }
     });
 
-    const res = await instance.get(`/product?${queryParams.toString()}`);
+    const res = await instance.get(`/v1/product?${queryParams.toString()}`);
     return res.data;
   } catch (error: any) {
     console.error("Error loading products:", error);

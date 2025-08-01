@@ -220,7 +220,12 @@ const ProductManagement: React.FC = () => {
         console.log('Calling API with data:', productData);
         const apiResponse = await createAdminProduct(productData, []);
 
-        if (apiResponse && apiResponse.product) {
+        console.log('=== API RESPONSE RECEIVED ===');
+        console.log('API Response:', apiResponse);
+        console.log('API Response type:', typeof apiResponse);
+        console.log('API Response keys:', apiResponse ? Object.keys(apiResponse) : 'null');
+
+        if (apiResponse) {
           console.log('Product created successfully:', apiResponse);
 
           // Don't add to Redux store manually, just reload from API

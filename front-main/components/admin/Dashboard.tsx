@@ -15,9 +15,10 @@ interface DashboardStats {
 interface DashboardProps {
   stats: DashboardStats;
   isLoading: boolean;
+  databaseConnected?: boolean;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ stats, isLoading }) => {
+const Dashboard: React.FC<DashboardProps> = ({ stats, isLoading, databaseConnected = false }) => {
   if (isLoading) {
     return (
       <div className={styles.loading}>
@@ -72,6 +73,17 @@ const Dashboard: React.FC<DashboardProps> = ({ stats, isLoading }) => {
 
   return (
     <div className={styles.dashboard}>
+      {/* Header with Database Status */}
+      <div className={styles.header}>
+        <h1>Admin Dashboard</h1>
+        <p>Marketplace boshqaruv paneli</p>
+        <div className={styles.statusIndicator}>
+          <span className={`${styles.status} ${databaseConnected ? styles.connected : styles.disconnected}`}>
+            {databaseConnected ? '🟢 Database ulangan' : '🔴 Database ulanmagan (Mock data)'}
+          </span>
+        </div>
+      </div>
+
       {/* Stats Cards */}
       <div className={styles.statsGrid}>
         {statCards.map((card, index) => (

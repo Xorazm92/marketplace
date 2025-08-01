@@ -7,47 +7,32 @@ export class LiveChatroomService {
   private redisClient: Redis;
 
   constructor() {
-    this.redisClient = new Redis({
-      username: 'default',
-      password: process.env.REDIS_PASSWORD,
-      host: process.env.REDIS_HOST,
-      port: parseInt(process.env.REDIS_PORT || '18243', 10),
-    });
+    // Redis connection temporarily disabled to avoid connection errors
+    // this.redisClient = new Redis({
+    //   username: 'default',
+    //   password: process.env.REDIS_PASSWORD,
+    //   host: process.env.REDIS_HOST || 'localhost',
+    //   port: parseInt(process.env.REDIS_PORT || '6379', 10),
+    // });
   }
 
   async addLiveUserToChatroom(chatroomId: number, user: User): Promise<void> {
-    const existingLiveUsers = await this.getLiveUsersForChatroom(chatroomId);
-
-    const existingUser = existingLiveUsers.find(
-      (liveUser) => liveUser.id === user.id,
-    );
-    if (existingUser) {
-      return;
-    }
-    await this.redisClient.sadd(
-      `liveUsers:chatroom:${chatroomId}`,
-      JSON.stringify(user),
-    );
+    // Redis functionality temporarily disabled
+    console.log(`Adding user ${user.id} to chatroom ${chatroomId} (Redis disabled)`);
+    return;
   }
 
   async removeLiveUserFromChatroom(
     chatroomId: number,
     user: User,
   ): Promise<void> {
-    await this.redisClient
-      .srem(`liveUsers:chatroom:${chatroomId}`, JSON.stringify(user))
-      .catch((err) => {
-        console.log('removeLiveUserFromChatroom error', err);
-      })
-      .then((res) => {
-        console.log('removeLiveUserFromChatroom res', res);
-      });
+    // Redis functionality temporarily disabled
+    console.log(`Removing user ${user.id} from chatroom ${chatroomId} (Redis disabled)`);
+    return;
   }
   async getLiveUsersForChatroom(chatroomId: number): Promise<User[]> {
-    const users = await this.redisClient.smembers(
-      `liveUsers:chatroom:${chatroomId}`,
-    );
-
-    return users.map((user) => JSON.parse(user));
+    // Redis functionality temporarily disabled
+    console.log(`Getting live users for chatroom ${chatroomId} (Redis disabled)`);
+    return [];
   }
 }
