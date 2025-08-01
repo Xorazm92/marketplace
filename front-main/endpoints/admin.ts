@@ -1,5 +1,5 @@
 
-import { instance } from './instance';
+import instance from './instance';
 
 export const getDashboardStats = async () => {
   const response = await instance.get('/admin/dashboard');
@@ -14,6 +14,11 @@ export const getUsersAdmin = async (page: number = 1, limit: number = 10) => {
 export const getProductsAdmin = async (page: number = 1, limit: number = 10, status?: string) => {
   const url = `/admin/products?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`;
   const response = await instance.get(url);
+  return response.data;
+};
+
+export const getAllProductsAdmin = async () => {
+  const response = await instance.get('/v1/admin/products/all');
   return response.data;
 };
 

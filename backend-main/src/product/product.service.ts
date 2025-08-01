@@ -343,10 +343,11 @@ export class ProductService {
 
   // Additional methods needed by controller
   async createProductImage(productId: number, image: any) {
+    const imageUrl = `/uploads/${image.filename}`;
     return this.prisma.productImage.create({
       data: {
         product_id: productId,
-        url: image.filename || image.path
+        url: imageUrl
       }
     });
   }

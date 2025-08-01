@@ -8,13 +8,15 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
-  
+
   try {
     // NestJS app yaratish
-    const app = await NestFactory.create(AppModule, {
+    const app = await NestFactory.create<NestExpressApplication>(AppModule, {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
       cors: true,
     });
@@ -29,9 +31,11 @@ async function bootstrap(): Promise<void> {
     app.use(compression());
     app.use(cookieParser());
 
+
+
     // Global prefix
     app.setGlobalPrefix('api', {
-      exclude: ['/health', '/'],
+      exclude: ['/health', '/', '/uploads'],
     });
 
     // Versioning
@@ -128,7 +132,7 @@ async function bootstrap(): Promise<void> {
     });
 
     // Health check endpoint
-    app.getHttpAdapter().get('/health', (req, res) => {
+    app.getHttpAdapter().get('/health', (req: any, res: any) => {
       const healthCheck = {
         status: 'OK',
         timestamp: new Date().toISOString(),
@@ -151,7 +155,7 @@ async function bootstrap(): Promise<void> {
     });
 
     // Root endpoint
-    app.getHttpAdapter().get('/', (req, res) => {
+    app.getHttpAdapter().get('/', (req: any, res: any) => {
       res.status(200).json({
         message: '🎯 INBOLA Kids Marketplace API',
         version: '1.0.0',

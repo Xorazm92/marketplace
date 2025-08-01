@@ -181,6 +181,26 @@ export class AdminService {
     });
   }
 
+  async getAllProductsAdmin() {
+    return this.prisma.product.findMany({
+      where: {
+        is_deleted: false
+      },
+      include: {
+        user: true,
+        brand: true,
+        category: true,
+        product_image: true,
+        reviews: {
+          select: {
+            rating: true
+          }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    });
+  }
+
   // Auth methods for AdminService
   async findByEmail(email: string) {
     return this.prisma.admin.findUnique({

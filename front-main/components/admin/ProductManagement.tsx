@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import { RootState } from '../../store/store';
 import { setProducts, addProduct, updateProduct, deleteProduct, setLoading } from '../../store/features/productSlice';
 import { createAdminProduct, getAllProducts } from '../../endpoints/product';
+import { getAllProductsAdmin } from '../../endpoints/admin';
 
 interface ProductFormData {
   title: string;
@@ -54,9 +55,9 @@ const ProductManagement: React.FC = () => {
     try {
       dispatch(setLoading(true));
 
-      // Load real products from API
-      console.log('Loading products from API...');
-      const apiProducts = await getAllProducts();
+      // Load real products from Admin API (includes inactive products)
+      console.log('Loading products from Admin API...');
+      const apiProducts = await getAllProductsAdmin();
 
       if (apiProducts && Array.isArray(apiProducts)) {
         dispatch(setProducts(apiProducts));
@@ -198,7 +199,7 @@ const ProductManagement: React.FC = () => {
           currency_id: 1, // Number, not string
           category_id: selectedCategory?.id ? Number(selectedCategory.id) : 1, // Convert to number
           brand_id: 1, // Number, not string
-          user_id: 1, // Already number
+          user_id: 2, // Test user ID
           negotiable: true, // Boolean
           condition: true, // Boolean
           phone_number: "+998901234567", // String
@@ -295,7 +296,7 @@ const ProductManagement: React.FC = () => {
                   currency_id: 1,
                   category_id: 2, // O'yinchiqlar
                   brand_id: 1,
-                  user_id: 1,
+                  user_id: 2,
                   negotiable: true,
                   condition: true,
                   phone_number: "+998901234567",
@@ -374,9 +375,12 @@ const ProductManagement: React.FC = () => {
                 <div className={styles.productImageContainer}>
                   {product?.product_image?.[0]?.url ? (
                     <img
-                      src={product.product_image[0].url}
+                      src={`${process.env.NEXT_PUBLIC_BASE_URL}/api/v1${product.product_image[0].url}`}
                       alt={product.title}
                       className={styles.productImage}
+                      onError={(e) => {
+                        e.currentTarget.src = '/img/placeholder-product.jpg';
+                      }}
                     />
                   ) : (
                     <div className={styles.imagePlaceholder}>📦</div>

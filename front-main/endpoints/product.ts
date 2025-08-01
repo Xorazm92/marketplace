@@ -169,7 +169,7 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     // Add default user_id for development
     const productDataWithUser = {
       ...productData,
-      user_id: productData.user_id || 1 // Default to user ID 1 as number
+      user_id: productData.user_id || 2 // Default to user ID 2 as number
     };
 
     // Add product data to formData with proper type conversion
