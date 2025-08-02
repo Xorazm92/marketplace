@@ -1,4 +1,4 @@
-import { Address } from "../types";
+import { AddressType as Address } from "../types";
 import instance from "./instance";
 import { toast } from "react-toastify";
 import { AddAddress } from "../app/Settings/components/AddressSection/AddressSection";

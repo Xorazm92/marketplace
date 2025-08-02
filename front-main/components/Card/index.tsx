@@ -16,7 +16,7 @@ const Card: React.FC<CardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  const { id, product_image, title, condition, storage, price, negotiable } =
+  const { id, product_image, title, condition, price, negotiable } =
     product;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -30,7 +30,7 @@ const Card: React.FC<CardProps> = ({
       <OptimizedImage
         src={
           product_image && product_image.length > 0
-            ? `${process.env.NEXT_PUBLIC_BASE_URL}/public/${product_image[0].url || product_image[0].image}`
+            ? `${process.env.NEXT_PUBLIC_BASE_URL}/public/${product_image[0].url}`
             : "/img/placeholder-product.jpg"
         }
         alt={title}
@@ -60,9 +60,9 @@ const Card: React.FC<CardProps> = ({
           </span>
         </p>
 
-        <p className={styles.wrapper}>
+        {/* <p className={styles.wrapper}>
           <b>Память:</b> <span className={styles.memory}>{storage}</span>
-        </p>
+        </p> */}
 
         <div className={styles.footer}>
           <span className={styles.price}>{price}</span>

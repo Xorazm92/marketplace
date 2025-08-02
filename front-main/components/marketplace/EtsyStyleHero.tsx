@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
-import Image from 'next/image';
 import styles from './EtsyStyleHero.module.scss';
 
 interface HeroSlide {
@@ -25,9 +24,9 @@ const EtsyStyleHero: React.FC = () => {
       title: "Bolalar uchun xavfsiz o'yinchoqlar",
       subtitle: "Har bir bola uchun maxsus",
       description: "3 yoshdan 12 yoshgacha bo'lgan bolalar uchun ta'limiy va qiziqarli o'yinchoqlar",
-      image: "/images/hero/kids-toys-hero.jpg",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=600&fit=crop&crop=center",
       cta: "O'yinchoqlarni ko'rish",
-      link: "/category/oyinchiqlar",
+      link: "/category/toys",
       category: "O'yinchoqlar"
     },
     {
@@ -35,9 +34,9 @@ const EtsyStyleHero: React.FC = () => {
       title: "Ta'limiy kitoblar va materiallar",
       subtitle: "Bilim - kelajak kaliti",
       description: "Bolalarning intellektual rivojlanishi uchun eng yaxshi kitoblar",
-      image: "/images/hero/educational-books.jpg",
+      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&h=600&fit=crop&crop=center",
       cta: "Kitoblarni ko'rish",
-      link: "/category/kitoblar",
+      link: "/category/books",
       category: "Kitoblar"
     },
     {
@@ -45,9 +44,9 @@ const EtsyStyleHero: React.FC = () => {
       title: "Bolalar kiyimlari",
       subtitle: "Zamonaviy va qulay",
       description: "Yumshoq materiallardan tayyorlangan, bolalar uchun xavfsiz kiyimlar",
-      image: "/images/hero/kids-clothing.jpg",
+      image: "https://images.unsplash.com/photo-1519689680058-324335c77eba?w=1200&h=600&fit=crop&crop=center",
       cta: "Kiyimlarni ko'rish",
-      link: "/category/kiyimlar",
+      link: "/category/clothing",
       category: "Kiyimlar"
     }
   ];
@@ -99,12 +98,15 @@ const EtsyStyleHero: React.FC = () => {
               }`}
             >
               <div className={styles.heroImage}>
-                <Image
+                <img
                   src={slide.image}
                   alt={slide.title}
-                  fill
-                  style={{ objectFit: 'cover' }}
-                  priority={index === 0}
+                  style={{
+                    width: '100%',
+                    height: '100%',
+                    objectFit: 'cover'
+                  }}
+                  loading={index === 0 ? 'eager' : 'lazy'}
                 />
                 <div className={styles.heroOverlay} />
               </div>

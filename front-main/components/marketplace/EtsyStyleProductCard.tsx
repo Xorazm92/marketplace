@@ -4,8 +4,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { addToCart } from '../../store/features/cartSlice';
-import { addToWishlist, removeFromWishlist } from '../../store/features/wishlistSlice';
+// import { addToCart } from '../../store/slices/cartSlice';
+// import { addToWishlist, removeFromWishlist } from '../../store/slices/wishlistSlice';
 import { toast } from 'react-toastify';
 import styles from './EtsyStyleProductCard.module.scss';
 
@@ -42,7 +42,8 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
 }) => {
   const router = useRouter();
   const dispatch = useDispatch();
-  const { items: wishlistItems } = useSelector((state: RootState) => state.wishlist);
+  // const { items: wishlistItems } = useSelector((state: RootState) => state.wishlist);
+  const wishlistItems: any[] = []; // Temporary placeholder
   
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -60,15 +61,16 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
   const handleWishlistToggle = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    
+
     try {
-      if (isInWishlist) {
-        dispatch(removeFromWishlist(product.id));
-        toast.success('Sevimlilardan olib tashlandi');
-      } else {
-        dispatch(addToWishlist(product));
-        toast.success('Sevimlilarga qo\'shildi');
-      }
+      // if (isInWishlist) {
+      //   dispatch(removeFromWishlist(product.id));
+      //   toast.success('Sevimlilardan olib tashlandi');
+      // } else {
+      //   dispatch(addToWishlist(product));
+      //   toast.success('Sevimlilarga qo\'shildi');
+      // }
+      toast.info('Wishlist funksiyasi hozircha mavjud emas');
     } catch (error) {
       toast.error('Xatolik yuz berdi');
     }
@@ -80,14 +82,14 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
     
     setIsLoading(true);
     try {
-      dispatch(addToCart({
-        id: product.id,
-        title: product.title,
-        price: product.price,
-        image: product.images[0],
-        quantity: 1
-      }));
-      toast.success('Savatchaga qo\'shildi');
+      // dispatch(addToCart({
+      //   id: product.id,
+      //   title: product.title,
+      //   price: product.price,
+      //   image: product.images[0],
+      //   quantity: 1
+      // }));
+      toast.info('Savatcha funksiyasi hozircha mavjud emas');
     } catch (error) {
       toast.error('Xatolik yuz berdi');
     } finally {

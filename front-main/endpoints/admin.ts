@@ -1,5 +1,5 @@
 
-import { instance } from './instance';
+import instance from './instance';
 
 export const getDashboardStats = async () => {
   const response = await instance.get('/admin/dashboard');

@@ -143,10 +143,12 @@ const FeaturedProducts: React.FC = () => {
   return (
     <section className={styles.featured}>
       <div className={styles.container}>
-        {/* Section Header - Etsy style */}
+        {/* Section Header - Modern style */}
         <div className={styles.header}>
-          <h2>Sizga yoqishi mumkin bo'lgan mahsulotlar</h2>
-          <p className={styles.subtitle}>Kichik do'konlardan maxsus tanlovlar</p>
+          <div className={styles.headerContent}>
+            <h2>Tavsiya etiladigan mahsulotlar</h2>
+            <p className={styles.subtitle}>Sizga yoqishi mumkin bo'lgan maxsus tanlovlar</p>
+          </div>
         </div>
 
         {/* Filter Tabs - Etsy style */}
@@ -178,7 +180,13 @@ const FeaturedProducts: React.FC = () => {
             <Link key={product.id} href={`/product/${product.slug}`} className={styles.productCard}>
               <div className={styles.productImageContainer}>
                 <img
-                  src={product.product_image[0]?.url || '/img/placeholder-product.jpg'}
+                  src={
+                    product.product_image[0]?.url
+                      ? (product.product_image[0].url.startsWith('http')
+                          ? product.product_image[0].url
+                          : `http://127.0.0.1:4001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`)
+                      : '/img/placeholder-product.jpg'
+                  }
                   alt={product.title}
                   className={styles.productImage}
                 />

@@ -7,7 +7,7 @@ import SearchSorting from '../components/search/SearchSorting';
 import EtsyStyleProductCard from '../components/marketplace/EtsyStyleProductCard';
 import styles from '../styles/Search.module.scss';
 
-interface SearchFilters {
+interface SearchFiltersType {
   category: string[];
   priceRange: [number, number];
   brands: string[];
@@ -21,7 +21,7 @@ const SearchPage: React.FC = () => {
   const { q, category, brand, minPrice, maxPrice, rating, availability, sort } = router.query;
   
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filters, setFilters] = useState<SearchFilters>({
+  const [filters, setFilters] = useState<SearchFiltersType>({
     category: [],
     priceRange: [0, 1000000],
     brands: [],
@@ -39,7 +39,7 @@ const SearchPage: React.FC = () => {
     }
     
     // URL parametrlaridan filtrlarni o'rnatish
-    const newFilters: SearchFilters = {
+    const newFilters: SearchFiltersType = {
       category: category ? (Array.isArray(category) ? category : [category]) : [],
       priceRange: [
         minPrice ? parseInt(minPrice as string) : 0,
@@ -60,7 +60,7 @@ const SearchPage: React.FC = () => {
     updateURL({ q: query });
   };
 
-  const handleFilterChange = (newFilters: SearchFilters) => {
+  const handleFilterChange = (newFilters: SearchFiltersType) => {
     setFilters(newFilters);
     updateURL({
       category: newFilters.category,
@@ -95,7 +95,7 @@ const SearchPage: React.FC = () => {
   };
 
   const clearFilters = () => {
-    const clearedFilters: SearchFilters = {
+    const clearedFilters: SearchFiltersType = {
       category: [],
       priceRange: [0, 1000000],
       brands: [],

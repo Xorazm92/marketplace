@@ -4,7 +4,7 @@ import instance from "./instance";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AddressData } from "../types/userData";
-import { Address, AddressRes, CreateProductProps, UpdateProductProps } from "../types";
+import { AddressType as Address, AddressRes, CreateProductProps, UpdateProductProps } from "../types";
 
 interface FindAddressDto {
   region_id?: number;

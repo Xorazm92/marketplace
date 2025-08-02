@@ -129,7 +129,7 @@ const Dashboard: React.FC = () => {
     <div className={styles.dashboard}>
       <div className={styles.header}>
         <div className={styles.welcome}>
-          <h1>Xush kelibsiz, {user?.first_name}!</h1>
+          <h1>Xush kelibsiz, {(user as any)?.first_name || (user as any)?.name || 'Foydalanuvchi'}!</h1>
           <p>Shaxsiy kabinetingizga xush kelibsiz</p>
         </div>
         <div className={styles.userActions}>
@@ -293,7 +293,7 @@ const Dashboard: React.FC = () => {
         )}
       </div>
 
-      {user?.role === 'parent' && (
+      {(user as any)?.role === 'parent' && (
         <div className={styles.childSafety}>
           <h2>Bolalar xavfsizligi</h2>
           <div className={styles.safetyFeatures}>

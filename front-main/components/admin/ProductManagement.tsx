@@ -383,7 +383,7 @@ const ProductManagement: React.FC = () => {
                   <p className={styles.productCategory}>
                     Kategoriya: {
                       typeof product?.category === 'object'
-                        ? (product.category?.name || product.category?.title || 'Noma\'lum')
+                        ? ((product.category as any)?.name || (product.category as any)?.title || 'Noma\'lum')
                         : (product?.category || 'Noma\'lum')
                     }
                   </p>

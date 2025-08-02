@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './CategoryGrid.module.scss';
-import { getAllCategories } from '../../services/api/category';
+import { getAllCategories } from '../../endpoints/category';
 
 interface Category {
   id: number;

@@ -6,7 +6,7 @@ import SearchResults from '../../components/search/SearchResults';
 import SearchSorting from '../../components/search/SearchSorting';
 import styles from '../../styles/Category.module.scss';
 
-interface SearchFilters {
+interface SearchFiltersType {
   category: string[];
   priceRange: [number, number];
   brands: string[];
@@ -62,7 +62,7 @@ const CategoryPage: React.FC = () => {
   const router = useRouter();
   const { slug, brand, minPrice, maxPrice, rating, availability, sort } = router.query;
   
-  const [filters, setFilters] = useState<SearchFilters>({
+  const [filters, setFilters] = useState<SearchFiltersType>({
     category: [],
     priceRange: [0, 1000000],
     brands: [],
@@ -79,7 +79,7 @@ const CategoryPage: React.FC = () => {
   useEffect(() => {
     if (slug) {
       // URL parametrlaridan filtrlarni o'rnatish
-      const newFilters: SearchFilters = {
+      const newFilters: SearchFiltersType = {
         category: [slug as string], // Current category is always selected
         priceRange: [
           minPrice ? parseInt(minPrice as string) : 0,
@@ -96,7 +96,7 @@ const CategoryPage: React.FC = () => {
     }
   }, [slug, brand, minPrice, maxPrice, rating, availability, sort]);
 
-  const handleFilterChange = (newFilters: SearchFilters) => {
+  const handleFilterChange = (newFilters: SearchFiltersType) => {
     // Keep current category in filters
     const updatedFilters = {
       ...newFilters,
@@ -135,7 +135,7 @@ const CategoryPage: React.FC = () => {
   };
 
   const clearFilters = () => {
-    const clearedFilters: SearchFilters = {
+    const clearedFilters: SearchFiltersType = {
       category: [slug as string], // Keep current category
       priceRange: [0, 1000000],
       brands: [],

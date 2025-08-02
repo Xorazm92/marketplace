@@ -514,8 +514,8 @@ editProduct(
                 min="2000"
                 max={new Date().getFullYear()}
                 placeholder="Например: 2023"
-                value={productData.year}
-                onChange={(e) => setProductData({ ...productData, year: e.target.value })}
+                value={""}
+                onChange={(e) => {/* setProductData({ ...productData, year: e.target.value }) */}}
               />
             </div>
           </div>
@@ -528,8 +528,8 @@ editProduct(
                 <p style={{ fontSize: "16px", marginBottom: "10px" }}>Выберите память</p>
                 <select
                   className={style.select}
-                  value={productData.storage || ""}
-                  onChange={(e) => setProductData({ ...productData, storage: +e.target.value })}
+                  value={""}
+                  onChange={(e) => {/* setProductData({ ...productData, storage: +e.target.value }) */}}
                 >
                   <option value="">Выберите память</option>
                   <option value="32">32 ГБ</option>
@@ -544,8 +544,8 @@ editProduct(
                 <p style={{ fontSize: "16px", marginBottom: "10px" }}>Выберите оперативную память</p>
                 <select
                   className={style.select}
-                  value={productData.ram || ""}
-                  onChange={(e) => setProductData({ ...productData, ram: +e.target.value })}
+                  value={""}
+                  onChange={(e) => {/* setProductData({ ...productData, ram: +e.target.value }) */}}
                 >
                   <option value="">Выберите оперативную память</option>
                   <option value="2">2 ГБ</option>
@@ -792,8 +792,8 @@ editProduct(
                   <input
                     name="has_document"
                     type="radio"
-                    checked={productData.has_document === true}
-                    onChange={() => setProductData({ ...productData, has_document: true })}
+                    checked={false}
+                    onChange={() => {/* setProductData({ ...productData, has_document: true }) */}}
                   />
                   <p>Есть</p>
                 </div>
@@ -801,8 +801,8 @@ editProduct(
                   <input
                     name="has_document"
                     type="radio"
-                    checked={productData.has_document === false}
-                    onChange={() => setProductData({ ...productData, has_document: false })}
+                    checked={true}
+                    onChange={() => {/* setProductData({ ...productData, has_document: false }) */}}
                   />
                   <p>Нет</p>
                 </div>
@@ -817,20 +817,20 @@ editProduct(
               {colors?.map((item: Color) => (
                 <div
                   key={item.id}
-                  onClick={() =>
-                    setProductData({
+                  onClick={() => {
+                    /* setProductData({
                       ...productData,
                       color_id: +item.id,
-                    })
-                  }
+                    }) */
+                  }}
                 >
                   <div
-                    className={`${style.color_box} ${productData.color_id === +item.id ? style.selected_color : ""}`}
+                    className={`${style.color_box}`}
                     style={{
                       backgroundColor: item.code || item.name,
                     }}
                   >
-                    {productData.color_id === +item.id ? (
+                    {false ? (
                       <>
                         <IoMdCheckmarkCircleOutline
                           style={{

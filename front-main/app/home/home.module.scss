@@ -1,17 +1,21 @@
 .homepage {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  background: #ffffff;
 
-  main {
+  .mainContent {
     padding-top: 0;
   }
 }
 
 .section {
-  padding: 60px 0;
+  padding: 0;
 
   &:nth-child(even) {
-    background: rgba(245, 101, 0, 0.02);
+    background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  }
+
+  &:nth-child(odd) {
+    background: #ffffff;
   }
 }
 

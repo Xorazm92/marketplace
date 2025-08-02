@@ -69,7 +69,7 @@ const CategoriesPage: React.FC = () => {
           {categories.map((category) => {
             // Safe category rendering
             const categoryName = typeof category === 'object' ?
-              (category.name || category.title || 'Kategoriya') :
+              (category.name || (category as any).title || 'Kategoriya') :
               String(category);
             const categorySlug = typeof category === 'object' ?
               (category.slug || category.id || 'category') :

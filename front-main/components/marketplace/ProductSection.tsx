@@ -195,7 +195,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Bolalar ko\'ylagi',
         price: 45000,
         originalPrice: 60000,
-        image: '/img/products/kids-shirt.jpg',
+        image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 124,
         discount: 25,
@@ -206,7 +206,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Qizlar uchun ko\'ylak',
         price: 55000,
         originalPrice: 75000,
-        image: '/img/products/girls-dress.jpg',
+        image: 'https://images.unsplash.com/photo-1503944583220-79d8926ad5e2?w=400&h=300&fit=crop',
         rating: 4.7,
         reviews: 89,
         discount: 27,
@@ -216,7 +216,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         id: 3,
         title: 'O\'g\'il bolalar shim',
         price: 35000,
-        image: '/img/products/boys-pants.jpg',
+        image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=300&fit=crop',
         rating: 4.3,
         reviews: 156,
         slug: 'boys-pants'
@@ -260,7 +260,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Lego konstruktor',
         price: 120000,
         originalPrice: 150000,
-        image: '/img/products/lego.jpg',
+        image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
         rating: 4.8,
         reviews: 345,
         discount: 20,
@@ -271,7 +271,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Yumshoq ayiq',
         price: 45000,
         originalPrice: 60000,
-        image: '/img/products/teddy-bear.jpg',
+        image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 234,
         discount: 25,
@@ -325,7 +325,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Bolalar ertaklari',
         price: 35000,
         originalPrice: 45000,
-        image: '/img/products/fairy-tales.jpg',
+        image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 267,
         discount: 22,
@@ -335,7 +335,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         id: 14,
         title: 'Matematik kitob',
         price: 25000,
-        image: '/img/products/math-book.jpg',
+        image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop',
         rating: 4.4,
         reviews: 145,
         slug: 'math-book'
@@ -345,7 +345,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Ingliz tili',
         price: 40000,
         originalPrice: 50000,
-        image: '/img/products/english-book.jpg',
+        image: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&h=300&fit=crop',
         rating: 4.5,
         reviews: 189,
         discount: 20,
@@ -355,7 +355,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         id: 16,
         title: 'Rang berish kitobi',
         price: 15000,
-        image: '/img/products/coloring-book.jpg',
+        image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop',
         rating: 4.3,
         reviews: 234,
         slug: 'coloring-book'
@@ -744,9 +744,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         image: product?.product_image?.[0]?.url ?
           (product.product_image[0].url.startsWith('http') ?
             product.product_image[0].url :
-            (product.product_image[0].url.startsWith('/') ?
-              product.product_image[0].url :
-              `/${product.product_image[0].url}`)) :
+            `http://127.0.0.1:4001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`) :
           '/img/placeholder-product.jpg',
         rating: 4.5, // Default rating
         reviews: Math.floor(Math.random() * 100) + 10,
@@ -837,12 +835,9 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
               </div>
               
               <div className={styles.content}>
-                <h3 className={styles.productTitle}>{
-  typeof mappedProduct.title === 'object' && mappedProduct.title !== null
-    ? JSON.stringify(mappedProduct.title)
-    : mappedProduct.title
-}</h3>
-<pre style={{fontSize:'10px',color:'#888',background:'#f7f7f7',overflowX:'auto'}}>{JSON.stringify(mappedProduct, null, 2)}</pre>
+                <h3 className={styles.productTitle}>
+                  {typeof mappedProduct.title === 'string' ? mappedProduct.title : 'Mahsulot'}
+                </h3>
 
                 <div className={styles.priceContainer}>
                   <span className={styles.currentPrice}>{formatPrice(mappedProduct.price)}</span>

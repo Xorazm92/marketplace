@@ -89,7 +89,7 @@ instance.interceptors.response.use(
     }
 
     // 500 - Server Error
-    if (error.response?.status >= 500) {
+    if (error.response?.status && error.response.status >= 500) {
       console.error('🔥 Server error occurred');
     }
 

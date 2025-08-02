@@ -41,7 +41,7 @@ const KidsInterface: React.FC<KidsInterfaceProps> = ({
 
   const getAgeAppropriateProducts = () => {
     return products.filter(product => {
-      if (!product.age_group) return false;
+      if (!(product as any).age_group) return false;
       
       const ageGroups = {
         'Infants': { min: 0, max: 2 },
@@ -51,7 +51,7 @@ const KidsInterface: React.FC<KidsInterfaceProps> = ({
         'Teens': { min: 13, max: 17 },
       };
       
-      const group = ageGroups[product.age_group];
+      const group = ageGroups[(product as any).age_group as keyof typeof ageGroups];
       return group && userAge >= group.min && userAge <= group.max;
     });
   };
@@ -121,25 +121,25 @@ const KidsInterface: React.FC<KidsInterfaceProps> = ({
         <div className={styles.productGrid}>
           {getAgeAppropriateProducts().map((product) => (
             <div
-              key={product.id}
+              key={(product as any).id}
               className={styles.productCard}
-              onClick={() => onProductSelect(product.id)}
+              onClick={() => onProductSelect((product as any).id)}
             >
               <div className={styles.productImage}>
-                <img src={product.images?.[0] || '/placeholder-product.jpg'} alt={product.title} />
-                {product.isEducational && (
+                <img src={(product as any).images?.[0] || '/placeholder-product.jpg'} alt={(product as any).title} />
+                {(product as any).isEducational && (
                   <div className={styles.educationalBadge}>🎓 Ta'limiy</div>
                 )}
               </div>
               <div className={styles.productInfo}>
-                <h3 className={styles.productTitle}>{product.title}</h3>
+                <h3 className={styles.productTitle}>{(product as any).title}</h3>
                 <div className={styles.productPrice}>
                   <span className={styles.currency}>💰</span>
-                  <span className={styles.amount}>${product.price}</span>
+                  <span className={styles.amount}>${(product as any).price}</span>
                 </div>
                 <div className={styles.productRating}>
-                  {'⭐'.repeat(Math.floor(product.rating || 0))}
-                  <span>({product.reviewCount || 0})</span>
+                  {'⭐'.repeat(Math.floor((product as any).rating || 0))}
+                  <span>({(product as any).reviewCount || 0})</span>
                 </div>
               </div>
             </div>

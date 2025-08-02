@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import EtsyStyleHero from '../../components/marketplace/EtsyStyleHero';
 import FeaturedProducts from '../../components/marketplace/FeaturedProducts';
-import ProductSection from '../../components/marketplace/ProductSection';
-import Footer from '../../components/marketplace/Footer';
+import ModernProductSection from '../../components/marketplace/ModernProductSection';
+import CategoryShowcase from '../../components/marketplace/CategoryShowcase';
+import TestimonialsSection from '../../components/marketplace/TestimonialsSection';
+import WhyChooseUs from '../../components/marketplace/WhyChooseUs';
 import { RootState } from '../../store/store';
 import { setProducts, setLoading } from '../../store/features/productSlice';
 import { getAllProducts } from '../../endpoints/product';
@@ -83,81 +85,70 @@ const HomePage: React.FC = () => {
   return (
     <div className={styles.homepage}>
       <main className={styles.mainContent}>
+        {/* Hero Section */}
         <EtsyStyleHero />
 
-        {/* Tavsiya etiladigan mahsulotlar */}
+        {/* Category Showcase */}
+        <CategoryShowcase />
+
+        {/* Featured Products */}
         <section className={styles.section}>
           <FeaturedProducts />
         </section>
 
-        {/* Kategoriya bo'yicha mahsulotlar */}
-        <section className={styles.section}>
-          <ProductSection
-            title="Kiyim-kechak"
-            viewAllLink="/category/clothing"
-            products="clothing"
-          />
-        </section>
+        {/* Why Choose Us */}
+        <WhyChooseUs />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="O'yinchoqlar"
-            viewAllLink="/category/toys"
-            products="toys"
-          />
-        </section>
+        {/* Top Categories with Products */}
+        <ModernProductSection
+          title="Eng mashhur o'yinchoqlar"
+          subtitle="Bolalar uchun eng yaxshi o'yinchoqlar to'plami"
+          viewAllLink="/category/toys"
+          categoryFilter="toys"
+          maxProducts={8}
+          showBadges={true}
+        />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="Kitoblar"
-            viewAllLink="/category/books"
-            products="books"
-          />
-        </section>
+        <ModernProductSection
+          title="Ta'limiy kitoblar"
+          subtitle="Bolalarning rivojlanishi uchun foydali kitoblar"
+          viewAllLink="/category/books"
+          categoryFilter="books"
+          maxProducts={8}
+          showBadges={true}
+        />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="Sport anjomlar"
-            viewAllLink="/category/sports"
-            products="sports"
-          />
-        </section>
+        <ModernProductSection
+          title="Bolalar kiyimlari"
+          subtitle="Zamonaviy va qulay kiyim-kechak"
+          viewAllLink="/category/clothing"
+          categoryFilter="clothing"
+          maxProducts={8}
+          showBadges={true}
+        />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="Maktab buyumlari"
-            viewAllLink="/category/school"
-            products="school"
-          />
-        </section>
+        {/* Customer Testimonials */}
+        <TestimonialsSection />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="Chaqaloq buyumlari"
-            viewAllLink="/category/baby"
-            products="baby"
-          />
-        </section>
+        {/* More Categories */}
+        <ModernProductSection
+          title="Sport anjomlar"
+          subtitle="Faol hayot uchun sport anjomlari"
+          viewAllLink="/category/sports"
+          categoryFilter="sports"
+          maxProducts={6}
+          showBadges={true}
+        />
 
-        <section className={styles.section}>
-          <ProductSection
-            title="Elektronika"
-            viewAllLink="/category/electronics"
-            products="electronics"
-          />
-        </section>
-
-        <section className={styles.section}>
-          <ProductSection
-            title="Sog'liq"
-            viewAllLink="/category/health"
-            products="health"
-          />
-        </section>
+        <ModernProductSection
+          title="Maktab buyumlari"
+          subtitle="Ta'lim uchun zarur buyumlar"
+          viewAllLink="/category/school"
+          categoryFilter="school"
+          maxProducts={6}
+          showBadges={true}
+        />
       </main>
-
-      {/* O'zbek Footer */}
-      <Footer />
     </div>
   );
 };

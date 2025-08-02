@@ -4,6 +4,7 @@ import { useRouter } from 'next/router';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Navbar from './Header/Navbar';
+import Footer from '../components/marketplace/Footer';
 import { checkApiHealth } from '../endpoints/instance';
 import styles from './layout.module.scss';
 
@@ -140,9 +141,21 @@ const Layout: React.FC<LayoutProps> = ({
             <meta key={key} property={key} content={value} />
           ))}
         </Head>
-        <KidsInterface>
+        <div className="kids-mode-layout">
+          <KidsInterface
+            userAge={8}
+            parentalControls={{
+              dailySpendLimit: 100,
+              allowedCategories: ['toys', 'books', 'education'],
+              timeRestrictions: {
+                start: '08:00',
+                end: '20:00'
+              }
+            }}
+            onProductSelect={(id) => console.log('Product selected:', id)}
+          />
           {children}
-        </KidsInterface>
+        </div>
         <ApiStatusIndicator />
       </>
     );
@@ -204,37 +217,7 @@ const Layout: React.FC<LayoutProps> = ({
 
         {/* Footer */}
         {!isAuthRoute && !isAdminRoute && (
-          <footer className={styles.footer}>
-            <div className={styles.footerContent}>
-              <div className={styles.footerSection}>
-                <h3>🎯 INBOLA</h3>
-                <p>Bolalar uchun xavfsiz va ta'limiy marketplace</p>
-              </div>
-              <div className={styles.footerSection}>
-                <h4>Havolalar</h4>
-                <ul>
-                  <li><a href="/categories">Kategoriyalar</a></li>
-                  <li><a href="/favorites">Sevimlilar</a></li>
-                  <li><a href="/cart">Savat</a></li>
-                </ul>
-              </div>
-              <div className={styles.footerSection}>
-                <h4>Yordam</h4>
-                <ul>
-                  <li><a href="/help">Yordam markazi</a></li>
-                  <li><a href="/contact">Aloqa</a></li>
-                  <li><a href="/safety">Xavfsizlik</a></li>
-                </ul>
-              </div>
-            </div>
-            <div className={styles.footerBottom}>
-              <p>&copy; 2024 INBOLA Kids Marketplace. Barcha huquqlar himoyalangan.</p>
-              <div className={styles.footerMeta}>
-                <span>API: {apiStatus}</span>
-                <span>v1.0.0</span>
-              </div>
-            </div>
-          </footer>
+          <Footer />
         )}
       </div>
     </>

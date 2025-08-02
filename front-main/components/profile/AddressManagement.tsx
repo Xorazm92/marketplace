@@ -101,9 +101,10 @@ const AddressManagement: React.FC<AddressManagementProps> = ({ userId }) => {
       ));
     } else {
       // Add new address
+      const { id, ...addressData } = formData as Address;
       const newAddress: Address = {
         id: Date.now(),
-        ...formData as Address
+        ...addressData
       };
       setAddresses(prev => [...prev, newAddress]);
     }
