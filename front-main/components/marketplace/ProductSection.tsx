@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { getAllProducts } from '../../endpoints/product';
 import { RootState } from '../../store/store';
 import EtsyStyleProductCard from './EtsyStyleProductCard';
+import OptimizedImage from '../common/OptimizedImage';
 import styles from './ProductSection.module.scss';
 
 interface Product {
@@ -52,14 +53,17 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
       try {
         setLoading(true);
 
+        // Get current products from Redux store
+        const currentProducts = allProducts;
+
         // First check Redux store
-        if (allProducts.length > 0) {
-          console.log('All products from Redux:', allProducts);
+        if (currentProducts.length > 0) {
+          console.log('All products from Redux:', currentProducts);
           console.log('Looking for category:', title, 'or products:', products);
-          console.log('First product structure:', allProducts[0]);
+          console.log('First product structure:', currentProducts[0]);
 
           // Filter products by category from Redux store with safe checks
-          const filteredProducts = allProducts.filter(product => {
+          const filteredProducts = currentProducts.filter(product => {
             try {
               // Safe category extraction
               const productCategory = product?.category;
@@ -141,8 +145,8 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
           } else {
             // If no specific category match, show all available products
             console.log('No category match found, showing all products for:', title);
-            if (allProducts.length > 0) {
-              setRealProducts(allProducts.slice(0, 4)); // Show first 4 products
+            if (currentProducts.length > 0) {
+              setRealProducts(currentProducts.slice(0, 4)); // Show first 4 products
             } else {
               // Show empty state or placeholder products
               setRealProducts([]);
@@ -181,7 +185,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
     };
 
     loadProducts();
-  }, [allProducts, products, title]); // Re-run when Redux products change
+  }, [title]); // Only re-run when title changes, not when products change
 
   // Sample products data based on category (fallback)
   const getProductsByCategory = (category: string): Product[] => {
@@ -810,16 +814,15 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
             >
               <div className={styles.imageContainer}>
                 {mappedProduct.image ? (
-                  <img
+                  <OptimizedImage
                     src={mappedProduct.image}
                     alt={mappedProduct.title}
+                    width={250}
+                    height={200}
                     className={styles.productImage}
-                    loading="lazy"
-                    onError={(e) => {
-                      const target = e.target as HTMLImageElement;
-                      target.style.display = 'none';
-                      target.nextElementSibling?.classList.remove('hidden');
-                    }}
+                    fallbackSrc="/img/placeholder-product.jpg"
+                    lazy={true}
+                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
                   />
                 ) : (
                   <div className={styles.imagePlaceholder}>

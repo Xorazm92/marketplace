@@ -75,8 +75,6 @@ const EditProduct = () => {
   const [productData, setProductData] = useState<CreateProductProps>({
     title: "",
     brand_id: 0,
-    model_id: 0,
-    year: "",
     price: 0,
     currency_id: 1,
     description: "",
@@ -84,12 +82,17 @@ const EditProduct = () => {
     phone_number: "",
     user_id: Number(user?.id) || 0,
     address_id: 0,
-    color_id: 0,
-    has_document: false,
-    ram: 0,
-    storage: 0,
-    other_model: "",
     condition: false,
+    category_id: 0,
+    age_range: "",
+    material: "",
+    color: "",
+    size: "",
+    manufacturer: "",
+    safety_info: "",
+    features: [],
+    weight: 0,
+    dimensions: "",
   })
 
   const [addressData, setAddressData] = useState<AddressData>({
@@ -131,8 +134,6 @@ const EditProduct = () => {
       setProductData({
         title: productData2.title || "",
         brand_id: productData2.brand?.id || 0,
-        model_id: productData2.model_id || 0,
-        year: productData2.year?.toString() || "",
         price: productData2.price || 0,
         currency_id: productData2.currency?.id || 1,
         description: productData2.description || "",
@@ -140,12 +141,17 @@ const EditProduct = () => {
         phone_number: productData2.phone_number || "",
         user_id: Number(user?.id) || 0,
         address_id: productData2.address?.id || 0,
-        color_id: productData2.color?.id || 0,
-        has_document: productData2.has_document || false,
-        ram: productData2.ram || 0,
-        storage: productData2.storage || 0,
-        other_model: productData2.other_model || "",
         condition: productData2.condition || false,
+        category_id: productData2.category?.id || 0,
+        age_range: productData2.age_range || "",
+        material: productData2.material || "",
+        color: productData2.color || "",
+        size: productData2.size || "",
+        manufacturer: productData2.manufacturer || "",
+        safety_info: productData2.safety_info || "",
+        features: productData2.features || [],
+        weight: productData2.weight || 0,
+        dimensions: productData2.dimensions || "",
       })
 
       // Set address data
@@ -216,22 +222,23 @@ const EditProduct = () => {
     }
   }, [isAuthenticated, router])
 
-  useEffect(() => {
-    if (productData.brand_id && selectType === SelectType.default && productData.model_id) {
-      const brandName = brands?.find((brand: Brand) => brand.id == productData.brand_id)?.name || ""
-      const modelName = oneBrand?.model?.find((model: Model) => model.id == productData.model_id)?.name || ""
-      setProductData((prev) => ({
-        ...prev,
-        title: `${brandName} ${modelName}`.trim(),
-      }))
-    } else if (productData.brand_id && selectType === SelectType.manual && productData.other_model) {
-      const brandName = brands?.find((brand: Brand) => brand.id == productData.brand_id)?.name || ""
-      setProductData((prev) => ({
-        ...prev,
-        title: `${brandName} ${productData.other_model}`.trim(),
-      }))
-    }
-  }, [productData.brand_id, productData.model_id, productData.other_model, selectType, brands, oneBrand])
+  // Commented out model_id related code for now
+  // useEffect(() => {
+  //   if (productData.brand_id && selectType === SelectType.default && productData.model_id) {
+  //     const brandName = brands?.find((brand: Brand) => brand.id == productData.brand_id)?.name || ""
+  //     const modelName = oneBrand?.model?.find((model: Model) => model.id == productData.model_id)?.name || ""
+  //     setProductData((prev) => ({
+  //       ...prev,
+  //       title: `${brandName} ${modelName}`.trim(),
+  //     }))
+  //   } else if (productData.brand_id && selectType === SelectType.manual && productData.other_model) {
+  //     const brandName = brands?.find((brand: Brand) => brand.id == productData.brand_id)?.name || ""
+  //     setProductData((prev) => ({
+  //       ...prev,
+  //       title: `${brandName} ${productData.other_model}`.trim(),
+  //     }))
+  //   }
+  // }, [productData.brand_id, productData.model_id, productData.other_model, selectType, brands, oneBrand])
 
   // All function definitions
   const handleDeleteImage = async (imageUrl: string, index: number) => {
@@ -295,28 +302,31 @@ const EditProduct = () => {
 
   const handleClickPublishing = async () => {
     try {
-      if (selectType === SelectType.manual) {
-        productData.model_id = 0
-      } else if (selectType === SelectType.default) {
-        productData.other_model = ""
-      }
+      // Commented out model_id related validation for now
+      // if (selectType === SelectType.manual) {
+      //   productData.model_id = 0
+      // } else if (selectType === SelectType.default) {
+      //   productData.other_model = ""
+      // }
 
-      if (!productData.brand_id && selectType === SelectType.default && !productData.model_id) {
-        toast.info("Please select a brand and model")
-        return
-      } else if (!productData.brand_id && selectType === SelectType.manual && !productData.other_model) {
-        toast.info("Please enter a model")
-        return
-      } else if (productData.year == "") {
-        toast.info("Please select a year")
-        return
-      } else if (!productData.ram) {
-        toast.info("Please select a ram")
-        return
-      } else if (!productData.storage) {
-        toast.info("Please select a storage")
-        return
-      } else if (!existingImages.length && !images.length) {
+      // if (!productData.brand_id && selectType === SelectType.default && !productData.model_id) {
+      //   toast.info("Please select a brand and model")
+      //   return
+      // } else if (!productData.brand_id && selectType === SelectType.manual && !productData.other_model) {
+      //   toast.info("Please enter a model")
+      //   return
+      // } else
+      // if (productData.year == "") {
+      //   toast.info("Please select a year")
+      //   return
+      // } else if (!productData.ram) {
+      //   toast.info("Please select a ram")
+      //   return
+      // } else if (!productData.storage) {
+      //   toast.info("Please select a storage")
+      //   return
+      // } else
+      if (!existingImages.length && !images.length) {
         toast.info("Please add at least one image")
         return
       } else if (!productData.description) {
@@ -331,9 +341,9 @@ const EditProduct = () => {
       } else if (!productData.price) {
         toast.info("Please enter a price")
         return
-      } else if (!productData.color_id) {
-        toast.info("Please select a color")
-        return
+      // } else if (!productData.color_id) {
+      //   toast.info("Please select a color")
+      //   return
       } else if (!productData.phone_number) {
         toast.info("Please enter a phone number")
         return
@@ -430,8 +440,8 @@ editProduct(
                       setProductData({
                         ...productData,
                         brand_id: +e.target.value,
-                        model_id: 0,
-                        other_model: "",
+                        // model_id: 0,
+                        // other_model: "",
                       })
                     }}
                   >
@@ -449,7 +459,8 @@ editProduct(
                 {selectType === SelectType.default ? (
                   <div>
                     <p className={style.select_label}>Выберите модель</p>
-                    <select
+                    {/* Commented out model select for now */}
+                    {/* <select
                       className={style.select}
                       value={productData.model_id || ""}
                       onChange={(e) =>
@@ -469,7 +480,7 @@ editProduct(
                           {model.name}
                         </option>
                       )) || []}
-                    </select>
+                    </select> */}
                   </div>
                 ) : (
                   <div>
@@ -478,12 +489,12 @@ editProduct(
                       className={style.input}
                       type="text"
                       placeholder="Выберите модель телефона"
-                      value={productData.other_model || ""}
+                      value={""}
                       onChange={(e) =>
                         setProductData({
                           ...productData,
-                          other_model: e.target.value,
-                          model_id: 0,
+                          // other_model: e.target.value,
+                          // model_id: 0,
                         })
                       }
                     />

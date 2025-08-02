@@ -109,10 +109,17 @@ export const getProductById = async (id: number) => {
   }
 };
 
-export const getAllProducts = async (params?: { category?: string; limit?: number }) => {
+export const getAllProducts = async (params?: { category?: string; limit?: number } | string) => {
   try {
-    const queryParams = params || {};
-    const res = await instance.get(`/v1/product/all`, { params: queryParams });
+    // Handle both object and string parameters
+    let queryParams = {};
+    if (typeof params === 'string') {
+      queryParams = { category: params };
+    } else if (params && typeof params === 'object') {
+      queryParams = params;
+    }
+
+    const res = await instance.get(`/product/all`, { params: queryParams });
 
     // Transform API response to match frontend expectations
     const products = (res.data || []).map((product: any) => ({

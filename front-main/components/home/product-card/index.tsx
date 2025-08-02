@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import styles from "./product.module.scss";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
+import OptimizedImage from "../../common/OptimizedImage";
 import { Product } from "../../../types";
 
 interface CardProps {
@@ -26,17 +27,19 @@ const ProductCard: React.FC<CardProps> = ({
 
   return (
     <Link href={`/productdetails/${id}`} className={styles.card}>
-      <img
+      <OptimizedImage
         src={
           product_image && product_image.length > 0
             ? `${process.env.NEXT_PUBLIC_BASE_URL}/public/${product_image[0].url || product_image[0].image}`
             : "/img/placeholder-product.jpg"
         }
         alt={title}
+        width={300}
+        height={200}
         className={styles.image}
-        onError={(e) => {
-          e.currentTarget.src = '/img/placeholder-product.jpg';
-        }}
+        fallbackSrc="/img/placeholder-product.jpg"
+        lazy={true}
+        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
       />
       <div className={styles.info}>
         <div className={styles.title}>

@@ -108,8 +108,8 @@ const FeaturedProducts: React.FC = () => {
     }
   };
 
-  const calculateAverageRating = (reviews: Array<{ rating: number }>) => {
-    if (reviews.length === 0) return 0;
+  const calculateAverageRating = (reviews: Array<{ rating: number }> | undefined) => {
+    if (!reviews || reviews.length === 0) return 0;
     const sum = reviews.reduce((acc, review) => acc + review.rating, 0);
     return sum / reviews.length;
   };
@@ -208,7 +208,7 @@ const FeaturedProducts: React.FC = () => {
                     {renderStars(calculateAverageRating(product.reviews))}
                   </div>
                   <span className={styles.reviewCount}>
-                    ({product.reviews.length})
+                    ({product.reviews?.length || 0})
                   </span>
                 </div>
 
