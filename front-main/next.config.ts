@@ -11,8 +11,11 @@ const nextConfig: NextConfig = {
   
   // Experimental features
   experimental: {
-    optimizeCss: true,
+    optimizePackageImports: ['@tabler/icons-react', 'react-icons'],
+    webVitalsAttribution: ['CLS', 'LCP'],
   },
+
+
 
   // Server external packages
   serverExternalPackages: ['@apollo/client'],

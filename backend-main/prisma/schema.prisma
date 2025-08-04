@@ -3,7 +3,7 @@ generator client {
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
@@ -153,15 +153,35 @@ model Currency {
 }
 
 model PhoneNumber {
-  id           Int      @id @default(autoincrement())
-  phone_number String   @unique
-  is_main      Boolean  @default(false)
-  user_id      Int
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  id              Int       @id @default(autoincrement())
+  phone_number    String    @unique
+  is_main         Boolean   @default(false)
+  is_verified     Boolean   @default(false)
+  user_id         Int
+  otp_code        String?
+  otp_expires_at  DateTime?
+  otp_attempts    Int       @default(0)
+  last_otp_sent   DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
 
   @@map("phone_number")
+}
+
+model OtpVerification {
+  id              Int       @id @default(autoincrement())
+  phone_number    String
+  otp_code        String
+  purpose         String    // 'registration', 'login', 'password_reset'
+  expires_at      DateTime
+  attempts        Int       @default(0)
+  is_verified     Boolean   @default(false)
+  user_id         Int?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@map("otp_verification")
 }
 
 model Email {

@@ -47,7 +47,15 @@ npx prisma migrate deploy
 print_step "4. Building application..."
 npm run build
 
-print_step "5. Running pre-launch checklist..."
+print_step "5. Running database optimizations..."
+if [ -f "prisma/migrations/production_optimization.sql" ]; then
+    npx prisma db execute --file prisma/migrations/production_optimization.sql
+    print_success "Database optimizations applied"
+else
+    print_warning "Database optimization file not found, skipping..."
+fi
+
+print_step "6. Running pre-launch checklist..."
 node scripts/pre-launch-checklist.js
 
 if [ $? -ne 0 ]; then

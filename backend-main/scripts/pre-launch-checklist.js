@@ -36,12 +36,12 @@ class PreLaunchChecklist {
     
     const requiredEnvVars = [
       'DATABASE_URL',
-      'JWT_SECRET',
-      'JWT_REFRESH_SECRET',
-      'SMTP_HOST',
-      'SMTP_USER',
-      'SMTP_PASS',
-      'REDIS_URL'
+      'ACCESS_TOKEN_KEY',
+      'REFRESH_TOKEN_KEY',
+      'REDIS_URL',
+      'SMS_TOKEN',
+      'FRONTEND_URL',
+      'NODE_ENV'
     ];
 
     const missing = requiredEnvVars.filter(env => !process.env[env]);
