@@ -1,0 +1,390 @@
+// Professional Search Page Styles
+.searchPage {
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.searchHeader {
+  background: white;
+  border-bottom: 1px solid #e9ecef;
+  padding: 20px 0;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.searchForm {
+  display: flex;
+  max-width: 600px;
+  margin: 0 auto 16px;
+  position: relative;
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: 2px solid #e9ecef;
+  border-radius: 8px 0 0 8px;
+  font-size: 16px;
+  outline: none;
+  transition: border-color 0.2s ease;
+
+  &:focus {
+    border-color: #007bff;
+  }
+
+  &::placeholder {
+    color: #6c757d;
+  }
+}
+
+.searchButton {
+  padding: 12px 20px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #0056b3;
+  }
+
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.searchInfo {
+  text-align: center;
+
+  h1 {
+    font-size: 24px;
+    color: #2c3e50;
+    margin: 0;
+    font-weight: 600;
+  }
+}
+
+.searchContent {
+  display: flex;
+  gap: 24px;
+  padding: 24px 0;
+  align-items: flex-start;
+}
+
+.filtersSidebar {
+  width: 280px;
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 120px;
+  max-height: calc(100vh - 140px);
+  overflow-y: auto;
+
+  @media (max-width: 768px) {
+    position: fixed;
+    top: 0;
+    left: -100%;
+    width: 280px;
+    height: 100vh;
+    z-index: 1000;
+    transition: left 0.3s ease;
+
+    &.show {
+      left: 0;
+    }
+  }
+}
+
+.filtersHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e9ecef;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    color: #2c3e50;
+  }
+}
+
+.clearFilters {
+  background: none;
+  border: none;
+  color: #007bff;
+  cursor: pointer;
+  font-size: 14px;
+  text-decoration: underline;
+
+  &:hover {
+    color: #0056b3;
+  }
+}
+
+.filterGroup {
+  margin-bottom: 24px;
+
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #495057;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+}
+
+.priceRange {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  input {
+    flex: 1;
+    padding: 8px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+  }
+
+  span {
+    color: #6c757d;
+    font-weight: 500;
+  }
+}
+
+.filterGroup select {
+  width: 100%;
+  padding: 8px 12px;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  font-size: 14px;
+  background: white;
+
+  &:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+}
+
+.ratingFilter {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.ratingOption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  padding: 4px 0;
+
+  input[type="radio"] {
+    margin: 0;
+  }
+
+  .stars {
+    color: #ffa502;
+    font-size: 14px;
+  }
+
+  span:last-child {
+    font-size: 12px;
+    color: #6c757d;
+  }
+
+  &:hover {
+    background: #f8f9fa;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 -8px;
+  }
+}
+
+.resultsMain {
+  flex: 1;
+  min-width: 0;
+}
+
+.resultsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+  background: white;
+  padding: 16px 20px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.filtersToggle {
+  display: none;
+  align-items: center;
+  gap: 8px;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+
+  @media (max-width: 768px) {
+    display: flex;
+  }
+
+  &:hover {
+    background: #0056b3;
+  }
+}
+
+.sortBy {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  label {
+    font-size: 14px;
+    color: #495057;
+    font-weight: 500;
+  }
+
+  select {
+    padding: 6px 12px;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    font-size: 14px;
+    background: white;
+
+    &:focus {
+      outline: none;
+      border-color: #007bff;
+    }
+  }
+}
+
+.productsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 16px;
+  }
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e9ecef;
+    border-top: 4px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 16px;
+  }
+
+  p {
+    color: #6c757d;
+    font-size: 16px;
+    margin: 0;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.noResults,
+.emptySearch {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.noResultsIcon,
+.emptyIcon {
+  font-size: 64px;
+  margin-bottom: 16px;
+  opacity: 0.5;
+}
+
+.noResults h3,
+.emptySearch h3 {
+  font-size: 24px;
+  color: #2c3e50;
+  margin: 0 0 8px 0;
+}
+
+.noResults p,
+.emptySearch p {
+  color: #6c757d;
+  font-size: 16px;
+  margin: 0 0 24px 0;
+  max-width: 400px;
+}
+
+.clearFiltersBtn {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: #0056b3;
+  }
+}
+
+// Mobile overlay for filters
+@media (max-width: 768px) {
+  .filtersSidebar.show::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: -1;
+  }
+}

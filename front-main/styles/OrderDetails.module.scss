@@ -1,0 +1,269 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 80vh;
+}
+
+.header {
+  margin-bottom: 2rem;
+
+  .backLink {
+    color: #4e46b4;
+    text-decoration: none;
+    font-weight: 500;
+    margin-bottom: 1rem;
+    display: inline-block;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.notFound {
+  text-align: center;
+  padding: 4rem;
+
+  h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 2rem;
+  }
+
+  .backBtn {
+    background: #4e46b4;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+
+    &:hover {
+      background: #3d3691;
+    }
+  }
+}
+
+.orderContent {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 2rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.orderInfo {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+
+  .statusSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    .statusCard, .paymentCard {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid #f0f0f0;
+
+      h3 {
+        font-size: 1.1rem;
+        color: #333;
+        margin: 0 0 1rem 0;
+        font-weight: 600;
+      }
+
+      .statusBadge {
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+      }
+
+      .statusDate {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+      }
+
+      p {
+        color: #666;
+        margin: 0.5rem 0;
+        font-size: 0.9rem;
+
+        strong {
+          color: #333;
+        }
+      }
+    }
+  }
+
+  .orderItems {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+
+    h3 {
+      font-size: 1.2rem;
+      color: #333;
+      margin: 0 0 1.5rem 0;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+    }
+
+    .orderItem {
+      display: grid;
+      grid-template-columns: 80px 1fr auto;
+      gap: 1rem;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .itemImage {
+        img {
+          border-radius: 8px;
+          object-fit: cover;
+        }
+      }
+
+      .itemInfo {
+        h4 {
+          font-size: 1rem;
+          color: #333;
+          margin: 0 0 0.5rem 0;
+          font-weight: 600;
+        }
+
+        p {
+          color: #666;
+          margin: 0.25rem 0;
+          font-size: 0.9rem;
+        }
+      }
+
+      .itemTotal {
+        font-weight: 600;
+        color: #333;
+        font-size: 1rem;
+        text-align: right;
+      }
+    }
+  }
+
+  .orderNotes {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+
+    h3 {
+      font-size: 1.1rem;
+      color: #333;
+      margin: 0 0 1rem 0;
+      font-weight: 600;
+    }
+
+    p {
+      color: #666;
+      margin: 0;
+      line-height: 1.6;
+      white-space: pre-line;
+    }
+  }
+}
+
+.orderSummary {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+
+  h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+
+    &.total {
+      border-top: 1px solid #e0e0e0;
+      padding-top: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    span:first-child {
+      color: #666;
+    }
+
+    span:last-child {
+      font-weight: 600;
+      color: #333;
+    }
+  }
+
+  .orderDate {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #e0e0e0;
+
+    p {
+      margin: 0.5rem 0;
+      color: #666;
+      font-size: 0.9rem;
+
+      strong {
+        color: #333;
+      }
+    }
+  }
+}

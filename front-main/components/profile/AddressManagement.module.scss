@@ -1,0 +1,389 @@
+.addressManagement {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .addButton {
+      padding: 10px 20px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 15px;
+      align-items: stretch;
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    .emptyIcon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+    }
+
+    .addFirstButton {
+      padding: 12px 25px;
+      background: #667eea;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .addressList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 20px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+
+    .addressCard {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+
+      .addressHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        .addressType {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+
+          .typeIcon {
+            font-size: 1.3rem;
+          }
+
+          .typeName {
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .defaultBadge {
+            background: #27ae60;
+            color: white;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+          }
+        }
+
+        .addressActions {
+          display: flex;
+          gap: 8px;
+
+          button {
+            width: 35px;
+            height: 35px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+
+            &.editButton {
+              background: #3498db;
+              color: white;
+
+              &:hover {
+                background: #2980b9;
+              }
+            }
+
+            &.deleteButton {
+              background: #e74c3c;
+              color: white;
+
+              &:hover {
+                background: #c0392b;
+              }
+            }
+          }
+        }
+      }
+
+      .addressContent {
+        padding: 20px 25px;
+
+        .addressName {
+          font-size: 1.2rem;
+          font-weight: 600;
+          color: #2c3e50;
+          margin-bottom: 8px;
+        }
+
+        .addressPhone {
+          font-size: 1rem;
+          color: #667eea;
+          margin-bottom: 10px;
+          font-weight: 500;
+        }
+
+        .addressText {
+          color: #7f8c8d;
+          line-height: 1.5;
+          margin: 0;
+        }
+      }
+
+      .addressFooter {
+        padding: 15px 25px;
+        background: #f8f9fa;
+        border-top: 1px solid #e0e0e0;
+
+        .setDefaultButton {
+          padding: 8px 16px;
+          background: white;
+          border: 1px solid #667eea;
+          color: #667eea;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: #667eea;
+            color: white;
+          }
+        }
+      }
+    }
+  }
+
+  .addressModal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1000;
+
+    .modalOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      backdrop-filter: blur(4px);
+    }
+
+    .modalContent {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow: hidden;
+
+      .modalHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 25px;
+        background: #f8f9fa;
+        border-bottom: 1px solid #e0e0e0;
+
+        h3 {
+          margin: 0;
+          font-size: 1.3rem;
+          color: #2c3e50;
+        }
+
+        .closeButton {
+          background: none;
+          border: none;
+          font-size: 1.5rem;
+          cursor: pointer;
+          color: #7f8c8d;
+          transition: color 0.3s ease;
+
+          &:hover {
+            color: #2c3e50;
+          }
+        }
+      }
+
+      .addressForm {
+        padding: 25px;
+        overflow-y: auto;
+        max-height: calc(90vh - 80px);
+
+        .formRow {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 15px;
+          margin-bottom: 20px;
+
+          @media (max-width: 768px) {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .formGroup {
+          margin-bottom: 20px;
+
+          label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          input,
+          select,
+          textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 1rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+
+            &:focus {
+              border-color: #667eea;
+            }
+
+            &::placeholder {
+              color: #999;
+            }
+          }
+
+          textarea {
+            resize: vertical;
+            min-height: 80px;
+          }
+
+          &.checkboxLabel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+
+            input[type="checkbox"] {
+              width: auto;
+              margin: 0;
+            }
+
+            span {
+              font-weight: 500;
+              color: #2c3e50;
+            }
+          }
+        }
+
+        .formActions {
+          display: flex;
+          gap: 15px;
+          justify-content: flex-end;
+          margin-top: 30px;
+          padding-top: 20px;
+          border-top: 1px solid #e0e0e0;
+
+          button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+
+            &.cancelButton {
+              background: #f8f9fa;
+              color: #7f8c8d;
+              border: 1px solid #e0e0e0;
+
+              &:hover {
+                background: #e9ecef;
+              }
+            }
+
+            &.saveButton {
+              background: #667eea;
+              color: white;
+
+              &:hover {
+                background: #764ba2;
+              }
+            }
+          }
+
+          @media (max-width: 768px) {
+            flex-direction: column;
+          }
+        }
+      }
+    }
+  }
+}

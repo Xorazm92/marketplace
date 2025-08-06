@@ -1,0 +1,339 @@
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modalContent {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1),
+    0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  position: relative;
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 24px 0 24px;
+
+  h2 {
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 32px;
+    color: #000;
+    margin: 0;
+  }
+}
+
+.hrLine {
+  width: 100%;
+  height: 1px;
+  margin-top: 16px;
+  background-color: #00000010;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #000;
+  padding: 4px;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+.modalBody {
+  padding: 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.avatarSection {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.avatarContainer {
+  width: 80px;
+  height: 80px;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  background: #f5f5f5;
+}
+
+.avatarPlaceholder {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background-color: #f5f5f5;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.uploadButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background-color: #f5f5f5;
+  border: 1px solid #ebebeb;
+  color: #999ca0;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 24px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background-color: #eeeeee;
+    border-color: #00000014;
+    color: #666;
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+  }
+}
+
+.formGroup {
+  margin-bottom: 20px;
+  width: 100%;
+
+  label {
+    display: block;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 24px;
+    color: #000;
+    margin-bottom: 8px;
+  }
+}
+
+.textInput {
+  width: 100%;
+  padding: 12px 16px;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  font-size: 16px;
+  background-color: #ffffff;
+  transition: border-color 0.2s ease;
+  box-sizing: border-box;
+
+  &:focus {
+    outline: none;
+    border-color: #4e46b4;
+    background-color: white;
+  }
+
+  &::placeholder {
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 24px;
+    color: #999ca0;
+  }
+
+  &:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+  }
+}
+
+.dateInputContainer {
+  position: relative;
+  width: 100%;
+}
+
+.dateDisplay {
+  display: flex;
+  width: 100%;
+  border: 1px solid #ebebeb;
+  padding: 12px 16px;
+  border-radius: 8px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+  box-sizing: border-box;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 48px;
+  transition: all 0.3s ease;
+  background-color: #ffffff;
+
+  &:hover {
+    border-color: #4e46b4;
+    background-color: #fafafa;
+    box-shadow: 0 2px 4px rgba(78, 70, 180, 0.1);
+  }
+
+  &:active {
+    transform: translateY(1px);
+  }
+
+  &.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    pointer-events: none;
+    background-color: #f5f5f5;
+  }
+
+  .leftIcon {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+
+    .dateLabel {
+      color: #333;
+      font-weight: 500;
+    }
+  }
+
+  .rightIcon {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    .dateValue {
+      color: #4e46b4;
+      font-weight: 600;
+      font-size: 16px;
+      min-width: 100px;
+      text-align: right;
+
+      &:empty::before {
+        content: "дд.мм.гггг";
+        color: #999ca0;
+        font-weight: 400;
+      }
+    }
+  }
+}
+
+.hiddenDateInput {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.modalFooter {
+  padding: 0 24px 24px 24px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.saveButton {
+  width: 100%;
+  padding: 12px 24px;
+  background-color: #4e46b4;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+
+  &:hover {
+    background-color: #3d3691;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(78, 70, 180, 0.3);
+  }
+
+  &:active {
+    background-color: #2f2a73;
+    transform: translateY(0);
+  }
+
+  &.loading {
+    background-color: #6b63c7;
+    cursor: not-allowed;
+  }
+}
+
+.errorMessage {
+  background: #fee;
+  color: #c53030;
+  padding: 12px 24px;
+  margin: 0 24px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border-left: 4px solid #c53030;
+}
+
+.successMessage {
+  background: #f0fff4;
+  color: #38a169;
+  padding: 12px 24px;
+  margin: 0 24px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  border-left: 4px solid #38a169;
+}
+
+@media (max-width: 480px) {
+  .modalOverlay {
+    padding: 10px;
+  }
+
+  .modalContent {
+    max-width: 100%;
+  }
+
+  .modalHeader,
+  .modalBody,
+  .modalFooter {
+    padding-left: 16px;
+    padding-right: 16px;
+  }
+
+  .modalBody {
+    padding-top: 16px;
+    padding-bottom: 16px;
+  }
+
+  .dateDisplay {
+    .rightIcon {
+      .dateValue {
+        min-width: 80px;
+        font-size: 14px;
+      }
+    }
+  }
+}

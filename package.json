@@ -1,0 +1,51 @@
+{
+  "name": "inbola-marketplace",
+  "version": "1.0.0",
+  "description": "INBOLA Kids Marketplace - Professional E-commerce Platform",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "npm run dev --workspace=apps/api",
+    "dev:web": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspaces",
+    "build:api": "npm run build --workspace=apps/api",
+    "build:web": "npm run build --workspace=apps/web",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "deploy": "./scripts/deployment/FINAL_PRODUCTION_DEPLOY.sh",
+    "setup": "./scripts/development/setup.sh",
+    "clean": "rm -rf node_modules apps/*/node_modules packages/*/node_modules",
+    "install:all": "npm install && npm install --workspaces"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.0",
+    "pm2": "^6.0.8",
+    "typescript": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Xorazm92/marketplace.git"
+  },
+  "keywords": [
+    "ecommerce",
+    "marketplace",
+    "kids",
+    "nextjs",
+    "nestjs",
+    "typescript",
+    "postgresql",
+    "graphql"
+  ],
+  "author": "INBOLA Development Team",
+  "license": "MIT"
+}

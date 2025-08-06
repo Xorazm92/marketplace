@@ -1,0 +1,194 @@
+.searchFilters {
+  background: white;
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+
+  .filtersHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .clearButton {
+      background: none;
+      border: 1px solid #667eea;
+      color: #667eea;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #667eea;
+        color: white;
+      }
+    }
+  }
+
+  .filterSection {
+    margin-bottom: 20px;
+    border-bottom: 1px solid #f0f0f0;
+    padding-bottom: 15px;
+
+    &:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .sectionHeader {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: none;
+      border: none;
+      padding: 10px 0;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2c3e50;
+      cursor: pointer;
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: #667eea;
+      }
+    }
+
+    .sectionContent {
+      padding-top: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+
+      .checkboxLabel,
+      .radioLabel,
+      .ratingLabel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        padding: 5px 0;
+        transition: background 0.3s ease;
+        border-radius: 4px;
+
+        &:hover {
+          background: #f8f9fa;
+        }
+
+        input[type="checkbox"],
+        input[type="radio"] {
+          width: 16px;
+          height: 16px;
+          cursor: pointer;
+        }
+
+        .checkboxText,
+        .ratingText {
+          font-size: 0.95rem;
+          color: #2c3e50;
+          flex: 1;
+        }
+      }
+
+      .ratingLabel {
+        .ratingText {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+
+          .star {
+            color: #ddd;
+            font-size: 1rem;
+
+            &.filled {
+              color: #f39c12;
+            }
+          }
+        }
+      }
+
+      .priceInputs {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 10px;
+
+        .priceInput {
+          flex: 1;
+          padding: 8px 12px;
+          border: 1px solid #e0e0e0;
+          border-radius: 6px;
+          font-size: 0.9rem;
+          outline: none;
+          transition: border-color 0.3s ease;
+
+          &:focus {
+            border-color: #667eea;
+          }
+
+          &::placeholder {
+            color: #999;
+          }
+        }
+
+        span {
+          color: #7f8c8d;
+          font-weight: 500;
+        }
+      }
+
+      .priceRange {
+        font-size: 0.9rem;
+        color: #667eea;
+        font-weight: 500;
+        text-align: center;
+        padding: 5px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 20px;
+
+    .filtersHeader {
+      h3 {
+        font-size: 1.1rem;
+      }
+    }
+
+    .filterSection {
+      .sectionHeader {
+        font-size: 1rem;
+      }
+
+      .sectionContent {
+        .priceInputs {
+          flex-direction: column;
+          gap: 8px;
+
+          .priceInput {
+            width: 100%;
+          }
+        }
+      }
+    }
+  }
+}

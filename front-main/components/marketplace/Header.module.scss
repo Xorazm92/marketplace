@@ -1,0 +1,447 @@
+.header {
+  background: white;
+  border-bottom: 1px solid #e1e3df;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+// Top Banner - Etsy style
+.topBanner {
+  background: linear-gradient(135deg, #f16521 0%, #e1306c 100%);
+  color: white;
+  padding: 8px 0;
+  font-size: 14px;
+
+  .bannerContent {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .bannerText {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 500;
+  }
+
+  .bannerIcon {
+    font-size: 16px;
+  }
+
+  .bannerLink {
+    color: white;
+    text-decoration: underline;
+    font-weight: 600;
+
+    &:hover {
+      text-decoration: none;
+    }
+  }
+}
+
+.mainHeader {
+  padding: 12px 0;
+}
+
+.container {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 0 24px;
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 32px;
+  font-weight: 700;
+  color: #f56500;
+  text-decoration: none;
+  letter-spacing: -1px;
+  min-width: 140px;
+
+  .logoIcon {
+    font-size: 36px;
+    color: #f16521;
+  }
+
+  .logoText {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  &:hover {
+    color: #e1306c;
+
+    .logoIcon {
+      color: #e1306c;
+    }
+  }
+}
+
+.categoriesDropdown {
+  position: relative;
+}
+
+.categoriesButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: none;
+  border: 1px solid #222;
+  border-radius: 24px;
+  color: #222;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 14px;
+
+  .categoriesIcon {
+    font-size: 16px;
+  }
+  font-size: 14px;
+}
+
+.categoriesButton:hover {
+  background: #222;
+  color: white;
+}
+
+.hamburgerIcon {
+  font-size: 16px;
+}
+
+.categoriesMenu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e1e3df;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 16px;
+  min-width: 280px;
+  z-index: 1001;
+}
+
+.categoriesGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.categoryMenuItem {
+  padding: 12px 16px;
+  border-radius: 8px;
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.categoryIcon {
+  font-size: 18px;
+  min-width: 18px;
+}
+
+.categoryMenuItem:hover {
+  background: #f5f5f5;
+}
+
+.viewAll {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #f56500;
+  border-top: 1px solid #e1e3df;
+  margin-top: 8px;
+  padding-top: 16px;
+}
+
+.searchContainer {
+  flex: 1;
+  max-width: 500px;
+  position: relative;
+}
+
+.searchForm {
+  position: relative;
+  display: flex;
+  border: 2px solid #222;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+
+  &:focus-within {
+    border-color: #f16521;
+    box-shadow: 0 0 0 2px rgba(241, 101, 33, 0.1);
+  }
+}
+
+.searchInput {
+  width: 100%;
+  padding: 12px 20px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+  background: white;
+
+  &::placeholder {
+    color: #767676;
+  }
+}
+
+.searchButton {
+  padding: 12px 16px;
+  background: #f16521;
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background: #e1306c;
+  }
+}
+
+.searchIcon {
+  font-size: 16px;
+}
+
+.searchSuggestions {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 1px solid #e1e3df;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  margin-top: 4px;
+
+  .suggestionItem {
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    font-size: 14px;
+
+    &:hover {
+      background: #f5f5f5;
+    }
+
+    &:first-child {
+      font-weight: 600;
+      color: #767676;
+      border-bottom: 1px solid #e1e3df;
+    }
+  }
+
+  .suggestionIcon {
+    font-size: 14px;
+    color: #f16521;
+  }
+}
+
+.searchButton:hover {
+  background: #e55a00;
+}
+
+.searchIcon {
+  font-size: 16px;
+}
+
+.headerActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.signInLink {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  padding: 10px 16px;
+  border-radius: 24px;
+  transition: all 0.2s ease;
+  font-size: 14px;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.iconLink {
+  position: relative;
+  color: #222;
+  text-decoration: none;
+  padding: 8px 12px;
+  border-radius: 24px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.icon {
+  font-size: 18px;
+}
+
+.iconLabel {
+  @media (max-width: 768px) {
+    display: none;
+  }
+}
+
+.cartBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #f56500;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+}
+
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+}
+
+.hamburger {
+  width: 24px;
+  height: 24px;
+  position: relative;
+}
+
+.hamburger span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: #222;
+  margin: 4px 0;
+  transition: 0.3s;
+}
+
+/* Mobile Styles */
+@media (max-width: 768px) {
+  .headerContent {
+    gap: 16px;
+  }
+
+  .categoriesDropdown {
+    display: none;
+  }
+
+  .searchContainer {
+    display: none;
+  }
+
+  .headerActions {
+    gap: 12px;
+  }
+
+  .signInLink {
+    display: none;
+  }
+
+  .mobileMenuButton {
+    display: block;
+  }
+
+  .logo {
+    font-size: 28px;
+  }
+}
+
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 2000;
+}
+
+.mobileMenu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: white;
+  padding: 20px;
+  overflow-y: auto;
+}
+
+.mobileMenuHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #e1e3df;
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+.mobileMenuContent {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.mobileNavLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #222;
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.2s ease;
+}
+
+.mobileNavLink:hover {
+  background: #f5f5f5;
+}
+
+.mobileIcon {
+  font-size: 20px;
+  min-width: 20px;
+}
