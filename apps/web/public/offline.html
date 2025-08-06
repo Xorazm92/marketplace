@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="uz">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - INBOLA Kids</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }
+
+        .offline-container {
+            text-align: center;
+            padding: 2rem;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+        }
+
+        .offline-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+            opacity: 0.8;
+        }
+
+        .offline-title {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        .offline-message {
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+
+        .retry-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 25px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0.5rem;
+        }
+
+        .retry-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .offline-features {
+            margin-top: 2rem;
+            text-align: left;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            margin: 0.5rem 0;
+            opacity: 0.8;
+        }
+
+        .feature-icon {
+            margin-right: 0.5rem;
+            font-size: 1.2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #fff;
+        }
+
+        @media (max-width: 768px) {
+            .offline-container {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+            
+            .offline-title {
+                font-size: 1.5rem;
+            }
+            
+            .offline-message {
+                font-size: 1rem;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="logo">🎯 INBOLA Kids</div>
+        
+        <div class="offline-icon pulse">📡</div>
+        
+        <h1 class="offline-title">Internet aloqasi yo'q</h1>
+        
+        <p class="offline-message">
+            Hozirda internet aloqasi mavjud emas. Iltimos, internetni tekshiring va qayta urinib ko'ring.
+        </p>
+
+        <button class="retry-btn" onclick="window.location.reload()">
+            🔄 Qayta urinish
+        </button>
+        
+        <button class="retry-btn" onclick="goHome()">
+            🏠 Bosh sahifa
+        </button>
+
+        <div class="offline-features">
+            <h3 style="margin-bottom: 1rem; text-align: center;">Offline rejimda mavjud:</h3>
+            
+            <div class="feature-item">
+                <span class="feature-icon">📱</span>
+                <span>Ilova ishlay beradi</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-icon">🛒</span>
+                <span>Savatcha ma'lumotlari saqlanadi</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-icon">❤️</span>
+                <span>Sevimlilar ro'yxati</span>
+            </div>
+            
+            <div class="feature-item">
+                <span class="feature-icon">📋</span>
+                <span>Buyurtmalar tarixi</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function checkConnection() {
+            if (navigator.onLine) {
+                window.location.reload();
+            }
+        }
+
+        // Go to home page
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Listen for online event
+        window.addEventListener('online', checkConnection);
+
+        // Auto-retry every 30 seconds
+        setInterval(checkConnection, 30000);
+
+        // Show connection status
+        function updateConnectionStatus() {
+            const status = navigator.onLine ? 'online' : 'offline';
+            console.log('Connection status:', status);
+        }
+
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // Initial status check
+        updateConnectionStatus();
+
+        // Service worker registration check
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.ready.then(function(registration) {
+                console.log('Service Worker is ready');
+            });
+        }
+
+        // Show install prompt if available
+        let deferredPrompt;
+        
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Show install button
+            const installBtn = document.createElement('button');
+            installBtn.className = 'retry-btn';
+            installBtn.innerHTML = '📱 Ilovani o\'rnatish';
+            installBtn.onclick = async () => {
+                if (deferredPrompt) {
+                    deferredPrompt.prompt();
+                    const { outcome } = await deferredPrompt.userChoice;
+                    console.log('Install prompt outcome:', outcome);
+                    deferredPrompt = null;
+                    installBtn.style.display = 'none';
+                }
+            };
+            
+            document.querySelector('.offline-container').appendChild(installBtn);
+        });
+
+        // Handle app installed
+        window.addEventListener('appinstalled', (evt) => {
+            console.log('App installed successfully');
+        });
+    </script>
+</body>
+</html>

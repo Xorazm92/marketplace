@@ -1,0 +1,294 @@
+.profileOverview {
+  .welcomeSection {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    border-radius: 12px;
+    margin-bottom: 30px;
+
+    .welcomeTitle {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 15px;
+
+      @media (max-width: 768px) {
+        font-size: 1.5rem;
+      }
+    }
+
+    .welcomeText {
+      font-size: 1.1rem;
+      line-height: 1.6;
+      opacity: 0.9;
+      margin: 0;
+
+      @media (max-width: 768px) {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .quickStats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+
+    .statCard {
+      background: white;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      transition: transform 0.3s ease;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+
+      .statIcon {
+        font-size: 2.5rem;
+        background: #f8f9fa;
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .statInfo {
+        display: flex;
+        flex-direction: column;
+
+        .statValue {
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 5px;
+        }
+
+        .statLabel {
+          font-size: 0.9rem;
+          color: #7f8c8d;
+        }
+      }
+    }
+  }
+
+  .contentGrid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 30px;
+    margin-bottom: 30px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .recentOrders,
+    .recentActivity {
+      background: white;
+      padding: 25px;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+      .sectionHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+
+        h3 {
+          font-size: 1.3rem;
+          font-weight: 600;
+          color: #2c3e50;
+          margin: 0;
+        }
+
+        .viewAllLink {
+          color: #667eea;
+          text-decoration: none;
+          font-weight: 500;
+          transition: color 0.3s ease;
+
+          &:hover {
+            color: #764ba2;
+          }
+        }
+      }
+    }
+
+    .ordersList {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .orderItem {
+        padding: 15px;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+
+        &:hover {
+          border-color: #667eea;
+          background: #f8f9fa;
+        }
+
+        .orderInfo {
+          display: flex;
+          justify-content: space-between;
+          margin-bottom: 8px;
+
+          .orderNumber {
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .orderDate {
+            font-size: 0.9rem;
+            color: #7f8c8d;
+          }
+        }
+
+        .orderDetails {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+
+          .orderStatus {
+            font-size: 0.9rem;
+            font-weight: 500;
+          }
+
+          .orderTotal {
+            font-weight: 600;
+            color: #2c3e50;
+          }
+        }
+      }
+    }
+
+    .activityList {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+
+      .activityItem {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px;
+        border-radius: 8px;
+        transition: background 0.3s ease;
+
+        &:hover {
+          background: #f8f9fa;
+        }
+
+        .activityIcon {
+          font-size: 1.5rem;
+          flex-shrink: 0;
+        }
+
+        .activityContent {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+
+          .activityMessage {
+            font-size: 0.95rem;
+            color: #2c3e50;
+            line-height: 1.4;
+          }
+
+          .activityDate {
+            font-size: 0.8rem;
+            color: #7f8c8d;
+          }
+        }
+      }
+    }
+  }
+
+  .quickActions {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    h3 {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 20px;
+    }
+
+    .actionButtons {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 15px;
+
+      .actionButton {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 15px 20px;
+        background: #f8f9fa;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        text-decoration: none;
+        color: #2c3e50;
+        font-weight: 500;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #667eea;
+          color: white;
+          border-color: #667eea;
+          transform: translateY(-2px);
+        }
+
+        .actionIcon {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .quickStats {
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 15px;
+
+      .statCard {
+        padding: 15px;
+        flex-direction: column;
+        text-align: center;
+
+        .statIcon {
+          width: 50px;
+          height: 50px;
+          font-size: 2rem;
+        }
+
+        .statInfo {
+          align-items: center;
+
+          .statValue {
+            font-size: 1.3rem;
+          }
+        }
+      }
+    }
+
+    .quickActions {
+      .actionButtons {
+        grid-template-columns: 1fr;
+      }
+    }
+  }
+}

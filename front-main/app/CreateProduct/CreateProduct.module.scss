@@ -1,0 +1,375 @@
+@use "@/styles/container";
+@use "@/styles/fonts";
+
+.container {
+  @extend .container;
+  padding: 0px 10px;
+  margin-top: 50px;
+  font-family: "SF-Pro-Display-Regular", sans-serif;
+  position: relative;
+  & > p {
+    font-size: 40px;
+    font-weight: 400;
+    color: #000;
+    margin-bottom: 30px;
+  }
+
+  .image_upload_section {
+    margin-bottom: 30px;
+
+    p {
+      font-size: 18px;
+      margin-bottom: 15px;
+      color: #333;
+    }
+
+    .image_preview_container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      margin-top: 10px;
+    }
+
+    .image_preview {
+      position: relative;
+      width: 120px;
+      height: 120px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      .remove_image_btn {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background: rgba(0, 0, 0, 0.6);
+        color: white;
+        border: none;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        font-size: 16px;
+        line-height: 1;
+        padding: 0;
+        transition: background-color 0.2s;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.8);
+        }
+      }
+    }
+
+    .upload_placeholder {
+      width: 120px;
+      height: 120px;
+      border: 2px dashed #ccc;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background-color: #f9f9f9;
+      color: #666;
+
+      &:hover {
+        border-color: #999;
+        background-color: #f0f0f0;
+      }
+
+      svg {
+        margin-bottom: 8px;
+        color: #999;
+      }
+
+      span {
+        font-size: 14px;
+        text-align: center;
+      }
+    }
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 30px;
+    & > div {
+      display: flex;
+      flex-direction: column;
+      gap: 25px;
+      background-color: #f5f5f5;
+      padding: 40px;
+      p {
+        font-size: 24px;
+        color: #000;
+        font-weight: 500;
+      }
+      .select_label {
+        display: block;
+        margin-bottom: 8px;
+        font-size: 16px;
+        color: #000;
+        font-weight: 500;
+      }
+
+      /* Style for select dropdowns */
+      .select {
+        width: 343px;
+        max-width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none'%3E%3Cpath d='M1 1.5L6 6.5L11 1.5' stroke='%23666' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 16px center;
+        background-size: 12px 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        padding-right: 40px;
+        margin-bottom: 16px;
+        &:focus {
+          outline: none;
+          border-color: #4e46b4;
+          box-shadow: 0 0 0 2px rgba(78, 70, 180, 0.1);
+        }
+
+        &:disabled {
+          background-color: #f9f9f9;
+          color: #999;
+          cursor: not-allowed;
+        }
+
+        option {
+          padding: 10px;
+          background: #fff;
+          color: #333;
+
+          &:disabled {
+            color: #999;
+          }
+        }
+      }
+
+      /* Style for text inputs */
+      .input {
+        box-sizing: border-box;
+        width: 343px;
+        max-width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+
+        &::placeholder {
+          color: #999;
+        }
+
+        &:focus {
+          outline: none;
+          border-color: #4e46b4;
+          box-shadow: 0 0 0 2px rgba(78, 70, 180, 0.1);
+        }
+
+        &:disabled {
+          background-color: #f9f9f9;
+          color: #999;
+          cursor: not-allowed;
+        }
+      }
+    }
+    &__description {
+      .textarea {
+        width: 777px !important;
+        height: 217px;
+        max-width: 100%;
+        padding: 14px 16px;
+        font-size: 16px;
+        color: #333;
+        background-color: #fff;
+        border: 1px solid #e0e0e0;
+        border-radius: 8px;
+        transition: all 0.2s ease;
+        border: none;
+        resize: none;
+      }
+      .text_area_max_characters {
+        font-size: 12px;
+        color: #999ca0;
+        margin-top: -16px;
+        padding-left: 12px;
+      }
+    }
+    &__location {
+      .select_buttons_wrapper {
+        width: 30%;
+        display: inline-flex;
+        gap: 6px;
+        padding: 6px;
+        border-radius: 10px;
+        background-color: #f0f0f0;
+        margin: 10px 0;
+        margin-bottom: 16px;
+      }
+    }
+    &__price {
+      display: flex;
+      gap: 16px;
+      & > input {
+        width: 100%;
+        height: 50px !important;
+      }
+    }
+    &__color {
+      .color_wrapper {
+        display: flex;
+        gap: 18px;
+        flex-wrap: wrap;
+        width: 35% !important;
+        .color_box {
+          width: 72px;
+          height: 48px;
+          border-radius: 8px;
+          border: 1px solid #e0e0e0;
+          cursor: pointer;
+          transition: all 0.2s ease;
+
+          &.selected_color {
+            position: relative;
+            border: 1px solid rgb(134, 255, 134);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+          }
+        }
+      }
+    }
+    &__submit_buttons {
+      display: flex;
+      flex-direction: row !important;
+      justify-content: flex-end;
+      align-items: center;
+      gap: 16px;
+      margin-top: 24px;
+      margin-bottom: 90px;
+      a {
+        font-size: 16px;
+        color: #000;
+        font-weight: 500;
+      }
+      button {
+        font-size: 16px;
+        color: #fff;
+        font-weight: 500;
+        background-color: #4e46b4;
+        padding: 12px 24px;
+        border-radius: 8px;
+        border: none;
+      }
+    }
+    .phone_wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .negotiable_wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .radio_wrapper {
+      display: flex;
+      gap: 16px;
+      p {
+        font-size: 16px;
+        color: #000;
+        font-weight: 500;
+      }
+    }
+    .photo_upload_container {
+      width: 70%;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      .photo_upload_box {
+        width: 176px;
+        height: 136px;
+        flex-direction: column;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        border-radius: 8px;
+        border: 1px dashed #4e46b4;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        &:hover {
+          background-color: #f9f9f9;
+        }
+      }
+      .photo_box {
+        width: 176px;
+        height: 136px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        background-color: #fff;
+        &:hover {
+          background-color: #f9f9f9;
+        }
+      }
+    }
+    .select_buttons_wrapper {
+      display: inline-flex;
+      gap: 6px;
+      padding: 6px;
+      border-radius: 10px;
+      background-color: #f0f0f0;
+      margin: 10px 0;
+      margin-bottom: 16px;
+      .select_button {
+        min-width: 165px;
+        padding: 6px 30px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        background-color: transparent;
+        color: #000;
+        font-size: 14px;
+        transition: all 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.5);
+        }
+
+        &.active {
+          background: #fff;
+          color: #000;
+          box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+        }
+      }
+    }
+  }
+}

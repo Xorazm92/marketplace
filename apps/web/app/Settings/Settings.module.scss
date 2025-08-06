@@ -1,0 +1,120 @@
+@use "@/styles/container";
+@use "@/styles/fonts";
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  font-family: "Arial", sans-serif;
+}
+
+.sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px 28px;
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 1px 5px 8px rgba(0, 0, 0, 0.05);
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+
+  &:hover {
+    background-color: #f5f5f5;
+  }
+}
+
+.arrow {
+  font-size: 18px;
+  color: #888;
+}
+
+.language {
+  color: #4a90e2;
+  font-weight: 500;
+}
+
+.delete {
+  color: #e53935;
+  border: 1px solid #ffcdd2;
+  background-color: #fff0f0;
+
+  &:hover {
+    background-color: #ffe5e5;
+  }
+}
+
+.subsection {
+  background-color: #f9f9f9;
+  padding: 10px 18px 14px;
+  border-radius: 0 0 12px 12px;
+  margin-top: -10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subItem {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.addButton {
+  padding: 8px 12px;
+  background-color: #e3f2fd;
+  border-radius: 8px;
+  text-align: center;
+  font-weight: 500;
+  color: #1976d2;
+  cursor: pointer;
+  transition: background 0.2s;
+
+  &:hover {
+    background-color: #bbdefb;
+  }
+}
+
+.formRow {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+  flex-wrap: wrap;
+}
+
+.input {
+  padding: 8px;
+  font-size: 14px;
+  flex: 1;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+.button {
+  background-color: #0a74da;
+  color: white;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.cancel {
+  background-color: #ccc;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}

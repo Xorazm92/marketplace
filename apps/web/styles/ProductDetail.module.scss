@@ -1,0 +1,43 @@
+.productDetail {
+  min-height: 100vh;
+  background: #ffffff;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+
+    @media (max-width: 768px) {
+      padding: 15px;
+    }
+  }
+
+  .productSection {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 40px;
+    margin-bottom: 40px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 30px;
+    }
+
+    .imageSection {
+      // Styles handled in ProductImageGallery component
+    }
+
+    .infoSection {
+      // Styles handled in ProductInfo component
+    }
+  }
+
+  .tabsSection {
+    margin-bottom: 40px;
+    // Styles handled in ProductTabs component
+  }
+
+  .relatedSection {
+    // Styles handled in RelatedProducts component
+  }
+}

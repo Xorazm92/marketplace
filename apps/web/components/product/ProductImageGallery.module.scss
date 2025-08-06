@@ -1,0 +1,129 @@
+.gallery {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+
+  .mainImageContainer {
+    position: relative;
+
+    .mainImage {
+      width: 100%;
+      height: 500px;
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: zoom-in;
+      position: relative;
+      background: #f8f9fa;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.3s ease;
+      }
+
+      &:hover img {
+        transform: scale(1.05);
+      }
+
+      &.zoomed {
+        cursor: zoom-out;
+      }
+
+      .zoomOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.9);
+        z-index: 1000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: zoom-out;
+
+        img {
+          max-width: 90%;
+          max-height: 90%;
+          object-fit: contain;
+        }
+      }
+    }
+
+    .imageActions {
+      position: absolute;
+      bottom: 15px;
+      right: 15px;
+
+      .zoomButton {
+        background: rgba(255, 255, 255, 0.9);
+        border: none;
+        padding: 8px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(10px);
+
+        &:hover {
+          background: white;
+          transform: translateY(-2px);
+        }
+      }
+    }
+  }
+
+  .thumbnails {
+    display: flex;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 5px 0;
+
+    .thumbnail {
+      flex-shrink: 0;
+      width: 80px;
+      height: 80px;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.3s ease;
+      background: #f8f9fa;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      &:hover {
+        border-color: #667eea;
+        transform: translateY(-2px);
+      }
+
+      &.active {
+        border-color: #667eea;
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    .mainImageContainer {
+      .mainImage {
+        height: 300px;
+      }
+    }
+
+    .thumbnails {
+      .thumbnail {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  }
+}

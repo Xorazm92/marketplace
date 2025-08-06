@@ -1,0 +1,326 @@
+.accountSettings {
+  display: grid;
+  grid-template-columns: 250px 1fr;
+  gap: 30px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .settingsNav {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 20px 0;
+    height: fit-content;
+    position: sticky;
+    top: 20px;
+
+    @media (max-width: 768px) {
+      position: static;
+      display: flex;
+      overflow-x: auto;
+      padding: 15px;
+      gap: 10px;
+    }
+
+    .navButton {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 15px 20px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+
+      &:hover {
+        background: #f8f9fa;
+        border-left-color: #667eea;
+      }
+
+      &.active {
+        background: #f0f4ff;
+        border-left-color: #667eea;
+        color: #667eea;
+
+        .navIcon {
+          transform: scale(1.1);
+        }
+      }
+
+      .navIcon {
+        font-size: 1.3rem;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .navLabel {
+        font-weight: 600;
+        color: #2c3e50;
+        white-space: nowrap;
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        min-width: 80px;
+        padding: 10px;
+        border-left: none;
+        border-bottom: 3px solid transparent;
+        text-align: center;
+
+        &:hover,
+        &.active {
+          border-left: none;
+          border-bottom-color: #667eea;
+        }
+
+        .navLabel {
+          font-size: 0.8rem;
+        }
+      }
+    }
+  }
+
+  .settingsContent {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    padding: 30px;
+
+    @media (max-width: 768px) {
+      padding: 20px;
+    }
+
+    .settingsForm {
+      h3 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 25px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .formRow {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+        margin-bottom: 20px;
+
+        @media (max-width: 768px) {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .formGroup {
+        margin-bottom: 20px;
+
+        label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          color: #2c3e50;
+        }
+
+        input,
+        select,
+        textarea {
+          width: 100%;
+          padding: 12px 15px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          font-size: 1rem;
+          outline: none;
+          transition: border-color 0.3s ease;
+
+          &:focus {
+            border-color: #667eea;
+          }
+
+          &::placeholder {
+            color: #999;
+          }
+        }
+
+        small {
+          display: block;
+          margin-top: 5px;
+          color: #7f8c8d;
+          font-size: 0.85rem;
+        }
+      }
+
+      .saveButton {
+        padding: 12px 25px;
+        background: #667eea;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #764ba2;
+          transform: translateY(-2px);
+        }
+      }
+
+      .settingItem {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 0;
+        border-bottom: 1px solid #f0f0f0;
+
+        &:last-child {
+          border-bottom: none;
+        }
+
+        .settingInfo {
+          flex: 1;
+
+          h4 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 5px;
+          }
+
+          p {
+            color: #7f8c8d;
+            margin: 0;
+            line-height: 1.4;
+          }
+        }
+
+        .toggle {
+          position: relative;
+          display: inline-block;
+          width: 50px;
+          height: 24px;
+          margin-left: 20px;
+
+          input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+
+            &:checked + .slider {
+              background-color: #667eea;
+
+              &:before {
+                transform: translateX(26px);
+              }
+            }
+          }
+
+          .slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.4s;
+            border-radius: 24px;
+
+            &:before {
+              position: absolute;
+              content: "";
+              height: 18px;
+              width: 18px;
+              left: 3px;
+              bottom: 3px;
+              background-color: white;
+              transition: 0.4s;
+              border-radius: 50%;
+            }
+          }
+        }
+
+        .selectInput {
+          min-width: 150px;
+          margin-left: 20px;
+        }
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 15px;
+
+          .toggle,
+          .selectInput {
+            margin-left: 0;
+            align-self: flex-end;
+          }
+        }
+      }
+
+      .accountInfo {
+        background: #f8f9fa;
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+
+        .infoItem {
+          display: flex;
+          justify-content: space-between;
+          padding: 10px 0;
+          border-bottom: 1px solid #e0e0e0;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .infoLabel {
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .infoValue {
+            color: #7f8c8d;
+          }
+        }
+      }
+
+      .dangerZone {
+        background: #fff5f5;
+        border: 1px solid #fed7d7;
+        border-radius: 8px;
+        padding: 20px;
+
+        h4 {
+          color: #e53e3e;
+          margin-bottom: 10px;
+        }
+
+        p {
+          color: #7f8c8d;
+          margin-bottom: 20px;
+        }
+
+        .dangerButton {
+          padding: 10px 20px;
+          background: #e74c3c;
+          color: white;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: #c0392b;
+          }
+        }
+      }
+    }
+  }
+}

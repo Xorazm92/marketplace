@@ -1,0 +1,228 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 80vh;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e0e0e0;
+
+  h1 {
+    font-size: 2rem;
+    color: #333;
+    margin: 0;
+  }
+
+  .filters {
+    .statusFilter {
+      padding: 0.5rem 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      background: white;
+      cursor: pointer;
+
+      &:focus {
+        outline: none;
+        border-color: #4e46b4;
+      }
+    }
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.emptyOrders {
+  text-align: center;
+  padding: 4rem;
+
+  h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #666;
+    margin-bottom: 2rem;
+  }
+
+  .shopNowBtn {
+    background: #4e46b4;
+    color: white;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    display: inline-block;
+
+    &:hover {
+      background: #3d3691;
+    }
+  }
+}
+
+.ordersList {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.orderCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+  padding: 1.5rem;
+  transition: box-shadow 0.2s;
+
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .orderHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+
+    .orderInfo {
+      h3 {
+        font-size: 1.2rem;
+        color: #333;
+        margin: 0 0 0.5rem 0;
+        font-weight: 600;
+      }
+
+      .orderDate {
+        color: #666;
+        font-size: 0.9rem;
+        margin: 0;
+      }
+    }
+
+    .orderStatus {
+      .statusBadge {
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  .orderItems {
+    margin-bottom: 1rem;
+
+    .orderItem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.5rem 0;
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .moreItems {
+      color: #4e46b4;
+      font-size: 0.9rem;
+      font-style: italic;
+      margin-top: 0.5rem;
+    }
+  }
+
+  .orderFooter {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 1rem;
+    border-top: 1px solid #f0f0f0;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    .orderTotal {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+
+      .totalLabel {
+        color: #666;
+        font-size: 0.9rem;
+      }
+
+      .totalAmount {
+        color: #333;
+        font-size: 1.1rem;
+        font-weight: 600;
+      }
+    }
+
+    .paymentStatus {
+      color: #666;
+      font-size: 0.9rem;
+    }
+
+    .viewOrderBtn {
+      background: #4e46b4;
+      color: white;
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+
+      &:hover {
+        background: #3d3691;
+      }
+    }
+  }
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+
+  .paginationBtn {
+    background: #4e46b4;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+
+    &:hover:not(:disabled) {
+      background: #3d3691;
+    }
+
+    &:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+  }
+
+  .pageInfo {
+    color: #666;
+    font-weight: 500;
+  }
+}

@@ -1,0 +1,35 @@
+@use "../../styles/container";
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 400;
+  color: #888;
+  flex-wrap: wrap;
+  padding: 26px 0;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+}
+
+.link {
+  text-decoration: none;
+  color: #999ca0;
+  transition: color 0.2s ease;
+  &:hover {
+    color: #4e46b4;
+  }
+}
+
+.arrow {
+  margin: 0 8px;
+  color: #999ca0;
+}
+
+.current {
+  font-weight: 600;
+  color: #111;
+}

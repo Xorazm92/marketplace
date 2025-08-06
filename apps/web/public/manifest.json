@@ -1,0 +1,73 @@
+
+{
+  "name": "Kids Marketplace - Xavfsiz Bolalar Do'koni",
+  "short_name": "KidsMarket",
+  "description": "Bolalar va ota-onalar uchun xavfsiz onlayn do'kon",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#667eea",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "categories": ["shopping", "kids", "education"],
+  "icons": [
+    {
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Yangi mahsulotlar",
+      "short_name": "Yangi",
+      "description": "Eng yangi mahsulotlarni ko'ring",
+      "url": "/products/new",
+      "icons": [{ "src": "/icons/new-products.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Sevimlilar",
+      "short_name": "♥",
+      "description": "Sevimli mahsulotlaringiz",
+      "url": "/favorites",
+      "icons": [{ "src": "/icons/favorites.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Buyurtmalar",
+      "short_name": "Orders",
+      "description": "Buyurtmalar tarixi",
+      "url": "/orders",
+      "icons": [{ "src": "/icons/orders.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Kids Marketplace desktop ko'rinishi"
+    },
+    {
+      "src": "/screenshots/narrow.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Kids Marketplace mobil ko'rinishi"
+    }
+  ],
+  "related_applications": [
+    {
+      "platform": "play",
+      "url": "https://play.google.com/store/apps/details?id=com.kidsmarketplace.app",
+      "id": "com.kidsmarketplace.app"
+    }
+  ],
+  "prefer_related_applications": false
+}

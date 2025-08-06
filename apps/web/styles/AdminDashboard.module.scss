@@ -1,0 +1,244 @@
+.dashboard {
+  padding: 20px;
+  background: #f8f9fa;
+  min-height: 100vh;
+}
+
+.header {
+  margin-bottom: 30px;
+  
+  h1 {
+    color: #2c3e50;
+    font-size: 2.5rem;
+    margin-bottom: 10px;
+  }
+  
+  p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
+  margin-bottom: 40px;
+}
+
+.statCard {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  border-left: 4px solid #3498db;
+  
+  &.revenue {
+    border-left-color: #27ae60;
+  }
+  
+  &.products {
+    border-left-color: #f39c12;
+  }
+  
+  &.users {
+    border-left-color: #9b59b6;
+  }
+  
+  .statNumber {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 5px;
+  }
+  
+  .statLabel {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+}
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartCard {
+  background: white;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  
+  h3 {
+    color: #2c3e50;
+    margin-bottom: 20px;
+    font-size: 1.3rem;
+  }
+}
+
+.tablesSection {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 30px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.tableCard {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+  overflow: hidden;
+  
+  .tableHeader {
+    padding: 20px 25px;
+    background: #f8f9fa;
+    border-bottom: 1px solid #e9ecef;
+    
+    h3 {
+      color: #2c3e50;
+      margin: 0;
+      font-size: 1.2rem;
+    }
+  }
+  
+  .tableContent {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  
+  th, td {
+    padding: 12px 25px;
+    text-align: left;
+    border-bottom: 1px solid #e9ecef;
+  }
+  
+  th {
+    background: #f8f9fa;
+    color: #2c3e50;
+    font-weight: 600;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  
+  td {
+    color: #34495e;
+  }
+  
+  tr:hover {
+    background: #f8f9fa;
+  }
+}
+
+.status {
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  
+  &.pending {
+    background: #fff3cd;
+    color: #856404;
+  }
+  
+  &.completed {
+    background: #d4edda;
+    color: #155724;
+  }
+  
+  &.cancelled {
+    background: #f8d7da;
+    color: #721c24;
+  }
+}
+
+.price {
+  font-weight: 600;
+  color: #27ae60;
+}
+
+.loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 200px;
+  color: #7f8c8d;
+  font-size: 1.1rem;
+}
+
+.error {
+  background: #f8d7da;
+  color: #721c24;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 20px 0;
+  text-align: center;
+}
+
+.quickActions {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 30px;
+  flex-wrap: wrap;
+  
+  .actionBtn {
+    padding: 10px 20px;
+    background: #3498db;
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+    
+    &:hover {
+      background: #2980b9;
+    }
+    
+    &.secondary {
+      background: #95a5a6;
+      
+      &:hover {
+        background: #7f8c8d;
+      }
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 15px;
+  }
+  
+  .header h1 {
+    font-size: 2rem;
+  }
+  
+  .statsGrid {
+    grid-template-columns: 1fr;
+  }
+  
+  .statCard {
+    padding: 20px;
+  }
+  
+  .statNumber {
+    font-size: 2rem;
+  }
+}

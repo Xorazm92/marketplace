@@ -1,0 +1,229 @@
+.productTabs {
+  margin-top: 40px;
+
+  .tabsHeader {
+    display: flex;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 30px;
+
+    .tabButton {
+      padding: 15px 25px;
+      border: none;
+      background: none;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #7f8c8d;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: all 0.3s ease;
+      position: relative;
+
+      &:hover {
+        color: #667eea;
+      }
+
+      &.active {
+        color: #667eea;
+        border-bottom-color: #667eea;
+      }
+
+      .tabCount {
+        font-size: 0.9rem;
+        margin-left: 5px;
+        opacity: 0.7;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .tabButton {
+        padding: 12px 15px;
+        font-size: 1rem;
+      }
+    }
+  }
+
+  .tabsBody {
+    .tabContent {
+      h3 {
+        font-size: 1.5rem;
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+
+      h4 {
+        font-size: 1.2rem;
+        color: #2c3e50;
+        margin: 20px 0 10px 0;
+      }
+
+      .description {
+        font-size: 1.1rem;
+        line-height: 1.6;
+        color: #2c3e50;
+        margin-bottom: 20px;
+      }
+
+      .featuresList {
+        list-style: none;
+        padding: 0;
+
+        li {
+          padding: 8px 0;
+          border-bottom: 1px solid #f0f0f0;
+          position: relative;
+          padding-left: 25px;
+
+          &:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+          }
+
+          &:last-child {
+            border-bottom: none;
+          }
+        }
+      }
+
+      .specificationsTable {
+        .specRow {
+          display: flex;
+          padding: 15px 0;
+          border-bottom: 1px solid #f0f0f0;
+
+          &:last-child {
+            border-bottom: none;
+          }
+
+          .specLabel {
+            flex: 1;
+            font-weight: 600;
+            color: #2c3e50;
+          }
+
+          .specValue {
+            flex: 1;
+            color: #7f8c8d;
+          }
+        }
+
+        @media (max-width: 768px) {
+          .specRow {
+            flex-direction: column;
+            gap: 5px;
+          }
+        }
+      }
+
+      .reviewsHeader {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 25px;
+
+        .writeReviewBtn {
+          background: #667eea;
+          color: white;
+          border: none;
+          padding: 10px 20px;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: background 0.3s ease;
+
+          &:hover {
+            background: #764ba2;
+          }
+        }
+
+        @media (max-width: 768px) {
+          flex-direction: column;
+          gap: 15px;
+          align-items: flex-start;
+        }
+      }
+
+      .reviewsList {
+        .reviewItem {
+          padding: 20px;
+          border: 1px solid #e0e0e0;
+          border-radius: 8px;
+          margin-bottom: 15px;
+
+          .reviewHeader {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+
+            .reviewerInfo {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+
+              .reviewerName {
+                font-weight: 600;
+                color: #2c3e50;
+              }
+
+              .verifiedBadge {
+                background: #27ae60;
+                color: white;
+                padding: 2px 8px;
+                border-radius: 12px;
+                font-size: 0.8rem;
+                font-weight: 500;
+              }
+            }
+
+            .reviewMeta {
+              text-align: right;
+
+              .reviewRating {
+                margin-bottom: 5px;
+
+                .star {
+                  color: #ddd;
+                  font-size: 1rem;
+
+                  &.filled {
+                    color: #f39c12;
+                  }
+                }
+              }
+
+              .reviewDate {
+                font-size: 0.9rem;
+                color: #7f8c8d;
+              }
+            }
+
+            @media (max-width: 768px) {
+              flex-direction: column;
+              gap: 10px;
+
+              .reviewMeta {
+                text-align: left;
+              }
+            }
+          }
+
+          .reviewComment {
+            color: #2c3e50;
+            line-height: 1.5;
+            margin: 0;
+          }
+        }
+      }
+
+      .noReviews {
+        text-align: center;
+        padding: 40px 20px;
+        color: #7f8c8d;
+        font-size: 1.1rem;
+      }
+    }
+  }
+}

@@ -1,0 +1,104 @@
+📌 1. Holatni Tahlil Qiling:
+ Har bir Frontend va Backend faylni individual ko‘rib chiqing
+
+ Ishga tushirishdagi xatoliklar, notog‘ri konfiguratsiyalarni aniqlang
+
+ UI/UX dizayn yomon, foydalanuvchi uchun tushunarsiz — to‘liq qayta ishlash zarur
+
+ Kodlar ichida "duplicate", "dead code", "tight coupling" mavjudligini tekshiring
+
+ Test coverage — mavjud emas yoki juda past
+
+🔨 2. Texnik Qayta Ishlab Chiqish (Refactoring & Modularization):
+FRONTEND:
+Framework: React + TypeScript
+
+Ishga tushirish: cd front-main && npm install && npm run dev
+
+Yaxshilanishi kerak:
+
+Komponentlar bo‘linmagan (reusable komponentlar yaratish)
+
+Navigatsiya chalkash yoki yo‘q
+
+State management tizimli emas (Redux/Context API ni joriy etish kerak)
+
+Dizayn: Mobilga mos emas, bolalar uchun qulay emas
+
+Kod strukturasini quyidagicha optimallashtiring:
+
+bash
+Copy
+Edit
+/components
+/pages
+/services
+/hooks
+/assets
+BACKEND:
+Texnologiya: Node.js + NestJS
+
+Ishga tushirish: cd backend-main && npm run start
+
+Yaxshilanishi kerak:
+
+Microservice-lar orasida noaniq bog‘liqlik bor
+
+Exception handling va validation yo‘q
+
+API endpointlar chalkash, dokumentatsiyasi yo‘q
+
+.env sozlamalari notog‘ri yoki yo‘q
+
+Redis, Mail, Review va boshqa service-larni izolyatsiya qilib testdan o‘tkazing
+
+🧪 3. Testlash (QA):
+Test yozilmagan — bu eng jiddiy kamchilik
+
+Har bir modul uchun:
+
+✅ Unit test (Jest, Mocha)
+
+✅ Integration test (auth, product, order)
+
+✅ Load test (k6 run scripts/load-test.js)
+
+✅ Manual regression checklist tuzing
+
+CI/CD test bloklari qo‘shing
+
+🎨 4. UI/UX Qayta Dizayn:
+Bolalar uchun qulay dizayn to‘liq yo‘q
+
+Figma orqali yangi dizayn yarating, asosiy sahifalar:
+
+👧 Home (emoji va rasmli kategoriya)
+
+🛒 Product listing (yirik tugmalar, ko‘rinarli rasmlar)
+
+🔐 Auth (parent control opsiyasi bilan)
+
+🎮 Game/learning content sahifalari (agar bor bo‘lsa)
+
+Color scheme: kontrastli, yorqin, accessibility-friendly
+
+🔄 5. To‘liq Integratsiya va Monitoring:
+Front va back bir-biriga ulanmagan yoki noto‘g‘ri ulanmoqda
+
+monitoring-setup.js ishlamagan bo‘lishi mumkin — loglar, metrikalar, alert tizimi yo‘q
+
+README.md noto‘liq yoki mavjud emas — ishga tushirish yo‘riqnomasi talab qilinadi
+
+🚀 6. Yakuniy Talablar:
+ Frontend va backend mustaqil ham, birgalikda ishlashi kerak
+
+ Har bir komponent testlab chiqilgan bo‘lishi kerak
+
+ README.md to‘liq qayta yozilsin (setup, run, test, deploy)
+
+ .env.prod fayl to‘g‘ri sozlansin
+
+ CI/CD pipeline ishlab turgan holatga keltirilsin
+
+ Deployment uchun Docker Compose yoki Vercel/Render.yml ishlatilsa yaxshi
+

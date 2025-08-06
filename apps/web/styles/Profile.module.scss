@@ -1,0 +1,176 @@
+.profilePage {
+  min-height: 100vh;
+  background: #f8f9fa;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+
+    @media (max-width: 768px) {
+      padding: 15px;
+    }
+  }
+
+  .profileHeader {
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 20px;
+      text-align: center;
+    }
+
+    .userInfo {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 15px;
+      }
+
+      .avatar {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+
+        .avatarPlaceholder {
+          color: white;
+          font-size: 1.8rem;
+          font-weight: 700;
+        }
+
+        @media (max-width: 768px) {
+          width: 60px;
+          height: 60px;
+
+          .avatarPlaceholder {
+            font-size: 1.4rem;
+          }
+        }
+      }
+
+      .userDetails {
+        .userName {
+          font-size: 2rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 5px;
+
+          @media (max-width: 768px) {
+            font-size: 1.5rem;
+          }
+        }
+
+        .userEmail {
+          color: #7f8c8d;
+          font-size: 1.1rem;
+          margin-bottom: 10px;
+
+          @media (max-width: 768px) {
+            font-size: 1rem;
+          }
+        }
+
+        .membershipBadge {
+          .badge {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+          }
+        }
+      }
+    }
+
+    .userStats {
+      display: flex;
+      gap: 30px;
+
+      @media (max-width: 768px) {
+        gap: 20px;
+        justify-content: center;
+      }
+
+      .stat {
+        text-align: center;
+
+        .statValue {
+          display: block;
+          font-size: 1.5rem;
+          font-weight: 700;
+          color: #2c3e50;
+          margin-bottom: 5px;
+
+          @media (max-width: 768px) {
+            font-size: 1.2rem;
+          }
+        }
+
+        .statLabel {
+          font-size: 0.9rem;
+          color: #7f8c8d;
+          white-space: nowrap;
+
+          @media (max-width: 768px) {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+  }
+
+  .profileContent {
+    display: grid;
+    grid-template-columns: 300px 1fr;
+    gap: 30px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .sidebar {
+      @media (max-width: 768px) {
+        order: 2;
+      }
+    }
+
+    .mainContent {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      padding: 30px;
+      min-height: 500px;
+
+      @media (max-width: 768px) {
+        order: 1;
+        padding: 20px;
+      }
+    }
+  }
+}

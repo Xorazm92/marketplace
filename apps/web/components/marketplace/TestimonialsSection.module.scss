@@ -1,0 +1,277 @@
+.testimonials {
+  padding: 80px 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Ccircle cx='30' cy='30' r='2'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+}
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  position: relative;
+  z-index: 1;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 60px;
+
+  h2 {
+    font-size: 2.5rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+  }
+
+  p {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+.testimonialsContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 40px;
+}
+
+.testimonialsWrapper {
+  flex: 1;
+  overflow: hidden;
+  border-radius: 20px;
+  margin: 0 60px;
+}
+
+.testimonialsSlider {
+  display: flex;
+  transition: transform 0.5s ease;
+}
+
+.testimonialCard {
+  min-width: 100%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 20px;
+  padding: 40px;
+  margin: 0 10px;
+}
+
+.testimonialHeader {
+  display: flex;
+  align-items: center;
+  margin-bottom: 25px;
+  gap: 15px;
+}
+
+.avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+}
+
+.userInfo {
+  flex: 1;
+
+  h4 {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+    font-weight: 600;
+  }
+
+  .role {
+    opacity: 0.8;
+    font-size: 0.9rem;
+    margin: 0;
+  }
+}
+
+.rating {
+  display: flex;
+  gap: 3px;
+}
+
+.starFilled {
+  color: #ffd700;
+  font-size: 1.2rem;
+}
+
+.starEmpty {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 1.2rem;
+}
+
+.comment {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  margin: 0 0 20px 0;
+  font-style: italic;
+  opacity: 0.95;
+}
+
+.productInfo {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  border-top: 1px solid rgba(255, 255, 255, 0.2);
+  padding-top: 15px;
+}
+
+.navButton {
+  background: rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.1);
+  }
+
+  svg {
+    font-size: 1.5rem;
+  }
+}
+
+.indicators {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 60px;
+}
+
+.indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.3);
+  cursor: pointer;
+  transition: all 0.3s ease;
+
+  &.active {
+    background: white;
+    transform: scale(1.2);
+  }
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.6);
+  }
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 40px;
+  text-align: center;
+}
+
+.stat {
+  .statNumber {
+    display: block;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #ffd700;
+  }
+
+  .statLabel {
+    font-size: 1rem;
+    opacity: 0.9;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .testimonials {
+    padding: 60px 0;
+  }
+
+  .header {
+    margin-bottom: 40px;
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    p {
+      font-size: 1rem;
+    }
+  }
+
+  .testimonialsWrapper {
+    margin: 0 20px;
+  }
+
+  .testimonialCard {
+    padding: 30px 25px;
+  }
+
+  .testimonialHeader {
+    flex-direction: column;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .userInfo {
+    text-align: center;
+  }
+
+  .stats {
+    grid-template-columns: 1fr;
+    gap: 30px;
+
+    .stat .statNumber {
+      font-size: 2rem;
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 15px;
+  }
+
+  .testimonialsContainer {
+    flex-direction: column;
+  }
+
+  .testimonialsWrapper {
+    margin: 20px 0;
+  }
+
+  .navButton {
+    display: none;
+  }
+
+  .testimonialCard {
+    padding: 25px 20px;
+  }
+
+  .comment {
+    font-size: 1rem;
+  }
+}

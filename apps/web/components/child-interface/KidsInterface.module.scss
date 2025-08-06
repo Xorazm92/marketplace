@@ -1,0 +1,279 @@
+
+.kidsInterface {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
+  padding: 20px;
+  font-family: 'Comic Sans MS', cursive, sans-serif;
+}
+
+.header {
+  text-align: center;
+  margin-bottom: 30px;
+  
+  .welcomeMessage {
+    h1 {
+      color: white;
+      font-size: 2.5rem;
+      margin: 10px 0;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+    
+    .wave {
+      font-size: 3rem;
+      animation: wave 2s ease-in-out infinite;
+    }
+  }
+  
+  .funStats {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 20px;
+    
+    .stat {
+      background: rgba(255,255,255,0.2);
+      padding: 10px 20px;
+      border-radius: 25px;
+      color: white;
+      font-weight: bold;
+      font-size: 1.1rem;
+      
+      span:first-child {
+        margin-right: 8px;
+      }
+    }
+  }
+}
+
+.categories {
+  margin-bottom: 40px;
+  
+  h2 {
+    color: white;
+    text-align: center;
+    font-size: 2rem;
+    margin-bottom: 20px;
+  }
+  
+  .categoryGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    max-width: 800px;
+    margin: 0 auto;
+    
+    .categoryCard {
+      background: white;
+      border: none;
+      border-radius: 20px;
+      padding: 20px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      
+      &:hover, &.active {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+        background: #f0f8ff;
+      }
+      
+      .categoryIcon {
+        font-size: 3rem;
+        margin-bottom: 10px;
+      }
+      
+      .categoryName {
+        font-weight: bold;
+        color: #333;
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+.products {
+  .productGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    
+    .productCard {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+      
+      &:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 12px 30px rgba(0,0,0,0.2);
+      }
+      
+      .productImage {
+        position: relative;
+        height: 200px;
+        overflow: hidden;
+        
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+        }
+        
+        .educationalBadge {
+          position: absolute;
+          top: 10px;
+          right: 10px;
+          background: #4CAF50;
+          color: white;
+          padding: 5px 10px;
+          border-radius: 15px;
+          font-size: 0.8rem;
+          font-weight: bold;
+        }
+      }
+      
+      .productInfo {
+        padding: 20px;
+        
+        .productTitle {
+          font-size: 1.3rem;
+          color: #333;
+          margin-bottom: 10px;
+          font-weight: bold;
+        }
+        
+        .productPrice {
+          display: flex;
+          align-items: center;
+          margin-bottom: 10px;
+          
+          .currency {
+            font-size: 1.5rem;
+            margin-right: 5px;
+          }
+          
+          .amount {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #2196F3;
+          }
+        }
+        
+        .productRating {
+          display: flex;
+          align-items: center;
+          gap: 5px;
+          color: #666;
+        }
+      }
+    }
+  }
+}
+
+.timeRestriction {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  text-align: center;
+  color: white;
+  
+  .clockIcon {
+    font-size: 6rem;
+    margin-bottom: 20px;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  
+  h2 {
+    font-size: 3rem;
+    margin-bottom: 20px;
+  }
+  
+  p {
+    font-size: 1.5rem;
+    margin-bottom: 30px;
+  }
+  
+  .currentTime {
+    font-size: 2rem;
+    font-weight: bold;
+    background: rgba(255,255,255,0.2);
+    padding: 15px 30px;
+    border-radius: 25px;
+  }
+}
+
+.safetyReminder {
+  margin-top: 40px;
+  
+  .safetyCard {
+    background: rgba(255,255,255,0.95);
+    border-radius: 20px;
+    padding: 25px;
+    display: flex;
+    align-items: center;
+    max-width: 600px;
+    margin: 0 auto;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    
+    .shieldIcon {
+      font-size: 3rem;
+      margin-right: 20px;
+    }
+    
+    h3 {
+      color: #333;
+      margin-bottom: 10px;
+      font-size: 1.5rem;
+    }
+    
+    p {
+      color: #666;
+      font-size: 1.1rem;
+      margin: 0;
+    }
+  }
+}
+
+@keyframes wave {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-10deg); }
+  75% { transform: rotate(10deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .kidsInterface {
+    padding: 15px;
+  }
+  
+  .header {
+    .welcomeMessage h1 {
+      font-size: 2rem;
+    }
+    
+    .funStats {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+  
+  .categoryGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .productGrid {
+    grid-template-columns: 1fr;
+  }
+}

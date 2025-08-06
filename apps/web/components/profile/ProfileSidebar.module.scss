@@ -1,0 +1,144 @@
+.profileSidebar {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  height: fit-content;
+  position: sticky;
+  top: 20px;
+
+  .sidebarHeader {
+    padding: 20px;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+
+    h3 {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+  }
+
+  .sidebarNav {
+    padding: 10px 0;
+
+    .navItem {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 15px 20px;
+      border: none;
+      background: none;
+      text-align: left;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border-left: 3px solid transparent;
+
+      &:hover {
+        background: #f8f9fa;
+        border-left-color: #667eea;
+      }
+
+      &.active {
+        background: #f0f4ff;
+        border-left-color: #667eea;
+        color: #667eea;
+
+        .navIcon {
+          transform: scale(1.1);
+        }
+      }
+
+      .navIcon {
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      .navContent {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+
+        .navLabel {
+          font-size: 1rem;
+          font-weight: 600;
+          color: #2c3e50;
+        }
+
+        .navDescription {
+          font-size: 0.85rem;
+          color: #7f8c8d;
+        }
+      }
+
+      .navArrow {
+        font-size: 1.2rem;
+        color: #bdc3c7;
+        transition: all 0.3s ease;
+        flex-shrink: 0;
+      }
+
+      &.active .navArrow {
+        color: #667eea;
+        transform: translateX(3px);
+      }
+    }
+  }
+
+  .sidebarFooter {
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+
+    .logoutButton {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 12px 16px;
+      background: #fff5f5;
+      border: 1px solid #fed7d7;
+      border-radius: 8px;
+      color: #e53e3e;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #fed7d7;
+        transform: translateY(-1px);
+      }
+
+      .logoutIcon {
+        font-size: 1.2rem;
+      }
+    }
+  }
+
+  @media (max-width: 768px) {
+    position: static;
+    margin-bottom: 20px;
+
+    .sidebarNav {
+      .navItem {
+        padding: 12px 15px;
+
+        .navContent {
+          .navLabel {
+            font-size: 0.95rem;
+          }
+
+          .navDescription {
+            font-size: 0.8rem;
+          }
+        }
+      }
+    }
+
+    .sidebarFooter {
+      padding: 15px;
+    }
+  }
+}

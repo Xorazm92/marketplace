@@ -1,0 +1,367 @@
+.wishlistPage {
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+
+    h2 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin: 0;
+    }
+
+    .headerActions {
+      .addAllToCartButton {
+        padding: 10px 20px;
+        background: #27ae60;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #219a52;
+          transform: translateY(-2px);
+        }
+      }
+    }
+
+    @media (max-width: 768px) {
+      flex-direction: column;
+      gap: 15px;
+      align-items: stretch;
+
+      h2 {
+        font-size: 1.5rem;
+      }
+    }
+  }
+
+  .emptyState {
+    text-align: center;
+    padding: 60px 20px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+
+    .emptyIcon {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      opacity: 0.5;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #7f8c8d;
+      margin-bottom: 25px;
+      font-size: 1.1rem;
+    }
+
+    .shopButton {
+      display: inline-block;
+      padding: 12px 25px;
+      background: #667eea;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background: #764ba2;
+        transform: translateY(-2px);
+      }
+    }
+  }
+
+  .listActions {
+    background: white;
+    padding: 20px 25px;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    margin-bottom: 25px;
+
+    .selectActions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+
+      .selectAllLabel {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        font-weight: 500;
+        color: #2c3e50;
+
+        input[type="checkbox"] {
+          width: 18px;
+          height: 18px;
+          cursor: pointer;
+        }
+      }
+
+      .removeSelectedButton {
+        padding: 8px 16px;
+        background: #e74c3c;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: #c0392b;
+        }
+      }
+
+      @media (max-width: 768px) {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 15px;
+      }
+    }
+  }
+
+  .wishlistGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+      gap: 20px;
+    }
+
+    .wishlistCard {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      overflow: hidden;
+      transition: transform 0.3s ease;
+      position: relative;
+
+      &:hover {
+        transform: translateY(-3px);
+      }
+
+      .cardHeader {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        right: 10px;
+        display: flex;
+        justify-content: space-between;
+        z-index: 2;
+
+        .selectCheckbox {
+          background: white;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+
+          input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+          }
+        }
+
+        .removeButton {
+          background: white;
+          border: none;
+          border-radius: 50%;
+          width: 30px;
+          height: 30px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          cursor: pointer;
+          font-size: 0.8rem;
+          transition: all 0.3s ease;
+
+          &:hover {
+            background: #fee;
+          }
+        }
+      }
+
+      .productLink {
+        display: block;
+        text-decoration: none;
+        color: inherit;
+
+        .imageContainer {
+          position: relative;
+          height: 200px;
+          overflow: hidden;
+
+          .imagePlaceholder {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+
+            .productIcon {
+              font-size: 3rem;
+              color: #6c757d;
+              opacity: 0.7;
+            }
+          }
+
+          .discount {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background: #e74c3c;
+            color: white;
+            padding: 5px 8px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            font-weight: 600;
+          }
+
+          .outOfStock {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            text-align: center;
+            padding: 8px;
+            font-size: 0.9rem;
+            font-weight: 600;
+          }
+        }
+
+        &:hover .imageContainer .imagePlaceholder {
+          transform: scale(1.05);
+        }
+
+        .productInfo {
+          padding: 15px;
+
+          .productTitle {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+
+          .rating {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+
+            .stars {
+              display: flex;
+              gap: 2px;
+
+              .star {
+                color: #f39c12;
+                font-size: 0.9rem;
+              }
+
+              .halfStar {
+                color: #f39c12;
+                font-size: 0.9rem;
+                opacity: 0.5;
+              }
+            }
+
+            .reviewCount {
+              color: #7f8c8d;
+              font-size: 0.85rem;
+            }
+          }
+
+          .priceContainer {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 10px;
+
+            .currentPrice {
+              font-size: 1.2rem;
+              font-weight: 700;
+              color: #e74c3c;
+            }
+
+            .originalPrice {
+              font-size: 0.9rem;
+              color: #7f8c8d;
+              text-decoration: line-through;
+            }
+          }
+
+          .addedDate {
+            font-size: 0.85rem;
+            color: #7f8c8d;
+            margin: 0;
+            font-style: italic;
+          }
+        }
+      }
+
+      .cardActions {
+        padding: 15px;
+        border-top: 1px solid #f0f0f0;
+
+        button {
+          width: 100%;
+          padding: 10px 15px;
+          border: none;
+          border-radius: 6px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.3s ease;
+
+          &.addToCartButton {
+            background: #27ae60;
+            color: white;
+
+            &:hover {
+              background: #219a52;
+            }
+          }
+
+          &.notifyButton {
+            background: #f39c12;
+            color: white;
+
+            &:hover {
+              background: #e67e22;
+            }
+          }
+        }
+      }
+    }
+  }
+}

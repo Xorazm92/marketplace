@@ -1,0 +1,164 @@
+.roomWindow {
+    display: flex;
+    flex-direction: column;
+}
+
+.roomList {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.roomItem {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: #fff;
+    transition: background-color 0.2s ease;
+}
+
+.header {
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    background-color: #4a2acf;
+    color: #fff;
+    height: 30px;
+}
+
+.title {
+    font-size: 1rem;
+    font-weight: 600;
+}
+
+.roomItem\:hover {
+    background-color: #f9f9f9;
+}
+
+.active {
+    background-color: #f0f0f0;
+}
+
+.linkWrapper {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: inherit;
+    width: 100%;
+}
+
+.avatarWrapper {
+    flex: 0 0 auto;
+    width: 40px;
+    height: 40px;
+    margin-right: 12px;
+    position: relative;
+}
+
+.avatar {
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.avatarPlaceholder {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: #ccc;
+}
+
+.info {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+.name {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.lastMessage {
+    margin-top: 4px;
+    font-size: 0.875rem;
+    color: #666;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.timestamp {
+    flex: 0 0 auto;
+    margin-left: 12px;
+    font-size: 0.75rem;
+    color: #999;
+    white-space: nowrap;
+}
+
+.deleteButton {
+    position: absolute;
+    right: 16px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #888;
+    font-size: 1.25rem;
+    line-height: 1;
+    padding: 4px;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.roomItem\:hover .deleteButton {
+    opacity: 1;
+}
+
+.loading,
+.error,
+.empty {
+    padding: 16px;
+    text-align: center;
+    font-size: 0.9rem;
+    color: #777;
+}
+
+@media (max-width: 600px) {
+    .roomItem {
+        padding: 10px 12px;
+    }
+
+    .avatarWrapper,
+    .avatar,
+    .avatarPlaceholder {
+        width: 36px;
+        height: 36px;
+    }
+
+    .name {
+        font-size: 0.95rem;
+    }
+
+    .lastMessage {
+        font-size: 0.8rem;
+    }
+
+    .timestamp {
+        font-size: 0.7rem;
+        margin-left: 8px;
+    }
+
+    .deleteButton {
+        right: 12px;
+        font-size: 1rem;
+    }
+}
