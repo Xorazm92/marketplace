@@ -128,8 +128,66 @@ sudo lsof -i :3001
 4. **CORS sozlamalarini tekshiring**
 5. **SSL sertifikat o'rnating (agar kerak bo'lsa)**
 
+### 🌐 **12. Nginx va SSL Sozlash (Production)**
+
+```bash
+# Nginx o'rnatish
+sudo apt install nginx
+
+# Development uchun
+sudo cp nginx-inbola-development.conf /etc/nginx/sites-available/inbola
+sudo ln -s /etc/nginx/sites-available/inbola /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl restart nginx
+
+# Production uchun SSL bilan
+sudo chmod +x setup-ssl.sh
+sudo ./setup-ssl.sh
+```
+
+### 🔒 **13. SSL Sertifikat (Let's Encrypt)**
+
+```bash
+# Avtomatik SSL setup
+sudo ./setup-ssl.sh
+
+# Manual SSL setup
+sudo certbot --nginx -d inbola.uz -d www.inbola.uz -d api.inbola.uz
+```
+
+### 🔧 **14. Nginx Konfiguratsiya Fayllar**
+
+- **Development:** `nginx-inbola-development.conf`
+- **Production:** `nginx-inbola-production.conf`
+- **SSL Setup:** `setup-ssl.sh`
+
+### 🌍 **15. Domain Sozlamalari**
+
+DNS A record lar:
+```
+inbola.uz       A    YOUR_SERVER_IP
+www.inbola.uz   A    YOUR_SERVER_IP
+api.inbola.uz   A    YOUR_SERVER_IP
+admin.inbola.uz A    YOUR_SERVER_IP
+```
+
+### 🔥 **16. Firewall Sozlamalari**
+
+```bash
+# UFW firewall
+sudo ufw allow 22    # SSH
+sudo ufw allow 80    # HTTP
+sudo ufw allow 443   # HTTPS
+sudo ufw enable
+```
+
 ---
 
 ## ✅ **Muvaffaqiyatli Deployment!**
 
 Loyiha tayyor va ishlamoqda! 🎉
+
+### 🌐 **Production URLs:**
+- **Main Site:** https://inbola.uz
+- **API:** https://api.inbola.uz
+- **Admin:** https://admin.inbola.uz
+- **GraphQL:** https://api.inbola.uz/graphql
