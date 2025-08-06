@@ -105,7 +105,7 @@ fi
 echo -e "${BLUE}🔧 Step 4: Environment faylni yangilash${NC}"
 
 # Update environment file
-cat > apps/api/.env << EOF
+cat > backend-main/.env << EOF
 # INBOLA Marketplace - Production Environment (PostgreSQL)
 DATABASE_URL="postgresql://$DB_USER:$DB_PASSWORD@localhost:5432/$DB_NAME"
 NODE_ENV=production
@@ -192,7 +192,7 @@ echo "• Host: localhost:5432"
 echo "• SSL: Enabled"
 echo ""
 echo -e "${BLUE}🔧 Keyingi qadamlar:${NC}"
-echo "1. Database migration: cd apps/api && npx prisma migrate dev"
+echo "1. Database migration: cd backend-main && npx prisma migrate dev"
 echo "2. Database seed: npm run seed"
 echo "3. Loyihani ishga tushiring: npm start"
 echo ""
