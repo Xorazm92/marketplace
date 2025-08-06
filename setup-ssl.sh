@@ -66,8 +66,8 @@ fi
 
 echo -e "${BLUE}🌐 Step 2: Nginx konfiguratsiyasini nusxalash${NC}"
 
-# Copy production nginx config
-cp nginx-inbola-production.conf /etc/nginx/sites-available/inbola.uz
+# Copy simple production nginx config
+cp nginx-inbola-simple.conf /etc/nginx/sites-available/inbola.uz
 ln -sf /etc/nginx/sites-available/inbola.uz /etc/nginx/sites-enabled/
 
 # Remove default nginx config
