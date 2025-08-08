@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "types": ["node", "jest"],
     "module": "commonjs",
     "declaration": true,
     "removeComments": true,
@@ -15,8 +16,12 @@
     "strictNullChecks": false,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
-    "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "strictBindCallApply": true,
+    "noFallthroughCasesInSwitch": false,
+    "strict": false,
+    "strictPropertyInitialization": false,
+    "noEmitOnError": false
   },
-  "exclude": ["node_modules", "dist", "src/testing", "**/*.test.ts", "**/*.spec.ts"]
+  
+    "exclude": ["node_modules", "dist", "src/testing", "**/*.test.ts"]
 }

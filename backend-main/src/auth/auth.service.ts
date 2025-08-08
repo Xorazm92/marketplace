@@ -5,6 +5,8 @@ import {
     InternalServerErrorException,
     UnauthorizedException,
 } from "@nestjs/common";
+import { BCRYPT_SALT, COOKIE_MAX_AGE } from "./auth.constants";
+import { AuthTokenService } from "./auth-token.service";
 import { AdminService } from "../admin/admin.service";
 import { JwtService } from "@nestjs/jwt";
 import { PrismaService } from "../prisma/prisma.service";
@@ -20,7 +22,8 @@ export class AuthService {
         private readonly adminService: AdminService,
         private readonly jwtService: JwtService,
         private readonly mailService: MailService,
-        private readonly prismaService: PrismaService
+        private readonly prismaService: PrismaService,
+    private readonly authTokenService: AuthTokenService
     ) {}
     
     
@@ -31,7 +34,7 @@ export class AuthService {
             createAdminDto.email
         );
         if (condiate) {
-            throw new BadRequestException("Admin olready exists");
+            throw new BadRequestException("Admin already exists");
         }
         const newAdmin = await this.adminService.create(createAdminDto);
 
@@ -66,7 +69,7 @@ export class AuthService {
             throw new UnauthorizedException("Invalid Email or password");
         }
         if (!admin.is_active) {
-            throw new UnauthorizedException("admin is not activate");
+            throw new UnauthorizedException("Admin is not activated");
         }
         const validPassword = await bcrypt.compare(
             adminSignInDto.password,
@@ -78,19 +81,9 @@ export class AuthService {
 
         const tokens = await this.adminService.getToken(admin);
 
-        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
-
-        const updateAdmin = await this.adminService.updateRefreshToken(
-            admin.id,
-            hashed_refresh_token
-        );
-        if (!updateAdmin) {
-            throw new InternalServerErrorException("Tokenni saqlashda xatolik");
-        }
-        res.cookie("refresh_token", tokens.refresh_token, {
-            maxAge: +process.env.COOKIE_TIME!,
-            httpOnly: true,
-        });
+        const hashed_refresh_token = await this.authTokenService.hashRefreshToken(tokens.refresh_token);
+        await this.authTokenService.persistRefreshToken(admin.id, hashed_refresh_token);
+        this.authTokenService.setRefreshCookie(res, tokens.refresh_token);
         const response = {
             id: admin.id,
             access_token: tokens.access_token,
@@ -107,12 +100,9 @@ export class AuthService {
             throw new ForbiddenException("Admin not verified");
         }
         const hashed_refresh_token = null;
-        await this.adminService.updateRefreshToken(
-            adminData.id,
-            hashed_refresh_token
-        );
+        await this.authTokenService.persistRefreshToken(adminData.id, hashed_refresh_token);
 
-        res.clearCookie("refresh_token");
+        this.authTokenService.clearRefreshCookie(res);
 
         const response = {
             message: "Admin logged out successfully",
@@ -144,19 +134,10 @@ export class AuthService {
             throw new ForbiddenException("Forbidden");
         }
 
-        const tokens = await this.adminService.getToken(admin);
-
-        const hashed_refresh_token = await bcrypt.hash(tokens.refresh_token, 7);
-
-        await this.adminService.updateRefreshToken(
-            admin.id,
-            hashed_refresh_token
-        );
-
-        res.cookie("refresh_token", tokens.refresh_token, {
-            maxAge: +process.env.COOKIE_TIME!,
-            httpOnly: true,
-        });
+        const tokens = await this.authTokenService.generateTokens(admin);
+        const hashed_refresh_token = await this.authTokenService.hashRefreshToken(tokens.refresh_token);
+        await this.authTokenService.persistRefreshToken(admin.id, hashed_refresh_token);
+        this.authTokenService.setRefreshCookie(res, tokens.refresh_token);
         const response = {
             id: admin.id,
             access_token: tokens.access_token,

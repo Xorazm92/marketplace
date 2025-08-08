@@ -42,6 +42,17 @@ npm run deploy
 - **Infrastructure**: Docker, Nginx, PM2
 - **CI/CD**: GitHub Actions
 
+## 📦 CI/CD Workflows
+
+The repository includes several GitHub Actions workflows to automate the development lifecycle:
+
+- **ci.yml** – Runs unit tests and builds the project on every push and pull request.
+- **ci-cd.yml** – Executes full test suites, security scans, optional load testing, and deploys to staging or production based on the branch.
+- **docker-build.yml** – Builds Docker images for the backend and frontend and pushes them to Docker Hub.
+
+You can view the status of each workflow in the **Actions** tab of the repository. Successful runs will automatically trigger the appropriate deployment steps.
+
+
 ## 📦 Project Structure
 
 ```

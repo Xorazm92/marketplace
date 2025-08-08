@@ -1,20 +1,28 @@
 import { Injectable } from "@nestjs/common";
+
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
-import { PrismaService } from "../prisma/prisma.service";
-import { BcryptEncryption } from "../utils/bcryptService";
-import { Prisma } from "@prisma/client";
+
+import { PasswordService } from "./password.service";
+import { UserRepository } from "./user.repository";
+import { UserTokenService } from "./user-token.service";
+
 
 @Injectable()
 export class UserService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private readonly userRepository: UserRepository,
+    private readonly passwordService: PasswordService,
+    private readonly userTokenService: UserTokenService,
+    
+  ) {}
 
   async create(createUserDto: CreateUserDto) {
-    const hashed_password = await BcryptEncryption.encrypt(
+    const hashed_password = await this.passwordService.encrypt(
       createUserDto.password
     );
 
-    const newUser = await this.prisma.user.create({
+    const newUser = await this.userRepository.create({
       data: {
         first_name: createUserDto.first_name,
         last_name: createUserDto.last_name,
@@ -35,7 +43,7 @@ export class UserService {
   }
 
   async findAll() {
-    return this.prisma.user.findMany({
+    return this.userRepository.findMany({
       select: {
         id: true,
         first_name: true,
@@ -59,22 +67,19 @@ export class UserService {
     });
   }
 
-  async findUserByPhoneNumber(phone_number: string) {
-    return this.prisma.phoneNumber.findFirst({
+  async findUserByPhoneNumber(phone_number: string): Promise<any> {
+    return this.userRepository.findPhoneNumberFirst({
       where: { phone_number, is_main: true },
       include: { user: true },
     });
   }
 
   async updateUserRefreshToken(id: number, token: string | undefined) {
-    return await this.prisma.user.update({
-      where: { id },
-      data: { hashed_refresh_token: token },
-    });
+    return await this.userTokenService.persistRefreshToken(id, token);
   }
 
   async findOne(id: number) {
-    return await this.prisma.user.findUnique({
+    return await this.userRepository.findUnique({
       where: { id },
       include: {
         phone_number: true,
@@ -94,7 +99,7 @@ export class UserService {
   }
 
   async findOneById(id: number) {
-    return await this.prisma.user.findUnique({ where: { id } });
+    return await this.userRepository.findUnique({ where: { id } });
   }
 
   async update(
@@ -117,13 +122,13 @@ export class UserService {
     }
 
     if (updateUserDto?.password) {
-      data.password = await BcryptEncryption.encrypt(updateUserDto.password);
+      data.password = await this.passwordService.encrypt(updateUserDto.password);
     }
 
     if (image) {
       data.profile_img = image.filename;
     }
-    await this.prisma.user.update({
+    await this.userRepository.update({
       where: { id },
       data,
     });
@@ -136,14 +141,11 @@ export class UserService {
   }
 
   async remove(id: number) {
-    return await this.prisma.user.delete({ where: { id } });
+    return await this.userRepository.delete({ where: { id } });
   }
 
   async blockUserById(userId: number) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { is_active: false },
-    });
+    return this.userRepository.blockUserById(userId);
   }
 
   async searchUsers(query: string, page: number, limit: number) {
@@ -163,14 +165,14 @@ export class UserService {
       ],
     };
 
-    const [users, total] = await this.prisma.$transaction([
-      this.prisma.user.findMany({
+    const [users, total] = await Promise.all([
+      this.userRepository.findMany({
         where: whereClause,
         include: { phone_number: true },
         skip,
         take: limit,
       }),
-      this.prisma.user.count({ where: whereClause }),
+      this.userRepository.count({ where: whereClause }),
     ]);
 
     return {

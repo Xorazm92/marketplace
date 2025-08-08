@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { AuthTokenService } from './auth-token.service';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { PhoneAuthController } from './phone-auth.controller';
@@ -17,7 +18,7 @@ import { MailModule } from '../mail/mail.module';
     MailModule
   ],
   controllers: [AuthController, PhoneAuthController],
-  providers: [AuthService, PhoneAuthService, SmsService],
-  exports: [PhoneAuthService, SmsService],
+  providers: [AuthService, PhoneAuthService, SmsService, AuthTokenService],
+  exports: [PhoneAuthService, SmsService, AuthTokenService],
 })
 export class AuthModule {}

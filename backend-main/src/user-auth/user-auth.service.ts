@@ -93,25 +93,33 @@ export class UserAuthService {
 
   async login(dto: UserLoginDto, res: Response): Promise<IResponse> {
     const { phone_number, password } = dto;
-    const user = await this.userService.findUserByPhoneNumber(phone_number);
+    // Find the phone record which includes the linked user
+    const phoneRecord = await this.userService.findUserByPhoneNumber(phone_number);
 
-    if (!user) {
-      throw new NotFoundException("Phone or password is no valid");
+    if (!phoneRecord) {
+      throw new NotFoundException("Phone or password is not valid");
     }
-    const { password: user_hashed_password, id } = user.user;
+
+    // Retrieve the full user entity using the user_id from the phone record
+    const user = await this.userService.findOneById(phoneRecord.user_id);
+    if (!user) {
+      throw new NotFoundException("User not found");
+    }
+
+    const { password: user_hashed_password, id } = user;
 
     const compared_password = await BcryptEncryption.compare(
-      dto.password,
-      user_hashed_password
+      password,
+      user_hashed_password,
     );
 
     if (!compared_password) {
-      throw new NotFoundException("Phone or password is no valid");
+      throw new NotFoundException("Phone or password is not valid");
     }
 
-    if (!user.user.is_active) {
+    if (!user.is_active) {
       throw new BadRequestException(
-        "You are not active please active your account"
+        "You are not active please activate your account",
       );
     }
 
@@ -121,24 +129,21 @@ export class UserAuthService {
     });
 
     const hashed_refresh_token = await BcryptEncryption.encrypt(refreshToken);
-    await this.userService.updateUserRefreshToken(
-      user.user.id,
-      hashed_refresh_token
-    );
+    await this.userService.updateUserRefreshToken(id, hashed_refresh_token);
 
-    res.cookie("refresh_token", refreshToken, {
+    res.cookie('refresh_token', refreshToken, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
-    console.log(user.user.id)
+
     return {
       data: {
-        id: user.user_id,
+        id,
         phone_number,
-        full_name: `${user.user.first_name} ${user.user.last_name}`,
+        full_name: `${user.first_name} ${user.last_name}`,
         accessToken,
       },
-      message: "Succfully login",
+      message: 'Successfully login',
       status_code: 200,
     };
   }

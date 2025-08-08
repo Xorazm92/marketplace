@@ -1,16 +1,13 @@
 
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { RedisService } from '../microservices/redis/redis.service';
-import { ChildSafetyService } from '../child-safety/child-safety.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
+import { ProductMediaService } from './product-media.service';
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(private prisma: PrismaService, private productMediaService: ProductMediaService) {}
 
   async create(createProductDto: CreateProductDto, userId?: number) {
     const { images, user_id, ...productData } = createProductDto;
@@ -343,12 +340,8 @@ export class ProductService {
 
   // Additional methods needed by controller
   async createProductImage(productId: number, image: any) {
-    return this.prisma.productImage.create({
-      data: {
-        product_id: productId,
-        url: image.filename || image.path
-      }
-    });
+    const url = image.filename || image.path;
+    return this.productMediaService.addImage(productId, url);
   }
 
   async getAllProduct(category?: string) {

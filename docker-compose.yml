@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: inbola-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-inbola}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-inbola_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-inbola_db}
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  redis:
+    image: redis:7-alpine
+    container_name: inbola-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+
+  backend:
+    build:
+      context: ./backend-main
+      dockerfile: Dockerfile
+    container_name: inbola-backend
+    restart: unless-stopped
+    env_file:
+      - ./backend-main/.env
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "3001:3001"
+    command: npm run start:prod
+
+  frontend:
+    build:
+      context: ./front-main
+      dockerfile: Dockerfile
+    container_name: inbola-frontend
+    restart: unless-stopped
+    env_file:
+      - ./front-main/.env
+    depends_on:
+      - backend
+    ports:
+      - "3000:3000"
+    command: npm run start
+
+volumes:
+  db_data:
+  redis_data:

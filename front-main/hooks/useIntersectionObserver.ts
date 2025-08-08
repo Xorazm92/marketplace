@@ -13,7 +13,7 @@ export function useIntersectionObserver({
   rootMargin = '0%',
   freezeOnceVisible = false,
 }: UseIntersectionObserverOptions = {}): [
-  React.RefObject<Element>,
+  React.RefObject<Element | null>,
   boolean,
   IntersectionObserverEntry | undefined,
 ] {

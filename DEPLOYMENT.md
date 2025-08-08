@@ -72,6 +72,38 @@ pm2 status
 # PM2 logs ko'rish
 pm2 logs
 ```
+### 🤖 **CI/CD Pipeline**
+
+The project uses GitHub Actions to automate testing, building, and deployment:
+
+- **`.github/workflows/ci.yml`** – Runs unit tests and builds the project on every push and pull request.
+- **`.github/workflows/ci-cd.yml`** – Executes comprehensive backend and frontend test suites, security scans, optional load testing, and deploys to staging or production environments based on the branch.
+
+You can view the status of the workflows in the **Actions** tab of the repository. Successful runs will automatically trigger deployments to the configured environments.
+
+---
+
+### 🚀 **Quick Start with Docker Compose**
+
+To quickly spin up the entire application stack, run:
+
+```bash
+docker-compose up -d
+```
+
+This will start the PostgreSQL, Redis, backend, and frontend services in detached mode. You can then access the application at:
+
+- Frontend: http://localhost:3000
+- Backend API: http://localhost:3001
+- GraphQL: http://localhost:3001/graphql
+
+To stop the services, run:
+
+```bash
+docker-compose down
+```
+
+
 
 ### 🌐 **7. Kirish URL lari**
 
