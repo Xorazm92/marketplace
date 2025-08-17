@@ -88,8 +88,7 @@ const HomePage: React.FC = () => {
         {/* Hero Section */}
         <EtsyStyleHero />
 
-        {/* Category Showcase */}
-        <CategoryShowcase />
+
 
         {/* Featured Products */}
         <section className={styles.section}>

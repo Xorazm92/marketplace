@@ -30,7 +30,9 @@ const Card: React.FC<CardProps> = ({
       <OptimizedImage
         src={
           product_image && product_image.length > 0
-            ? `${process.env.NEXT_PUBLIC_BASE_URL}/public/${product_image[0].url}`
+            ? product_image[0].url.startsWith('http') 
+              ? product_image[0].url 
+              : `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/uploads/${product_image[0].url}`
             : "/img/placeholder-product.jpg"
         }
         alt={title}

@@ -150,6 +150,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             );
           }
 
+          // Category filter
+          if (filters.category && filters.category.length > 0) {
+            console.log('Category filter:', filters.category);
+            console.log('Products before category filter:', results.length);
+            results = results.filter((product: any) => {
+              const productCategory = product.category?.toLowerCase() || '';
+              const isMatch = filters.category.some((cat: string) => 
+                productCategory.includes(cat.toLowerCase()) ||
+                cat.toLowerCase().includes(productCategory)
+              );
+              console.log(`Product "${product.title}" category: "${productCategory}", match: ${isMatch}`);
+              return isMatch;
+            });
+            console.log('Products after category filter:', results.length);
+          }
+
           // Brand filter
           if (filters.brands.length > 0) {
             results = results.filter((product: any) =>

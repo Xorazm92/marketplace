@@ -5,8 +5,8 @@
   "description": "Bolalar va ota-onalar uchun xavfsiz onlayn do'kon",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#667eea",
-  "theme_color": "#667eea",
+  "background_color": "#f16521",
+  "theme_color": "#f16521",
   "orientation": "portrait-primary",
   "categories": ["shopping", "kids", "education"],
   "icons": [

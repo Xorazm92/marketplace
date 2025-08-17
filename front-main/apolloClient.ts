@@ -84,18 +84,8 @@ const uploadLink = createUploadLink({
   },
 });
 
-// WebSocket link for subscriptions
-const wsLink = typeof window !== "undefined"
-  ? new WebSocketLink({
-      uri: process.env.NEXT_PUBLIC_GRAPHQL_WS || `ws://localhost:4000/graphql`,
-      options: {
-        reconnect: true,
-        connectionParams: () => ({
-          Authorization: `Bearer ${getLocalStorage("accessToken")}`,
-        }),
-      },
-    })
-  : null;
+// WebSocket link for subscriptions (disabled for now)
+const wsLink = null;
 
 const httpLink = ApolloLink.from([errorLink, authLink, uploadLink]);
 const splitLink =

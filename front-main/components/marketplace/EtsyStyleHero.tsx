@@ -48,6 +48,56 @@ const EtsyStyleHero: React.FC = () => {
       cta: "Kiyimlarni ko'rish",
       link: "/category/clothing",
       category: "Kiyimlar"
+    },
+    {
+      id: 4,
+      title: "Sport anjomlari",
+      subtitle: "Faol hayot uchun",
+      description: "Bolalarning jismoniy rivojlanishi uchun sifatli sport anjomlari",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop&crop=center",
+      cta: "Sport anjomlarini ko'rish",
+      link: "/category/sports",
+      category: "Sport"
+    },
+    {
+      id: 5,
+      title: "Maktab buyumlari",
+      subtitle: "Ta'lim uchun zarur",
+      description: "Maktabda o'qish uchun barcha zarur buyumlar va materiallar",
+      image: "https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=1200&h=600&fit=crop&crop=center",
+      cta: "Maktab buyumlarini ko'rish",
+      link: "/category/school",
+      category: "Maktab"
+    },
+    {
+      id: 6,
+      title: "Elektronika",
+      subtitle: "Zamonaviy texnologiya",
+      description: "Bolalar uchun xavfsiz va ta'limiy elektronika mahsulotlari",
+      image: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1200&h=600&fit=crop&crop=center",
+      cta: "Elektronikani ko'rish",
+      link: "/category/electronics",
+      category: "Elektronika"
+    },
+    {
+      id: 7,
+      title: "Chaqaloq mahsulotlari",
+      subtitle: "Eng kichiklar uchun",
+      description: "Chaqaloqlar uchun xavfsiz va sifatli mahsulotlar",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&h=600&fit=crop&crop=center",
+      cta: "Chaqaloq mahsulotlarini ko'rish",
+      link: "/category/baby",
+      category: "Chaqaloq"
+    },
+    {
+      id: 8,
+      title: "Sog'lik mahsulotlari",
+      subtitle: "Salomatlik uchun",
+      description: "Bolalar salomatligi uchun zarur mahsulotlar va vitaminlar",
+      image: "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=1200&h=600&fit=crop&crop=center",
+      cta: "Sog'lik mahsulotlarini ko'rish",
+      link: "/category/health",
+      category: "Sog'lik"
     }
   ];
 

@@ -1,16 +1,17 @@
 import { useState, useEffect } from "react";
 import style from "./Navbar.module.scss";
 import Link from "next/link";
-import Button from "../../components/Button/Button";
 import {
-  FaRegEnvelopeOpen,
   FaRegHeart,
   FaRegUser,
-  FaChevronDown,
   FaBars,
-  FaXmark,
-  FaCartShopping,
-} from "react-icons/fa6";
+  FaTimes,
+  FaShoppingCart,
+  FaSearch,
+  FaGift,
+  FaRegUserCircle,
+  FaChevronDown,
+} from "react-icons/fa";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../store/store";
 import { getLocalStorage } from "../../utils/local-storege";
@@ -22,6 +23,8 @@ const Navbar = () => {
   const token = getLocalStorage("accessToken");
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -29,11 +32,17 @@ const Navbar = () => {
       if (isMenuOpen && !target.closest(`.${style.container}`)) {
         setIsMenuOpen(false);
       }
+      if (isCategoriesOpen && !target.closest(`.${style.categoriesSection}`)) {
+        setIsCategoriesOpen(false);
+      }
     };
 
     const handleResize = () => {
-      if (window.innerWidth > 770 && isMenuOpen) {
+      if (window.innerWidth > 1024 && isMenuOpen) {
         setIsMenuOpen(false);
+      }
+      if (window.innerWidth <= 768) {
+        setIsCategoriesOpen(false);
       }
     };
 
@@ -44,7 +53,7 @@ const Navbar = () => {
       document.removeEventListener("mousedown", handleClickOutside);
       window.removeEventListener("resize", handleResize);
     };
-  }, [isMenuOpen]);
+  }, [isMenuOpen, isCategoriesOpen]);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -86,88 +95,240 @@ const Navbar = () => {
     setIsMenuOpen(false);
   };
 
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (searchQuery.trim()) {
+      // Handle search functionality
+      console.log("Searching for:", searchQuery);
+    }
+  };
+
   return (
-    <nav className={style.header}>
-      <div className={style.container}>
-        <Link href={"/"} className={style.logo}>
-          {/* Logo removed */}
-        </Link>
+    <>
+      {/* Main Header - Etsy Style */}
+      <nav className={style.header}>
+        <div className={style.container}>
+          {/* Left Side - Logo */}
+          <Link href="/" className={style.logo}>
+            <h1 className={style.logoText}>INBOLA</h1>
+          </Link>
 
-        <button
-          className={style.menuButton}
-          onClick={() => setIsMenuOpen((prev) => !prev)}
-          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
-        >
-          {isMenuOpen ? <FaXmark size={24} /> : <FaBars size={24} />}
-        </button>
-
-        <div className={`${style.right} ${isMenuOpen ? style.showMenu : ""}`}>
-          <div className={style.navigations}>
-            <Link
-              href={{ pathname: '/Profile', query: { tab: 'Сообщения' } }}
-              onClick={closeMenu}
+          {/* Categories Button - Etsy Style */}
+          <div className={style.categoriesSection}>
+            <button 
+              className={style.categoriesButton}
+              onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
             >
-              <div className={style.navItem}>
-                <FaRegEnvelopeOpen size={18} />
-                <span>Сообщения</span>
-              </div>
-            </Link>
-
-            <Link
-              href={token && isAuthenticated ? "/favorites" : "/login"}
-              onClick={closeMenu}
-            >
-              <div className={style.navItem}>
-                <FaRegHeart size={18} />
-                <span>Sevimlilar</span>
-              </div>
-            </Link>
-
-            <Link
-              href={token && isAuthenticated ? "/cart" : "/login"}
-              onClick={closeMenu}
-            >
-              <div className={style.navItem}>
-                <div className={style.cartIcon}>
-                  <FaCartShopping size={18} />
-                  {cartCount > 0 && (
-                    <span className={style.cartBadge}>{cartCount}</span>
-                  )}
+              <FaBars size={16} />
+              <span>Kategoriyalar</span>
+              <FaChevronDown size={12} />
+            </button>
+            
+            {/* Categories Dropdown */}
+            {isCategoriesOpen && (
+              <div className={style.categoriesDropdown}>
+                <div className={style.categoriesList}>
+                  <Link href="/category/clothing" className={style.categoryItem}>
+                    <span>👕</span>
+                    <div>
+                      <strong>Kiyim-kechak</strong>
+                      <small>Bolalar kiyimlari</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/toys" className={style.categoryItem}>
+                    <span>🧸</span>
+                    <div>
+                      <strong>Oyinchoqlar</strong>
+                      <small>O'yin va o'qish</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/books" className={style.categoryItem}>
+                    <span>📚</span>
+                    <div>
+                      <strong>Kitoblar</strong>
+                      <small>Ta'limiy materiallar</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/sports" className={style.categoryItem}>
+                    <span>⚽</span>
+                    <div>
+                      <strong>Sport</strong>
+                      <small>Sport anjomlari</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/school" className={style.categoryItem}>
+                    <span>🎒</span>
+                    <div>
+                      <strong>Maktab</strong>
+                      <small>Maktab buyumlari</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/baby" className={style.categoryItem}>
+                    <span>🍼</span>
+                    <div>
+                      <strong>Chaqaloq</strong>
+                    <small>Chaqaloq buyumlari</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/electronics" className={style.categoryItem}>
+                    <span>📱</span>
+                    <div>
+                      <strong>Elektronika</strong>
+                      <small>Texnologiya</small>
+                    </div>
+                  </Link>
+                  <Link href="/category/health" className={style.categoryItem}>
+                    <span>🏥</span>
+                    <div>
+                      <strong>Sog'lik</strong>
+                      <small>Salomatlik</small>
+                    </div>
+                  </Link>
                 </div>
-                <span>Savatcha</span>
               </div>
+            )}
+          </div>
+
+          {/* Center - Search Bar */}
+          <div className={style.searchSection}>
+            <form onSubmit={handleSearch} className={style.searchForm}>
+              <div className={style.searchContainer}>
+                <input
+                  type="text"
+                  placeholder="Har qanday narsani qidirish..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className={style.searchInput}
+                />
+                <button type="submit" className={style.searchButton}>
+                  <FaSearch size={16} />
+                </button>
+              </div>
+            </form>
+          </div>
+
+          {/* Right Side - User Actions */}
+          <div className={style.userActions}>
+            {!isAuthenticated ? (
+              <Link href="/login" className={style.signInLink}>
+                Kirish
+              </Link>
+            ) : (
+              <div className={style.userMenu}>
+                <DropDown />
+              </div>
+            )}
+
+            <Link href="/favorites" className={style.iconLink} title="Sevimlilar">
+              <FaRegHeart size={20} />
             </Link>
 
-            <Link
-              href={token && isAuthenticated ? isMenuOpen ? "/Profile?tab=Объявления" : "" : "/login"}
-              onClick={closeMenu}
-            >
-              <div className={style.navItem}>
-                {!isMenuOpen ?
-                  <DropDown />
-                  :
-                  <>
-                    <FaRegUser size={18} />
-                    <span>Ваш профиль</span>
-                  </>
-                }
+            <Link href="/gifts" className={style.iconLink} title="Sovg'alar">
+              <FaGift size={20} />
+            </Link>
+
+            <Link href="/cart" className={style.iconLink} title="Savatcha">
+              <div className={style.cartContainer}>
+                <FaShoppingCart size={20} />
+                {cartCount > 0 && (
+                  <span className={style.cartBadge}>{cartCount}</span>
+                )}
               </div>
             </Link>
           </div>
 
-          <div className={style.buttonWrapper}>
-            <Link
-              href={token && isAuthenticated ? "/CreateProduct" : "/login"}
-              onClick={closeMenu}
-            >
-              <Button variant="secondary">Добавить объявление</Button>
-            </Link>
+          {/* Mobile Menu Button */}
+          <button
+            className={style.mobileMenuButton}
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            aria-label="Menu"
+          >
+            {isMenuOpen ? <FaTimes size={24} /> : <FaBars size={24} />}
+          </button>
+        </div>
+      </nav>
+
+
+
+      {/* Mobile Menu Overlay */}
+      {isMenuOpen && (
+        <div className={style.mobileMenuOverlay} onClick={closeMenu}>
+          <div className={style.mobileMenu} onClick={(e) => e.stopPropagation()}>
+            <div className={style.mobileMenuHeader}>
+              <h3>Menu</h3>
+              <button onClick={closeMenu} className={style.closeButton}>
+                <FaTimes size={20} />
+              </button>
+            </div>
+            
+            <div className={style.mobileMenuContent}>
+              <div className={style.mobileSearch}>
+                <input
+                  type="text"
+                  placeholder="Qidirish..."
+                  className={style.mobileSearchInput}
+                />
+                <button className={style.mobileSearchButton}>
+                  <FaSearch size={16} />
+                </button>
+              </div>
+
+              <div className={style.mobileCategories}>
+                <h4>Kategoriyalar</h4>
+                <Link href="/category/clothing" className={style.mobileCategoryLink}>
+                  👕 Kiyim-kechak
+                </Link>
+                <Link href="/category/toys" className={style.mobileCategoryLink}>
+                  🧸 Oyinchoqlar
+                </Link>
+                <Link href="/category/books" className={style.mobileCategoryLink}>
+                  📚 Kitoblar
+                </Link>
+                <Link href="/category/sports" className={style.mobileCategoryLink}>
+                  ⚽ Sport
+                </Link>
+                <Link href="/category/school" className={style.mobileCategoryLink}>
+                  🎒 Maktab
+                </Link>
+                <Link href="/category/baby" className={style.mobileCategoryLink}>
+                  🍼 Chaqaloq
+                </Link>
+                <Link href="/category/electronics" className={style.mobileCategoryLink}>
+                  📱 Elektronika
+                </Link>
+                <Link href="/category/health" className={style.mobileCategoryLink}>
+                  🏥 Sog'lik
+                </Link>
+              </div>
+
+              <div className={style.mobileActions}>
+                {!isAuthenticated ? (
+                  <Link href="/login" className={style.mobileActionLink}>
+                    <FaRegUserCircle size={20} />
+                    Kirish
+                  </Link>
+                ) : (
+                  <>
+                    <Link href="/profile" className={style.mobileActionLink}>
+                      <FaRegUser size={20} />
+                      Profil
+                    </Link>
+                    <Link href="/favorites" className={style.mobileActionLink}>
+                      <FaRegHeart size={20} />
+                      Sevimlilar
+                    </Link>
+                                         <Link href="/cart" className={style.mobileActionLink}>
+                       <FaShoppingCart size={20} />
+                       Savatcha ({cartCount})
+                     </Link>
+                  </>
+                )}
+              </div>
+            </div>
           </div>
         </div>
-
-        {isMenuOpen && <div className={style.overlay} onClick={closeMenu} />}
-      </div>
-    </nav>
+      )}
+    </>
   );
 };
 

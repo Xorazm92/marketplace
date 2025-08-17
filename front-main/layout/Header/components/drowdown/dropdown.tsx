@@ -5,11 +5,8 @@ import { MdOutlineLogout } from "react-icons/md";
 import { useRouter } from "next/navigation"
 import { useState } from "react"
 import styles from "./dropdown.module.scss"
-// import { useSelector } from "react-redux";
-// import { useGetMe } from "@/hooks/auth";
-// import { RootState } from "@/store/store";
 
-export function DropDown() {
+export default function DropDown() {
   const router = useRouter()
   const [isOpen, setIsOpen] = useState(false)
 
@@ -27,7 +24,6 @@ export function DropDown() {
   const closeDropdown = () => {
     setIsOpen(false)
   }
-// console.log(me);
 
   return (
     <div className={styles.dropdown}>
@@ -36,39 +32,34 @@ export function DropDown() {
         onClick={toggleDropdown}
         onBlur={() => setTimeout(closeDropdown, 150)}
       >
-          <FaRegUser size={18} />
-          <span>Ваш профиль</span>
-          <FaChevronDown size={12} />
+        <FaRegUser size={18} />
+        <span>Profil</span>
+        <FaChevronDown size={12} />
       </button>
 
       {isOpen && (
         <div className={styles.content}>
-          <div className={styles.separator}></div>
-
-          <div className={styles.group}>
-            <div className={styles.menuItem} onClick={
-              ()=>{
-                router.push("/Profile?tab=Объявления")
-              }
-            }>
-              <FaRegUser className={styles.icon} />
-              <span>Profile</span>
-            </div>
-            <div className={styles.menuItem} onClick={
-              ()=>{
-                router.push("/Profile?tab=Настройки")
-              }
-            }>
-              <IoSettingsSharp className={styles.icon} />
-              <span>Settings</span>
-            </div>
+          <div className={styles.menuItem} onClick={() => {
+            router.push("/Profile?tab=Объявления")
+            closeDropdown()
+          }}>
+            <FaRegUser className={styles.icon} />
+            <span>Profil</span>
+          </div>
+          
+          <div className={styles.menuItem} onClick={() => {
+            router.push("/Profile?tab=Настройки")
+            closeDropdown()
+          }}>
+            <IoSettingsSharp className={styles.icon} />
+            <span>Sozlamalar</span>
           </div>
 
           <div className={styles.separator}></div>
 
           <div className={styles.menuItem} onClick={handleLogout}>
             <MdOutlineLogout className={styles.icon} />
-            <span>Log out</span>
+            <span>Chiqish</span>
           </div>
         </div>
       )}

@@ -194,11 +194,7 @@ const Layout: React.FC<LayoutProps> = ({
         <ApiStatusIndicator />
 
         {/* Navigation */}
-        {!isAuthRoute && (
-          <header className={styles.header}>
-            <Navbar />
-          </header>
-        )}
+        {!isAuthRoute && <Navbar />}
 
         {/* Main Content */}
         <main className={`${styles.main} ${isAuthRoute ? styles.authMain : ''}`}>
