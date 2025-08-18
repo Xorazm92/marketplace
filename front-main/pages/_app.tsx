@@ -7,13 +7,32 @@ import MainLayout from "../layout";
 import { ReduxProvider } from "../store/provider";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/apolloClient";
+import { useEffect, useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  const queryClient = new QueryClient();
+  const [queryClient] = useState(() => new QueryClient({
+    defaultOptions: {
+      queries: {
+        retry: 1,
+        refetchOnWindowFocus: false,
+      },
+    },
+  }));
+  
   const router = useRouter();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const noLayoutPages = ["/sign-up", "/login", "/forgot-password", "/admin"];
   const shouldShowLayout = !noLayoutPages.includes(router.pathname);
+
+  // Prevent hydration issues
+  if (!mounted) {
+    return null;
+  }
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -26,7 +45,17 @@ export default function App({ Component, pageProps }: AppProps) {
             ) : (
               <Component {...pageProps} />
             )}
-            <ToastContainer />
+            <ToastContainer 
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
         </ReduxProvider>
       </ApolloProvider>
     </QueryClientProvider>

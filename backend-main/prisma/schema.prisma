@@ -53,8 +53,178 @@ model User {
   chatrooms            Chatroom[]      @relation("ChatroomUsers")
   product_views        ProductView[]
   search_queries       SearchQuery[]
+  child_profiles       ChildProfile[]
+  parental_controls    ParentalControl[]
+  recommendations      ProductRecommendationEngine[]
 
   @@map("user")
+}
+
+// Bolalar profillari
+model ChildProfile {
+  id           Int      @id @default(autoincrement())
+  parent_id    Int
+  name         String
+  birth_date   DateTime
+  gender       String?
+  interests    Json?    // qiziqishlari
+  allergies    Json?    // allergiyalar
+  avatar       String?
+  is_active    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  parent       User     @relation(fields: [parent_id], references: [id], onDelete: Cascade)
+  parental_controls ParentalControl[]
+  recommendations    ProductRecommendationEngine[]
+
+  @@map("child_profile")
+}
+
+// Yosh kategoriyalari
+model AgeGroup {
+  id          Int       @id @default(autoincrement())
+  name        String    // "0-6 oy", "6-12 oy", "1-2 yosh"
+  min_age     Int       // oylar hisobida
+  max_age     Int?      // null = yuqori chegara yo'q
+  description String?
+  icon        String?
+  color       String?
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  products    Product[]
+
+  @@map("age_group")
+}
+
+// Xavfsizlik sertifikatlari
+model SafetyCertification {
+  id              Int      @id @default(autoincrement())
+  name            String   // "CE", "CPSIA", "ASTM"
+  code            String   @unique
+  description     String?
+  required_for_age String? // qaysi yosh uchun majburiy
+  logo            String?
+  is_active       Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  product_certifications ProductSafetyCertification[]
+
+  @@map("safety_certification")
+}
+
+// Mahsulot xavfsizlik sertifikatlari
+model ProductSafetyCertification {
+  id                    Int                @id @default(autoincrement())
+  product_id            Int
+  certification_id      Int
+  certificate_number    String?
+  issued_date           DateTime?
+  expiry_date           DateTime?
+  is_verified           Boolean            @default(false)
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+
+  product               Product            @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  certification         SafetyCertification @relation(fields: [certification_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, certification_id])
+  @@map("product_safety_certification")
+}
+
+// Ota-ona nazorati
+model ParentalControl {
+  id                  Int     @id @default(autoincrement())
+  user_id             Int
+  child_profile_id    Int
+  spending_limit      Decimal?
+  daily_spending_limit Decimal?
+  allowed_categories  Json?   // ruxsat etilgan kategoriyalar
+  blocked_categories  Json?   // bloklangan kategoriyalar
+  time_restrictions   Json?   // vaqt cheklovlari
+  is_active           Boolean @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  user                User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  child_profile       ChildProfile @relation(fields: [child_profile_id], references: [id], onDelete: Cascade)
+
+  @@unique([user_id, child_profile_id])
+  @@map("parental_control")
+}
+
+// To'y va tadbir mahsulotlari
+model EventType {
+  id          Int       @id @default(autoincrement())
+  name        String    // "Tug'ilgan kun", "Yangi yil"
+  description String?
+  icon        String?
+  color       String?
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  products    Product[]
+
+  @@map("event_type")
+}
+
+// Ta'lim kategoriyalari
+model EducationalCategory {
+  id          Int       @id @default(autoincrement())
+  name        String    // "STEM", "San'at", "Til o'rganish"
+  description String?
+  icon        String?
+  color       String?
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  
+  products    Product[]
+
+  @@map("educational_category")
+}
+
+// Sovg'a o'rash xizmatlari
+model GiftWrap {
+  id          Int       @id @default(autoincrement())
+  name        String
+  description String?
+  price       Decimal
+  image_url   String?
+  for_age     String?   // qaysi yosh uchun mos
+  for_gender  String?   // qaysi jins uchun mos
+  is_active   Boolean   @default(true)
+  sort_order  Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  @@map("gift_wrap")
+}
+
+// Mahsulot tavsiya tizimi
+model ProductRecommendationEngine {
+  id                    Int      @id @default(autoincrement())
+  user_id               Int
+  child_profile_id      Int?
+  child_age             Int?     // oylar hisobida
+  preferences           Json     // qiziqishlar, o'yin turi
+  recommended_products  Json     // tavsiya etilgan mahsulotlar ID'lari
+  recommendation_score  Decimal  @default(0)
+  is_active             Boolean  @default(true)
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  user                  User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  child_profile         ChildProfile? @relation(fields: [child_profile_id], references: [id], onDelete: SetNull)
+
+  @@map("product_recommendation_engine")
 }
 
 model Region {
@@ -132,8 +302,11 @@ model Color {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   code      String?
+  hex       String?  // Hex color code
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  product_colors ProductColor[]
 
   @@map("color")
 }
@@ -282,8 +455,25 @@ model Product {
   assembly_required     Boolean        @default(false)
   battery_required      Boolean        @default(false)
   choking_hazard        Boolean        @default(false)
+  
+  // Bolalar uchun qo'shimcha maydonlar
+  age_group_id          Int?
+  educational_category_id Int?
+  event_type_id         Int?
+  difficulty_level      String?       // "Oson", "O'rta", "Qiyin"
+  play_time            String?       // "15-30 daqiqa"
+  player_count         String?       // "1-4 kishi"
+  learning_objectives  Json?         // o'quv maqsadlari
+  developmental_skills Json?         // rivojlanish ko'nikmalari
+  parental_guidance    Boolean @default(false)
+  multilingual_support Json?         // qo'llab-quvvatlanadigan tillar
+  recommended_age_min  Int?          // tavsiya etilgan minimal yosh (oy)
+  recommended_age_max  Int?          // tavsiya etilgan maksimal yosh (oy)
+  gender_specific      String?       // "Erkak", "Ayol", "Umumiy"
+  
   createdAt             DateTime       @default(now())
   updatedAt             DateTime       @updatedAt
+  
   cart_items       CartItem[]
   inventory               Inventory?
   order_items             OrderItem[]
@@ -298,10 +488,17 @@ model Product {
   variants                ProductVariant[]
   collection_items        ProductCollectionItem[]
   attribute_values        ProductAttributeValue[]
+  product_colors          ProductColor[]
   recommendations         ProductRecommendation[]   @relation("ProductRecommendations")
   recommended_by          ProductRecommendation[]   @relation("RecommendedProducts")
   views                   ProductView[]
   search_clicks           SearchQuery[]
+  
+  // Yangi munosabatlar
+  age_group              AgeGroup?                 @relation(fields: [age_group_id], references: [id])
+  educational_category   EducationalCategory?      @relation(fields: [educational_category_id], references: [id])
+  event_type             EventType?                @relation(fields: [event_type_id], references: [id])
+  safety_certifications  ProductSafetyCertification[]
 
   @@map("product")
 }
@@ -669,6 +866,20 @@ model ProductAttributeValue {
 
   @@unique([product_id, attribute_id])
   @@map("product_attribute_values")
+}
+
+model ProductColor {
+  id         Int      @id @default(autoincrement())
+  product_id Int
+  color_id   Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  color      Color    @relation(fields: [color_id], references: [id], onDelete: Cascade)
+
+  @@unique([product_id, color_id])
+  @@map("product_colors")
 }
 
 model ProductRecommendation {

@@ -24,7 +24,13 @@
     "db:generate": "npx prisma generate",
     "db:migrate": "npx prisma migrate dev",
     "db:push": "npx prisma db push",
-    "db:studio": "npx prisma studio"
+    "db:studio": "npx prisma studio",
+    "images:optimize": "node scripts/optimize-images.js optimize",
+    "images:manifest": "node scripts/optimize-images.js manifest",
+    "images:product": "node scripts/optimize-images.js product",
+    "data:import": "node scripts/import-products.js import",
+    "data:clear": "node scripts/import-products.js clear",
+    "data:reset": "node scripts/import-products.js reset"
   },
   "dependencies": {
     "@apollo/server": "^4.12.2",
@@ -40,6 +46,7 @@
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/serve-static": "^5.0.3",
     "@nestjs/swagger": "^11.2.0",
+    "@nestjs/throttler": "^6.4.0",
     "@prisma/client": "^6.8.2",
     "@sentry/node": "^9.38.0",
     "@types/twilio": "^3.19.2",

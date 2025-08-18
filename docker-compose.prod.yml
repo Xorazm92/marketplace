@@ -5,29 +5,28 @@ services:
   postgres:
     image: postgres:15-alpine
     container_name: inbola_postgres
-    restart: unless-stopped
     environment:
-      POSTGRES_DB: inbola_db
-      POSTGRES_USER: inbola_user
+      POSTGRES_DB: inbola_marketplace
+      POSTGRES_USER: postgres
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./backend-main/init.sql:/docker-entrypoint-initdb.d/init.sql
     ports:
       - "5432:5432"
     networks:
       - inbola_network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U inbola_user -d inbola_db"]
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 30s
       timeout: 10s
       retries: 3
 
-  # Redis for caching
+  # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: inbola_redis
-    restart: unless-stopped
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD}
     volumes:
       - redis_data:/data
@@ -35,6 +34,7 @@ services:
       - "6379:6379"
     networks:
       - inbola_network
+    restart: unless-stopped
     healthcheck:
       test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
       interval: 30s
@@ -46,29 +46,37 @@ services:
     build:
       context: ./backend-main
       dockerfile: Dockerfile
+      target: production
     container_name: inbola_backend
-    restart: unless-stopped
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://inbola_user:${POSTGRES_PASSWORD}@postgres:5432/inbola_db
+      DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD}@postgres:5432/inbola_marketplace
       REDIS_URL: redis://:${REDIS_PASSWORD}@redis:6379
-      ACCESS_TOKEN_KEY: ${ACCESS_TOKEN_KEY}
-      REFRESH_TOKEN_KEY: ${REFRESH_TOKEN_KEY}
-      SMS_TOKEN: ${SMS_TOKEN}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET}
+      PORT: 3001
       FRONTEND_URL: ${FRONTEND_URL}
-    volumes:
-      - backend_uploads:/app/public/uploads
+      SMTP_HOST: ${SMTP_HOST}
+      SMTP_PORT: ${SMTP_PORT}
+      SMTP_USER: ${SMTP_USER}
+      SMTP_PASS: ${SMTP_PASS}
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID}
+      TWILIO_AUTH_TOKEN: ${TWILIO_AUTH_TOKEN}
+      SENTRY_DSN: ${SENTRY_DSN}
     ports:
       - "3001:3001"
+    volumes:
+      - ./backend-main/uploads:/app/uploads
+    networks:
+      - inbola_network
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
-    networks:
-      - inbola_network
+    restart: unless-stopped
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3001/health"]
+      test: ["CMD", "curl", "-f", "http://localhost:3001/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -78,42 +86,83 @@ services:
     build:
       context: ./front-main
       dockerfile: Dockerfile
+      target: production
     container_name: inbola_frontend
-    restart: unless-stopped
     environment:
       NODE_ENV: production
-      NEXT_PUBLIC_BASE_URL: ${NEXT_PUBLIC_BASE_URL}
       NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+      NEXT_PUBLIC_GRAPHQL_ENDPOINT: ${NEXT_PUBLIC_GRAPHQL_ENDPOINT}
     ports:
       - "3000:3000"
-    depends_on:
-      backend:
-        condition: service_healthy
     networks:
       - inbola_network
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
 
   # Nginx Reverse Proxy
   nginx:
     image: nginx:alpine
     container_name: inbola_nginx
-    restart: unless-stopped
     ports:
       - "80:80"
       - "443:443"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-      - ./ssl:/etc/nginx/ssl
-      - backend_uploads:/var/www/uploads
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/ssl:/etc/nginx/ssl
+      - ./nginx/logs:/var/log/nginx
+    networks:
+      - inbola_network
     depends_on:
       - frontend
       - backend
+    restart: unless-stopped
+
+  # Monitoring - Prometheus
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: inbola_prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
     networks:
       - inbola_network
+    restart: unless-stopped
+
+  # Monitoring - Grafana
+  grafana:
+    image: grafana/grafana:latest
+    container_name: inbola_grafana
+    environment:
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_PASSWORD}
+    ports:
+      - "3002:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana/dashboards:/etc/grafana/provisioning/dashboards
+      - ./monitoring/grafana/datasources:/etc/grafana/provisioning/datasources
+    networks:
+      - inbola_network
+    depends_on:
+      - prometheus
+    restart: unless-stopped
 
 volumes:
   postgres_data:
+    driver: local
   redis_data:
-  backend_uploads:
+    driver: local
+  prometheus_data:
+    driver: local
+  grafana_data:
+    driver: local
 
 networks:
   inbola_network:

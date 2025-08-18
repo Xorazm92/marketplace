@@ -1,0 +1,752 @@
+{
+  "products": [
+    {
+      "id": 1,
+      "name": "Lego Classic Creative Bricks",
+      "description": "Bolalar uchun klassik Lego to'plami. 790 dona turli rangdagi bloklar bilan ijodkorlikni rivojlantiring.",
+      "price": 450000,
+      "originalPrice": 520000,
+      "discount": 13,
+      "category": "O'yinchoqlar",
+      "subcategory": "Konstruktorlar",
+      "brand": "Lego",
+      "ageGroup": "6-12 yosh",
+      "ageGroupId": 4,
+      "educationalCategory": "STEM",
+      "educationalCategoryId": 1,
+      "eventType": "Tug'ilgan kun",
+      "eventTypeId": 1,
+      "difficultyLevel": "O'rta",
+      "playTime": "30-60 daqiqa",
+      "playerCount": "1-4 kishi",
+      "learningObjectives": [
+        "Mantiqiy fikrlash",
+        "Ko'z-qo'l muvofiqlik",
+        "Ijodkorlik",
+        "Muammoni hal qilish"
+      ],
+      "developmentalSkills": [
+        "Fine motor skills",
+        "Spatial awareness",
+        "Problem solving",
+        "Creativity"
+      ],
+      "parentalGuidance": false,
+      "multilingualSupport": ["O'zbek", "Rus", "Ingliz"],
+      "recommendedAgeMin": 6,
+      "recommendedAgeMax": 12,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE", "EN71"],
+        "warnings": ["3 yoshdan kichik bolalar uchun xavfli"]
+      },
+      "images": [
+        "/images/products/lego-classic-1.jpg",
+        "/images/products/lego-classic-2.jpg",
+        "/images/products/lego-classic-3.jpg"
+      ],
+      "mainImage": "/images/products/lego-classic-main.jpg",
+      "stock": 25,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.8,
+      "reviewCount": 156,
+      "tags": ["lego", "konstruktor", "ijodkorlik", "mantiq"],
+      "createdAt": "2024-01-15T10:00:00Z",
+      "updatedAt": "2024-01-20T14:30:00Z"
+    },
+    {
+      "id": 2,
+      "name": "Fisher-Price Chaqaloq O'yinchoqlari To'plami",
+      "description": "0-6 oylik chaqaloklar uchun maxsus dizayn qilingan o'yinchoqlar to'plami. Rivojlanish uchun muhim.",
+      "price": 180000,
+      "originalPrice": 220000,
+      "discount": 18,
+      "category": "O'yinchoqlar",
+      "subcategory": "Chaqaloq o'yinchoqlari",
+      "brand": "Fisher-Price",
+      "ageGroup": "0-6 oy",
+      "ageGroupId": 1,
+      "educationalCategory": "Sensorli rivojlanish",
+      "educationalCategoryId": 2,
+      "eventType": null,
+      "eventTypeId": null,
+      "difficultyLevel": "Oson",
+      "playTime": "15-30 daqiqa",
+      "playerCount": "1 kishi",
+      "learningObjectives": [
+        "Ko'rish qobiliyati",
+        "Eshitish qobiliyati",
+        "Tutish ko'nikmasi",
+        "Sensorli tajriba"
+      ],
+      "developmentalSkills": [
+        "Visual tracking",
+        "Auditory processing",
+        "Grasping",
+        "Sensory exploration"
+      ],
+      "parentalGuidance": true,
+      "multilingualSupport": ["O'zbek"],
+      "recommendedAgeMin": 0,
+      "recommendedAgeMax": 6,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE", "CPSIA", "ASTM"],
+        "warnings": ["Ota-ona nazorati ostida o'ynatish"]
+      },
+      "images": [
+        "/images/products/fisher-price-baby-1.jpg",
+        "/images/products/fisher-price-baby-2.jpg"
+      ],
+      "mainImage": "/images/products/fisher-price-baby-main.jpg",
+      "stock": 40,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.9,
+      "reviewCount": 89,
+      "tags": ["chaqaloq", "sensorli", "rivojlanish", "xavfsiz"],
+      "createdAt": "2024-01-10T09:00:00Z",
+      "updatedAt": "2024-01-18T16:45:00Z"
+    },
+    {
+      "id": 3,
+      "name": "Nike Kids Air Max 270",
+      "description": "Bolalar uchun qulay va zamonaviy sport krossovkalari. Kundalik yurish va sport uchun ideal.",
+      "price": 850000,
+      "originalPrice": 950000,
+      "discount": 11,
+      "category": "Kiyim",
+      "subcategory": "Oyoq kiyim",
+      "brand": "Nike",
+      "ageGroup": "6-12 yosh",
+      "ageGroupId": 4,
+      "educationalCategory": "Jismoniy rivojlanish",
+      "educationalCategoryId": 3,
+      "eventType": "Sport",
+      "eventTypeId": 2,
+      "difficultyLevel": "Oson",
+      "playTime": "Kundalik",
+      "playerCount": "1 kishi",
+      "learningObjectives": [
+        "Jismoniy faollik",
+        "Muvozanat",
+        "Koordinatsiya"
+      ],
+      "developmentalSkills": [
+        "Balance",
+        "Coordination",
+        "Physical fitness",
+        "Motor skills"
+      ],
+      "parentalGuidance": false,
+      "multilingualSupport": ["O'zbek", "Ingliz"],
+      "recommendedAgeMin": 6,
+      "recommendedAgeMax": 12,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE"],
+        "warnings": ["To'g'ri o'lchamda sotib oling"]
+      },
+      "images": [
+        "/images/products/nike-kids-1.jpg",
+        "/images/products/nike-kids-2.jpg",
+        "/images/products/nike-kids-3.jpg"
+      ],
+      "mainImage": "/images/products/nike-kids-main.jpg",
+      "stock": 15,
+      "isActive": true,
+      "isFeatured": false,
+      "rating": 4.7,
+      "reviewCount": 203,
+      "tags": ["sport", "krossovka", "nike", "qulay"],
+      "createdAt": "2024-01-12T11:30:00Z",
+      "updatedAt": "2024-01-19T10:15:00Z"
+    },
+    {
+      "id": 4,
+      "name": "O'zbekcha Bolalar Kitoblari To'plami",
+      "description": "O'zbek tilida yozilgan 10 ta chiroyli kitob to'plami. Bolalar uchun o'qish va tushunish oson.",
+      "price": 120000,
+      "originalPrice": 150000,
+      "discount": 20,
+      "category": "Kitoblar",
+      "subcategory": "Bolalar adabiyoti",
+      "brand": "O'zbekiston",
+      "ageGroup": "3-6 yosh",
+      "ageGroupId": 3,
+      "educationalCategory": "Til o'rganish",
+      "educationalCategoryId": 4,
+      "eventType": "Ta'lim",
+      "eventTypeId": 3,
+      "difficultyLevel": "Oson",
+      "playTime": "15-45 daqiqa",
+      "playerCount": "1-2 kishi",
+      "learningObjectives": [
+        "O'qish ko'nikmasi",
+        "Tushunish qobiliyati",
+        "Til boyligi",
+        "Tasavvur kuchi"
+      ],
+      "developmentalSkills": [
+        "Reading comprehension",
+        "Language development",
+        "Imagination",
+        "Cognitive skills"
+      ],
+      "parentalGuidance": true,
+      "multilingualSupport": ["O'zbek"],
+      "recommendedAgeMin": 3,
+      "recommendedAgeMax": 6,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE"],
+        "warnings": ["Kichik qismlar bor, ehtiyot bo'ling"]
+      },
+      "images": [
+        "/images/products/uzbek-books-1.jpg",
+        "/images/products/uzbek-books-2.jpg"
+      ],
+      "mainImage": "/images/products/uzbek-books-main.jpg",
+      "stock": 30,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.6,
+      "reviewCount": 67,
+      "tags": ["kitob", "o'zbekcha", "o'qish", "ta'lim"],
+      "createdAt": "2024-01-08T08:00:00Z",
+      "updatedAt": "2024-01-16T13:20:00Z"
+    },
+    {
+      "id": 5,
+      "name": "Hot Wheels Mashinalar To'plami",
+      "description": "10 ta turli xil Hot Wheels mashinalari to'plami. Bolalar uchun qiziqarli o'yin imkoniyati.",
+      "price": 280000,
+      "originalPrice": 320000,
+      "discount": 13,
+      "category": "O'yinchoqlar",
+      "subcategory": "Mashina o'yinchoqlari",
+      "brand": "Hot Wheels",
+      "ageGroup": "3-8 yosh",
+      "ageGroupId": 3,
+      "educationalCategory": "O'yin va ijtimoiylashish",
+      "educationalCategoryId": 5,
+      "eventType": "Tug'ilgan kun",
+      "eventTypeId": 1,
+      "difficultyLevel": "Oson",
+      "playTime": "20-40 daqiqa",
+      "playerCount": "1-3 kishi",
+      "learningObjectives": [
+        "Koordinatsiya",
+        "Ijtimoiy o'yin",
+        "Tasavvur kuchi"
+      ],
+      "developmentalSkills": [
+        "Hand-eye coordination",
+        "Social play",
+        "Imagination",
+        "Fine motor skills"
+      ],
+      "parentalGuidance": false,
+      "multilingualSupport": ["O'zbek", "Ingliz"],
+      "recommendedAgeMin": 3,
+      "recommendedAgeMax": 8,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": true,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE", "EN71"],
+        "warnings": ["3 yoshdan kichik bolalar uchun xavfli"]
+      },
+      "images": [
+        "/images/products/hot-wheels-1.jpg",
+        "/images/products/hot-wheels-2.jpg",
+        "/images/products/hot-wheels-3.jpg"
+      ],
+      "mainImage": "/images/products/hot-wheels-main.jpg",
+      "stock": 20,
+      "isActive": true,
+      "isFeatured": false,
+      "rating": 4.5,
+      "reviewCount": 134,
+      "tags": ["mashina", "hot wheels", "o'yin", "qiziqarli"],
+      "createdAt": "2024-01-14T12:00:00Z",
+      "updatedAt": "2024-01-21T09:30:00Z"
+    },
+    {
+      "id": 6,
+      "name": "Barbie Oshxonasi O'yinchoq To'plami",
+      "description": "Barbie uchun to'liq jihozlangan oshxona to'plami. Qizlar uchun ijodkorlik o'yini.",
+      "price": 350000,
+      "originalPrice": 420000,
+      "discount": 17,
+      "category": "O'yinchoqlar",
+      "subcategory": "Uy o'yinchoqlari",
+      "brand": "Barbie",
+      "ageGroup": "4-10 yosh",
+      "ageGroupId": 3,
+      "educationalCategory": "Ijtimoiy o'yin",
+      "educationalCategoryId": 5,
+      "eventType": "Tug'ilgan kun",
+      "eventTypeId": 1,
+      "difficultyLevel": "Oson",
+      "playTime": "30-60 daqiqa",
+      "playerCount": "1-2 kishi",
+      "learningObjectives": [
+        "Ijtimoiy o'yin",
+        "Ijodkorlik",
+        "Hayotiy ko'nikmalar"
+      ],
+      "developmentalSkills": [
+        "Social skills",
+        "Creativity",
+        "Life skills",
+        "Role playing"
+      ],
+      "parentalGuidance": false,
+      "multilingualSupport": ["O'zbek", "Ingliz"],
+      "recommendedAgeMin": 4,
+      "recommendedAgeMax": 10,
+      "genderSpecific": "Qizlar",
+      "safetyInfo": {
+        "chokingHazard": true,
+        "assemblyRequired": true,
+        "batteryRequired": false,
+        "certifications": ["CE", "EN71"],
+        "warnings": ["Kichik qismlar bor, ehtiyot bo'ling"]
+      },
+      "images": [
+        "/images/products/barbie-kitchen-1.jpg",
+        "/images/products/barbie-kitchen-2.jpg",
+        "/images/products/barbie-kitchen-3.jpg"
+      ],
+      "mainImage": "/images/products/barbie-kitchen-main.jpg",
+      "stock": 12,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.4,
+      "reviewCount": 78,
+      "tags": ["barbie", "oshxona", "qizlar", "ijodkorlik"],
+      "createdAt": "2024-01-11T10:30:00Z",
+      "updatedAt": "2024-01-17T15:45:00Z"
+    },
+    {
+      "id": 7,
+      "name": "Samsung Kids Tablet",
+      "description": "Bolalar uchun maxsus dizayn qilingan Samsung tablet. Ta'lim va o'yin uchun xavfsiz platforma.",
+      "price": 2500000,
+      "originalPrice": 2800000,
+      "discount": 11,
+      "category": "Elektronika",
+      "subcategory": "Planchetlar",
+      "brand": "Samsung",
+      "ageGroup": "6-12 yosh",
+      "ageGroupId": 4,
+      "educationalCategory": "Raqamli ta'lim",
+      "educationalCategoryId": 6,
+      "eventType": "Ta'lim",
+      "eventTypeId": 3,
+      "difficultyLevel": "O'rta",
+      "playTime": "60-120 daqiqa",
+      "playerCount": "1 kishi",
+      "learningObjectives": [
+        "Raqamli ko'nikmalar",
+        "Ta'lim dasturlari",
+        "Mantiqiy fikrlash"
+      ],
+      "developmentalSkills": [
+        "Digital literacy",
+        "Problem solving",
+        "Hand-eye coordination",
+        "Cognitive development"
+      ],
+      "parentalGuidance": true,
+      "multilingualSupport": ["O'zbek", "Rus", "Ingliz"],
+      "recommendedAgeMin": 6,
+      "recommendedAgeMax": 12,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": true,
+        "certifications": ["CE", "FCC"],
+        "warnings": ["Ota-ona nazorati talab qilinadi"]
+      },
+      "images": [
+        "/images/products/samsung-kids-tablet-1.jpg",
+        "/images/products/samsung-kids-tablet-2.jpg"
+      ],
+      "mainImage": "/images/products/samsung-kids-tablet-main.jpg",
+      "stock": 8,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.3,
+      "reviewCount": 45,
+      "tags": ["tablet", "samsung", "ta'lim", "xavfsiz"],
+      "createdAt": "2024-01-13T14:00:00Z",
+      "updatedAt": "2024-01-20T11:20:00Z"
+    },
+    {
+      "id": 8,
+      "name": "Adidas Kids Sport Kiyim To'plami",
+      "description": "Bolalar uchun qulay va chiroyli sport kiyim to'plami. Kundalik va sport uchun ideal.",
+      "price": 320000,
+      "originalPrice": 380000,
+      "discount": 16,
+      "category": "Kiyim",
+      "subcategory": "Sport kiyim",
+      "brand": "Adidas",
+      "ageGroup": "4-10 yosh",
+      "ageGroupId": 3,
+      "educationalCategory": "Jismoniy rivojlanish",
+      "educationalCategoryId": 3,
+      "eventType": "Sport",
+      "eventTypeId": 2,
+      "difficultyLevel": "Oson",
+      "playTime": "Kundalik",
+      "playerCount": "1 kishi",
+      "learningObjectives": [
+        "Jismoniy faollik",
+        "Sport ko'nikmalari"
+      ],
+      "developmentalSkills": [
+        "Physical fitness",
+        "Motor skills",
+        "Coordination",
+        "Endurance"
+      ],
+      "parentalGuidance": false,
+      "multilingualSupport": ["O'zbek", "Ingliz"],
+      "recommendedAgeMin": 4,
+      "recommendedAgeMax": 10,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE"],
+        "warnings": ["To'g'ri o'lchamda sotib oling"]
+      },
+      "images": [
+        "/images/products/adidas-kids-sport-1.jpg",
+        "/images/products/adidas-kids-sport-2.jpg"
+      ],
+      "mainImage": "/images/products/adidas-kids-sport-main.jpg",
+      "stock": 35,
+      "isActive": true,
+      "isFeatured": false,
+      "rating": 4.6,
+      "reviewCount": 112,
+      "tags": ["sport", "adidas", "kiyim", "qulay"],
+      "createdAt": "2024-01-09T09:30:00Z",
+      "updatedAt": "2024-01-18T14:15:00Z"
+    },
+    {
+      "id": 9,
+      "name": "O'zbekcha Matematika Darsligi",
+      "description": "Boshlang'ich maktab o'quvchilari uchun o'zbek tilida matematika darsligi. Tushunarli va qiziqarli.",
+      "price": 85000,
+      "originalPrice": 100000,
+      "discount": 15,
+      "category": "Kitoblar",
+      "subcategory": "Darsliklar",
+      "brand": "O'zbekiston",
+      "ageGroup": "7-10 yosh",
+      "ageGroupId": 4,
+      "educationalCategory": "Matematika",
+      "educationalCategoryId": 7,
+      "eventType": "Ta'lim",
+      "eventTypeId": 3,
+      "difficultyLevel": "O'rta",
+      "playTime": "45-90 daqiqa",
+      "playerCount": "1 kishi",
+      "learningObjectives": [
+        "Matematik fikrlash",
+        "Hisoblash ko'nikmalari",
+        "Mantiqiy fikrlash"
+      ],
+      "developmentalSkills": [
+        "Mathematical thinking",
+        "Problem solving",
+        "Logical reasoning",
+        "Analytical skills"
+      ],
+      "parentalGuidance": true,
+      "multilingualSupport": ["O'zbek"],
+      "recommendedAgeMin": 7,
+      "recommendedAgeMax": 10,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": false,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE"],
+        "warnings": []
+      },
+      "images": [
+        "/images/products/uzbek-math-book-1.jpg"
+      ],
+      "mainImage": "/images/products/uzbek-math-book-main.jpg",
+      "stock": 50,
+      "isActive": true,
+      "isFeatured": false,
+      "rating": 4.7,
+      "reviewCount": 89,
+      "tags": ["matematika", "darslik", "o'zbekcha", "ta'lim"],
+      "createdAt": "2024-01-07T07:00:00Z",
+      "updatedAt": "2024-01-15T12:30:00Z"
+    },
+    {
+      "id": 10,
+      "name": "Play-Doh O'yinchoq To'plami",
+      "description": "Bolalar uchun xavfsiz va rangli Play-Doh to'plami. Ijodkorlik va ko'z-qo'l muvofiqlikni rivojlantiring.",
+      "price": 220000,
+      "originalPrice": 260000,
+      "discount": 15,
+      "category": "O'yinchoqlar",
+      "subcategory": "Ijodkorlik o'yinchoqlari",
+      "brand": "Play-Doh",
+      "ageGroup": "3-8 yosh",
+      "ageGroupId": 3,
+      "educationalCategory": "San'at va ijodkorlik",
+      "educationalCategoryId": 8,
+      "eventType": "Tug'ilgan kun",
+      "eventTypeId": 1,
+      "difficultyLevel": "Oson",
+      "playTime": "30-60 daqiqa",
+      "playerCount": "1-3 kishi",
+      "learningObjectives": [
+        "Ijodkorlik",
+        "Ko'z-qo'l muvofiqlik",
+        "Ranglar va shakllar"
+      ],
+      "developmentalSkills": [
+        "Creativity",
+        "Fine motor skills",
+        "Color recognition",
+        "Shape recognition"
+      ],
+      "parentalGuidance": true,
+      "multilingualSupport": ["O'zbek", "Ingliz"],
+      "recommendedAgeMin": 3,
+      "recommendedAgeMax": 8,
+      "genderSpecific": null,
+      "safetyInfo": {
+        "chokingHazard": true,
+        "assemblyRequired": false,
+        "batteryRequired": false,
+        "certifications": ["CE", "EN71", "ASTM"],
+        "warnings": ["Yemaydigan material, lekin oziq-ovqat emas"]
+      },
+      "images": [
+        "/images/products/play-doh-1.jpg",
+        "/images/products/play-doh-2.jpg"
+      ],
+      "mainImage": "/images/products/play-doh-main.jpg",
+      "stock": 28,
+      "isActive": true,
+      "isFeatured": true,
+      "rating": 4.8,
+      "reviewCount": 167,
+      "tags": ["play-doh", "ijodkorlik", "ranglar", "qo'lda ishlash"],
+      "createdAt": "2024-01-16T13:00:00Z",
+      "updatedAt": "2024-01-22T10:45:00Z"
+    }
+  ],
+  "categories": [
+    {
+      "id": 1,
+      "name": "O'yinchoqlar",
+      "description": "Bolalar uchun turli xil o'yinchoqlar",
+      "icon": "🎮",
+      "color": "#FF6B6B",
+      "subcategories": [
+        "Konstruktorlar",
+        "Chaqaloq o'yinchoqlari",
+        "Mashina o'yinchoqlari",
+        "Uy o'yinchoqlari",
+        "Ijodkorlik o'yinchoqlari"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Kiyim",
+      "description": "Bolalar uchun kiyim-kechak",
+      "icon": "👕",
+      "color": "#4ECDC4",
+      "subcategories": [
+        "Oyoq kiyim",
+        "Sport kiyim",
+        "Kundalik kiyim",
+        "Forma"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "Kitoblar",
+      "description": "Bolalar uchun kitoblar va darsliklar",
+      "icon": "📚",
+      "color": "#45B7D1",
+      "subcategories": [
+        "Bolalar adabiyoti",
+        "Darsliklar",
+        "Rasmli kitoblar",
+        "Ta'lim materiallari"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "Elektronika",
+      "description": "Bolalar uchun elektron qurilmalar",
+      "icon": "📱",
+      "color": "#96CEB4",
+      "subcategories": [
+        "Planchetlar",
+        "Telefonlar",
+        "O'yin konsollari",
+        "Ta'lim qurilmalari"
+      ]
+    }
+  ],
+  "ageGroups": [
+    {
+      "id": 1,
+      "name": "0-6 oy",
+      "minAge": 0,
+      "maxAge": 6,
+      "description": "Chaqaloqlar uchun",
+      "icon": "👶",
+      "color": "#FFB6C1"
+    },
+    {
+      "id": 2,
+      "name": "6-12 oy",
+      "minAge": 6,
+      "maxAge": 12,
+      "description": "Katta chaqaloqlar uchun",
+      "icon": "🍼",
+      "color": "#FFC0CB"
+    },
+    {
+      "id": 3,
+      "name": "1-3 yosh",
+      "minAge": 12,
+      "maxAge": 36,
+      "description": "Kichik bolalar uchun",
+      "icon": "🧸",
+      "color": "#FFD700"
+    },
+    {
+      "id": 4,
+      "name": "3-6 yosh",
+      "minAge": 36,
+      "maxAge": 72,
+      "description": "O'rta yoshdagi bolalar uchun",
+      "icon": "🎨",
+      "color": "#98FB98"
+    },
+    {
+      "id": 5,
+      "name": "6-12 yosh",
+      "minAge": 72,
+      "maxAge": 144,
+      "description": "Katta bolalar uchun",
+      "icon": "🚀",
+      "color": "#87CEEB"
+    }
+  ],
+  "educationalCategories": [
+    {
+      "id": 1,
+      "name": "STEM",
+      "description": "Fan, texnologiya, muhandislik va matematika",
+      "icon": "🔬",
+      "color": "#FF6B6B"
+    },
+    {
+      "id": 2,
+      "name": "Sensorli rivojlanish",
+      "description": "Ko'rish, eshitish va his qilish",
+      "icon": "👁️",
+      "color": "#4ECDC4"
+    },
+    {
+      "id": 3,
+      "name": "Jismoniy rivojlanish",
+      "description": "Sport va jismoniy faollik",
+      "icon": "🏃",
+      "color": "#45B7D1"
+    },
+    {
+      "id": 4,
+      "name": "Til o'rganish",
+      "description": "O'qish va yozish ko'nikmalari",
+      "icon": "📝",
+      "color": "#96CEB4"
+    },
+    {
+      "id": 5,
+      "name": "O'yin va ijtimoiylashish",
+      "description": "Ijtimoiy ko'nikmalar va o'yin",
+      "icon": "🎭",
+      "color": "#FFD93D"
+    },
+    {
+      "id": 6,
+      "name": "Raqamli ta'lim",
+      "description": "Kompyuter va raqamli ko'nikmalar",
+      "icon": "💻",
+      "color": "#6C5CE7"
+    },
+    {
+      "id": 7,
+      "name": "Matematika",
+      "description": "Hisoblash va mantiqiy fikrlash",
+      "icon": "🧮",
+      "color": "#A8E6CF"
+    },
+    {
+      "id": 8,
+      "name": "San'at va ijodkorlik",
+      "description": "Ijodkorlik va san'at ko'nikmalari",
+      "icon": "🎨",
+      "color": "#FF8B94"
+    }
+  ],
+  "eventTypes": [
+    {
+      "id": 1,
+      "name": "Tug'ilgan kun",
+      "description": "Tug'ilgan kun uchun sovg'alar",
+      "icon": "🎂",
+      "color": "#FF6B6B"
+    },
+    {
+      "id": 2,
+      "name": "Sport",
+      "description": "Sport va jismoniy faollik",
+      "icon": "⚽",
+      "color": "#4ECDC4"
+    },
+    {
+      "id": 3,
+      "name": "Ta'lim",
+      "description": "Ta'lim va o'qish materiallari",
+      "icon": "📚",
+      "color": "#45B7D1"
+    }
+  ]
+}

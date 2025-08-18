@@ -37,6 +37,13 @@ const Navbar = () => {
       }
     };
 
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+        setIsCategoriesOpen(false);
+      }
+    };
+
     const handleResize = () => {
       if (window.innerWidth > 1024 && isMenuOpen) {
         setIsMenuOpen(false);
@@ -47,10 +54,12 @@ const Navbar = () => {
     };
 
     document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleKeyDown);
     window.addEventListener("resize", handleResize);
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("resize", handleResize);
     };
   }, [isMenuOpen, isCategoriesOpen]);
@@ -128,56 +137,56 @@ const Navbar = () => {
             {isCategoriesOpen && (
               <div className={style.categoriesDropdown}>
                 <div className={style.categoriesList}>
-                  <Link href="/category/clothing" className={style.categoryItem}>
+                  <Link href="/category/clothing" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>👕</span>
                     <div>
                       <strong>Kiyim-kechak</strong>
                       <small>Bolalar kiyimlari</small>
                     </div>
                   </Link>
-                  <Link href="/category/toys" className={style.categoryItem}>
+                  <Link href="/category/toys" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>🧸</span>
                     <div>
                       <strong>Oyinchoqlar</strong>
                       <small>O'yin va o'qish</small>
                     </div>
                   </Link>
-                  <Link href="/category/books" className={style.categoryItem}>
+                  <Link href="/category/books" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>📚</span>
                     <div>
                       <strong>Kitoblar</strong>
                       <small>Ta'limiy materiallar</small>
                     </div>
                   </Link>
-                  <Link href="/category/sports" className={style.categoryItem}>
+                  <Link href="/category/sports" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>⚽</span>
                     <div>
                       <strong>Sport</strong>
                       <small>Sport anjomlari</small>
                     </div>
                   </Link>
-                  <Link href="/category/school" className={style.categoryItem}>
+                  <Link href="/category/school" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>🎒</span>
                     <div>
                       <strong>Maktab</strong>
                       <small>Maktab buyumlari</small>
                     </div>
                   </Link>
-                  <Link href="/category/baby" className={style.categoryItem}>
+                  <Link href="/category/baby" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>🍼</span>
                     <div>
                       <strong>Chaqaloq</strong>
                     <small>Chaqaloq buyumlari</small>
                     </div>
                   </Link>
-                  <Link href="/category/electronics" className={style.categoryItem}>
+                  <Link href="/category/electronics" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>📱</span>
                     <div>
                       <strong>Elektronika</strong>
                       <small>Texnologiya</small>
                     </div>
                   </Link>
-                  <Link href="/category/health" className={style.categoryItem}>
+                  <Link href="/category/health" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
                     <span>🏥</span>
                     <div>
                       <strong>Sog'lik</strong>
@@ -275,28 +284,28 @@ const Navbar = () => {
 
               <div className={style.mobileCategories}>
                 <h4>Kategoriyalar</h4>
-                <Link href="/category/clothing" className={style.mobileCategoryLink}>
+                <Link href="/category/clothing" className={style.mobileCategoryLink} onClick={closeMenu}>
                   👕 Kiyim-kechak
                 </Link>
-                <Link href="/category/toys" className={style.mobileCategoryLink}>
+                <Link href="/category/toys" className={style.mobileCategoryLink} onClick={closeMenu}>
                   🧸 Oyinchoqlar
                 </Link>
-                <Link href="/category/books" className={style.mobileCategoryLink}>
+                <Link href="/category/books" className={style.mobileCategoryLink} onClick={closeMenu}>
                   📚 Kitoblar
                 </Link>
-                <Link href="/category/sports" className={style.mobileCategoryLink}>
+                <Link href="/category/sports" className={style.mobileCategoryLink} onClick={closeMenu}>
                   ⚽ Sport
                 </Link>
-                <Link href="/category/school" className={style.mobileCategoryLink}>
+                <Link href="/category/school" className={style.mobileCategoryLink} onClick={closeMenu}>
                   🎒 Maktab
                 </Link>
-                <Link href="/category/baby" className={style.mobileCategoryLink}>
+                <Link href="/category/baby" className={style.mobileCategoryLink} onClick={closeMenu}>
                   🍼 Chaqaloq
                 </Link>
-                <Link href="/category/electronics" className={style.mobileCategoryLink}>
+                <Link href="/category/electronics" className={style.mobileCategoryLink} onClick={closeMenu}>
                   📱 Elektronika
                 </Link>
-                <Link href="/category/health" className={style.mobileCategoryLink}>
+                <Link href="/category/health" className={style.mobileCategoryLink} onClick={closeMenu}>
                   🏥 Sog'lik
                 </Link>
               </div>

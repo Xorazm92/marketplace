@@ -155,7 +155,18 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             console.log('Category filter:', filters.category);
             console.log('Products before category filter:', results.length);
             results = results.filter((product: any) => {
-              const productCategory = product.category?.toLowerCase() || '';
+              let productCategory = '';
+              
+              // Handle different category formats
+              if (typeof product.category === 'string') {
+                productCategory = product.category.toLowerCase();
+              } else if (product.category && typeof product.category === 'object') {
+                productCategory = (product.category.name || product.category.title || '').toLowerCase();
+              } else if (product.category_id) {
+                // If we have category_id, we might need to map it
+                productCategory = product.category_id.toString();
+              }
+              
               const isMatch = filters.category.some((cat: string) => 
                 productCategory.includes(cat.toLowerCase()) ||
                 cat.toLowerCase().includes(productCategory)

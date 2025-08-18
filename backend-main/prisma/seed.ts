@@ -120,6 +120,35 @@ async function main() {
 
     console.log('✅ Categories created');
 
+    // Ranglar yaratish
+    const colors = [
+      { name: 'Ko\'k', hex: '#0066cc' },
+      { name: 'Qizil', hex: '#cc0000' },
+      { name: 'Yashil', hex: '#00cc00' },
+      { name: 'Sariq', hex: '#ffcc00' },
+      { name: 'Qora', hex: '#000000' },
+      { name: 'Oq', hex: '#ffffff' },
+      { name: 'Kulrang', hex: '#808080' },
+      { name: 'Pushti', hex: '#ffc0cb' },
+      { name: 'Binafsha', hex: '#800080' },
+      { name: 'To\'q sariq', hex: '#ff8c00' },
+      { name: 'Moviy', hex: '#0000ff' },
+      { name: 'Qizg\'ish', hex: '#ff4500' },
+      { name: 'Oltin', hex: '#ffd700' },
+      { name: 'Kumush', hex: '#c0c0c0' },
+      { name: 'Bronza', hex: '#cd7f32' }
+    ];
+
+    for (const colorData of colors) {
+      await prisma.color.upsert({
+        where: { name: colorData.name },
+        update: { hex: colorData.hex },
+        create: colorData,
+      });
+    }
+
+    console.log('✅ Colors created');
+
     // Test mahsulotlar yaratish
     const testProducts = [
       {
@@ -160,7 +189,17 @@ async function main() {
         price: 180000,
         category_slug: 'school',
         brand_name: 'INBOLA',
-        images: ['/uploads/bag1.svg', '/uploads/bag1_2.svg']
+        images: ['/uploads/bag1.svg', '/uploads/bag1_2.svg'],
+        colors: ['Qora', 'Ko\'k', 'Qizil']
+      },
+      {
+        title: "Bolalar uchun rangli qalam to'plami",
+        description: "Yuqori sifatli rangli qalamlar. 24 ta turli rangda. Bolalar uchun xavfsiz.",
+        price: 45000,
+        category_slug: 'school',
+        brand_name: 'INBOLA',
+        images: ['/uploads/pencils1.svg', '/uploads/pencils2.svg'],
+        colors: ['Ko\'k', 'Qizil', 'Yashil', 'Sariq', 'Binafsha', 'To\'q sariq']
       }
     ];
 
@@ -203,6 +242,24 @@ async function main() {
             }
           }
         });
+
+        // Ranglarni qo'shish
+        if (productData.colors && productData.colors.length > 0) {
+          for (const colorName of productData.colors) {
+            const color = await prisma.color.findUnique({
+              where: { name: colorName }
+            });
+            
+            if (color) {
+              await prisma.productColor.create({
+                data: {
+                  product_id: product.id,
+                  color_id: color.id
+                }
+              });
+            }
+          }
+        }
 
         console.log(`✅ Product created: ${product.title}`);
       }

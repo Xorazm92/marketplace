@@ -8,6 +8,8 @@ import { LoggingInterceptor } from './common/interceptors/logging.interceptor';
 import * as compression from 'compression';
 import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
+import * as express from 'express';
+import { join } from 'path';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -28,11 +30,14 @@ async function bootstrap(): Promise<void> {
     // Performance middleware
     app.use(compression());
     app.use(cookieParser());
-
+    
     // Global prefix
-    app.setGlobalPrefix('api', {
+    app.setGlobalPrefix('api/v1', {
       exclude: ['/health', '/'],
     });
+
+    // Static files serving - global prefix dan keyin
+    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
     // Versioning
     app.enableVersioning({
@@ -52,7 +57,11 @@ async function bootstrap(): Promise<void> {
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3002',
         'http://127.0.0.1:3003',
-        process.env.FRONTEND_URL || 'http://localhost:3003'
+        process.env.FRONTEND_URL || 'http://localhost:3003',
+        // Production URLs
+        'https://inbola.uz',
+        'https://www.inbola.uz',
+        'https://api.inbola.uz'
       ],
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
@@ -64,10 +73,13 @@ async function bootstrap(): Promise<void> {
         'X-Requested-With',
         'Access-Control-Allow-Headers',
         'Access-Control-Allow-Origin',
-        'Access-Control-Allow-Methods'
+        'Access-Control-Allow-Methods',
+        'X-API-Key',
+        'X-Client-Version'
       ],
-      exposedHeaders: ['Set-Cookie'],
+      exposedHeaders: ['Set-Cookie', 'X-Total-Count', 'X-Page-Count'],
       optionsSuccessStatus: 200,
+      maxAge: 86400, // 24 hours
     });
 
     // Global pipes

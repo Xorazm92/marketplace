@@ -28,13 +28,15 @@ const ProductCard: React.FC<CardProps> = ({
   return (
     <Link href={`/productdetails/${id}`} className={styles.card}>
       <OptimizedImage
-        src={
-          product_image && product_image.length > 0
-            ? product_image[0].url.startsWith('http') 
-              ? product_image[0].url 
-              : `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/uploads/${product_image[0].url}`
-            : "/img/placeholder-product.jpg"
-        }
+                    src={
+              product_image && product_image.length > 0
+                ? product_image[0].url.startsWith('http')
+                  ? product_image[0].url
+                  : product_image[0].url.includes('/uploads/')
+                    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${product_image[0].url}`
+                    : "/img/placeholder-product.jpg"
+                : "/img/placeholder-product.jpg"
+            }
         alt={title}
         width={300}
         height={200}

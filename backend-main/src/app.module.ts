@@ -4,6 +4,8 @@ import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
+import { ThrottlerModule, ThrottlerGuard } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
@@ -32,12 +34,23 @@ import { NotificationModule } from './notification/notification.module';
 import { ReviewModule } from './review/review.module';
 import { CommonModule } from './common/common.module';
 import { AuthModule } from './auth/auth.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRoot([
+      {
+        ttl: 60000, // 1 minute
+        limit: 1000, // 1000 requests per minute (10x ko'paytirildi)
+      },
+      {
+        ttl: 3600000, // 1 hour
+        limit: 10000, // 10000 requests per hour (10x ko'paytirildi)
+      },
+    ]),
     JwtModule.register({
       global: true,
       secret: process.env.ACCESS_TOKEN_KEY || 'default-secret',
@@ -83,6 +96,14 @@ import { AuthModule } from './auth/auth.module';
     NotificationModule,
     ReviewModule,
     AuthModule,
+    HealthModule,
+  ],
+  providers: [
+    // Development da rate limiting o'chirildi
+    // {
+    //   provide: APP_GUARD,
+    //   useClass: ThrottlerGuard,
+    // },
   ],
 })
 export class AppModule {}

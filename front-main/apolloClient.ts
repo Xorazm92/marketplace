@@ -16,8 +16,11 @@ import { store } from "@/store/store";
 import { getLocalStorage } from "./utils/local-storege";
 import { createUploadLink } from "apollo-upload-client";
 
-loadErrorMessages();
-loadDevMessages();
+// Only load dev messages in development
+if (process.env.NODE_ENV === 'development') {
+  loadErrorMessages();
+  loadDevMessages();
+}
 
 // Token refresh logic (mocked – customize if needed)
 async function refreshToken(): Promise<string> {
@@ -76,7 +79,7 @@ const authLink = setContext((_, { headers }) => {
 });
 
 const uploadLink = createUploadLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT,
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
   credentials: 'include',
   headers: {
     "apollo-require-preflight": "true",
@@ -102,7 +105,23 @@ const splitLink =
 
 // Final Apollo Client instance
 export const client = new ApolloClient({
-  cache: new InMemoryCache(),
+  cache: new InMemoryCache({
+    typePolicies: {
+      Query: {
+        fields: {
+          // Add any field policies here if needed
+        },
+      },
+    },
+  }),
   link: splitLink,
   credentials: "include",
+  defaultOptions: {
+    watchQuery: {
+      errorPolicy: 'all',
+    },
+    query: {
+      errorPolicy: 'all',
+    },
+  },
 });

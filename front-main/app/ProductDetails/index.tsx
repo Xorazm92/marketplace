@@ -381,13 +381,53 @@ const ProductDetails = () => {
                   <li>
                     <span className={styles.label}>Rang</span>
                     <span className={styles.value}>
-                      <span
-                        className={styles.dot}
-                        style={{
-                          backgroundColor: "#3448f0",
-                        }}
-                      ></span>{" "}
-                      {productData2?.color || "Ko'rsatilmagan"}
+                      {productData2?.colors && productData2.colors.length > 0 ? (
+                        <div className={styles.colorOptions}>
+                          {productData2.colors.map((color: any, index: number) => (
+                            <span
+                              key={index}
+                              className={styles.dot}
+                              style={{
+                                backgroundColor: color.hex || color.name || "#ccc",
+                                border: color.hex || color.name ? "1px solid #ddd" : "1px solid #999"
+                              }}
+                              title={color.name || color}
+                            />
+                          ))}
+                          <span className={styles.colorText}>
+                            {productData2.colors.map((color: any) => color.name || color).join(", ")}
+                          </span>
+                        </div>
+                      ) : productData2?.color ? (
+                        <>
+                          <span
+                            className={styles.dot}
+                            style={{
+                              backgroundColor: productData2.color === "Ko'k" ? "#0066cc" :
+                                              productData2.color === "Qizil" ? "#cc0000" :
+                                              productData2.color === "Yashil" ? "#00cc00" :
+                                              productData2.color === "Sariq" ? "#ffcc00" :
+                                              productData2.color === "Qora" ? "#000000" :
+                                              productData2.color === "Oq" ? "#ffffff" :
+                                              productData2.color === "Kulrang" ? "#808080" :
+                                              productData2.color === "Pushti" ? "#ffc0cb" :
+                                              productData2.color === "Binafsha" ? "#800080" :
+                                              productData2.color === "To'q sariq" ? "#ff8c00" :
+                                              productData2.color === "Moviy" ? "#0000ff" :
+                                              productData2.color === "Yashil" ? "#008000" :
+                                              productData2.color === "Qizg'ish" ? "#ff4500" :
+                                              productData2.color === "Oltin" ? "#ffd700" :
+                                              productData2.color === "Kumush" ? "#c0c0c0" :
+                                              productData2.color === "Bronza" ? "#cd7f32" :
+                                              "#ccc",
+                              border: "1px solid #ddd"
+                            }}
+                          />
+                          {productData2.color}
+                        </>
+                      ) : (
+                        "Ko'rsatilmagan"
+                      )}
                     </span>
                   </li>
                   <li>

@@ -2,7 +2,7 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
 // API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4001';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 // Axios instance yaratish
 const instance: AxiosInstance = axios.create({
@@ -21,7 +21,7 @@ instance.interceptors.request.use(
   (config) => {
     // Token qo'shish
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('access_token');
+      const token = localStorage.getItem('accessToken');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }
@@ -71,10 +71,10 @@ instance.interceptors.response.use(
 
     // 401 - Unauthorized
     if (error.response?.status === 401) {
-      if (typeof window !== 'undefined') {
-        localStorage.removeItem('access_token');
-        localStorage.removeItem('refresh_token');
-        localStorage.removeItem('user_data');
+          if (typeof window !== 'undefined') {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user_data');
         
         // Login sahifasiga yo'naltirish
         if (window.location.pathname !== '/login') {
