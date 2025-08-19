@@ -45,7 +45,7 @@ const SafetyIndicator: React.FC<SafetyIndicatorProps> = ({ product, className = 
   const getSafetyText = (score: number) => {
     if (score >= 4) return 'Juda xavfsiz';
     if (score >= 3) return 'Xavfsiz';
-    return 'Ehtiyot bo'lish kerak';
+    return 'Ehtiyot bo\'lish kerak';
   };
 
   const SafetyIcon = getSafetyIcon(safetyScore);

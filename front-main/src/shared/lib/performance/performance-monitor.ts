@@ -86,8 +86,11 @@ export class PerformanceMonitor {
   private monitorFID(): void {
     const observer = new PerformanceObserver((list) => {
       const entries = list.getEntries();
-      entries.forEach((entry) => {
-        this.recordMetric('FID', entry.processingStart - entry.startTime);
+      entries.forEach((entry: any) => {
+        // First Input Delay calculation
+        const processingStart = entry.processingStart || entry.startTime;
+        const delay = processingStart - entry.startTime;
+        this.recordMetric('FID', delay);
       });
     });
     

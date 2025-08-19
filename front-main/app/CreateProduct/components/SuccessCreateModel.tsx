@@ -52,11 +52,13 @@ const SuccessCreateModel = forwardRef<HTMLDivElement, SuccessCreateModelProps>(
       >
         <div
           ref={(node) => {
-            modalRef.current = node;
+            if (modalRef) {
+              (modalRef as any).current = node;
+            }
             if (typeof ref === "function") {
               ref(node);
             } else if (ref) {
-              ref.current = node;
+              (ref as any).current = node;
             }
           }}
           className={`${styles.modal} ${isOpen ? styles.active : ""}`}

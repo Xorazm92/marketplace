@@ -37,6 +37,14 @@ print_header() {
     echo -e "${PURPLE}================================${NC}"
 }
 
+# Clean up existing containers to avoid name conflicts
+cleanup_existing_containers() {
+    print_status "Cleaning up existing containers (if any)..."
+    # Remove containers if they already exist to prevent name conflicts
+    docker rm -f inbola_postgres >/dev/null 2>&1 || true
+    docker rm -f inbola_redis >/dev/null 2>&1 || true
+}
+
 # Main deployment function
 main() {
     print_header "🎯 INBOLA Kids Marketplace - Final Deployment"
@@ -188,6 +196,9 @@ install_dependencies() {
 setup_database() {
     print_header "🗄️ Setting up Database"
     
+    # Ensure no conflicting containers exist
+    cleanup_existing_containers
+
     print_status "Starting PostgreSQL and Redis..."
     docker-compose -f docker-compose.prod.yml up -d postgres redis
     
