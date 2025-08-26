@@ -8,6 +8,9 @@ import { ReduxProvider } from "../store/provider";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/apolloClient";
 import { useEffect, useState } from "react";
+import GoogleAnalytics from "@/components/common/GoogleAnalytics";
+import PerformanceMonitor from "@/components/common/PerformanceMonitor";
+import SEOMonitor from "@/components/common/SEOMonitor";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient({
@@ -26,6 +29,22 @@ export default function App({ Component, pageProps }: AppProps) {
     setMounted(true);
   }, []);
 
+  // Google Analytics page tracking
+  useEffect(() => {
+    const handleRouteChange = (url: string) => {
+      if (typeof window !== 'undefined' && window.gtag) {
+        window.gtag('config', process.env.NEXT_PUBLIC_GA_ID || 'G-XXXXXXXXXX', {
+          page_path: url,
+        });
+      }
+    };
+
+    router.events.on('routeChangeComplete', handleRouteChange);
+    return () => {
+      router.events.off('routeChangeComplete', handleRouteChange);
+    };
+  }, [router.events]);
+
   const noLayoutPages = ["/sign-up", "/login", "/forgot-password", "/admin"];
   const shouldShowLayout = !noLayoutPages.includes(router.pathname);
 
@@ -38,24 +57,27 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={client}>
         <ReduxProvider>
-            {shouldShowLayout ? (
-              <MainLayout>
-                <Component {...pageProps} />
-              </MainLayout>
-            ) : (
+          <GoogleAnalytics />
+          <PerformanceMonitor />
+          <SEOMonitor />
+          {shouldShowLayout ? (
+            <MainLayout>
               <Component {...pageProps} />
-            )}
-            <ToastContainer 
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
+            </MainLayout>
+          ) : (
+            <Component {...pageProps} />
+          )}
+          <ToastContainer 
+            position="top-right"
+            autoClose={5000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+          />
         </ReduxProvider>
       </ApolloProvider>
     </QueryClientProvider>

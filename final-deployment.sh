@@ -199,6 +199,9 @@ setup_database() {
     # Ensure no conflicting containers exist
     cleanup_existing_containers
 
+    print_status "Stopping any old containers..."
+    docker-compose -f docker-compose.prod.yml down || true
+
     print_status "Starting PostgreSQL and Redis..."
     docker-compose -f docker-compose.prod.yml up -d postgres redis
     
@@ -225,19 +228,23 @@ setup_database() {
 
 build_applications() {
     print_header "🏗️ Building Applications"
-    
+
     # Build backend
     print_status "Building backend..."
     cd backend-main
+    print_status "Force-cleaning old backend build directory..."
+    rm -rf dist
     npm run build
     print_success "Backend built successfully"
-    
+
     # Build frontend
     print_status "Building frontend..."
     cd ../front-main
+    print_status "Force-cleaning old frontend build directory..."
+    rm -rf .next
     npm run build
     print_success "Frontend built successfully"
-    
+
     cd ..
 }
 

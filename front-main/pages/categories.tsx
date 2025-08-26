@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { getAllCategories } from '../endpoints/category';
+import SEO from '../components/common/SEO';
 import styles from '../styles/Categories.module.scss';
 
 interface Category {
@@ -44,6 +45,26 @@ const CategoriesPage: React.FC = () => {
     }
   };
 
+  // SEO structured data
+  const structuredData = {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "INBOLA Kategoriyalar",
+    "description": "Bolalar uchun barcha mahsulot kategoriyalari",
+    "url": "https://inbola.uz/categories",
+    "numberOfItems": categories.length,
+    "itemListElement": categories.map((category, index) => ({
+      "@type": "ListItem",
+      "position": index + 1,
+      "item": {
+        "@type": "Thing",
+        "name": category.name,
+        "description": category.description || `${category.name} kategoriyasi`,
+        "url": `https://inbola.uz/category/${category.slug}`
+      }
+    }))
+  };
+
   if (loading) {
     return (
       <div className={styles.container}>
@@ -54,10 +75,12 @@ const CategoriesPage: React.FC = () => {
 
   return (
     <>
-      <Head>
-        <title>Barcha Kategoriyalar - INBOLA</title>
-        <meta name="description" content="INBOLA da mavjud barcha mahsulot kategoriyalari" />
-      </Head>
+      <SEO 
+        title="Barcha Kategoriyalar - INBOLA Kids Marketplace | Kiyim, o'yinchoqlar, kitoblar"
+        description="INBOLA da mavjud barcha mahsulot kategoriyalari: kiyim-kechak, o'yinchoqlar, kitoblar, sport anjomlar, maktab buyumlari va boshqalar. Bolalar uchun xavfsiz va sifatli mahsulotlar."
+        keywords="kategoriyalar, kiyim-kechak, o'yinchoqlar, kitoblar, sport anjomlar, maktab buyumlari, chaqaloq buyumlari, elektronika, sog'liq, bolalar uchun, o'zbekiston"
+        structuredData={structuredData}
+      />
       
       <div className={styles.container}>
         <div className={styles.header}>

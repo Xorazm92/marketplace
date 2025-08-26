@@ -32,7 +32,7 @@ async function bootstrap(): Promise<void> {
     app.use(cookieParser());
     
     // Global prefix
-    app.setGlobalPrefix('api/v1', {
+    app.setGlobalPrefix('api', {
       exclude: ['/health', '/'],
     });
 

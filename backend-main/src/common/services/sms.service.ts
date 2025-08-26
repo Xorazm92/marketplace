@@ -2,18 +2,10 @@ import { Injectable, Logger, HttpException, HttpStatus } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios, { AxiosResponse } from 'axios';
 
-interface EskizAuthResponse {
-  message: string;
-  data: {
-    token: string;
-  };
-}
-
 interface EskizSendSmsResponse {
   message: string;
   data: {
     id: string;
-    message: string;
     status: string;
   };
 }
@@ -21,67 +13,31 @@ interface EskizSendSmsResponse {
 interface EskizSmsStatus {
   message: string;
   data: {
-    id: string;
     status: string;
-    message: string;
   };
 }
 
 @Injectable()
 export class SmsService {
   private readonly logger = new Logger(SmsService.name);
-  private readonly baseUrl = 'https://notify.eskiz.uz/api';
-  private token: string | null = null;
-  private tokenExpiry: Date | null = null;
+  private readonly baseUrl: string;
+  private readonly token: string;
+  private readonly smsFrom: string;
 
-  constructor(private readonly configService: ConfigService) {}
-
-  // Eskiz.uz dan token olish
-  private async getAuthToken(): Promise<string> {
-    try {
-      // Agar token mavjud va muddati tugamagan bo'lsa, uni qaytaramiz
-      if (this.token && this.tokenExpiry && new Date() < this.tokenExpiry) {
-        return this.token;
-      }
-
-      const email = this.configService.get<string>('ESKIZ_EMAIL');
-      const password = this.configService.get<string>('ESKIZ_PASSWORD');
-
-      if (!email || !password) {
-        throw new HttpException(
-          'Eskiz.uz credentials not configured',
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
-      }
-
-      const response: AxiosResponse<EskizAuthResponse> = await axios.post(
-        `${this.baseUrl}/auth/login`,
-        {
-          email,
-          password,
-        },
-      );
-
-      if (response.data && response.data.data && response.data.data.token) {
-        this.token = response.data.data.token;
-        // Token 30 kun amal qiladi
-        this.tokenExpiry = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000);
-        
-        this.logger.log('Eskiz.uz token successfully obtained');
-        return this.token;
-      }
-
+  constructor(private readonly configService: ConfigService) {
+    this.baseUrl = this.configService.get<string>('SMS_PROVIDER_URL', 'https://notify.eskiz.uz/api');
+    this.token = this.configService.get<string>('SMS_TOKEN');
+    this.smsFrom = this.configService.get<string>('SMS_FROM', 'INBOLA');
+    
+    if (!this.token) {
+      this.logger.error('SMS_TOKEN not found in environment variables');
       throw new HttpException(
-        'Failed to get auth token from Eskiz.uz',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
-    } catch (error) {
-      this.logger.error('Error getting Eskiz.uz auth token:', error);
-      throw new HttpException(
-        'SMS service authentication failed',
+        'SMS service configuration error',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+    
+    this.logger.log('SMS service initialized with Eskiz provider');
   }
 
   // OTP kod generatsiya qilish
@@ -96,42 +52,49 @@ export class SmsService {
     return otp;
   }
 
-  // SMS yuborish
+  // SMS yuborish (Eskiz API)
   async sendSMS(phoneNumber: string, message: string): Promise<string> {
     try {
-      const token = await this.getAuthToken();
-
-      // Telefon raqamini formatlash (+998901234567 -> 998901234567)
-      const formattedPhone = phoneNumber.replace(/^\+/, '');
+      const formattedPhone = this.formatPhoneNumber(phoneNumber);
+      
+      // Development mode uchun mock
+      if (this.configService.get('NODE_ENV') === 'development') {
+        this.logger.log(`[DEV] SMS to ${formattedPhone}: ${message}`);
+        return 'dev_sms_id_' + Date.now();
+      }
 
       const response: AxiosResponse<EskizSendSmsResponse> = await axios.post(
         `${this.baseUrl}/message/sms/send`,
         {
-          mobile_phone: formattedPhone,
+          mobile_phone: formattedPhone.replace('+', ''), // + belgisini olib tashlash
           message: message,
-          from: '4546', // Eskiz.uz default sender
+          from: this.smsFrom,
         },
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${this.token}`,
             'Content-Type': 'application/json',
           },
+          timeout: 10000, // 10 seconds timeout
         },
       );
 
-      if (response.data && response.data.data && response.data.data.id) {
-        this.logger.log(`SMS sent successfully to ${phoneNumber}, ID: ${response.data.data.id}`);
+      if (response.data?.data?.id) {
+        this.logger.log(`SMS sent successfully to ${formattedPhone}, ID: ${response.data.data.id}`);
         return response.data.data.id;
       }
 
-      throw new HttpException(
-        'Failed to send SMS',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new Error('Invalid response from SMS provider');
     } catch (error) {
-      this.logger.error(`Error sending SMS to ${phoneNumber}:`, error);
+      this.logger.error(`Error sending SMS to ${phoneNumber}:`, error.message);
+      
+      // Development mode da xatolik bo'lsa ham davom etsin
+      if (this.configService.get('NODE_ENV') === 'development') {
+        return 'dev_error_sms_id_' + Date.now();
+      }
+      
       throw new HttpException(
-        'Failed to send SMS',
+        'SMS yuborishda xatolik yuz berdi',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
@@ -141,38 +104,40 @@ export class SmsService {
   async sendOTP(phoneNumber: string): Promise<{ otp: string; smsId: string }> {
     try {
       const otp = this.generateOTP(6);
-      const message = `INBOLA tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
+      const message = `INBOLA Kids Marketplace tasdiqlash kodi: ${otp}. Kodni hech kimga bermang! Kod 5 daqiqa amal qiladi.`;
 
       const smsId = await this.sendSMS(phoneNumber, message);
 
-      this.logger.log(`OTP sent to ${phoneNumber}: ${otp}`);
-      
+      this.logger.log(`OTP generated and sent to ${phoneNumber}`);
       return { otp, smsId };
     } catch (error) {
-      this.logger.error(`Error sending OTP to ${phoneNumber}:`, error);
-      throw error;
+      this.logger.error(`Failed to send OTP to ${phoneNumber}:`, error);
+      throw new HttpException(
+        'OTP yuborishda xatolik yuz berdi',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   // SMS holatini tekshirish
   async getSmsStatus(smsId: string): Promise<string> {
     try {
-      const token = await this.getAuthToken();
+      // Development mode uchun mock
+      if (this.configService.get('NODE_ENV') === 'development') {
+        return 'delivered';
+      }
 
       const response: AxiosResponse<EskizSmsStatus> = await axios.get(
         `${this.baseUrl}/message/sms/status/${smsId}`,
         {
           headers: {
-            Authorization: `Bearer ${token}`,
+            'Authorization': `Bearer ${this.token}`,
           },
+          timeout: 5000,
         },
       );
 
-      if (response.data && response.data.data) {
-        return response.data.data.status;
-      }
-
-      return 'unknown';
+      return response.data?.data?.status || 'unknown';
     } catch (error) {
       this.logger.error(`Error getting SMS status for ${smsId}:`, error);
       return 'error';
@@ -204,19 +169,35 @@ export class SmsService {
     return '+' + cleaned;
   }
 
-  // Test SMS yuborish (development uchun)
+  // Test SMS yuborish
   async sendTestSMS(phoneNumber: string): Promise<boolean> {
     try {
-      if (this.configService.get('NODE_ENV') === 'development') {
-        this.logger.log(`TEST SMS: OTP 123456 sent to ${phoneNumber}`);
-        return true;
-      }
-      
-      const { smsId } = await this.sendOTP(phoneNumber);
+      const testMessage = 'INBOLA Kids Marketplace test xabari. Tizim to\'g\'ri ishlayapti!';
+      const smsId = await this.sendSMS(phoneNumber, testMessage);
       return !!smsId;
     } catch (error) {
       this.logger.error('Test SMS failed:', error);
       return false;
+    }
+  }
+
+  // Buyurtma tasdiqlash SMS
+  async sendOrderConfirmationSMS(phoneNumber: string, orderNumber: string): Promise<void> {
+    try {
+      const message = `INBOLA: Buyurtmangiz #${orderNumber} qabul qilindi! Tez orada aloqaga chiqamiz.`;
+      await this.sendSMS(phoneNumber, message);
+    } catch (error) {
+      this.logger.error(`Failed to send order confirmation SMS:`, error);
+    }
+  }
+
+  // To'lov tasdiqlash SMS
+  async sendPaymentConfirmationSMS(phoneNumber: string, amount: number, orderNumber: string): Promise<void> {
+    try {
+      const message = `INBOLA: ${amount.toLocaleString()} so'm to'lov qabul qilindi. Buyurtma #${orderNumber}`;
+      await this.sendSMS(phoneNumber, message);
+    } catch (error) {
+      this.logger.error(`Failed to send payment confirmation SMS:`, error);
     }
   }
 }

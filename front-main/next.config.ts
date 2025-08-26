@@ -9,13 +9,16 @@ const nextConfig: NextConfig = {
   poweredByHeader: false,
   compress: true,
   
+  // SEO optimizatsiyalari
+  generateEtags: true,
+  
   // Experimental features
   experimental: {
     optimizePackageImports: ['@tabler/icons-react', 'react-icons'],
     webVitalsAttribution: ['CLS', 'LCP'],
+    optimizeCss: false, // Disable to prevent critters issues
+    scrollRestoration: true,
   },
-
-
 
   // Server external packages
   serverExternalPackages: ['@apollo/client'],
@@ -127,6 +130,31 @@ const nextConfig: NextConfig = {
             key: 'Strict-Transport-Security',
             value: 'max-age=31536000; includeSubDomains',
           },
+          // SEO headers
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Static assets uchun cache
+      {
+        source: '/static/(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
+        ],
+      },
+      // Images uchun cache
+      {
+        source: '/_next/image(.*)',
+        headers: [
+          {
+            key: 'Cache-Control',
+            value: 'public, max-age=31536000, immutable',
+          },
         ],
       },
     ];
@@ -143,6 +171,22 @@ const nextConfig: NextConfig = {
       {
         source: '/profile',
         destination: '/profile/index',
+        permanent: true,
+      },
+      // SEO redirects
+      {
+        source: '/home',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/index.html',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/index.php',
+        destination: '/',
         permanent: true,
       }
     ];
