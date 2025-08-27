@@ -44,7 +44,32 @@ async function main() {
       console.log('✅ Test user already exists');
     }
 
-    // Admin user yaratish
+    // Admin yaratish (Admin table'da)
+    const existingAdmin = await prisma.admin.findUnique({
+      where: { phone_number: '+998901070125' }
+    });
+
+    if (!existingAdmin) {
+      const admin = await prisma.admin.create({
+        data: {
+          first_name: 'Super',
+          last_name: 'Admin',
+          phone_number: '+998901070125',
+          email: 'admin@inbola.uz',
+          role: 'SUPER_ADMIN',
+          hashed_password: hashedPassword,
+          is_active: true,
+          is_creator: true,
+          activation_link: null,
+        }
+      });
+
+      console.log('✅ Super Admin created:', admin.phone_number);
+    } else {
+      console.log('✅ Super Admin already exists');
+    }
+
+    // Admin user yaratish (User table'da ham)
     const existingAdminPhone = await prisma.phoneNumber.findUnique({
       where: { phone_number: '+998909876543' }
     });
@@ -268,6 +293,7 @@ async function main() {
     console.log('🎉 Seeding completed successfully!');
     console.log('📱 Test user: +998901234567 / password: 123456');
     console.log('👨‍💼 Admin user: +998909876543 / password: 123456');
+    console.log('🔑 Super Admin: +998901070125 / password: 123456');
   } catch (error) {
     console.error('❌ Error:', error);
   }

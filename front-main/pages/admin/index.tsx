@@ -10,6 +10,7 @@ import Analytics from '../../components/admin/Analytics';
 import Settings from '../../components/admin/Settings';
 import { getOrderStatistics } from '../../endpoints/order';
 import { getAllProducts } from '../../endpoints/product';
+import { useAdminAuth, withAdminAuth, RequirePermission } from '../../hooks/useAdminAuth';
 import styles from '../../styles/Admin.module.scss';
 
 type AdminTab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'settings';
@@ -27,6 +28,7 @@ interface DashboardStats {
 
 const AdminPage: React.FC = () => {
   const router = useRouter();
+  const { admin, logout, checkPermission } = useAdminAuth();
   const [activeTab, setActiveTab] = useState<AdminTab>('dashboard');
   const [isLoading, setIsLoading] = useState(true);
   const [dashboardStats, setDashboardStats] = useState<DashboardStats>({
@@ -40,63 +42,51 @@ const AdminPage: React.FC = () => {
     topProducts: []
   });
 
-  // Mock admin user - real loyihada authentication dan keladi
-  const adminUser = {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@inbola.uz',
-    role: 'super_admin',
+  // Admin user from authentication
+  const adminUser = admin ? {
+    id: admin.id,
+    name: `${admin.first_name} ${admin.last_name}`,
+    email: admin.phone_number, // Using phone as email for display
+    role: admin.role.toLowerCase(),
     avatar: null
-  };
+  } : null;
 
   // Dashboard ma'lumotlarini yuklash
   const loadDashboardData = async () => {
     try {
       setIsLoading(true);
 
-      // Hozircha mock data ishlatamiz (authentication kerak bo'lganda real API'ga o'tamiz)
-      console.log('📊 Loading dashboard data with mock data...');
+      // Real API'dan ma'lumot olish
+      const token = localStorage.getItem('admin_access_token');
+      if (!token) {
+        throw new Error('No authentication token');
+      }
 
-      const mockOrderStats = {
-        totalOrders: 45,
-        totalRevenue: 2850000,
-        pendingOrders: 12,
-        completedOrders: 33,
-        recentOrders: [
-          { id: 1, orderNumber: 'ORD-001', customerName: 'Ali Valiyev', total: 125000, status: 'pending' },
-          { id: 2, orderNumber: 'ORD-002', customerName: 'Malika Karimova', total: 89000, status: 'completed' },
-          { id: 3, orderNumber: 'ORD-003', customerName: 'Bobur Toshmatov', total: 156000, status: 'processing' },
-          { id: 4, orderNumber: 'ORD-004', customerName: 'Dilnoza Rahimova', total: 75000, status: 'pending' },
-          { id: 5, orderNumber: 'ORD-005', customerName: 'Jasur Karimov', total: 95000, status: 'completed' }
-        ]
-      };
+      console.log('📊 Loading dashboard data from API...');
 
-      const mockProducts = {
-        data: [
-          { id: 1, title: 'Bolalar o\'yinchoq mashina', price: 45000, category: { name: 'O\'yinchoqlar' } },
-          { id: 2, title: 'Bolalar kiyimi', price: 89000, category: { name: 'Kiyim' } },
-          { id: 3, title: 'Ta\'lim kitoblari', price: 25000, category: { name: 'Kitoblar' } },
-          { id: 4, title: 'Sport anjomlar', price: 120000, category: { name: 'Sport' } },
-          { id: 5, title: 'Maktab sumkalari', price: 65000, category: { name: 'Maktab' } },
-          { id: 6, title: 'Bolalar velosipedi', price: 350000, category: { name: 'Transport' } }
-        ]
-      };
-
-      // Kichik kechikish (real API'ni taqlid qilish uchun)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      setDashboardStats({
-        totalOrders: mockOrderStats.totalOrders,
-        totalRevenue: mockOrderStats.totalRevenue,
-        totalProducts: mockProducts.data.length + 150, // Jami 156 ta mahsulot
-        totalUsers: 89,
-        pendingOrders: mockOrderStats.pendingOrders,
-        completedOrders: mockOrderStats.completedOrders,
-        recentOrders: mockOrderStats.recentOrders,
-        topProducts: mockProducts.data.slice(0, 5)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/admin/dashboard`, {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json',
+        },
       });
 
-      console.log('✅ Dashboard data loaded successfully');
+      if (response.ok) {
+        const data = await response.json();
+        setDashboardStats({
+          totalOrders: data.totalOrders || 0,
+          totalRevenue: data.totalRevenue || 0,
+          totalProducts: data.totalProducts || 0,
+          totalUsers: data.totalUsers || 0,
+          pendingOrders: data.monthlyStats?.ordersThisMonth || 0,
+          completedOrders: data.totalOrders - (data.monthlyStats?.ordersThisMonth || 0),
+          recentOrders: data.recentOrders || [],
+          topProducts: data.topProducts || []
+        });
+        console.log('✅ Dashboard data loaded successfully');
+      } else {
+        throw new Error('Failed to fetch dashboard data');
+      }
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
       // Fallback data
@@ -142,19 +132,47 @@ const AdminPage: React.FC = () => {
   const renderTabContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard stats={dashboardStats} isLoading={isLoading} />;
+        return (
+          <RequirePermission permission="view_dashboard">
+            <Dashboard stats={dashboardStats} isLoading={isLoading} />
+          </RequirePermission>
+        );
       case 'products':
-        return <ProductManagement />;
+        return (
+          <RequirePermission permission="view_products">
+            <ProductManagement />
+          </RequirePermission>
+        );
       case 'orders':
-        return <OrderManagement />;
+        return (
+          <RequirePermission permission="view_orders">
+            <OrderManagement />
+          </RequirePermission>
+        );
       case 'users':
-        return <UserManagement />;
+        return (
+          <RequirePermission permission="view_users">
+            <UserManagement />
+          </RequirePermission>
+        );
       case 'analytics':
-        return <Analytics />;
+        return (
+          <RequirePermission permission="view_analytics">
+            <Analytics />
+          </RequirePermission>
+        );
       case 'settings':
-        return <Settings />;
+        return (
+          <RequirePermission permission="view_settings">
+            <Settings />
+          </RequirePermission>
+        );
       default:
-        return <Dashboard stats={dashboardStats} isLoading={isLoading} />;
+        return (
+          <RequirePermission permission="view_dashboard">
+            <Dashboard stats={dashboardStats} isLoading={isLoading} />
+          </RequirePermission>
+        );
     }
   };
 
@@ -170,6 +188,7 @@ const AdminPage: React.FC = () => {
         activeTab={activeTab}
         onTabChange={handleTabChange}
         adminUser={adminUser}
+        onLogout={logout}
       >
         <div className={styles.adminContent}>
           {renderTabContent()}
@@ -179,4 +198,4 @@ const AdminPage: React.FC = () => {
   );
 };
 
-export default AdminPage;
+export default withAdminAuth(AdminPage);

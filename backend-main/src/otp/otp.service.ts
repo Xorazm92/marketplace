@@ -1,7 +1,5 @@
 import {
   BadRequestException,
-  forwardRef,
-  Inject,
   Injectable,
 } from "@nestjs/common";
 import { CreateOtpDto } from "./dto/create-otp.dto";
@@ -13,7 +11,6 @@ import { AddMinutesToDate } from "../utils/otp-crypto/addMinutes";
 import { Details } from "./types/details.type";
 import { decode, encode } from "../utils/otp-crypto/crypto";
 import { VerifyDto } from "./dto/verify-otp.dto";
-import { UserAuthService } from "../user-auth/user-auth.service";
 import { SmsService } from "../utils/smsService";
 
 @Injectable()
@@ -21,8 +18,6 @@ export class OtpService {
   constructor(
     private userService: UserService,
     private prisma: PrismaService,
-    @Inject(forwardRef(() => UserAuthService))
-    private userAuthService: UserAuthService
   ) {}
 
   async generateOtp(dto: CreateOtpDto) {

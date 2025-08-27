@@ -744,7 +744,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         image: product?.product_image?.[0]?.url ?
           (product.product_image[0].url.startsWith('http') ?
             product.product_image[0].url :
-            `http://127.0.0.1:4001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`) :
+            `http://127.0.0.1:3001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`) :
           '/img/placeholder-product.jpg',
         rating: 4.5, // Default rating
         reviews: Math.floor(Math.random() * 100) + 10,

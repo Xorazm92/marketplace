@@ -1,5 +1,6 @@
 
 import { Injectable } from '@nestjs/common';
+import { Permission, ROLE_PERMISSIONS } from './permissions.enum';
 
 export enum UserRole {
   ADMIN = 'admin',
@@ -10,102 +11,109 @@ export enum UserRole {
   MODERATOR = 'moderator'
 }
 
-export enum Permission {
-  // Product permissions
-  CREATE_PRODUCT = 'create:product',
-  READ_PRODUCT = 'read:product',
-  UPDATE_PRODUCT = 'update:product',
-  DELETE_PRODUCT = 'delete:product',
-  MODERATE_PRODUCT = 'moderate:product',
-  
-  // Order permissions
-  CREATE_ORDER = 'create:order',
-  READ_ORDER = 'read:order',
-  UPDATE_ORDER = 'update:order',
-  CANCEL_ORDER = 'cancel:order',
-  
-  // Review permissions
-  CREATE_REVIEW = 'create:review',
-  READ_REVIEW = 'read:review',
-  MODERATE_REVIEW = 'moderate:review',
-  
-  // User permissions
-  READ_USER = 'read:user',
-  UPDATE_USER = 'update:user',
-  MANAGE_CHILD = 'manage:child',
-  
-  // Admin permissions
-  ACCESS_ADMIN = 'access:admin',
-  MANAGE_SYSTEM = 'manage:system',
+export enum AdminRole {
+  SUPER_ADMIN = 'SUPER_ADMIN',
+  ADMIN = 'ADMIN',
+  MODERATOR = 'MODERATOR'
 }
 
 @Injectable()
 export class RBACService {
-  private readonly rolePermissions: Record<UserRole, Permission[]> = {
-    [UserRole.ADMIN]: [
-      Permission.CREATE_PRODUCT,
-      Permission.READ_PRODUCT,
-      Permission.UPDATE_PRODUCT,
-      Permission.DELETE_PRODUCT,
-      Permission.MODERATE_PRODUCT,
-      Permission.READ_ORDER,
-      Permission.UPDATE_ORDER,
-      Permission.MODERATE_REVIEW,
-      Permission.READ_USER,
-      Permission.UPDATE_USER,
-      Permission.ACCESS_ADMIN,
-      Permission.MANAGE_SYSTEM,
-    ],
-    [UserRole.MODERATOR]: [
-      Permission.READ_PRODUCT,
-      Permission.MODERATE_PRODUCT,
-      Permission.MODERATE_REVIEW,
-      Permission.READ_ORDER,
-      Permission.READ_USER,
-    ],
-    [UserRole.SELLER]: [
-      Permission.CREATE_PRODUCT,
-      Permission.READ_PRODUCT,
-      Permission.UPDATE_PRODUCT,
-      Permission.READ_ORDER,
-      Permission.READ_REVIEW,
-    ],
-    [UserRole.PARENT]: [
-      Permission.READ_PRODUCT,
-      Permission.CREATE_ORDER,
-      Permission.READ_ORDER,
-      Permission.UPDATE_ORDER,
-      Permission.CANCEL_ORDER,
-      Permission.CREATE_REVIEW,
-      Permission.READ_REVIEW,
-      Permission.MANAGE_CHILD,
-      Permission.READ_USER,
-      Permission.UPDATE_USER,
-    ],
-    [UserRole.CHILD]: [
-      Permission.READ_PRODUCT,
-      Permission.READ_REVIEW,
-    ],
-    [UserRole.GUEST]: [
-      Permission.READ_PRODUCT,
-      Permission.READ_REVIEW,
-    ],
-  };
-
-  hasPermission(userRole: UserRole, permission: Permission): boolean {
-    const permissions = this.rolePermissions[userRole];
-    return permissions.includes(permission);
+  // Admin permission checking
+  hasAdminPermission(adminRole: AdminRole, permission: Permission): boolean {
+    const permissions = ROLE_PERMISSIONS[adminRole];
+    return permissions ? permissions.includes(permission) : false;
   }
 
-  hasAnyPermission(userRole: UserRole, permissions: Permission[]): boolean {
+  hasAnyAdminPermission(adminRole: AdminRole, permissions: Permission[]): boolean {
+    return permissions.some(permission => this.hasAdminPermission(adminRole, permission));
+  }
+
+  hasAllAdminPermissions(adminRole: AdminRole, permissions: Permission[]): boolean {
+    return permissions.every(permission => this.hasAdminPermission(adminRole, permission));
+  }
+
+  getAdminPermissions(adminRole: AdminRole): Permission[] {
+    return ROLE_PERMISSIONS[adminRole] || [];
+  }
+
+  // Check if admin can access specific resource
+  canAccessDashboard(adminRole: AdminRole): boolean {
+    return this.hasAdminPermission(adminRole, Permission.VIEW_DASHBOARD);
+  }
+
+  canManageUsers(adminRole: AdminRole): boolean {
+    return this.hasAnyAdminPermission(adminRole, [
+      Permission.VIEW_USERS,
+      Permission.UPDATE_USER,
+      Permission.DELETE_USER,
+      Permission.BLOCK_USER,
+      Permission.UNBLOCK_USER
+    ]);
+  }
+
+  canManageProducts(adminRole: AdminRole): boolean {
+    return this.hasAnyAdminPermission(adminRole, [
+      Permission.VIEW_PRODUCTS,
+      Permission.APPROVE_PRODUCT,
+      Permission.REJECT_PRODUCT,
+      Permission.UPDATE_PRODUCT,
+      Permission.DELETE_PRODUCT
+    ]);
+  }
+
+  canManageOrders(adminRole: AdminRole): boolean {
+    return this.hasAnyAdminPermission(adminRole, [
+      Permission.VIEW_ORDERS,
+      Permission.UPDATE_ORDER_STATUS,
+      Permission.CANCEL_ORDER,
+      Permission.REFUND_ORDER
+    ]);
+  }
+
+  canManageAdmins(adminRole: AdminRole): boolean {
+    return this.hasAnyAdminPermission(adminRole, [
+      Permission.VIEW_ADMINS,
+      Permission.CREATE_ADMIN,
+      Permission.UPDATE_ADMIN,
+      Permission.DELETE_ADMIN,
+      Permission.ASSIGN_ROLES
+    ]);
+  }
+
+  canViewReports(adminRole: AdminRole): boolean {
+    return this.hasAnyAdminPermission(adminRole, [
+      Permission.VIEW_REPORTS,
+      Permission.VIEW_ANALYTICS,
+      Permission.EXPORT_DATA
+    ]);
+  }
+
+  // Legacy user role permissions (for backward compatibility)
+  private readonly rolePermissions: Record<UserRole, string[]> = {
+    [UserRole.ADMIN]: ['access:admin', 'manage:system'],
+    [UserRole.MODERATOR]: ['moderate:content'],
+    [UserRole.SELLER]: ['create:product', 'read:product', 'update:product'],
+    [UserRole.PARENT]: ['read:product', 'create:order', 'manage:child'],
+    [UserRole.CHILD]: ['read:product'],
+    [UserRole.GUEST]: ['read:product'],
+  };
+
+  // Legacy methods for user roles
+  hasPermission(userRole: UserRole, permission: string): boolean {
+    const permissions = this.rolePermissions[userRole];
+    return permissions ? permissions.includes(permission) : false;
+  }
+
+  hasAnyPermission(userRole: UserRole, permissions: string[]): boolean {
     return permissions.some(permission => this.hasPermission(userRole, permission));
   }
 
-  hasAllPermissions(userRole: UserRole, permissions: Permission[]): boolean {
+  hasAllPermissions(userRole: UserRole, permissions: string[]): boolean {
     return permissions.every(permission => this.hasPermission(userRole, permission));
   }
 
-  getRolePermissions(userRole: UserRole): Permission[] {
+  getRolePermissions(userRole: UserRole): string[] {
     return this.rolePermissions[userRole] || [];
   }
 }

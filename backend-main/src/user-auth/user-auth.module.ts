@@ -4,9 +4,18 @@ import { UserAuthController } from "./user-auth.controller";
 import { PrismaModule } from "../prisma/prisma.module";
 import { UserModule } from "../user/user.module";
 import { OtpModule } from "../otp/otp.module";
+import { JwtModule } from "@nestjs/jwt";
 
 @Module({
-  imports: [PrismaModule, UserModule, forwardRef(() => OtpModule)],
+  imports: [
+    PrismaModule,
+    UserModule,
+    forwardRef(() => OtpModule),
+    JwtModule.register({
+      secret: process.env.ACCESS_TOKEN_KEY || 'default-secret',
+      signOptions: { expiresIn: '15m' }
+    })
+  ],
   controllers: [UserAuthController],
   providers: [UserAuthService],
   exports: [UserAuthService],

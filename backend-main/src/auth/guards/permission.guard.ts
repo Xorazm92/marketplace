@@ -1,7 +1,8 @@
 
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RBACService, Permission, UserRole } from '../rbac/rbac.service';
+import { RBACService, UserRole } from '../rbac/rbac.service';
+import { Permission } from '../rbac/permissions.enum';
 
 @Injectable()
 export class PermissionGuard implements CanActivate {

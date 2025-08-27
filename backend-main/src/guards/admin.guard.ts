@@ -43,7 +43,8 @@ export class AdminGuard implements CanActivate {
     if (!payload) {
       throw new UnauthorizedException("Unauthorizard admin");
     }
-    if (payload.role != "admin") {
+    // Check if this is an admin token (either old format or new format)
+    if (payload.role !== "admin" && payload.type !== "admin") {
       throw new UnauthorizedException("Unauthorizard admin");
     }
 

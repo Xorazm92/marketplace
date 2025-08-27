@@ -43,10 +43,11 @@ const UserLoginPage = () => {
         setLocalStorage("accessToken", data.accessToken);
         router.push("/");
       } else {
-        toast.error("Kirish xatosi");
+        toast.error(res?.message || "Kirish xatosi");
       }
-    } catch (error) {
-      toast.error("Server xatosi");
+    } catch (error: any) {
+      console.error("Login error:", error);
+      toast.error(error?.response?.data?.message || "Server xatosi");
     }
   };
 

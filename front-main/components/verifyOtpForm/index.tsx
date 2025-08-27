@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../store/features/authSlice";
 import { useRouter } from "next/router";
-import { cookies } from "next/headers";
 
 const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);

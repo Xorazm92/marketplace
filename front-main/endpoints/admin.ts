@@ -2,28 +2,53 @@
 import instance from './instance';
 
 export const getDashboardStats = async () => {
-  const response = await instance.get('/admin/dashboard');
+  const token = localStorage.getItem('admin_access_token');
+  const response = await instance.get('/admin/dashboard', {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 
 export const getUsersAdmin = async (page: number = 1, limit: number = 10) => {
-  const response = await instance.get(`/admin/users?page=${page}&limit=${limit}`);
+  const token = localStorage.getItem('admin_access_token');
+  const response = await instance.get(`/admin/users?page=${page}&limit=${limit}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 
 export const getProductsAdmin = async (page: number = 1, limit: number = 10, status?: string) => {
+  const token = localStorage.getItem('admin_access_token');
   const url = `/admin/products?page=${page}&limit=${limit}${status ? `&status=${status}` : ''}`;
-  const response = await instance.get(url);
+  const response = await instance.get(url, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 
 export const approveProduct = async (productId: number) => {
-  const response = await instance.put(`/admin/products/${productId}/approve`);
+  const token = localStorage.getItem('admin_access_token');
+  const response = await instance.put(`/admin/products/${productId}/approve`, {}, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 
 export const rejectProduct = async (productId: number, reason?: string) => {
-  const response = await instance.put(`/admin/products/${productId}/reject`, { reason });
+  const token = localStorage.getItem('admin_access_token');
+  const response = await instance.put(`/admin/products/${productId}/reject`, { reason }, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+    },
+  });
   return response.data;
 };
 

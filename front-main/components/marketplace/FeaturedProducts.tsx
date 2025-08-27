@@ -184,7 +184,7 @@ const FeaturedProducts: React.FC = () => {
                     product.product_image[0]?.url
                       ? (product.product_image[0].url.startsWith('http')
                           ? product.product_image[0].url
-                          : `http://127.0.0.1:4001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`)
+                          : `http://127.0.0.1:3001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`)
                       : '/img/placeholder-product.jpg'
                   }
                   alt={product.title}

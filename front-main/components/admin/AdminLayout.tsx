@@ -16,7 +16,8 @@ interface AdminUser {
 interface AdminLayoutProps {
   activeTab?: AdminTab;
   onTabChange?: (tab: AdminTab) => void;
-  adminUser?: AdminUser;
+  adminUser?: AdminUser | null;
+  onLogout?: () => void;
   children: React.ReactNode;
 }
 
@@ -62,13 +63,8 @@ const menuItems = [
 const AdminLayout: React.FC<AdminLayoutProps> = ({
   activeTab = 'dashboard',
   onTabChange = () => {},
-  adminUser = {
-    id: 1,
-    name: 'Admin User',
-    email: 'admin@inbola.uz',
-    role: 'Administrator',
-    avatar: null
-  },
+  adminUser = null,
+  onLogout = () => {},
   children
 }) => {
   const router = useRouter();
@@ -192,7 +188,13 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
                     Sozlamalar
                   </Link>
                   <div className={styles.dropdownDivider}></div>
-                  <button className={styles.dropdownItem}>
+                  <button
+                    className={styles.dropdownItem}
+                    onClick={() => {
+                      setShowUserMenu(false);
+                      onLogout();
+                    }}
+                  >
                     <span className={styles.dropdownIcon}>🚪</span>
                     Chiqish
                   </button>

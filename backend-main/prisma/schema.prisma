@@ -8,20 +8,27 @@ datasource db {
 }
 
 model Admin {
-  id                   Int      @id @default(autoincrement())
+  id                   Int       @id @default(autoincrement())
   first_name           String
   last_name            String
-  email                String   @unique
-  phone_number         String
-  is_active            Boolean  @default(false)
-  is_creator           Boolean  @default(false)
-  activation_link      String   @unique
+  email                String?   @unique
+  phone_number         String    @unique
+  role                 AdminRole @default(ADMIN)
+  is_active            Boolean   @default(false)
+  is_creator           Boolean   @default(false)
+  activation_link      String?   @unique
   hashed_password      String
   hashed_refresh_token String?
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
 
   @@map("admin")
+}
+
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
 }
 
 model User {
