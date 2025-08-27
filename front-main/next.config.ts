@@ -133,7 +133,9 @@ const nextConfig: NextConfig = {
           // SEO headers
           {
             key: 'Cache-Control',
-            value: 'public, max-age=31536000, immutable',
+            value: process.env.NODE_ENV === 'development'
+              ? 'no-store, must-revalidate'
+              : 'public, max-age=31536000, immutable',
           },
         ],
       },
@@ -242,7 +244,37 @@ const nextConfig: NextConfig = {
       maxInactiveAge: 25 * 1000,
       pagesBufferLength: 2,
     },
+    // Hot reload optimizatsiyasi
+    reactStrictMode: false,
   }),
+
+  // Turbopack konfiguratsiyasi
+  experimental: {
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
+  },
+
+  // Webpack konfiguratsiyasi (fallback)
+  webpack: (config, { dev, isServer }) => {
+    // SVG support
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    // Development da cache ni o'chirish
+    if (dev) {
+      config.cache = false;
+    }
+
+    return config;
+  },
 };
 
 export default nextConfig;

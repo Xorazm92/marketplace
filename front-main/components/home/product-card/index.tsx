@@ -2,7 +2,7 @@ import React from "react";
 import Link from "next/link";
 import styles from "./product.module.scss";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
-import OptimizedImage from "../../common/OptimizedImage";
+import ProductImageSlider from "./ProductImageSlider";
 import { Product } from "../../../types";
 
 interface CardProps {
@@ -27,23 +27,11 @@ const ProductCard: React.FC<CardProps> = ({
 
   return (
     <Link href={`/productdetails/${id}`} className={styles.card}>
-      <OptimizedImage
-                    src={
-              product_image && product_image.length > 0
-                ? product_image[0].url.startsWith('http')
-                  ? product_image[0].url
-                  : product_image[0].url.includes('/uploads/')
-                    ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}${product_image[0].url}`
-                    : "/img/placeholder-product.jpg"
-                : "/img/placeholder-product.jpg"
-            }
-        alt={title}
-        width={300}
-        height={200}
-        className={styles.image}
-        fallbackSrc="/img/placeholder-product.jpg"
-        lazy={true}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+      <ProductImageSlider
+        images={product_image || []}
+        title={title}
+        autoSlide={true}
+        autoSlideInterval={4000}
       />
       <div className={styles.info}>
         <div className={styles.title}>

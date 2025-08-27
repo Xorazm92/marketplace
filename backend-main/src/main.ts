@@ -31,13 +31,15 @@ async function bootstrap(): Promise<void> {
     app.use(compression());
     app.use(cookieParser());
     
+    // Static files serving - global prefix dan oldin
+    const uploadsPath = join(process.cwd(), 'uploads');
+    console.log('📁 Static files path:', uploadsPath);
+    app.use('/uploads', express.static(uploadsPath));
+
     // Global prefix
     app.setGlobalPrefix('api', {
-      exclude: ['/health', '/'],
+      exclude: ['/health', '/', '/uploads'],
     });
-
-    // Static files serving - global prefix dan keyin
-    app.use('/uploads', express.static(join(__dirname, '..', 'uploads')));
 
     // Versioning
     app.enableVersioning({
