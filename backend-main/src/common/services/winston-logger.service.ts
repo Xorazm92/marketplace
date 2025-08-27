@@ -72,8 +72,8 @@ export class WinstonLoggerService implements LoggerService {
 
     // Add Elasticsearch transport for production
     if (this.configService.get<string>('NODE_ENV') === 'production') {
-      const ElasticsearchTransport = require('winston-elasticsearch');
-      
+      const { ElasticsearchTransport } = require('winston-elasticsearch');
+
       this.logger.add(new ElasticsearchTransport({
         level: 'info',
         clientOpts: {

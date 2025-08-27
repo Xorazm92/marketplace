@@ -259,7 +259,7 @@ export class MonitoringService {
       const totalUsers = await this.prisma.user.count();
       const activeUsers = await this.prisma.user.count({
         where: {
-          last_login: {
+          last_online: {
             gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
           },
         },
@@ -287,7 +287,7 @@ export class MonitoringService {
         where: { status: 'PENDING' },
       });
       const completedOrders = await this.prisma.order.count({
-        where: { status: 'COMPLETED' },
+        where: { status: 'DELIVERED' },
       });
 
       return {
