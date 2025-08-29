@@ -87,7 +87,37 @@ export class ProductController {
       console.log('Received files:', files);
       console.log('Files count:', files?.images?.length || 0);
 
-      return await this.productService.create(createProductDto, createProductDto.user_id);
+      const product = await this.productService.create(createProductDto, createProductDto.user_id);
+      console.log('✅ Product created with ID:', product.id);
+
+      // Image'larni product bilan bog'lash
+      if (files?.images && files.images.length > 0) {
+        console.log('🖼️ Processing images for product:', product.id);
+        try {
+          const imageResults = await this.productService.addProductImages(product.id, files.images);
+          console.log('✅ Images added successfully:', imageResults.length);
+        } catch (error) {
+          console.error('❌ Error adding images:', error);
+        }
+      } else {
+        console.log('⚠️ No images to process');
+      }
+
+      // Product'ni image'lar bilan qayta olish
+      const productWithImages = await this.productService.findOne(product.id);
+      console.log('📦 Product with images:', {
+        id: productWithImages.id,
+        title: productWithImages.title,
+        imageCount: productWithImages.product_image?.length || 0
+      });
+
+      // Return consistent response format
+      return {
+        success: true,
+        message: 'Product created successfully',
+        product: productWithImages,
+        statusCode: 201
+      };
     } catch (error) {
       console.error('=== PRODUCT CREATION ERROR ===');
       console.error('Error details:', error);
@@ -115,6 +145,21 @@ export class ProductController {
         error.message || "An unexpected error occurred"
       );
     }
+  }
+
+  @ApiOperation({ summary: "Get all products for admin (including pending)" })
+  @ApiQuery({ name: "page", required: false, type: Number })
+  @ApiQuery({ name: "limit", required: false, type: Number })
+  @ApiQuery({ name: "search", required: false, type: String })
+  @ApiQuery({ name: "status", required: false, type: String })
+  @Get("admin/all")
+  findAllForAdmin(
+    @Query("page") page = 1,
+    @Query("limit") limit = 20,
+    @Query("search") search: string,
+    @Query("status") status: string
+  ) {
+    return this.productService.findAllForAdmin(+page, +limit, search, status);
   }
 
   @ApiOperation({ summary: "Get all products by query" })

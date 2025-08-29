@@ -27,8 +27,12 @@ export const useProductById = (id?: number) => {
 
 export const useAllProducts = () => {
   return useQuery({
-    queryKey: ["products"],
+    queryKey: ["all-products"],
     queryFn: () => getAllProducts(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    cacheTime: 10 * 60 * 1000, // 10 minutes
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
   });
 };
 

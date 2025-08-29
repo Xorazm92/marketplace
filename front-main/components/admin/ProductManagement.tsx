@@ -5,7 +5,7 @@ import { MdOutlineCameraAlt } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import { RootState } from '../../store/store';
 import { setProducts, addProduct, updateProduct, deleteProduct, setLoading } from '../../store/features/productSlice';
-import { createAdminProduct, getAllProducts } from '../../endpoints/product';
+import { createAdminProduct, getAllProducts, getAllProductsForAdmin } from '../../endpoints/product';
 
 interface ProductFormData {
   title: string;
@@ -54,9 +54,9 @@ const ProductManagement: React.FC = () => {
     try {
       dispatch(setLoading(true));
 
-      // Load real products from API
-      console.log('Loading products from API...');
-      const apiProducts = await getAllProducts();
+      // Load real products from API (admin version - includes pending)
+      console.log('Loading admin products from API...');
+      const apiProducts = await getAllProductsForAdmin();
 
       if (apiProducts && Array.isArray(apiProducts)) {
         dispatch(setProducts(apiProducts));
@@ -218,17 +218,19 @@ const ProductManagement: React.FC = () => {
 
         // Call API to create product (temporarily without images for testing)
         console.log('Calling API with data:', productData);
-        const apiResponse = await createAdminProduct(productData, []);
+        const apiResponse = await createAdminProduct(productData, images);
 
-        if (apiResponse && apiResponse.product) {
+        // Check for successful response
+        if (apiResponse && (apiResponse.success || apiResponse.product || apiResponse.id)) {
           console.log('Product created successfully:', apiResponse);
 
           // Don't add to Redux store manually, just reload from API
-          toast.success('Mahsulot database ga muvaffaqiyatli qo\'shildi!');
+          toast.success('Mahsulot muvaffaqiyatli yaratildi!');
 
           // Reload products from API to get fresh data
           await loadProducts();
         } else {
+          console.log('API Response:', apiResponse);
           throw new Error('API response is empty or invalid');
         }
       }
@@ -369,7 +371,13 @@ const ProductManagement: React.FC = () => {
                 <div className={styles.productImageContainer}>
                   {product?.product_image?.[0]?.url ? (
                     <img
-                      src={product.product_image[0].url}
+                      src={`http://localhost:3001${product.product_image[0].url}`}
+                      alt={product.title}
+                      className={styles.productImage}
+                    />
+                  ) : product?.images?.[0] ? (
+                    <img
+                      src={`http://localhost:3001/uploads/${product.images[0]}`}
                       alt={product.title}
                       className={styles.productImage}
                     />

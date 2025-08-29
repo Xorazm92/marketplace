@@ -10,37 +10,28 @@ async function main() {
     // Test user yaratish
     const hashedPassword = await bcrypt.hash('123456', 10);
 
-    // Avval phone number borligini tekshirish
-    const existingPhone = await prisma.phoneNumber.findUnique({
+    // Avval user borligini tekshirish
+    const existingUser = await prisma.user.findUnique({
       where: { phone_number: '+998901234567' }
     });
 
     let testUser;
-    if (!existingPhone) {
+    if (!existingUser) {
       testUser = await prisma.user.create({
         data: {
+          phone_number: '+998901234567',
           first_name: 'Test',
           last_name: 'User',
           password: hashedPassword,
           balance: 1000000, // 1 million so'm
-          phone_number: {
-            create: {
-              phone_number: '+998901234567',
-              is_main: true,
-            }
-          }
-        },
-        include: {
-          phone_number: true
+          is_active: true,
+          is_verified: true,
         }
       });
 
-      console.log('✅ Test user created:', testUser.phone_number[0]?.phone_number);
+      console.log('✅ Test user created:', testUser.phone_number);
     } else {
-      // Mavjud user'ni olish
-      testUser = await prisma.user.findFirst({
-        include: { phone_number: true }
-      });
+      testUser = existingUser;
       console.log('✅ Test user already exists');
     }
 
@@ -70,30 +61,24 @@ async function main() {
     }
 
     // Admin user yaratish (User table'da ham)
-    const existingAdminPhone = await prisma.phoneNumber.findUnique({
+    const existingAdminUser = await prisma.user.findUnique({
       where: { phone_number: '+998909876543' }
     });
 
-    if (!existingAdminPhone) {
+    if (!existingAdminUser) {
       const adminUser = await prisma.user.create({
         data: {
+          phone_number: '+998909876543',
           first_name: 'Admin',
           last_name: 'User',
           password: hashedPassword,
           balance: 0,
-          phone_number: {
-            create: {
-              phone_number: '+998909876543',
-              is_main: true,
-            }
-          }
-        },
-        include: {
-          phone_number: true
+          is_active: true,
+          is_verified: true,
         }
       });
 
-      console.log('✅ Admin user created:', adminUser.phone_number[0]?.phone_number);
+      console.log('✅ Admin user created:', adminUser.phone_number);
     } else {
       console.log('✅ Admin user already exists');
     }

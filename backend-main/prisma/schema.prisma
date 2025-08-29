@@ -33,12 +33,14 @@ enum AdminRole {
 
 model User {
   id                   Int             @id @default(autoincrement())
+  phone_number         String          @unique
   first_name           String
   last_name            String
   password             String
   profile_img          String?
   is_active            Boolean         @default(true)
   is_premium           Boolean         @default(false)
+  is_verified          Boolean         @default(false)
   birth_date           String?
   hashed_refresh_token String?
   last_online          DateTime        @default(now())
@@ -53,7 +55,6 @@ model User {
   email                Email[]
   orders               Order[]
   payment              Payment[]
-  phone_number         PhoneNumber[]
   product              Product[]
   reviews              Review[]
   wishlist             Wishlist?
@@ -332,22 +333,7 @@ model Currency {
   @@map("currency")
 }
 
-model PhoneNumber {
-  id              Int       @id @default(autoincrement())
-  phone_number    String    @unique
-  is_main         Boolean   @default(false)
-  is_verified     Boolean   @default(false)
-  user_id         Int
-  otp_code        String?
-  otp_expires_at  DateTime?
-  otp_attempts    Int       @default(0)
-  last_otp_sent   DateTime?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  user            User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
-
-  @@map("phone_number")
-}
+// PhoneNumber model olib tashlandi - User'da to'g'ridan-to'g'ri phone_number field'i bor
 
 model OtpVerification {
   id              Int       @id @default(autoincrement())

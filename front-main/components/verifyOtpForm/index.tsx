@@ -15,7 +15,7 @@ import { loginSuccess } from "../../store/features/authSlice";
 import { useRouter } from "next/router";
 
 const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
-  const [otp, setOtp] = useState(["", "", "", ""]);
+  const [otp, setOtp] = useState(["", "", "", "", "", ""]);
   const [timer, setTimer] = useState(10);
   const [resendEnabled, setResendEnabled] = useState(false);
   const [user, setUser] = useState<any>(null);
@@ -30,7 +30,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   useEffect(() => {
     const storedUser = getLocalStorage("signup-user");
     setUser(storedUser);
-    inputRefs.current[3]?.focus();
+    inputRefs.current[0]?.focus();
   }, []);
 
   const phone = user?.phoneNumber;
@@ -40,7 +40,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     const newOtp = [...otp];
     newOtp[index] = value;
     setOtp(newOtp);
-    if (value && index < 3) inputRefs.current[index + 1]?.focus();
+    if (value && index < 5) inputRefs.current[index + 1]?.focus();
   };
 
   const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
@@ -52,10 +52,10 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   const handlePaste = (e: React.ClipboardEvent) => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text").replace(/\D/g, "");
-    if (pastedData.length === 4) {
-      const newOtp = pastedData.split("").slice(0, 4);
+    if (pastedData.length === 6) {
+      const newOtp = pastedData.split("").slice(0, 6);
       setOtp(newOtp);
-      inputRefs.current[3]?.focus();
+      inputRefs.current[5]?.focus();
     }
   };
 
@@ -64,7 +64,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     if (user) {
       setTimer(10);
       setResendEnabled(false);
-      setOtp(["", "", "", ""]);
+      setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
       const res = await sendOtp(user?.phoneNumber);
       if (res?.status == 200) {

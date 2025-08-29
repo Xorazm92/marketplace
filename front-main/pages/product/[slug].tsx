@@ -38,10 +38,10 @@ const mockProduct = {
     'Ishlab chiqarilgan': 'Germaniya'
   },
   images: [
-    '/img/products/colored-pencils-1.jpg',
-    '/img/products/colored-pencils-2.jpg',
-    '/img/products/colored-pencils-3.jpg',
-    '/img/products/colored-pencils-4.jpg'
+    'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1606107557195-0e29a4b5b4aa?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1581833971358-2c8b550f87b3?w=400&h=300&fit=crop',
+    'https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=400&h=300&fit=crop'
   ],
   reviews: [
     {

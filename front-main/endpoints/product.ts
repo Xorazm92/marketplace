@@ -109,6 +109,53 @@ export const getProductById = async (id: number) => {
   }
 };
 
+// Admin uchun barcha product'larni olish (pending ham)
+export const getAllProductsForAdmin = async (params?: {
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: string;
+}) => {
+  try {
+    // Admin token'ni olish
+    const adminToken = localStorage.getItem('admin_access_token');
+
+    const res = await instance.get(`/product/admin/all`, {
+      params,
+      headers: {
+        'Authorization': `Bearer ${adminToken}`
+      }
+    });
+
+    console.log('Admin products API response:', res.data);
+
+    if (res.data && res.data.products) {
+      return res.data.products.map((product: any) => ({
+        ...product,
+        images: product.product_image?.map((img: any) => img.url) || ['/images/placeholder.jpg'],
+        rating: product.rating || 4.5,
+        review_count: product.review_count || Math.floor(Math.random() * 100) + 1,
+        seller_name: product.user?.first_name || 'INBOLA',
+        original_price: product.original_price || product.price * 1.2,
+        discount_percentage: product.original_price ?
+          Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0,
+        is_bestseller: Math.random() > 0.7,
+        is_featured: Math.random() > 0.8,
+        safety_certified: true,
+        educational_value: product.educational_value || 'Bolalar rivojlanishi uchun',
+        shipping_info: 'Bepul yetkazib berish',
+        status: product.is_checked || 'PENDING'
+      }));
+    }
+
+    return [];
+  } catch (error: any) {
+    console.error("Error fetching admin products:", error);
+    toast.error(error.response?.data?.message || "Admin products yuklashda xatolik");
+    return [];
+  }
+};
+
 export const getAllProducts = async (params?: { category?: string; limit?: number } | string) => {
   try {
     // Handle both object and string parameters
@@ -170,24 +217,18 @@ export const addProductImage = async (productId: number, image: File) => {
 // Admin product creation function
 export const createAdminProduct = async (productData: any, images: File[]) => {
   try {
-    const tokenString = localStorage.getItem("accessToken");
-    let token = tokenString ? JSON.parse(tokenString) : null;
-
-    // Development mode: create demo token if none exists
-    if (!token && process.env.NODE_ENV === 'development') {
-      const demoToken = "demo-admin-token-for-development";
-      localStorage.setItem("accessToken", JSON.stringify(demoToken));
-      token = demoToken;
-      console.log("Demo token created for development");
-    }
+    // Admin token'ni olish
+    const token = localStorage.getItem('admin_access_token');
 
     if (!token) {
-      // Redirect to login page
+      // Admin login sahifasiga yo'naltirish
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        window.location.href = '/admin/login';
       }
-      throw new Error("Please login first to create products");
+      throw new Error("Admin token topilmadi. Iltimos qayta login qiling.");
     }
+
+    console.log("Admin token found for product creation");
 
     const formData = new FormData();
 
@@ -245,7 +286,16 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       },
     });
 
-    return res.data;
+    console.log("=== FRONTEND API SUCCESS ===");
+    console.log("Response data:", res.data);
+    console.log("Response status:", res.status);
+
+    // Check for successful response
+    if (res.data && res.status === 201) {
+      return res.data; // Return the full response object
+    } else {
+      throw new Error('Invalid API response format');
+    }
   } catch (error: any) {
     console.error("=== FRONTEND API ERROR ===");
     console.error("Full error object:", error);

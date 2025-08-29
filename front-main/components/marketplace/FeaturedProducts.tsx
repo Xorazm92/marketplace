@@ -6,6 +6,7 @@ import { FiHeart, FiStar, FiShoppingCart, FiEye, FiArrowRight } from 'react-icon
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import styles from './FeaturedProducts.module.scss';
 import { getAllProducts } from '../../endpoints/product';
+import { useAllProducts } from '../../hooks/products.use';
 
 interface Product {
   id: number;
@@ -23,38 +24,27 @@ interface Product {
 const FeaturedProducts: React.FC = () => {
   const router = useRouter();
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | 'top' | 'new'>('all');
 
+  // Use React Query hook
+  const { data: allProducts, isLoading } = useAllProducts();
+
+  // Process products when data changes
   useEffect(() => {
-    loadFeaturedProducts();
-  }, [filter]);
+    if (allProducts && Array.isArray(allProducts)) {
+      let filteredProducts = allProducts;
 
-  const loadFeaturedProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await getAllProducts();
-      if (response && Array.isArray(response)) {
-        // Filter and sort products based on filter
-        let filteredProducts = response;
-
-        if (filter === 'top') {
-          filteredProducts = response.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
-        } else if (filter === 'new') {
-          filteredProducts = response.sort((a, b) =>
-            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-          );
-        }
-
-        setProducts(filteredProducts.slice(0, 12));
+      if (filter === 'top') {
+        filteredProducts = allProducts.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+      } else if (filter === 'new') {
+        filteredProducts = allProducts.sort((a, b) =>
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+        );
       }
-    } catch (error) {
-      console.error('Error loading featured products:', error);
-      setProducts([]);
-    } finally {
-      setLoading(false);
+
+      setProducts(filteredProducts.slice(0, 12));
     }
-  };
+  }, [allProducts, filter]);
 
   const addToWishlist = async (productId: number) => {
     try {
@@ -126,7 +116,7 @@ const FeaturedProducts: React.FC = () => {
     return stars;
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section className={styles.featured}>
         <div className={styles.container}>
@@ -177,7 +167,7 @@ const FeaturedProducts: React.FC = () => {
         {/* Products Grid - Etsy style */}
         <div className={styles.productsGrid}>
           {products.map((product) => (
-            <Link key={product.id} href={`/product/${product.slug}`} className={styles.productCard}>
+            <Link key={product.id} href={`/productdetails/${product.id}`} className={styles.productCard}>
               <div className={styles.productImageContainer}>
                 <img
                   src={

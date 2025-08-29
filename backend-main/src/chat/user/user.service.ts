@@ -58,11 +58,7 @@ export class UserService {
         },
       },
       include: {
-        phone_number: {
-          where: {
-            is_main: true,
-          },
-        },
+        // phone_number endi User model'da to'g'ridan-to'g'ri field
       }
     });
   }

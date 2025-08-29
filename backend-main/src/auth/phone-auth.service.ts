@@ -155,19 +155,18 @@ export class PhoneAuthService {
       await this.verifyOtp(phoneNumber, otpCode, 'login');
 
       // Foydalanuvchini topish
-      const phoneRecord = await this.prisma.phoneNumber.findUnique({
+      const user = await this.prisma.user.findUnique({
         where: { phone_number: phoneNumber },
-        include: { user: true },
       });
 
-      if (!phoneRecord) {
+      if (!user) {
         throw new HttpException(
           'Bu telefon raqami bilan foydalanuvchi topilmadi',
           HttpStatus.NOT_FOUND,
         );
       }
 
-      const user = phoneRecord.user;
+      // user allaqachon yuqorida e'lon qilingan
 
       if (!user.is_active) {
         throw new HttpException(
@@ -176,9 +175,9 @@ export class PhoneAuthService {
         );
       }
 
-      // Telefon raqamini tasdiqlangan deb belgilash
-      await this.prisma.phoneNumber.update({
-        where: { id: phoneRecord.id },
+      // User'ni tasdiqlangan deb belgilash
+      await this.prisma.user.update({
+        where: { id: user.id },
         data: { is_verified: true },
       });
 
@@ -213,11 +212,11 @@ export class PhoneAuthService {
       await this.verifyOtp(data.phone_number, data.otp_code, 'registration');
 
       // Telefon raqami allaqachon mavjudligini tekshirish
-      const existingPhone = await this.prisma.phoneNumber.findUnique({
+      const existingUser = await this.prisma.user.findUnique({
         where: { phone_number: data.phone_number },
       });
 
-      if (existingPhone) {
+      if (existingUser) {
         throw new HttpException(
           'Bu telefon raqami allaqachon ro\'yxatdan o\'tgan',
           HttpStatus.CONFLICT,
@@ -227,20 +226,12 @@ export class PhoneAuthService {
       // Yangi foydalanuvchi yaratish
       const user = await this.prisma.user.create({
         data: {
+          phone_number: data.phone_number,
           first_name: data.first_name,
           last_name: data.last_name,
           password: '', // Telefon orqali kirish uchun parol kerak emas
           birth_date: data.birth_date,
           is_active: true,
-        },
-      });
-
-      // Telefon raqamini qo'shish
-      await this.prisma.phoneNumber.create({
-        data: {
-          phone_number: data.phone_number,
-          user_id: user.id,
-          is_main: true,
           is_verified: true,
         },
       });
@@ -275,10 +266,10 @@ export class PhoneAuthService {
 
   // Telefon raqami mavjudligini tekshirish
   async checkPhoneExists(phoneNumber: string): Promise<boolean> {
-    const phoneRecord = await this.prisma.phoneNumber.findUnique({
+    const user = await this.prisma.user.findUnique({
       where: { phone_number: phoneNumber },
     });
-    return !!phoneRecord;
+    return !!user;
   }
 
   // Foydalanuvchi telefon raqamini tasdiqlash
@@ -287,34 +278,30 @@ export class PhoneAuthService {
       // OTP ni tekshirish
       await this.verifyOtp(phoneNumber, otpCode, 'verification');
 
-      // Telefon raqamini topish yoki yaratish
-      let phoneRecord = await this.prisma.phoneNumber.findUnique({
-        where: { phone_number: phoneNumber },
+      // User'ni topish va tasdiqlash
+      const user = await this.prisma.user.findUnique({
+        where: { id: userId },
       });
 
-      if (phoneRecord) {
-        if (phoneRecord.user_id !== userId) {
-          throw new HttpException(
-            'Bu telefon raqami boshqa foydalanuvchiga tegishli',
-            HttpStatus.CONFLICT,
-          );
-        }
+      if (!user) {
+        throw new HttpException(
+          'Foydalanuvchi topilmadi',
+          HttpStatus.NOT_FOUND,
+        );
+      }
 
-        // Mavjud telefon raqamini tasdiqlash
-        await this.prisma.phoneNumber.update({
-          where: { id: phoneRecord.id },
+      if (user.phone_number !== phoneNumber) {
+        throw new HttpException(
+          'Bu telefon raqami sizga tegishli emas',
+          HttpStatus.CONFLICT,
+        );
+      }
+
+      // User'ni tasdiqlangan deb belgilash
+      await this.prisma.user.update({
+          where: { id: userId },
           data: { is_verified: true },
         });
-      } else {
-        // Yangi telefon raqamini qo'shish
-        await this.prisma.phoneNumber.create({
-          data: {
-            phone_number: phoneNumber,
-            user_id: userId,
-            is_verified: true,
-          },
-        });
-      }
 
       return true;
     } catch (error) {

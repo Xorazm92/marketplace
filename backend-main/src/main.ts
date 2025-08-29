@@ -32,9 +32,27 @@ async function bootstrap(): Promise<void> {
     app.use(cookieParser());
     
     // Static files serving - global prefix dan oldin
-    const uploadsPath = join(process.cwd(), 'uploads');
+    const uploadsPath = join(process.cwd(), 'public', 'uploads');
     console.log('📁 Static files path:', uploadsPath);
-    app.use('/uploads', express.static(uploadsPath));
+
+    // CORS headers for static files
+    app.use('/uploads', (req, res, next) => {
+      res.header('Access-Control-Allow-Origin', '*');
+      res.header('Access-Control-Allow-Methods', 'GET, OPTIONS');
+      res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept');
+      if (req.method === 'OPTIONS') {
+        res.sendStatus(200);
+      } else {
+        next();
+      }
+    });
+
+    app.use('/uploads', express.static(uploadsPath, {
+      setHeaders: (res, path) => {
+        res.set('Access-Control-Allow-Origin', '*');
+        res.set('Cross-Origin-Resource-Policy', 'cross-origin');
+      }
+    }));
 
     // Global prefix
     app.setGlobalPrefix('api', {

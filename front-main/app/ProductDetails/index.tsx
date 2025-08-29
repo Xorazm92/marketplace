@@ -88,8 +88,10 @@ const ProductDetails = () => {
       views: backendData.view_count || 0,
       description: backendData.description || "",
       isNegotiable: backendData.negotiable || false,
-      images: backendData.product_image?.map(
-        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/public/${img.url || img.image}`,
+      images: backendData.images?.map(
+        (img: any) => `http://localhost:3001/uploads/${img}`,
+      ) || backendData.product_image?.map(
+        (img: any) => `http://localhost:3001${img.url || img.image}`,
       ) || ["/img/placeholder-product.jpg"],
       userId: backendData.user_id,
     };

@@ -19,60 +19,14 @@ interface RelatedProductsProps {
   currentProductId: number;
 }
 
-// Mock data - real loyihada API dan keladi
-const mockRelatedProducts: Product[] = [
-  {
-    id: 2,
-    title: 'Yumshoq ayiq o\'yinchoq',
-    price: 120000,
-    originalPrice: 150000,
-    image: '/img/products/teddy-bear.jpg',
-    rating: 4.9,
-    reviews: 89,
-    discount: 20,
-    slug: 'soft-teddy-bear'
-  },
-  {
-    id: 3,
-    title: 'Bolalar sport kiyimi',
-    price: 85000,
-    image: '/img/products/kids-sportswear.jpg',
-    rating: 4.7,
-    reviews: 156,
-    slug: 'kids-sportswear'
-  },
-  {
-    id: 4,
-    title: 'Ta\'lim kitoblari to\'plami',
-    price: 95000,
-    originalPrice: 120000,
-    image: '/img/products/education-books.jpg',
-    rating: 4.6,
-    reviews: 203,
-    discount: 21,
-    slug: 'education-books-set'
-  },
-  {
-    id: 5,
-    title: 'Bolalar velosipedi',
-    price: 450000,
-    originalPrice: 550000,
-    image: '/img/products/kids-bicycle.jpg',
-    rating: 4.8,
-    reviews: 67,
-    discount: 18,
-    slug: 'kids-bicycle'
-  }
-];
+// Mock data olib tashlandi - faqat API'dan kelayotgan data ishlatiladi
 
 const RelatedProducts: React.FC<RelatedProductsProps> = ({
   categoryId,
   currentProductId
 }) => {
   // Real loyihada bu API call bo'ladi
-  const relatedProducts = mockRelatedProducts.filter(
-    product => product.id !== currentProductId
-  );
+  const relatedProducts: Product[] = [];
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('uz-UZ').format(price) + ' so\'m';

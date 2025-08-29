@@ -66,7 +66,7 @@ const Product = () => {
       description: backendData.description || "",
       isNegotiable: backendData.negotiable || false,
       images: backendData.product_image?.map(
-        (img: any) => `${process.env.NEXT_PUBLIC_BASE_URL}/${img.url}`,
+        (img: any) => `http://localhost:3001${img.url}`,
       ) || ["mobile_phone_image.jpg"],
     };
   };

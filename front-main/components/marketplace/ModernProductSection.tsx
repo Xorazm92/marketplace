@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FiStar, FiHeart, FiShoppingCart, FiArrowRight } from 'react-icons/fi';
 import { getAllProducts } from '../../endpoints/product';
+import { useAllProducts } from '../../hooks/products.use';
 import styles from './ModernProductSection.module.scss';
 
 interface Product {
@@ -39,30 +40,26 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
   layout = 'grid'
 }) => {
   const [products, setProducts] = useState<Product[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    loadProducts();
-  }, [categoryFilter]);
+  // Use React Query hook
+  const { data: allProducts, isLoading } = useAllProducts();
 
-  const loadProducts = async () => {
+  // Process products when data changes
+  useEffect(() => {
     try {
-      setLoading(true);
       setError(null);
-      
-      const response = await getAllProducts();
-      
-      if (response && Array.isArray(response)) {
-        let filteredProducts = response;
-        
+
+      if (allProducts && Array.isArray(allProducts)) {
+        let filteredProducts = allProducts;
+
         // Filter by category if specified
         if (categoryFilter) {
-          filteredProducts = response.filter(product => 
+          filteredProducts = allProducts.filter(product =>
             product.category?.slug === categoryFilter
           );
         }
-        
+
         // Map to our interface
         const mappedProducts = filteredProducts.map(mapProduct).slice(0, maxProducts);
         setProducts(mappedProducts);
@@ -71,13 +68,11 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
         setProducts(getSampleProducts(categoryFilter).slice(0, maxProducts));
       }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('Error processing products:', error);
       setError('Mahsulotlarni yuklashda xatolik yuz berdi');
       setProducts(getSampleProducts(categoryFilter).slice(0, maxProducts));
-    } finally {
-      setLoading(false);
     }
-  };
+  }, [allProducts, categoryFilter, maxProducts]);
 
   const mapProduct = (product: any): Product => {
     // Use sample images based on category for better visual experience
@@ -195,7 +190,7 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
     ));
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <section className={styles.productSection}>
         <div className={styles.container}>

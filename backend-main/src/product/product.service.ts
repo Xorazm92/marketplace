@@ -59,6 +59,98 @@ export class ProductService {
     return product;
   }
 
+  // Product'ga image'lar qo'shish
+  async addProductImages(productId: number, imageFiles: any[]) {
+    try {
+      console.log(`🖼️ Adding ${imageFiles.length} images to product ${productId}`);
+      console.log('📁 Image files:', imageFiles.map(f => ({ filename: f.filename, path: f.path })));
+
+      const imagePromises = imageFiles.map(async (file, index) => {
+        // Image URL'ni yaratish (backend'dan serve qilinadi)
+        const imageUrl = `/uploads/${file.filename}`;
+
+        console.log(`📸 Creating image record ${index + 1}: ${imageUrl}`);
+
+        const imageRecord = await this.prisma.productImage.create({
+          data: {
+            product_id: productId,
+            url: imageUrl
+          }
+        });
+
+        console.log(`✅ Image record created:`, imageRecord);
+        return imageRecord;
+      });
+
+      const images = await Promise.all(imagePromises);
+      console.log(`🎉 Successfully created ${images.length} image records for product ${productId}`);
+
+      return images;
+    } catch (error) {
+      console.error(`❌ Error adding images to product ${productId}:`, error);
+      throw error;
+    }
+  }
+
+  // Admin uchun barcha product'larni ko'rish (status filter'siz)
+  async findAllForAdmin(
+    page: number = 1,
+    limit: number = 20,
+    search?: string,
+    status?: string
+  ) {
+    const skip = (page - 1) * limit;
+
+    const where: any = {
+      is_deleted: false
+    };
+
+    // Status filter (agar berilgan bo'lsa)
+    if (status) {
+      where.is_checked = status;
+    }
+
+    if (search) {
+      where.OR = [
+        { title: { contains: search } },
+        { description: { contains: search } }
+      ];
+    }
+
+    const [products, total] = await Promise.all([
+      this.prisma.product.findMany({
+        where,
+        skip,
+        take: limit,
+        include: {
+          product_image: true,
+          brand: true,
+          category: true,
+          user: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              profile_img: true
+            }
+          }
+        },
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.product.count({ where })
+    ]);
+
+    return {
+      products,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
+    };
+  }
+
   async findAll(
     page: number = 1,
     limit: number = 20,

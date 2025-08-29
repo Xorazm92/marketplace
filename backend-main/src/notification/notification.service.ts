@@ -17,7 +17,7 @@ export class NotificationService {
         user: {
           include: {
             email: true,
-            phone_number: true
+            // phone_number endi User model'da to'g'ridan-to'g'ri field
           }
         },
         items: {
@@ -30,8 +30,8 @@ export class NotificationService {
 
     if (!order) return;
 
-    const userEmail = order.user.email.find(e => e.is_main)?.email;
-    const userPhone = order.user.phone_number.find(p => p.is_main)?.phone_number;
+    const userEmail = order.user?.email?.find(e => e.is_main)?.email;
+    const userPhone = order.user?.phone_number;
 
     // Send email notification
     if (userEmail) {
@@ -51,7 +51,7 @@ export class NotificationService {
         user: {
           include: {
             email: true,
-            phone_number: true
+            // phone_number endi User model'da to'g'ridan-to'g'ri field
           }
         }
       }
@@ -59,8 +59,8 @@ export class NotificationService {
 
     if (!order) return;
 
-    const userEmail = order.user.email.find(e => e.is_main)?.email;
-    const userPhone = order.user.phone_number.find(p => p.is_main)?.phone_number;
+    const userEmail = order.user?.email?.find(e => e.is_main)?.email;
+    const userPhone = order.user?.phone_number;
 
     const statusMessages = {
       'CONFIRMED': 'Your order has been confirmed',
@@ -110,7 +110,7 @@ export class NotificationService {
         user: {
           include: {
             email: true,
-            phone_number: true
+            // phone_number endi User model'da to'g'ridan-to'g'ri field
           }
         }
       }
@@ -118,8 +118,8 @@ export class NotificationService {
 
     if (!product || !product.user) return;
 
-    const userEmail = product.user.email.find(e => e.is_main)?.email;
-    const userPhone = product.user.phone_number.find(p => p.is_main)?.phone_number;
+    const userEmail = product.user?.email?.find(e => e.is_main)?.email;
+    const userPhone = product.user?.phone_number;
 
     const message = approved 
       ? `Your product "${product.title}" has been approved and is now live!`

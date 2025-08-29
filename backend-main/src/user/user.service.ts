@@ -16,18 +16,12 @@ export class UserService {
 
     const newUser = await this.prisma.user.create({
       data: {
+        phone_number: createUserDto.phone_number,
         first_name: createUserDto.first_name,
         last_name: createUserDto.last_name,
         password: hashed_password,
-        phone_number: {
-          create: {
-            phone_number: createUserDto.phone_number,
-            is_main: true,
-          },
-        },
-      },
-      include: {
-        phone_number: true,
+        is_active: true,
+        is_verified: true,
       },
     });
 
@@ -60,9 +54,8 @@ export class UserService {
   }
 
   async findUserByPhoneNumber(phone_number: string) {
-    return this.prisma.phoneNumber.findFirst({
-      where: { phone_number, is_main: true },
-      include: { user: true },
+    return this.prisma.user.findFirst({
+      where: { phone_number },
     });
   }
 
@@ -77,7 +70,6 @@ export class UserService {
     return await this.prisma.user.findUnique({
       where: { id },
       include: {
-        phone_number: true,
         address: true,
         email: true,
         product: {
@@ -166,7 +158,7 @@ export class UserService {
     const [users, total] = await this.prisma.$transaction([
       this.prisma.user.findMany({
         where: whereClause,
-        include: { phone_number: true },
+        // phone_number endi User model'da to'g'ridan-to'g'ri field
         skip,
         take: limit,
       }),

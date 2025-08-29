@@ -21,52 +21,10 @@ interface WishlistPageProps {
   userId: number;
 }
 
-// Mock data - real loyihada API dan keladi
-const mockWishlistItems: WishlistItem[] = [
-  {
-    id: 1,
-    productId: 1,
-    title: 'Bolalar uchun rangli qalam to\'plami',
-    price: 45000,
-    originalPrice: 60000,
-    image: '/img/products/colored-pencils.jpg',
-    rating: 4.8,
-    reviews: 124,
-    discount: 25,
-    inStock: true,
-    slug: 'colored-pencils-set',
-    addedDate: '2024-01-15'
-  },
-  {
-    id: 2,
-    productId: 2,
-    title: 'Yumshoq ayiq o\'yinchoq',
-    price: 120000,
-    originalPrice: 150000,
-    image: '/img/products/teddy-bear.jpg',
-    rating: 4.9,
-    reviews: 89,
-    discount: 20,
-    inStock: true,
-    slug: 'soft-teddy-bear',
-    addedDate: '2024-01-12'
-  },
-  {
-    id: 3,
-    productId: 3,
-    title: 'Bolalar sport kiyimi',
-    price: 85000,
-    image: '/img/products/kids-sportswear.jpg',
-    rating: 4.7,
-    reviews: 156,
-    inStock: false,
-    slug: 'kids-sportswear',
-    addedDate: '2024-01-10'
-  }
-];
+// Mock data olib tashlandi - faqat API'dan kelayotgan data ishlatiladi
 
 const WishlistPage: React.FC<WishlistPageProps> = ({ userId }) => {
-  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>(mockWishlistItems);
+  const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
 
   const formatPrice = (price: number) => {

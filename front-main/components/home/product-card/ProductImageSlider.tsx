@@ -10,7 +10,7 @@ interface ProductImage {
 }
 
 interface ProductImageSliderProps {
-  images: ProductImage[];
+  images: (ProductImage | string)[];
   title: string;
   autoSlide?: boolean;
   autoSlideInterval?: number;
@@ -71,13 +71,25 @@ const ProductImageSlider: React.FC<ProductImageSliderProps> = ({
     );
   }
 
-  const getImageUrl = (image: ProductImage) => {
-    if (image.url.startsWith('http')) {
-      return image.url;
+  const getImageUrl = (image: ProductImage | string) => {
+    let imageUrl = typeof image === 'string' ? image : image.url;
+
+    // Agar URL allaqachon to'liq bo'lsa
+    if (imageUrl.startsWith('http')) {
+      return imageUrl;
     }
-    if (image.url.includes('/uploads/')) {
-      return `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}${image.url}`;
+
+    // Agar faqat fayl nomi bo'lsa (masalan: "1igjbf1dmmm.jpg")
+    if (!imageUrl.startsWith('/')) {
+      return `http://localhost:3001/uploads/${imageUrl}`;
     }
+
+    // Agar /uploads/ bilan boshlansa
+    if (imageUrl.startsWith('/uploads/')) {
+      return `http://localhost:3001${imageUrl}`;
+    }
+
+    // Boshqa holatlarda placeholder
     return "/img/placeholder-product.jpg";
   };
 

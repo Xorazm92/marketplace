@@ -35,92 +35,7 @@ interface SearchResultsProps {
   isLoading: boolean;
 }
 
-// Mock data - real loyihada API dan keladi
-const mockProducts: Product[] = [
-  {
-    id: 1,
-    title: 'Bolalar uchun rangli qalam to\'plami',
-    price: 45000,
-    originalPrice: 60000,
-    image: '/img/products/colored-pencils.jpg',
-    rating: 4.8,
-    reviews: 124,
-    discount: 25,
-    badge: 'Bestseller',
-    slug: 'colored-pencils-set',
-    inStock: true,
-    brand: 'faber-castell',
-    category: 'school'
-  },
-  {
-    id: 2,
-    title: 'Yumshoq ayiq o\'yinchoq',
-    price: 120000,
-    originalPrice: 150000,
-    image: '/img/products/teddy-bear.jpg',
-    rating: 4.9,
-    reviews: 89,
-    discount: 20,
-    slug: 'soft-teddy-bear',
-    inStock: true,
-    brand: 'disney',
-    category: 'toys'
-  },
-  {
-    id: 3,
-    title: 'Bolalar sport kiyimi',
-    price: 85000,
-    image: '/img/products/kids-sportswear.jpg',
-    rating: 4.7,
-    reviews: 156,
-    badge: 'New',
-    slug: 'kids-sportswear',
-    inStock: false,
-    brand: 'nike',
-    category: 'clothing'
-  },
-  {
-    id: 4,
-    title: 'Ta\'lim kitoblari to\'plami',
-    price: 95000,
-    originalPrice: 120000,
-    image: '/img/products/education-books.jpg',
-    rating: 4.6,
-    reviews: 203,
-    discount: 21,
-    slug: 'education-books-set',
-    inStock: true,
-    brand: 'faber-castell',
-    category: 'books'
-  },
-  {
-    id: 5,
-    title: 'Bolalar velosipedi',
-    price: 450000,
-    originalPrice: 550000,
-    image: '/img/products/kids-bicycle.jpg',
-    rating: 4.8,
-    reviews: 67,
-    discount: 18,
-    badge: 'Popular',
-    slug: 'kids-bicycle',
-    inStock: true,
-    brand: 'nike',
-    category: 'sports'
-  },
-  {
-    id: 6,
-    title: 'Maktab sumkasi',
-    price: 75000,
-    image: '/img/products/school-bag.jpg',
-    rating: 4.5,
-    reviews: 134,
-    slug: 'school-backpack',
-    inStock: true,
-    brand: 'adidas',
-    category: 'school'
-  }
-];
+// Mock data olib tashlandi - faqat API'dan kelayotgan data ishlatiladi
 
 const SearchResults: React.FC<SearchResultsProps> = ({
   searchQuery,
@@ -156,21 +71,33 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             console.log('Products before category filter:', results.length);
             results = results.filter((product: any) => {
               let productCategory = '';
-              
-              // Handle different category formats
+
+              // Handle different category formats from backend
               if (typeof product.category === 'string') {
                 productCategory = product.category.toLowerCase();
               } else if (product.category && typeof product.category === 'object') {
-                productCategory = (product.category.name || product.category.title || '').toLowerCase();
+                productCategory = (product.category.name || product.category.title || product.category.slug || '').toLowerCase();
               } else if (product.category_id) {
-                // If we have category_id, we might need to map it
-                productCategory = product.category_id.toString();
+                // Map category_id to category names
+                const categoryMap: Record<number, string> = {
+                  1: 'toys',
+                  2: 'clothing',
+                  3: 'books',
+                  4: 'sports',
+                  5: 'school',
+                  6: 'baby',
+                  7: 'electronics'
+                };
+                productCategory = categoryMap[product.category_id] || '';
               }
-              
-              const isMatch = filters.category.some((cat: string) => 
-                productCategory.includes(cat.toLowerCase()) ||
-                cat.toLowerCase().includes(productCategory)
-              );
+
+              const isMatch = filters.category.some((cat: string) => {
+                const filterCategory = cat.toLowerCase();
+                return productCategory.includes(filterCategory) ||
+                       filterCategory.includes(productCategory) ||
+                       productCategory === filterCategory;
+              });
+
               console.log(`Product "${product.title}" category: "${productCategory}", match: ${isMatch}`);
               return isMatch;
             });

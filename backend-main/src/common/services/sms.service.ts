@@ -57,16 +57,14 @@ export class SmsService {
     try {
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
       
-      // Development mode uchun mock
-      if (this.configService.get('NODE_ENV') === 'development') {
-        this.logger.log(`[DEV] SMS to ${formattedPhone}: ${message}`);
-        return 'dev_sms_id_' + Date.now();
-      }
+      // Log SMS details
+      this.logger.log(`Sending SMS to ${formattedPhone}: ${message}`);
 
+      // Shablon ishlatish (ID: 50104) - oddiy send
       const response: AxiosResponse<EskizSendSmsResponse> = await axios.post(
         `${this.baseUrl}/message/sms/send`,
         {
-          mobile_phone: formattedPhone.replace('+', ''), // + belgisini olib tashlash
+          mobile_phone: formattedPhone.replace('+', ''),
           message: message,
           from: this.smsFrom,
         },
@@ -79,12 +77,25 @@ export class SmsService {
         },
       );
 
+      // Eskiz.uz response formatini tekshirish
+      this.logger.log(`Eskiz response:`, JSON.stringify(response.data));
+
+      if ((response.data as any)?.id) {
+        this.logger.log(`SMS sent successfully to ${formattedPhone}, ID: ${(response.data as any).id}`);
+        return (response.data as any).id;
+      }
+
+      if ((response.data as any)?.status === 'waiting') {
+        this.logger.log(`SMS queued for ${formattedPhone}, ID: ${(response.data as any).id}`);
+        return (response.data as any).id;
+      }
+
       if (response.data?.data?.id) {
         this.logger.log(`SMS sent successfully to ${formattedPhone}, ID: ${response.data.data.id}`);
         return response.data.data.id;
       }
 
-      throw new Error('Invalid response from SMS provider');
+      throw new Error(`SMS provider error: ${JSON.stringify(response.data)}`);
     } catch (error) {
       this.logger.error(`Error sending SMS to ${phoneNumber}:`, error.message);
       

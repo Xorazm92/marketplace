@@ -1,5 +1,5 @@
 
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
@@ -98,7 +98,6 @@ export class AdminService {
         skip,
         take: limit,
         include: {
-          phone_number: true,
           email: true,
           address: true,
           orders: {
@@ -219,5 +218,27 @@ export class AdminService {
       where: { id: adminId },
       data: { hashed_refresh_token: hashedRefreshToken }
     });
+  }
+
+  async getProfile(adminId: number) {
+    const admin = await this.prisma.admin.findUnique({
+      where: { id: adminId },
+      select: {
+        id: true,
+        phone_number: true,
+        first_name: true,
+        last_name: true,
+        email: true,
+        role: true,
+        createdAt: true,
+        // Parolni va tokenlarni qaytarmaymiz
+      }
+    });
+
+    if (!admin) {
+      throw new NotFoundException('Admin topilmadi');
+    }
+
+    return admin;
   }
 }

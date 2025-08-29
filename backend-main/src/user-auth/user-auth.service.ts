@@ -98,7 +98,7 @@ export class UserAuthService {
     if (!user) {
       throw new NotFoundException("Phone or password is no valid");
     }
-    const { password: user_hashed_password, id } = user.user;
+    const { password: user_hashed_password, id } = user;
 
     const compared_password = await BcryptEncryption.compare(
       dto.password,
@@ -109,7 +109,7 @@ export class UserAuthService {
       throw new NotFoundException("Phone or password is no valid");
     }
 
-    if (!user.user.is_active) {
+    if (!user.is_active) {
       throw new BadRequestException(
         "You are not active please active your account"
       );
@@ -122,7 +122,7 @@ export class UserAuthService {
 
     const hashed_refresh_token = await BcryptEncryption.encrypt(refreshToken);
     await this.userService.updateUserRefreshToken(
-      user.user.id,
+      user.id,
       hashed_refresh_token
     );
 
@@ -130,12 +130,12 @@ export class UserAuthService {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
     });
-    console.log(user.user.id)
+    console.log(user.id)
     return {
       data: {
-        id: user.user_id,
+        id: user.id,
         phone_number,
-        full_name: `${user.user.first_name} ${user.user.last_name}`,
+        full_name: `${user.first_name} ${user.last_name}`,
         accessToken,
       },
       message: "Succfully login",
@@ -166,17 +166,14 @@ export class UserAuthService {
       throw new ForbiddenException("Refresh token does not match");
     }
 
-    const user_phone_number = await this.prisma.phoneNumber.findFirst({
-      where: { user_id: user.id, is_main: true },
-    });
-
-    if (!user_phone_number) {
-      throw new NotFoundException("Main phone number not found for user");
+    // User'da endi to'g'ridan-to'g'ri phone_number field bor
+    if (!user.phone_number) {
+      throw new NotFoundException("Phone number not found for user");
     }
 
     const { accessToken, refreshToken } = await this.generateTokens({
       id: user.id,
-      phone_number: user_phone_number.phone_number,
+      phone_number: user.phone_number,
     });
 
     const hashed_refresh_token = await BcryptEncryption.encrypt(refreshToken);

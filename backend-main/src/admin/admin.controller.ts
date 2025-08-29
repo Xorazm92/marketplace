@@ -1,5 +1,5 @@
 
-import { Controller, Get, Post, Put, Delete, Param, Query, UseGuards, Body, Res } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Param, Query, UseGuards, Body, Res, Req } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminService } from './admin.service';
 import { AdminPhoneAuthService } from './admin-phone-auth.service';
@@ -154,5 +154,13 @@ export class AdminController {
   @ApiBearerAuth('inbola')
   async rejectProduct(@Param('id') id: string, @Body() body: { reason?: string }) {
     return this.adminService.rejectProduct(+id, body.reason);
+  }
+
+  @Get('profile')
+  @ApiOperation({ summary: 'Get admin profile' })
+  @UseGuards(AdminPermissionGuard)
+  @ApiBearerAuth('inbola')
+  async getProfile(@Req() req) {
+    return this.adminService.getProfile(req.user.id);
   }
 }

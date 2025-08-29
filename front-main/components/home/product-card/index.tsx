@@ -16,7 +16,7 @@ const ProductCard: React.FC<CardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  const { id, product_image, title, condition, price, negotiable } =
+  const { id, images, product_image, title, condition, price, negotiable } =
     product;
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
@@ -28,7 +28,7 @@ const ProductCard: React.FC<CardProps> = ({
   return (
     <Link href={`/productdetails/${id}`} className={styles.card}>
       <ProductImageSlider
-        images={product_image || []}
+        images={images || product_image || []}
         title={title}
         autoSlide={true}
         autoSlideInterval={4000}

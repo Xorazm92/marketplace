@@ -495,7 +495,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
         title: 'Rangli qalamlar',
         price: 45000,
         originalPrice: 60000,
-        image: '/img/products/colored-pencils.jpg',
+        image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop',
         rating: 4.6,
         reviews: 267,
         discount: 25,

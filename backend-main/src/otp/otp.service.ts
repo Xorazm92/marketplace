@@ -11,13 +11,14 @@ import { AddMinutesToDate } from "../utils/otp-crypto/addMinutes";
 import { Details } from "./types/details.type";
 import { decode, encode } from "../utils/otp-crypto/crypto";
 import { VerifyDto } from "./dto/verify-otp.dto";
-import { SmsService } from "../utils/smsService";
+import { SmsService } from "../common/services/sms.service";
 
 @Injectable()
 export class OtpService {
   constructor(
     private userService: UserService,
     private prisma: PrismaService,
+    private smsService: SmsService,
   ) {}
 
   async generateOtp(dto: CreateOtpDto) {
@@ -25,11 +26,12 @@ export class OtpService {
 
     const { phone_number } = dto;
 
-    const phoneExist = await this.prisma.phoneNumber.findFirst({
-      where: { is_main: true, phone_number },
+    const phoneExist = await this.prisma.user.findFirst({
+      where: { phone_number },
     });
 
-    if (phoneExist) {
+    // Development mode'da har qanday telefon raqamga OTP yuborish mumkin
+    if (process.env.NODE_ENV !== 'development' && phoneExist) {
       throw new BadRequestException("Already registred");
     }
 
@@ -37,8 +39,8 @@ export class OtpService {
       where: { phone_number },
     });
 
-    // generate otp code
-    const otp = otpGenerator.generate(4, {
+    // generate otp code - 6 raqamli
+    const otp = otpGenerator.generate(6, {
       upperCaseAlphabets: false,
       lowerCaseAlphabets: false,
       specialChars: false,
@@ -73,7 +75,20 @@ export class OtpService {
       console.log(`🔐 OTP for ${phone_number}: ${otp}`);
     }
 
-    const res = await SmsService.sendSMS(phone_number, otp);
+    // SMS yuborish - development mode'da console'da ko'rsatish
+    console.log(`📱 [OTP GENERATED] Phone: ${phone_number}, Code: ${otp}`);
+    console.log(`📱 [IMPORTANT] SMS template moderation kerak: https://my.eskiz.uz`);
+
+    try {
+      // Shablon formatiga mos xabar: "<#>inbola.uz portali. Ro'yhatdan o'tish uchun tasdiqlash %w{1,3}"
+      const message = `<#>inbola.uz portali. Ro'yhatdan o'tish uchun tasdiqlash kodi ${otp}`;
+      const res = await this.smsService.sendSMS(phone_number, message);
+      console.log(`📱 SMS sent to ${phone_number}, ID: ${res}`);
+    } catch (error) {
+      console.error(`❌ SMS yuborishda xato: ${error.message}`);
+      console.log(`📱 [FALLBACK] OTP kodi console'da: ${otp}`);
+      // Development mode'da xato bo'lsa ham davom etish
+    }
 
     return { key: encodedData, message: "successfully send otp", status: 200, otp: process.env.NODE_ENV === 'development' ? otp : undefined };
   }

@@ -42,7 +42,7 @@ const mockOrders: Order[] = [
         id: 1,
         productId: 1,
         title: 'Bolalar uchun rangli qalam to\'plami',
-        image: '/img/products/colored-pencils.jpg',
+        image: 'https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?w=400&h=300&fit=crop',
         price: 45000,
         quantity: 2,
         total: 90000
@@ -71,7 +71,7 @@ const mockOrders: Order[] = [
         id: 3,
         productId: 3,
         title: 'Yumshoq ayiq o\'yinchoq',
-        image: '/img/products/teddy-bear.jpg',
+        image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop',
         price: 89000,
         quantity: 1,
         total: 89000
