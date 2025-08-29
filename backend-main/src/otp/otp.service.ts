@@ -80,10 +80,16 @@ export class OtpService {
     console.log(`📱 [IMPORTANT] SMS template moderation kerak: https://my.eskiz.uz`);
 
     try {
-      // Shablon formatiga mos xabar: "<#>inbola.uz portali. Ro'yhatdan o'tish uchun tasdiqlash %w{1,3}"
-      const message = `<#>inbola.uz portali. Ro'yhatdan o'tish uchun tasdiqlash kodi ${otp}`;
-      const res = await this.smsService.sendSMS(phone_number, message);
-      console.log(`📱 SMS sent to ${phone_number}, ID: ${res}`);
+      if (process.env.NODE_ENV === 'development') {
+        // Development mode'da faqat console'da ko'rsatish
+        console.log(`📱 [DEV MODE] SMS would be sent to ${phone_number}: ${otp}`);
+        console.log(`📱 [DEV MODE] Message: INBOLA Kids Marketplace tasdiqlash kodi: ${otp}`);
+      } else {
+        // Production mode'da haqiqiy SMS yuborish
+        const message = `INBOLA Kids Marketplace tasdiqlash kodi: ${otp}. Kodni hech kimga bermang! Kod 5 daqiqa amal qiladi.`;
+        const res = await this.smsService.sendSMS(phone_number, message);
+        console.log(`📱 SMS sent to ${phone_number}, ID: ${res}`);
+      }
     } catch (error) {
       console.error(`❌ SMS yuborishda xato: ${error.message}`);
       console.log(`📱 [FALLBACK] OTP kodi console'da: ${otp}`);

@@ -59,7 +59,7 @@ export class PhoneAuthService {
 
       // Yangi OTP yaratish
       const otpCode = this.smsService.generateOTP(6);
-      const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 daqiqa
+      const expiresAt = new Date(Date.now() + 10 * 60 * 1000); // 10 daqiqa
 
       // OTP ni bazaga saqlash
       await this.prisma.otpVerification.create({
@@ -73,6 +73,12 @@ export class PhoneAuthService {
 
       // SMS yuborish
       if (this.configService.get('NODE_ENV') === 'development') {
+        console.log(`\n🔐 ===============================`);
+        console.log(`📱 DEV MODE - OTP CODE`);
+        console.log(`📞 Phone: ${phoneNumber}`);
+        console.log(`🔢 Code: ${otpCode}`);
+        console.log(`⏰ Expires: 10 minutes`);
+        console.log(`🔐 ===============================\n`);
         this.logger.log(`DEV MODE - OTP for ${phoneNumber}: ${otpCode}`);
       } else {
         await this.smsService.sendOTP(phoneNumber);

@@ -4,7 +4,7 @@ import instance from "./instance";
 
 export const sendOtp = async (phone_number: string) => {
   try {
-    const res = await instance.post("/otp/send", { phone_number });
+    const res = await instance.post("/phone-auth/send-otp", { phone_number });
     return res.data;
   } catch (error: any) {
     console.log(error);
@@ -14,7 +14,10 @@ export const sendOtp = async (phone_number: string) => {
 
 export const verifyOtp = async (data: any) => {
   try {
-    const res = await instance.post("/otp/verify", data);
+    const res = await instance.post("/phone-auth/verify-otp", {
+      phone_number: data.phone_number,
+      otp_code: data.code
+    });
     return res.data;
   } catch (error: any) {
     console.log(error);

@@ -3,7 +3,7 @@
 import type React from "react";
 import { useState, useEffect, useRef } from "react";
 import style from "./user-sign-up.module.scss";
-import { useVerifyOtp, useSignUp, useSendOtp } from "@/hooks/auth";
+import { useSendOtp } from "@/hooks/auth";
 import {
   getLocalStorage,
   removeLocalStorage,
@@ -16,16 +16,15 @@ import { useRouter } from "next/router";
 
 const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   const [otp, setOtp] = useState(["", "", "", "", "", ""]);
-  const [timer, setTimer] = useState(10);
+  const [timer, setTimer] = useState(60);
   const [resendEnabled, setResendEnabled] = useState(false);
   const [user, setUser] = useState<any>(null);
   const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
   const dispatch = useDispatch();
   const router = useRouter();
 
-  const { mutateAsync: verifyOtp, isPending: verifyLoading } = useVerifyOtp();
-  const { mutateAsync: signUp } = useSignUp();
   const { mutateAsync: sendOtp, isPending } = useSendOtp();
+  const [verifyLoading, setVerifyLoading] = useState(false);
 
   useEffect(() => {
     const storedUser = getLocalStorage("signup-user");
@@ -62,14 +61,32 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   const handleResend = async () => {
     const user = getLocalStorage("signup-user");
     if (user) {
-      setTimer(10);
+      setTimer(60);
       setResendEnabled(false);
       setOtp(["", "", "", "", "", ""]);
       inputRefs.current[0]?.focus();
-      const res = await sendOtp(user?.phoneNumber);
-      if (res?.status == 200) {
-        toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
-        setLocalStorage("signup-user", { ...user, key: res?.key });
+
+      try {
+        const response = await fetch('http://localhost:3001/api/v1/phone-auth/send-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            phone_number: user?.phoneNumber
+          }),
+        });
+
+        const res = await response.json();
+
+        if (res?.success) {
+          toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
+        } else {
+          toast.error(res?.message || "SMS yuborishda xatolik");
+        }
+      } catch (error) {
+        console.error('Resend error:', error);
+        toast.error("Tarmoq xatosi");
       }
     } else {
       return onNext();
@@ -113,32 +130,68 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     }
     const code = otp.join("");
 
-    // verify phone number by otp code
-    const res = await verifyOtp({ verification_key: user?.key, code });
-    if (res?.status) {
-      // after verify phone number create user
-      const resSignup = await signUp({
-        first_name: user?.firstName,
-        last_name: user?.lastName,
-        password: user?.password,
-        verified_key: user?.key,
-        phone_number: user?.phoneNumber,
+    setVerifyLoading(true);
+
+    // verify phone number by otp code using direct API call
+    try {
+      const verifyResponse = await fetch('http://localhost:3001/api/v1/phone-auth/verify-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: user?.phoneNumber,
+          otp_code: code
+        }),
       });
-      if (resSignup?.status_code == 200) {
-        const {
-          data: { id, phone_number, full_name, accessToken },
-        } = resSignup;
 
-        dispatch(loginSuccess({ id, phone_number, full_name }));
+      const res = await verifyResponse.json();
 
-        router.push("/");
+      if (res?.success) {
+        // after verify phone number create user using new API
+        try {
+          const response = await fetch('http://localhost:3001/api/v1/phone-auth/register', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              phone_number: user?.phoneNumber,
+              otp_code: code,
+              first_name: user?.firstName,
+              last_name: user?.lastName,
+            }),
+          });
 
-        setLocalStorage("accessToken", accessToken);
-        removeLocalStorage("signup-user");
-        toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz", {});
+          const data = await response.json();
+
+          if (response.ok && data.success) {
+            dispatch(loginSuccess({
+              id: data.user.id,
+              phone_number: data.user.phone_number,
+              full_name: `${data.user.first_name} ${data.user.last_name}`
+            }));
+
+            router.push("/");
+
+            setLocalStorage("accessToken", data.tokens.access_token);
+            removeLocalStorage("signup-user");
+            toast.success("Muvaffaqiyatli ro'yxatdan o'tdingiz", {});
+          } else {
+            toast.error(data.message || "Ro'yxatdan o'tishda xatolik");
+          }
+        } catch (error) {
+          console.error('Register error:', error);
+          toast.error("Tarmoq xatosi");
+        }
       } else {
-        return onNext();
+        toast.error(res?.message || "OTP kod noto'g'ri");
       }
+    } catch (error) {
+      console.error('Verify error:', error);
+      toast.error("Tarmoq xatosi");
+    } finally {
+      setVerifyLoading(false);
     }
   };
 

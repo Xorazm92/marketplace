@@ -52,15 +52,15 @@ export class SmsService {
     return otp;
   }
 
-  // SMS yuborish (Eskiz API)
+  // SMS yuborish (Eskiz API) - Template ishlatish
   async sendSMS(phoneNumber: string, message: string): Promise<string> {
     try {
       const formattedPhone = this.formatPhoneNumber(phoneNumber);
-      
+
       // Log SMS details
       this.logger.log(`Sending SMS to ${formattedPhone}: ${message}`);
 
-      // Shablon ishlatish (ID: 50104) - oddiy send
+      // Oddiy SMS yuborish
       const response: AxiosResponse<EskizSendSmsResponse> = await axios.post(
         `${this.baseUrl}/message/sms/send`,
         {
@@ -98,12 +98,13 @@ export class SmsService {
       throw new Error(`SMS provider error: ${JSON.stringify(response.data)}`);
     } catch (error) {
       this.logger.error(`Error sending SMS to ${phoneNumber}:`, error.message);
-      
+      this.logger.error(`Full error details:`, error.response?.data || error);
+
       // Development mode da xatolik bo'lsa ham davom etsin
       if (this.configService.get('NODE_ENV') === 'development') {
         return 'dev_error_sms_id_' + Date.now();
       }
-      
+
       throw new HttpException(
         'SMS yuborishda xatolik yuz berdi',
         HttpStatus.INTERNAL_SERVER_ERROR,
@@ -115,7 +116,7 @@ export class SmsService {
   async sendOTP(phoneNumber: string): Promise<{ otp: string; smsId: string }> {
     try {
       const otp = this.generateOTP(6);
-      const message = `INBOLA Kids Marketplace tasdiqlash kodi: ${otp}. Kodni hech kimga bermang! Kod 5 daqiqa amal qiladi.`;
+      const message = `<#>inbola.uz portali. Ro'yhatdan o'tish uchun tasdiqlash kodi(code):${otp} phone`;
 
       const smsId = await this.sendSMS(phoneNumber, message);
 

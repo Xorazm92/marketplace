@@ -29,11 +29,29 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
   const { mutateAsync: sendOtp, isPending } = useSendOtp();
 
   const handleSubmit = async () => {
-    const res = await sendOtp(user.phoneNumber, {});
-    if (res?.status == 200) {
-      setLocalStorage("signup-user", { ...user, key: res?.key });
-      onNext();
-      toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
+    try {
+      const response = await fetch('http://localhost:3001/api/v1/phone-auth/send-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          phone_number: user.phoneNumber
+        }),
+      });
+
+      const res = await response.json();
+
+      if (res?.success) {
+        setLocalStorage("signup-user", { ...user, key: res?.verification_key || 'temp-key' });
+        onNext();
+        toast.info("Telefon raqamingizga yuborilgan kodni kiriting");
+      } else {
+        toast.error(res?.message || "SMS yuborishda xatolik");
+      }
+    } catch (error) {
+      console.error('Send OTP error:', error);
+      toast.error("Tarmoq xatosi");
     }
   };
 
