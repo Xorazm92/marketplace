@@ -137,7 +137,7 @@ async function bootstrap(): Promise<void> {
         },
         'JWT-auth',
       )
-      .addServer('http://0.0.0.0:4000', 'Development server')
+      .addServer('http://0.0.0.0:3001', 'Development server')
       .addTag('🔐 Authentication', 'Foydalanuvchi autentifikatsiyasi')
       .addTag('📦 Products', 'Mahsulotlar boshqaruvi')
       .addTag('👤 Users', 'Foydalanuvchilar boshqaruvi')
@@ -194,7 +194,7 @@ async function bootstrap(): Promise<void> {
     });
 
     // Server konfiguratsiyasi
-    const PORT = parseInt(process.env.PORT, 10) || 4000;
+    const PORT = parseInt(process.env.PORT, 10) || 3001;
     const HOST = process.env.HOST || '0.0.0.0';
 
     await app.listen(PORT, HOST);

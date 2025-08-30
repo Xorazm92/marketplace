@@ -63,24 +63,7 @@ const nextConfig: NextConfig = {
     contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
-  // Webpack konfiguratsiyasi
-  webpack: (config, { buildId, dev, isServer, defaultLoaders, webpack }) => {
-    // GraphQL konfiguratsiyasi
-    config.module.rules.push({
-      test: /\.(graphql|gql)$/,
-      exclude: /node_modules/,
-      loader: 'graphql-tag/loader',
-    });
 
-    // SVG konfiguratsiyasi
-    config.module.rules.push({
-      test: /\.svg$/i,
-      issuer: /\.[jt]sx?$/,
-      use: ['@svgr/webpack'],
-    });
-
-    return config;
-  },
 
   // API rewrites
   async rewrites() {

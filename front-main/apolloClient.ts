@@ -80,12 +80,11 @@ const authLink = setContext((_, { headers }) => {
 
 const uploadLink = createUploadLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
-  credentials: 'include',
   headers: {
     "apollo-require-preflight": "true",
     "authorization": `Bearer ${getLocalStorage("accessToken")}`,
   },
-});
+}) as any;
 
 // WebSocket link for subscriptions (disabled for now)
 const wsLink = null;
@@ -103,6 +102,12 @@ const splitLink =
       )
     : httpLink;
 
+// Create HttpLink with credentials for proper configuration
+const httpLinkWithCredentials = new HttpLink({
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
+  credentials: 'include',
+});
+
 // Final Apollo Client instance
 export const client = new ApolloClient({
   cache: new InMemoryCache({
@@ -115,7 +120,6 @@ export const client = new ApolloClient({
     },
   }),
   link: splitLink,
-  credentials: "include",
   defaultOptions: {
     watchQuery: {
       errorPolicy: 'all',

@@ -12,6 +12,22 @@ COPY package*.json ./
 # Install dependencies
 RUN npm ci --only=production && npm cache clean --force
 
+# Development stage
+FROM base AS development
+WORKDIR /app
+
+# Install all dependencies including dev dependencies
+COPY package*.json ./
+
+RUN npm ci && npm cache clean --force
+
+# Copy source code
+COPY . .
+
+EXPOSE 3000
+
+CMD ["npm", "run", "dev"]
+
 # Build stage
 FROM base AS builder
 WORKDIR /app
@@ -28,7 +44,7 @@ ENV NEXT_TELEMETRY_DISABLED=1
 RUN npm run build
 
 # Production stage
-FROM base AS runner
+FROM base AS production
 WORKDIR /app
 
 # Create non-root user for security

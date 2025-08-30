@@ -16,6 +16,27 @@ RUN npm ci --only=production && npm cache clean --force
 # Generate Prisma client
 RUN npx prisma generate
 
+# Development stage
+FROM base AS development
+WORKDIR /app
+
+# Install all dependencies including dev dependencies
+COPY package*.json ./
+COPY prisma ./prisma/
+
+RUN npm ci && npm cache clean --force
+RUN npx prisma generate
+
+# Copy source code
+COPY . .
+
+# Create uploads directory
+RUN mkdir -p /app/public/uploads
+
+EXPOSE 3001
+
+CMD ["npm", "run", "start:dev"]
+
 # Build stage
 FROM base AS builder
 WORKDIR /app
@@ -28,7 +49,7 @@ COPY . .
 RUN npm run build
 
 # Production stage
-FROM base AS runner
+FROM base AS production
 WORKDIR /app
 
 # Create non-root user for security
