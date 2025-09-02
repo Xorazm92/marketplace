@@ -1,4 +1,19 @@
-import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
+import { 
+  ApiBearerAuth, 
+  ApiBody, 
+  ApiConsumes, 
+  ApiOperation, 
+  ApiQuery, 
+  ApiTags, 
+  ApiResponse, 
+  ApiParam,
+  ApiOkResponse,
+  ApiCreatedResponse,
+  ApiNotFoundResponse,
+  ApiForbiddenResponse,
+  ApiUnauthorizedResponse,
+  ApiBadRequestResponse
+} from '@nestjs/swagger';
 import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
 import {
   Controller,
@@ -25,34 +40,95 @@ import { UserGuard } from "../guards/user.guard";
 import { UserProductGuard } from "../guards/user-product.guard";
 import { UserSelfGuard } from "../guards/user-self.guard";
 
-@Controller("product")
+@ApiTags('📦 Products')
+@Controller('product')
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   
-  @ApiOperation({ summary: "Create product image" })
-  @ApiBearerAuth("inbola")
   @Post('image/:id')
-  @UseGuards(UserGuard, UserProductGuard )
+  @ApiOperation({ 
+    summary: 'Upload product image',
+    description: 'Upload an image for a specific product. Only the product owner or admin can upload images.'
+  })
+  @ApiBearerAuth('JWT-auth')
+  @UseGuards(UserGuard, UserProductGuard)
   @ApiConsumes('multipart/form-data')
+  @ApiParam({ 
+    name: 'id', 
+    description: 'Product ID',
+    example: '550e8400-e29b-41d4-a716-446655440000'
+  })
+  @ApiResponse({
+    status: 201,
+    description: 'Image uploaded successfully',
+    schema: {
+      example: {
+        success: true,
+        message: 'Image uploaded successfully',
+        data: {
+          id: '550e8400-e29b-41d4-a716-446655440000',
+          imageUrl: 'http://localhost:3001/uploads/products/12345-image.jpg',
+          productId: '550e8400-e29b-41d4-a716-446655440000',
+          createdAt: '2023-01-01T00:00:00.000Z'
+        }
+      }
+    }
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Bad Request - Invalid file type or size',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'Only image files are allowed',
+        error: 'Bad Request'
+      }
+    }
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized - Missing or invalid token',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+        error: 'Unauthorized'
+      }
+    }
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Forbidden - User is not authorized to upload image for this product',
+    schema: {
+      example: {
+        statusCode: 403,
+        message: 'Forbidden resource',
+        error: 'Forbidden'
+      }
+    }
+  })
   @ApiBody({
+    description: 'Product image file',
+    required: true,
     schema: {
       type: 'object',
       properties: {
         image: {
           type: 'string',
           format: 'binary',
-        },
+          description: 'Image file (JPG, PNG, or WebP, max 5MB)'
+        }
       },
-    },
+      required: ['image']
+    }
   })
   @UseInterceptors(FileInterceptor('image', multerOptions))
-  createProductImage(
-    @Param('id') id: number,
-    @UploadedFile() image: Express.Multer.File,
+  async createProductImage(
+    @Param('id') id: string,
+    @UploadedFile() image: Express.Multer.File
   ) {
-    console.log("testing");
-    
+    console.log("Uploading image for product:", id);
     return this.productService.createProductImage(+id, image);
   }
 

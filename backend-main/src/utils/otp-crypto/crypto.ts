@@ -9,10 +9,11 @@ function sha256(input: Buffer) {
 	return crypto.createHash("sha256").update(input).digest();
 }
 
-function password_derive_bytes(password: string, salt: string, iterations: number, len: number) {
+function password_derive_bytes(password: string, salt: string, iterations: number, len: number): Buffer {
 	let key = Buffer.from(password + salt);
 	for (let i = 0; i < iterations; i++) {
-		key = sha256(key);
+		const hash = crypto.createHash('sha256').update(key).digest();
+		key = Buffer.from(hash);
 	}
 	if (key.length < len) {
 		const hx = password_derive_bytes(password, salt, iterations - 1, 20);
