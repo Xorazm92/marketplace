@@ -9,16 +9,21 @@ import { JwtModule } from '@nestjs/jwt';
 import { AdminModule } from '../admin/admin.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { MailModule } from '../mail/mail.module';
+import { UserAuthService } from '../user-auth/user-auth.service';
+import { UserModule } from '../user/user.module';
+import { OtpModule } from '../otp/otp.module';
 
 @Module({
   imports:[
     JwtModule.register({ global: true }),
     PrismaModule,
     AdminModule,
-    MailModule
+    MailModule,
+    UserModule,
+    OtpModule
   ],
   controllers: [AuthController, PhoneAuthController],
-  providers: [AuthService, PhoneAuthService, SmsService, AuthTokenService],
-  exports: [PhoneAuthService, SmsService, AuthTokenService],
+  providers: [AuthService, PhoneAuthService, SmsService, AuthTokenService, UserAuthService],
+  exports: [PhoneAuthService, SmsService, AuthTokenService, UserAuthService],
 })
 export class AuthModule {}

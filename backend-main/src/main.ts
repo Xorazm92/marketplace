@@ -162,7 +162,7 @@ async function bootstrap(): Promise<void> {
     });
 
     // Server konfiguratsiyasi
-    const PORT = parseInt(process.env.PORT, 10) || 4000;
+    const PORT = parseInt(process.env.PORT, 10) || 3001;
     const HOST = process.env.HOST || '0.0.0.0';
 
     await app.listen(PORT, HOST);

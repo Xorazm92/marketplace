@@ -8,7 +8,6 @@ import { join } from 'path';
 import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
-import { UserAuthModule } from './user-auth/user-auth.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
 import { BrandModule } from './brand/brand.module';
@@ -60,7 +59,6 @@ import { AuthModule } from './auth/auth.module';
     PrismaModule,
     AdminModule,
     UserModule,
-    UserAuthModule,
     ProductModule,
     CategoryModule,
     BrandModule,
