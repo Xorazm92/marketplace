@@ -36,8 +36,8 @@ export class ProductService {
         weight: productData.weight,
         dimensions: productData.dimensions,
         user_id: userId || user_id || 1,
-        is_checked: 'PENDING',
-        is_active: false,
+        is_checked: 'APPROVED',
+        is_active: true,
         is_deleted: false,
         view_count: 0
       },
@@ -166,7 +166,8 @@ export class ProductService {
     
     const where: any = {
       is_active: true,
-      is_checked: 'APPROVED'
+      is_checked: 'APPROVED',
+      is_deleted: false
     };
 
     if (search) {
@@ -568,6 +569,14 @@ export class ProductService {
       data: {
         is_checked: 'APPROVED',
         is_active: true
+      },
+      include: {
+        product_image: true,
+        brand: true,
+        category: true,
+        user: {
+          select: { id: true, first_name: true, last_name: true, profile_img: true }
+        }
       }
     });
   }

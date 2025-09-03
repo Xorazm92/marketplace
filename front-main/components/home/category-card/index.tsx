@@ -6,7 +6,7 @@ import { useRouter } from "next/router";
 const CategoryCard = (props: any) => {
   const category = props.category || {};
   const { id, name, logo } = category;
-  const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL;
+  const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
   const router = useRouter();
 
   // Safe category name extraction
@@ -27,6 +27,19 @@ const CategoryCard = (props: any) => {
     });
   };
 
+  // Resolve logo URL safely
+  const resolveLogoSrc = (rawLogo: string | undefined) => {
+    if (!rawLogo) return '/img/placeholder-category.svg';
+    if (rawLogo.startsWith('http')) return rawLogo;
+    // If logo points to uploads in backend, avoid double /uploads and prefix API host
+    if (rawLogo.startsWith('/uploads') || rawLogo.startsWith('uploads/')) {
+      const normalized = rawLogo.replace('/uploads//uploads/', '/uploads/');
+      return `${API_URL}${normalized.startsWith('/') ? '' : '/'}${normalized}`;
+    }
+    // Otherwise serve from Next public folder
+    return rawLogo.startsWith('/') ? rawLogo : `/img/${rawLogo}`;
+  };
+
   return (
     <div
       className={style.card_wrapper}
@@ -34,7 +47,7 @@ const CategoryCard = (props: any) => {
     >
       <div className={style.img_wrapper}>
         <Image
-          src={`${BASE_URL}/uploads/${categoryLogo}`}
+          src={resolveLogoSrc(categoryLogo)}
           alt={categoryName}
           width={80}
           height={80}

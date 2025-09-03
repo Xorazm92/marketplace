@@ -6,6 +6,8 @@ import { toast } from 'react-toastify';
 import { RootState } from '../../store/store';
 import { setProducts, addProduct, updateProduct, deleteProduct, setLoading } from '../../store/features/productSlice';
 import { createAdminProduct, getAllProducts, getAllProductsForAdmin } from '../../endpoints/product';
+import { getAllCategories } from '../../endpoints/category';
+import { approveProduct as approveProductApi } from '../../endpoints/admin';
 
 interface ProductFormData {
   title: string;
@@ -84,16 +86,23 @@ const ProductManagement: React.FC = () => {
     loadProducts();
   }, [loadProducts]);
 
-  // Load categories
+  // Load categories from API
   useEffect(() => {
-    const mockCategories = [
-      { id: 1, name: "O'yinchiqlar", slug: "oyinchiqlar" },
-      { id: 2, name: "Kitoblar", slug: "kitoblar" },
-      { id: 3, name: "Kiyim-kechak", slug: "kiyim-kechak" },
-      { id: 4, name: "Sport anjomlar", slug: "sport-anjomlar" },
-      { id: 5, name: "Maktab buyumlari", slug: "maktab-buyumlari" }
-    ];
-    setCategories(mockCategories);
+    (async () => {
+      try {
+        const res = await getAllCategories();
+        // Backend may return array or wrapped object; normalize
+        const list = Array.isArray(res) ? res : (res?.data || res?.categories || []);
+        const normalized: Category[] = list.map((c: any) => ({
+          id: c.id,
+          name: c.name || c.title,
+          slug: c.slug,
+        }));
+        setCategories(normalized);
+      } catch (e) {
+        // keep empty list; UI will still work
+      }
+    })();
   }, []);
 
   // Handle input change
@@ -226,6 +235,17 @@ const ProductManagement: React.FC = () => {
 
           // Don't add to Redux store manually, just reload from API
           toast.success('Mahsulot muvaffaqiyatli yaratildi!');
+
+          // Try to auto-approve so it appears in public listings
+          try {
+            const newId = apiResponse.product?.id || apiResponse.id;
+            if (newId) {
+              await approveProductApi(Number(newId));
+              toast.success('Mahsulot tasdiqlandi');
+            }
+          } catch (err) {
+            console.warn('Approve failed or not required', err);
+          }
 
           // Reload products from API to get fresh data
           await loadProducts();
@@ -371,13 +391,21 @@ const ProductManagement: React.FC = () => {
                 <div className={styles.productImageContainer}>
                   {product?.product_image?.[0]?.url ? (
                     <img
-                      src={`http://localhost:3001${product.product_image[0].url}`}
+                      src={
+                        product.product_image[0].url.startsWith('http')
+                          ? product.product_image[0].url
+                          : `${process.env.NEXT_PUBLIC_API_URL}${product.product_image[0].url}`
+                      }
                       alt={product.title}
                       className={styles.productImage}
                     />
-                  ) : product?.images?.[0] ? (
+                  ) : (product as any)?.images?.[0] ? (
                     <img
-                      src={`http://localhost:3001/uploads/${product.images[0]}`}
+                      src={
+                        ((product as any).images[0] as string).startsWith('http')
+                          ? (product as any).images[0]
+                          : `${process.env.NEXT_PUBLIC_API_URL}${(product as any).images[0].startsWith('/') ? (product as any).images[0] : `/${(product as any).images[0]}`}`
+                      }
                       alt={product.title}
                       className={styles.productImage}
                     />
@@ -395,26 +423,40 @@ const ProductManagement: React.FC = () => {
                         : (product?.category || 'Noma\'lum')
                     }
                   </p>
-                  <p className={styles.productDate}>
-                    {product?.createdAt ? new Date(product.createdAt).toLocaleDateString('uz-UZ') : 'Noma\'lum'}
-                  </p>
-
-                  <div className={styles.productActions}>
+                </div>
+                <div className={styles.productActions}>
+                  <button
+                    className={styles.editButton}
+                    onClick={() => handleEditProduct(product)}
+                    title="Tahrirlash"
+                  >
+                    ✏️
+                  </button>
+                  {/* Approve button only when product is in PENDING status */}
+                  {(((product as any)?.is_checked === 'PENDING') || ((product as any)?.status === 'PENDING')) && (
                     <button
                       className={styles.editButton}
-                      onClick={() => handleEditProduct(product)}
-                      title="Tahrirlash"
+                      onClick={async () => {
+                        try {
+                          await approveProductApi(Number((product as any).id));
+                          toast.success('Mahsulot tasdiqlandi');
+                          await loadProducts();
+                        } catch (e) {
+                          toast.error('Tasdiqlashda xatolik');
+                        }
+                      }}
+                      title="Tasdiqlash"
                     >
-                      ✏️
+                      ✅
                     </button>
-                    <button
-                      className={styles.deleteButton}
-                      onClick={() => handleDeleteProduct(product?.id)}
-                      title="O'chirish"
-                    >
-                      🗑️
-                    </button>
-                  </div>
+                  )}
+                  <button
+                    className={styles.deleteButton}
+                    onClick={() => handleDeleteProduct(product?.id)}
+                    title="O'chirish"
+                  >
+                    🗑️
+                  </button>
                 </div>
               </div>
             ))}

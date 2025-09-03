@@ -736,19 +736,28 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
   // Map real product data to display format with safe checks
   const mapRealProduct = (product: any) => {
     try {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || '';
+      const firstImageUrl: string | undefined = product?.product_image?.[0]?.url;
+      const resolvedImage = firstImageUrl
+        ? (firstImageUrl.startsWith('http')
+            ? firstImageUrl
+            : `${apiUrl}${firstImageUrl.replace('/uploads//uploads/', '/uploads/')}`)
+        : '/img/placeholder-product.jpg';
+
+      const rawSlug: string | undefined = product?.slug;
+      const generatedSlug = rawSlug && typeof rawSlug === 'string' && rawSlug.trim().length > 0
+        ? rawSlug
+        : `${(product?.title || 'product').toString().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '')}-${product?.id || Math.floor(Math.random()*100000)}`;
+
       return {
         id: product?.id || Math.random(),
         title: product?.title || 'Mahsulot',
         price: product?.price || 0,
         originalPrice: product?.original_price || product?.originalPrice,
-        image: product?.product_image?.[0]?.url ?
-          (product.product_image[0].url.startsWith('http') ?
-            product.product_image[0].url :
-            `http://127.0.0.1:3001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`) :
-          '/img/placeholder-product.jpg',
+        image: resolvedImage,
         rating: 4.5, // Default rating
         reviews: Math.floor(Math.random() * 100) + 10,
-        slug: `product-${product?.id || Math.random()}`
+        slug: generatedSlug
       };
     } catch (error) {
       console.error('Error mapping product:', error, product);
@@ -806,7 +815,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
             const mappedProduct = mapRealProduct(product);
             return (
             <Link
-              href={`/productdetails/${mappedProduct.id}`}
+              href={`/product/${mappedProduct.slug}`}
               key={mappedProduct.id}
               className={styles.productCard}
             >

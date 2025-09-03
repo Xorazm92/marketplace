@@ -54,9 +54,13 @@ const SearchResults: React.FC<SearchResultsProps> = ({
         setLoading(true);
         // Derive category slug from filters and fetch from backend with server-side filtering
         const categorySlug = filters.category && filters.category.length > 0 ? filters.category[0] : undefined;
-        const response = await getAllProducts(
+        let response = await getAllProducts(
           categorySlug ? { category: categorySlug } : undefined
         );
+        if (!response || response.length === 0) {
+          // Fallback: load all products if backend doesn't support category slug
+          response = await getAllProducts();
+        }
         if (response && response.length > 0) {
           let results = response;
 

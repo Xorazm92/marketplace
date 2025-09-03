@@ -10,6 +10,7 @@ import Analytics from '../../components/admin/Analytics';
 import Settings from '../../components/admin/Settings';
 import { getOrderStatistics } from '../../endpoints/order';
 import { getAllProducts } from '../../endpoints/product';
+import { getDashboardStats } from '../../endpoints/admin';
 import { useAdminAuth, withAdminAuth, RequirePermission } from '../../hooks/useAdminAuth';
 import styles from '../../styles/Admin.module.scss';
 
@@ -56,37 +57,20 @@ const AdminPage: React.FC = () => {
     try {
       setIsLoading(true);
 
-      // Real API'dan ma'lumot olish
-      const token = localStorage.getItem('admin_access_token');
-      if (!token) {
-        throw new Error('No authentication token');
-      }
-
       console.log('📊 Loading dashboard data from API...');
 
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/v1/admin/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
+      const data = await getDashboardStats();
+      setDashboardStats({
+        totalOrders: data.totalOrders || 0,
+        totalRevenue: data.totalRevenue || 0,
+        totalProducts: data.totalProducts || 0,
+        totalUsers: data.totalUsers || 0,
+        pendingOrders: data.monthlyStats?.ordersThisMonth || 0,
+        completedOrders: (data.totalOrders || 0) - (data.monthlyStats?.ordersThisMonth || 0),
+        recentOrders: data.recentOrders || [],
+        topProducts: data.topProducts || []
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        setDashboardStats({
-          totalOrders: data.totalOrders || 0,
-          totalRevenue: data.totalRevenue || 0,
-          totalProducts: data.totalProducts || 0,
-          totalUsers: data.totalUsers || 0,
-          pendingOrders: data.monthlyStats?.ordersThisMonth || 0,
-          completedOrders: data.totalOrders - (data.monthlyStats?.ordersThisMonth || 0),
-          recentOrders: data.recentOrders || [],
-          topProducts: data.topProducts || []
-        });
-        console.log('✅ Dashboard data loaded successfully');
-      } else {
-        throw new Error('Failed to fetch dashboard data');
-      }
+      console.log('✅ Dashboard data loaded successfully');
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
       // Fallback data

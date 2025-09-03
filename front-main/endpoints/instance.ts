@@ -21,7 +21,10 @@ instance.interceptors.request.use(
   (config) => {
     // Token qo'shish
     if (typeof window !== 'undefined') {
-      const token = localStorage.getItem('accessToken');
+      // Admin panel uchun alohida token ishlatiladi
+      const adminToken = localStorage.getItem('admin_access_token');
+      const userToken = localStorage.getItem('accessToken');
+      const token = adminToken || userToken;
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
       }

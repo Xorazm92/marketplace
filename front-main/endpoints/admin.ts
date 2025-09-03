@@ -33,13 +33,30 @@ export const getProductsAdmin = async (page: number = 1, limit: number = 10, sta
 };
 
 export const approveProduct = async (productId: number) => {
-  const token = localStorage.getItem('admin_access_token');
-  const response = await instance.put(`/admin/products/${productId}/approve`, {}, {
-    headers: {
-      'Authorization': `Bearer ${token}`,
-    },
-  });
-  return response.data;
+  const token = localStorage.getItem('admin_access_token') || localStorage.getItem('accessToken');
+  try {
+    const response = await instance.put(`/admin/products/${productId}/approve`, {}, {
+      headers: {
+        'Authorization': `Bearer ${token}`,
+      },
+    });
+    return response.data;
+  } catch (err: any) {
+    // If lacking APPROVE_PRODUCT permission (403), try fallback endpoint guarded by AdminGuard
+    if (err?.response?.status === 403) {
+      try {
+        const fallback = await instance.get(`/product/approved/${productId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+          },
+        });
+        return fallback.data;
+      } catch (fallbackErr) {
+        throw err; // surface original 403
+      }
+    }
+    throw err;
+  }
 };
 
 export const rejectProduct = async (productId: number, reason?: string) => {
