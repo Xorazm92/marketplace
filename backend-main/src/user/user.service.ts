@@ -71,13 +71,10 @@ export class UserService {
       where: { id },
       include: {
         address: true,
-        email: true,
         product: {
           include: {
             product_image: true,
             brand: true,
-            
-            
             currency: true,
           },
         },

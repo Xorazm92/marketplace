@@ -5,6 +5,7 @@ import SearchFilters from '../../components/search/SearchFilters';
 import SearchResults from '../../components/search/SearchResults';
 import SearchSorting from '../../components/search/SearchSorting';
 import styles from '../../styles/Category.module.scss';
+import { getCategoryBySlug } from '../../endpoints/category';
 
 interface SearchFiltersType {
   category: string[];
@@ -15,52 +16,13 @@ interface SearchFiltersType {
   ageRange: string[];
 }
 
-const categoryData: Record<string, { name: string; description: string; icon: string }> = {
-  'clothing': {
-    name: 'Kiyim-kechak',
-    description: 'Bolalar uchun zamonaviy va qulay kiyim-kechaklar',
-    icon: '👕'
-  },
-  'toys': {
-    name: "O'yinchoqlar",
-    description: 'Bolalarning rivojlanishi uchun foydali o\'yinchoqlar',
-    icon: '🧸'
-  },
-  'books': {
-    name: 'Kitoblar',
-    description: 'Ta\'lim va o\'yin uchun bolalar kitoblari',
-    icon: '📚'
-  },
-  'sports': {
-    name: 'Sport anjomlar',
-    description: 'Bolalar uchun sport va faollik anjomlar',
-    icon: '⚽'
-  },
-  'school': {
-    name: 'Maktab buyumlari',
-    description: 'Maktab va ta\'lim uchun zarur buyumlar',
-    icon: '🎒'
-  },
-  'baby': {
-    name: 'Chaqaloq buyumlari',
-    description: 'Chaqaloqlar uchun zarur mahsulotlar',
-    icon: '🍼'
-  },
-  'electronics': {
-    name: 'Elektronika',
-    description: 'Bolalar uchun xavfsiz elektronika',
-    icon: '📱'
-  },
-  'health': {
-    name: "Sog'liq",
-    description: 'Bolalar sog\'lig\'i uchun mahsulotlar',
-    icon: '🏥'
-  }
-};
+// Category UI info loaded dynamically from backend by slug
 
 const CategoryPage: React.FC = () => {
   const router = useRouter();
   const { slug, brand, minPrice, maxPrice, rating, availability, sort } = router.query;
+
+  const [categoryInfo, setCategoryInfo] = useState<{ name: string; description?: string; icon?: string } | null>(null);
   
   const [filters, setFilters] = useState<SearchFiltersType>({
     category: [],
@@ -74,7 +36,23 @@ const CategoryPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
 
-  const category = categoryData[slug as string];
+  // Load category meta by slug from backend to avoid hardcoded mismatches
+  useEffect(() => {
+    const loadCategory = async () => {
+      if (!slug) return;
+      const data = await getCategoryBySlug(slug as string);
+      if (data) {
+        setCategoryInfo({
+          name: data.name || 'Kategoriya',
+          description: data.description || '',
+          icon: '📚'
+        });
+      } else {
+        setCategoryInfo(null);
+      }
+    };
+    loadCategory();
+  }, [slug]);
 
   useEffect(() => {
     if (slug) {
@@ -152,7 +130,7 @@ const CategoryPage: React.FC = () => {
     }, undefined, { shallow: true });
   };
 
-  if (!category) {
+  if (!categoryInfo) {
     return (
       <>
         <div className={styles.notFound}>
@@ -166,18 +144,18 @@ const CategoryPage: React.FC = () => {
   return (
     <>
       <Head>
-        <title>{category.name} - INBOLA</title>
-        <meta name="description" content={category.description} />
+        <title>{categoryInfo.name} - INBOLA</title>
+        <meta name="description" content={categoryInfo.description || ''} />
       </Head>
       
       <main className={styles.categoryPage}>
         <div className={styles.container}>
           <div className={styles.categoryHeader}>
             <div className={styles.categoryInfo}>
-              <span className={styles.categoryIcon}>{category.icon}</span>
+              <span className={styles.categoryIcon}>{categoryInfo.icon || '📁'}</span>
               <div>
-                <h1 className={styles.title}>{category.name}</h1>
-                <p className={styles.description}>{category.description}</p>
+                <h1 className={styles.title}>{categoryInfo.name}</h1>
+                <p className={styles.description}>{categoryInfo.description}</p>
               </div>
             </div>
             

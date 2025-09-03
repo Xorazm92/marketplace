@@ -48,6 +48,21 @@ export class MailService {
     console.log('mail.service: result: ', result);
   }
 
+  async sendVerificationEmail(email: string, activationLink: string) {
+    const url = `${process.env.APP_URL || 'http://localhost:3000'}/auth/verify-email?token=${activationLink}`;
+    
+    await this.mailerService.sendMail({
+      to: email,
+      subject: 'Verify Your Email Address',
+      template: './email-verification',
+      context: {
+        email,
+        verificationUrl: url,
+        appName: 'Kids Marketplace',
+      },
+    });
+  }
+
   // Additional methods needed by notification service
   async sendOrderConfirmation(userEmail: string, order: any) {
     await this.mailerService.sendMail({

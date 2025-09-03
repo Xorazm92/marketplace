@@ -52,7 +52,11 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const response = await getAllProducts();
+        // Derive category slug from filters and fetch from backend with server-side filtering
+        const categorySlug = filters.category && filters.category.length > 0 ? filters.category[0] : undefined;
+        const response = await getAllProducts(
+          categorySlug ? { category: categorySlug } : undefined
+        );
         if (response && response.length > 0) {
           let results = response;
 
@@ -65,44 +69,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             );
           }
 
-          // Category filter
-          if (filters.category && filters.category.length > 0) {
-            console.log('Category filter:', filters.category);
-            console.log('Products before category filter:', results.length);
-            results = results.filter((product: any) => {
-              let productCategory = '';
-
-              // Handle different category formats from backend
-              if (typeof product.category === 'string') {
-                productCategory = product.category.toLowerCase();
-              } else if (product.category && typeof product.category === 'object') {
-                productCategory = (product.category.name || product.category.title || product.category.slug || '').toLowerCase();
-              } else if (product.category_id) {
-                // Map category_id to category names
-                const categoryMap: Record<number, string> = {
-                  1: 'toys',
-                  2: 'clothing',
-                  3: 'books',
-                  4: 'sports',
-                  5: 'school',
-                  6: 'baby',
-                  7: 'electronics'
-                };
-                productCategory = categoryMap[product.category_id] || '';
-              }
-
-              const isMatch = filters.category.some((cat: string) => {
-                const filterCategory = cat.toLowerCase();
-                return productCategory.includes(filterCategory) ||
-                       filterCategory.includes(productCategory) ||
-                       productCategory === filterCategory;
-              });
-
-              console.log(`Product "${product.title}" category: "${productCategory}", match: ${isMatch}`);
-              return isMatch;
-            });
-            console.log('Products after category filter:', results.length);
-          }
+          // Category is already applied on backend via getAllProducts({ category: slug })
 
           // Brand filter
           if (filters.brands.length > 0) {

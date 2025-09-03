@@ -88,10 +88,24 @@ const ProductDetails = () => {
       views: backendData.view_count || 0,
       description: backendData.description || "",
       isNegotiable: backendData.negotiable || false,
-      images: backendData.images?.map(
-        (img: any) => `http://localhost:3001/uploads/${img}`,
-      ) || backendData.product_image?.map(
-        (img: any) => `http://localhost:3001${img.url || img.image}`,
+      images: (
+        backendData.images?.map((img: any) => {
+          const val = typeof img === 'string' ? img : (img?.url || img?.image || '');
+          if (!val) return '/img/placeholder-product.jpg';
+          if (val.startsWith('http')) return val;
+          if (val.startsWith('/uploads/')) return val;
+          if (!val.startsWith('/')) return `/uploads/${val}`;
+          return '/img/placeholder-product.jpg';
+        })
+      ) || (
+        backendData.product_image?.map((img: any) => {
+          const val = img?.url || img?.image || '';
+          if (!val) return '/img/placeholder-product.jpg';
+          if (val.startsWith('http')) return val;
+          if (val.startsWith('/uploads/')) return val;
+          if (!val.startsWith('/')) return `/uploads/${val}`;
+          return '/img/placeholder-product.jpg';
+        })
       ) || ["/img/placeholder-product.jpg"],
       userId: backendData.user_id,
     };

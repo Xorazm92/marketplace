@@ -30,10 +30,20 @@ const Card: React.FC<CardProps> = ({
       <OptimizedImage
         src={
           product_image && product_image.length > 0
-            ? product_image[0].url.startsWith('http') 
-              ? product_image[0].url 
-              : `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3001'}/uploads/${product_image[0].url}`
-            : "/img/placeholder-product.jpg"
+            ? (
+                product_image[0].url.startsWith('http')
+                  ? product_image[0].url
+                  : (
+                      product_image[0].url.startsWith('/uploads/')
+                        ? product_image[0].url
+                        : (
+                            product_image[0].url.startsWith('/')
+                              ? '/img/placeholder-product.jpg'
+                              : `/uploads/${product_image[0].url}`
+                          )
+                    )
+              )
+            : '/img/placeholder-product.jpg'
         }
         alt={title}
         width={300}

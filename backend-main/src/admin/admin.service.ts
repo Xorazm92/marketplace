@@ -97,9 +97,37 @@ export class AdminService {
       this.prisma.user.findMany({
         skip,
         take: limit,
-        include: {
+        select: {
+          id: true,
           email: true,
-          address: true,
+          phone_number: true,
+          first_name: true,
+          last_name: true,
+          is_active: true,
+          is_verified: true,
+          createdAt: true,
+          address: {
+            select: {
+              id: true,
+              name: true,
+              address: true,
+              phone_number: true,
+              postal_code: true,
+              is_main: true,
+              region: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              },
+              district: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
+            }
+          },
           orders: {
             select: {
               id: true,

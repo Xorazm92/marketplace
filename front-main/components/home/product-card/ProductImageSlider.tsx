@@ -74,23 +74,23 @@ const ProductImageSlider: React.FC<ProductImageSliderProps> = ({
   const getImageUrl = (image: ProductImage | string) => {
     let imageUrl = typeof image === 'string' ? image : image.url;
 
-    // Agar URL allaqachon to'liq bo'lsa
+    // If already absolute url
     if (imageUrl.startsWith('http')) {
       return imageUrl;
     }
 
-    // Agar faqat fayl nomi bo'lsa (masalan: "1igjbf1dmmm.jpg")
-    if (!imageUrl.startsWith('/')) {
-      return `http://localhost:3001/uploads/${imageUrl}`;
-    }
-
-    // Agar /uploads/ bilan boshlansa
+    // If it already starts with /uploads/, let Next.js rewrites proxy it
     if (imageUrl.startsWith('/uploads/')) {
-      return `http://localhost:3001${imageUrl}`;
+      return imageUrl;
     }
 
-    // Boshqa holatlarda placeholder
-    return "/img/placeholder-product.jpg";
+    // If it's just a filename like "abc.jpg", prefix with /uploads/
+    if (!imageUrl.startsWith('/')) {
+      return `/uploads/${imageUrl}`;
+    }
+
+    // Fallback to placeholder
+    return '/img/placeholder-product.jpg';
   };
 
   return (

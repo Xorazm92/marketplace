@@ -10,6 +10,7 @@ import helmet from 'helmet';
 import * as cookieParser from 'cookie-parser';
 import * as express from 'express';
 import { join } from 'path';
+import { setupSwagger } from './config/swagger.config';
 
 async function bootstrap(): Promise<void> {
   const logger = new Logger('Bootstrap');
@@ -59,11 +60,17 @@ async function bootstrap(): Promise<void> {
       exclude: ['/health', '/', '/uploads'],
     });
 
-    // Versioning
+    // Enable API versioning
     app.enableVersioning({
       type: VersioningType.URI,
       defaultVersion: '1',
     });
+
+    // Setup Swagger documentation
+    setupSwagger(app);
+
+    // Global prefix for all routes
+    app.setGlobalPrefix('api');
 
     // CORS konfiguratsiyasi
     app.enableCors({
