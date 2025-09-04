@@ -181,6 +181,7 @@
 
   &[type="number"] {
     -moz-appearance: textfield;
+    appearance: textfield;
   }
 }
 
@@ -197,6 +198,58 @@
   font-size: 14px;
   color: #666;
   font-weight: 500;
+}
+
+// Social login styles
+.social_login_section {
+  margin: 20px 0;
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e1e5e9;
+  }
+}
+
+.divider_text {
+  background-color: #fff;
+  padding: 0 16px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.social_buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.link_text {
+  text-align: center;
+  margin: 20px 0 0 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.link {
+  color: #4e46b4;
+  text-decoration: none;
+  font-weight: 600;
+  
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 // Responsive design

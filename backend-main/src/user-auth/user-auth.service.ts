@@ -17,6 +17,7 @@ import { UserLoginDto } from "./dto/user-login.dto";
 import { PrismaService } from "../prisma/prisma.service";
 import { Response } from "express";
 import { decode } from "../utils/otp-crypto/crypto";
+import { Request } from 'express';
 @Injectable()
 export class UserAuthService {
   constructor(
@@ -29,12 +30,12 @@ export class UserAuthService {
   async generateTokens(payload: JwtPayload) {
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
-        secret: process.env.ACCESS_TOKEN_KEY,
-        expiresIn: process.env.ACCESS_TOKEN_TIME,
+        secret: process.env.JWT_ACCESS_SECRET,
+        expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m',
       }),
       this.jwtService.signAsync(payload, {
-        secret: process.env.REFRESH_TOKEN_KEY,
-        expiresIn: process.env.REFRESH_TOKEN_TIME,
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: process.env.JWT_REFRESH_EXPIRES || '7d',
       }),
     ]);
     return {
@@ -143,47 +144,51 @@ export class UserAuthService {
     };
   }
 
-  async refreshToken(userId: number, token: string, res: Response) {
-    const user = await this.userService.findOneById(userId);
-
-    if (!user || !user.hashed_refresh_token) {
-      throw new NotFoundException("User not found");
-    }
-
+  async refreshByToken(refreshToken: string, res: Response) {
+    let payload: any;
     try {
-      await this.jwtService.verify(token, {
-        secret: process.env.REFRESH_TOKEN_KEY,
+      payload = await this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
       });
     } catch {
       throw new ForbiddenException("Invalid or expired refresh token");
     }
 
+    const userId = payload?.id ?? payload?.sub;
+    if (!userId) {
+      throw new ForbiddenException("Invalid refresh token payload");
+    }
+
+    const user = await this.userService.findOneById(userId);
+    if (!user || !user.hashed_refresh_token) {
+      throw new NotFoundException("User not found");
+    }
+
     const tokenMatch = await BcryptEncryption.compare(
-      token,
+      refreshToken,
       user.hashed_refresh_token
     );
     if (!tokenMatch) {
       throw new ForbiddenException("Refresh token does not match");
     }
 
-    // User'da endi to'g'ridan-to'g'ri phone_number field bor
     if (!user.phone_number) {
       throw new NotFoundException("Phone number not found for user");
     }
 
-    const { accessToken, refreshToken } = await this.generateTokens({
+    const { accessToken, refreshToken: newRefresh } = await this.generateTokens({
       id: user.id,
       phone_number: user.phone_number,
     });
 
-    const hashed_refresh_token = await BcryptEncryption.encrypt(refreshToken);
+    const hashed_refresh_token = await BcryptEncryption.encrypt(newRefresh);
 
     await this.userService.updateUserRefreshToken(
       user.id,
       hashed_refresh_token
     );
 
-    res.cookie("refresh_token", refreshToken, {
+    res.cookie("refresh_token", newRefresh, {
       maxAge: 15 * 24 * 60 * 60 * 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -199,15 +204,72 @@ export class UserAuthService {
     };
   }
 
-  async signOut(userId: number, res: Response) {
-    const isUpdated = await this.userService.updateUserRefreshToken(userId, "");
+  async signOut(refreshToken: string, res: Response) {
+    let payload: any;
+    try {
+      payload = await this.jwtService.verify(refreshToken, {
+        secret: process.env.JWT_REFRESH_SECRET,
+      });
+    } catch {
+      throw new ForbiddenException("Invalid or expired refresh token");
+    }
 
+    const userId = payload?.id ?? payload?.sub;
+    if (!userId) {
+      throw new ForbiddenException("Invalid refresh token payload");
+    }
+
+    const isUpdated = await this.userService.updateUserRefreshToken(userId, "");
     if (!isUpdated) {
       throw new InternalServerErrorException("Error signing out");
     }
 
-    res.clearCookie("refresh_token", { httpOnly: true, secure: true });
+    res.clearCookie("refresh_token", { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
 
     return { message: "Successfully signed out", status_code: 200 };
+  }
+
+  async googleLogin(req: Request) {
+    if (!req.user) {
+      throw new BadRequestException('No user from Google');
+    }
+
+    const { email, name, picture } = req.user as any;
+    
+    // Check if user exists
+    let user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+
+    // If user doesn't exist, create a new one
+    if (!user) {
+      user = await this.prisma.user.create({
+        data: {
+          email,
+          first_name: name,
+          last_name: '',
+          phone_number: '', // You might want to handle this differently
+          is_verified: true, // Mark as verified since it's from Google
+          profile_img: picture,
+          password: '', // Required field, but we'll handle it differently for OAuth users
+          telegram_id: '', // Required field
+        },
+      });
+    }
+
+    // Generate tokens
+    const tokens = await this.generateTokens({
+      id: user.id,
+      phone_number: user.phone_number || '',
+      email: user.email,
+      is_verified: user.is_verified,
+      sub: user.id.toString()
+      // role is not included as it's not part of the user model
+    } as any); // Using 'as any' to bypass type checking temporarily
+
+    // Update refresh token in database using the service method
+    await this.userService.updateUserRefreshToken(user.id, tokens.refreshToken);
+
+    return tokens;
   }
 }

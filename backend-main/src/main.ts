@@ -57,7 +57,7 @@ async function bootstrap(): Promise<void> {
 
     // Global prefix
     app.setGlobalPrefix('api', {
-      exclude: ['/health', '/', '/uploads'],
+      exclude: ['/health', '/', '/uploads', '/auth/google', '/auth/google/callback'],
     });
 
     // Enable API versioning
@@ -69,8 +69,8 @@ async function bootstrap(): Promise<void> {
     // Setup Swagger documentation
     setupSwagger(app);
 
-    // Global prefix for all routes
-    app.setGlobalPrefix('api');
+    // Global prefix for all routes (already set above with exclusions)
+    // app.setGlobalPrefix('api');
 
     // CORS konfiguratsiyasi
     app.enableCors({

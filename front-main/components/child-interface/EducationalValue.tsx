@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore - Framer Motion types will be available after installation
 import { motion } from 'framer-motion';
 import { FaGraduationCap, FaLightbulb, FaBrain, FaUsers, FaHeart, FaStar } from 'react-icons/fa';
 import { MdScience, MdSports, MdLanguage, MdNature } from 'react-icons/md';

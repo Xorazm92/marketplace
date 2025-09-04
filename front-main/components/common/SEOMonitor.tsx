@@ -21,7 +21,8 @@ const SEOMonitor = () => {
       const trackEngagement = () => {
         if (window.gtag) {
           window.gtag('event', 'user_engagement', {
-            engagement_time_msec: 1000,
+            value: 1000,
+            non_interaction: true,
           });
         }
       };

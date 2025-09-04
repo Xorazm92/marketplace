@@ -20,7 +20,7 @@ async function bootstrap() {
     // Set global prefix
     app.setGlobalPrefix('api');
 
-    const port = process.env.PORT || 4000;
+    const port = process.env.PORT || 3001;
     await app.listen(port, '0.0.0.0');
 
     console.log(`🚀 INBOLA Backend running on port ${port}`);

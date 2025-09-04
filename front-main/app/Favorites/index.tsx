@@ -11,7 +11,7 @@ const Favorites = () => {
   const { favorites, toggleFavorite } = useFavorites();
   const { data: products = [], isLoading, isError } = useAllProducts(); 
 
-  const favoriteProducts = products.filter((product: Product) =>
+  const favoriteProducts = (products as Product[]).filter((product: Product) =>
     favorites.includes(product.id)
   );
 

@@ -131,18 +131,54 @@
     box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1) !important;
   }
 }
+// Social login styles
+.social_login_section {
+  margin: 20px 0;
+}
+
+.divider {
+  position: relative;
+  text-align: center;
+  margin: 20px 0;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background-color: #e1e5e9;
+  }
+}
+
+.divider_text {
+  background-color: #fff;
+  padding: 0 16px;
+  color: #666;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.social_buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
 .link_text {
   margin-top: 1rem;
   text-align: center;
   font-size: 14px;
+  color: #666;
 }
 
 .link {
-  color: #0070f3;
-  text-decoration: underline;
-  cursor: pointer;
+  color: #4e46b4;
+  text-decoration: none;
+  font-weight: 600;
 
   &:hover {
-    color: #0051a2;
+    text-decoration: underline;
   }
 }

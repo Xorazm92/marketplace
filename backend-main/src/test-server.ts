@@ -39,12 +39,12 @@ app.get('/api/test', (req, res) => {
     data: {
       server: 'INBOLA Backend',
       status: 'running',
-      port: process.env.PORT || 4000
+      port: process.env.PORT || 3001
     }
   });
 });
 
-const port = Number(process.env.PORT) || 4000;
+const port = Number(process.env.PORT) || 3001;
 
 app.listen(port, '0.0.0.0', () => {
   console.log(`🚀 INBOLA Test Server running on port ${port}`);

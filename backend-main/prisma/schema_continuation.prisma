@@ -1,0 +1,285 @@
+model Product {
+  id                    Int            @id @default(autoincrement())
+  title                 String
+  user_id               Int?
+  brand_id              Int
+  price                 Decimal
+  original_price        Decimal?
+  discount_percentage   Int?           @default(0)
+  currency_id           Int
+  description           String
+  short_description     String?
+  negotiable            Boolean        @default(false)
+  condition             String         @default("new") // new, used, refurbished
+  phone_number          String
+  address_id            Int?
+  slug                  String?        @unique
+  is_top                Boolean        @default(false)
+  is_featured           Boolean        @default(false)
+  is_bestseller         Boolean        @default(false)
+  is_checked            isChecked      @default(PENDING)
+  is_active             Boolean        @default(true)
+  is_deleted            Boolean        @default(false)
+  view_count            Int            @default(0)
+  like_count            Int            @default(0)
+  share_count           Int            @default(0)
+  category_id           Int?
+  subcategory_id        Int?
+  sku                   String?        @unique
+  barcode               String?        @unique
+  weight                Decimal?
+  dimensions            Json?          // {length, width, height}
+  age_range             String?
+  material              String?
+  color                 String?
+  size                  String?
+  manufacturer          String?
+  brand_name            String?
+  safety_info           String?
+  features              Json?          // Array of features
+  specifications        Json?          // Detailed specs
+  meta_title            String?
+  meta_description      String?
+  tags                  String?
+  search_keywords       String?
+  availability_status   String         @default("in_stock") // in_stock, out_of_stock, pre_order
+  min_order_quantity    Int            @default(1)
+  max_order_quantity    Int?
+  shipping_weight       Decimal?
+  shipping_dimensions   Json?
+  origin_country        String?
+  warranty_period       String?
+  return_policy         String?
+  care_instructions     String?
+  safety_warnings       String?
+  certifications        Json?          // Array of certifications
+  educational_value     String?
+  skill_development     Json?          // Array of skills
+  play_pattern          String?
+  assembly_required     Boolean        @default(false)
+  battery_required      Boolean        @default(false)
+  choking_hazard        Boolean        @default(false)
+  
+  // Bolalar uchun qo'shimcha maydonlar
+  age_group_id          Int?
+  educational_category_id Int?
+  event_type_id         Int?
+  difficulty_level      String?       // "Oson", "O'rta", "Qiyin"
+  play_time            String?       // "15-30 daqiqa"
+  player_count         String?       // "1-4 kishi"
+  learning_objectives  Json?         // o'quv maqsadlari
+  developmental_skills Json?         // rivojlanish ko'nikmalari
+  parental_guidance    Boolean @default(false)
+  multilingual_support Json?         // qo'llab-quvvatlanadigan tillar
+  recommended_age_min  Int?          // tavsiya etilgan minimal yosh (oy)
+  recommended_age_max  Int?          // tavsiya etilgan maksimal yosh (oy)
+  gender_specific      String?       // "Erkak", "Ayol", "Umumiy"
+  
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  
+  cart_items       CartItem[]
+  inventory               Inventory?
+  order_items             OrderItem[]
+  address                 Address?                  @relation(fields: [address_id], references: [id])
+  brand                   Brand                     @relation(fields: [brand_id], references: [id])
+  category                Category?                 @relation(fields: [category_id], references: [id])
+  currency                Currency                  @relation(fields: [currency_id], references: [id])
+  user                    User?                     @relation(fields: [user_id], references: [id])
+  product_image           ProductImage[]
+  reviews                 Review[]
+  wishlist_items          WishlistItem[]
+  variants                ProductVariant[]
+  collection_items        ProductCollectionItem[]
+  attribute_values        ProductAttributeValue[]
+  product_colors          ProductColor[]
+  recommendations         ProductRecommendation[]   @relation("ProductRecommendations")
+  recommended_by          ProductRecommendation[]   @relation("RecommendedProducts")
+  views                   ProductView[]
+  search_clicks           SearchQuery[]
+  
+  // Yangi munosabatlar
+  age_group              AgeGroup?                 @relation(fields: [age_group_id], references: [id])
+  educational_category   EducationalCategory?      @relation(fields: [educational_category_id], references: [id])
+  event_type             EventType?                @relation(fields: [event_type_id], references: [id])
+  safety_certifications  ProductSafetyCertification[]
+
+  @@map("product")
+}
+
+model ProductImage {
+  id         Int      @id @default(autoincrement())
+  url        String
+  product_id Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  product    Product  @relation(fields: [product_id], references: [id])
+
+  @@map("product_image")
+}
+
+model Otp {
+  id           Int      @id @default(autoincrement())
+  code         String
+  is_used      Boolean  @default(false)
+  expired_time DateTime
+  phone_number String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@map("otp")
+}
+
+model Chatroom {
+  id            Int             @id @default(autoincrement())
+  name          String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  ChatroomUsers ChatroomUsers[]
+  messages      Message[]
+  users         User[]          @relation("ChatroomUsers")
+}
+
+model Message {
+  id         Int          @id @default(autoincrement())
+  type       MessageType?
+  content    String
+  imageUrl   String?
+  userId     Int
+  chatroomId Int
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+  chatroom   Chatroom     @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  user       User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ChatroomUsers {
+  chatroomId Int
+  userId     Int
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  chatroom   Chatroom @relation(fields: [chatroomId], references: [id], onDelete: Cascade)
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([chatroomId, userId])
+}
+
+model Category {
+  id          Int        @id @default(autoincrement())
+  name        String
+  slug        String     @unique
+  description String?
+  image_url   String?
+  parent_id   Int?
+  is_active   Boolean    @default(true)
+  sort_order  Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  parent      Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
+  children    Category[] @relation("CategoryHierarchy")
+  products    Product[]
+
+  @@map("category")
+}
+
+model Cart {
+  id        Int        @id @default(autoincrement())
+  user_id   Int        @unique
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  user      User       @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items     CartItem[]
+
+  @@map("cart")
+}
+
+model CartItem {
+  id              Int             @id @default(autoincrement())
+  cart_id         Int
+  product_id      Int
+  variant_id      Int?
+  quantity        Int             @default(1)
+  unit_price      Decimal
+  total_price     Decimal
+  notes           String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime        @updatedAt
+
+  cart            Cart            @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product         Product         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant         ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
+
+  @@unique([cart_id, product_id, variant_id])
+  @@map("cart_item")
+}
+
+model Wishlist {
+  id        Int            @id @default(autoincrement())
+  user_id   Int            @unique
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  user      User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items     WishlistItem[]
+
+  @@map("wishlist")
+}
+
+model WishlistItem {
+  id          Int      @id @default(autoincrement())
+  wishlist_id Int
+  product_id  Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  product     Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  wishlist    Wishlist @relation(fields: [wishlist_id], references: [id], onDelete: Cascade)
+
+  @@unique([wishlist_id, product_id])
+  @@map("wishlist_item")
+}
+
+// Qolgan modellar va enumlar...
+enum isChecked {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum MessageType {
+  TEXT
+  IMAGE
+  VIDEO
+  FILE
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  RETURNED
+  REFUNDED
+}
+
+enum PaymentStatus {
+  PENDING
+  PAID
+  FAILED
+  REFUNDED
+  PARTIALLY_REFUNDED
+}
+
+enum CouponType {
+  PERCENTAGE
+  FIXED_AMOUNT
+  FREE_SHIPPING
+}
+
+enum MovementType {
+  IN
+  OUT
+  ADJUSTMENT
+  RESERVED
+  RELEASED
+}

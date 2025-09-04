@@ -9,6 +9,8 @@ import { loginSuccess } from "../../store/features/authSlice";
 import { isValidUzbekPhoneNumber } from "../../utils/validator";
 import { setLocalStorage } from "../../utils/local-storege";
 import { useRouter } from "next/router";
+import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
+import TelegramLoginButton from "../../components/auth/TelegramLoginButton";
 
 const UserLoginPage = () => {
   const [phone, setPhone] = useState("");
@@ -78,6 +80,34 @@ const UserLoginPage = () => {
             {loading ? <span className={style.loading_spinner} /> : "Kirish"}
           </button>
         </form>
+
+        {/* Social Login Options */}
+        <div className={style.social_login_section}>
+          <div className={style.divider}>
+            <span className={style.divider_text}>yoki</span>
+          </div>
+          
+          <div className={style.social_buttons}>
+            <GoogleSignInButton />
+            <TelegramLoginButton 
+              botName="your_bot_name" 
+              onAuthCallback={(user) => {
+                toast.success(`Xush kelibsiz, ${user.first_name}!`);
+                // Handle successful login here
+                dispatch(loginSuccess({
+                  id: user.id,
+                  phone_number: user.username || '',
+                  full_name: `${user.first_name} ${user.last_name || ''}`.trim(),
+                }));
+                router.push("/");
+              }}
+              onError={(error) => {
+                toast.error(`Xatolik: ${error.message}`);
+              }}
+            />
+          </div>
+        </div>
+
         <p className={style.link_text}>
           Hisobingiz yo'qmi?{" "}
           <a href="/sign-up" className={style.link}>

@@ -12,7 +12,7 @@ BLUE='\033[0;34m'
 NC='\033[0m' # No Color
 
 # Configuration
-API_BASE_URL="http://localhost:4000/api"
+API_BASE_URL="http://localhost:3001/api"
 TEST_PHONE="+998901234567"
 TEST_PASSWORD="123456"
 ACCESS_TOKEN=""

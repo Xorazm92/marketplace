@@ -7,6 +7,8 @@ import { isValidUzbekPhoneNumber } from "../../utils/validator";
 import { setLocalStorage } from "../../utils/local-storege";
 import { useSendOtp } from "../../hooks/auth";
 import { toast } from "react-toastify";
+import GoogleSignInButton from "../auth/GoogleSignInButton";
+import TelegramLoginButton from "../auth/TelegramLoginButton";
 
 const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
   const [user, setUser] = useState({
@@ -127,6 +129,27 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
             "Ro'yxatdan o'tish"
           )}
         </button>
+
+        {/* Social Login Options */}
+        <div className={style.social_login_section}>
+          <div className={style.divider}>
+            <span className={style.divider_text}>yoki</span>
+          </div>
+          
+          <div className={style.social_buttons}>
+            <GoogleSignInButton />
+            <TelegramLoginButton 
+              botName="your_bot_name" 
+              onAuthCallback={(user) => {
+                toast.success(`Xush kelibsiz, ${user.first_name}!`);
+              }}
+              onError={(error) => {
+                toast.error(`Xatolik: ${error.message}`);
+              }}
+            />
+          </div>
+        </div>
+
         <p className={style.link_text}>
           Hisobingiz bormi?{" "}
           <a href="/login" className={style.link}>

@@ -2,7 +2,7 @@ import React from "react";
 import style from "./Button.module.scss";
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger";
+  variant?: "primary" | "secondary" | "danger" | "outline";
   customColor?: string;
 }
 

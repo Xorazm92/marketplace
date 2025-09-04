@@ -162,54 +162,23 @@ async function main() {
     // Test mahsulotlar yaratish
     const testProducts = [
       {
-        title: "Bolalar uchun rangli ko'ylak",
-        description: "Yumshoq va qulay bolalar ko'ylagi. 100% paxta materialdan tayyorlangan.",
-        price: 150000,
-        category_slug: 'clothing',
-        brand_name: 'INBOLA',
-        images: ['/uploads/product1.svg', '/uploads/product1_2.svg']
-      },
-      {
         title: "Kichkintoylar uchun o'yinchoq mashina",
         description: "Xavfsiz va rangli o'yinchoq mashina. 3+ yosh uchun mos.",
         price: 85000,
         category_slug: 'toys',
         brand_name: 'INBOLA',
-        images: ['/uploads/toy1.svg', '/uploads/toy1_2.svg']
+        images: ['/uploads/toy1.svg', '/uploads/toy2.svg'],
+        // Mavjud ranglardan foydalanamiz (yuqorida yaratildi)
+        colors: ["Ko'k", 'Qizil']
       },
       {
-        title: "Bolalar uchun hikoyalar kitobi",
-        description: "O'zbek tilida yozilgan qiziqarli hikoyalar to'plami.",
-        price: 45000,
-        category_slug: 'books',
+        title: "Bolalar uchun rangli konstruktor",
+        description: "Tasavvur va motorika rivoji uchun 120 ta detalga ega konstruktor.",
+        price: 149000,
+        category_slug: 'toys',
         brand_name: 'INBOLA',
-        images: ['/uploads/book1.svg']
-      },
-      {
-        title: "Bolalar futbol to'pi",
-        description: "Yumshoq va xavfsiz futbol to'pi. Ichki va tashqi o'yinlar uchun.",
-        price: 120000,
-        category_slug: 'sports',
-        brand_name: 'INBOLA',
-        images: ['/uploads/ball1.svg']
-      },
-      {
-        title: "Maktab sumkasi",
-        description: "Chiroyli va bardoshli maktab sumkasi. Ko'p cho'ntakli.",
-        price: 180000,
-        category_slug: 'school',
-        brand_name: 'INBOLA',
-        images: ['/uploads/bag1.svg', '/uploads/bag1_2.svg'],
-        colors: ['Qora', 'Ko\'k', 'Qizil']
-      },
-      {
-        title: "Bolalar uchun rangli qalam to'plami",
-        description: "Yuqori sifatli rangli qalamlar. 24 ta turli rangda. Bolalar uchun xavfsiz.",
-        price: 45000,
-        category_slug: 'school',
-        brand_name: 'INBOLA',
-        images: ['/uploads/pencils1.svg', '/uploads/pencils2.svg'],
-        colors: ['Ko\'k', 'Qizil', 'Yashil', 'Sariq', 'Binafsha', 'To\'q sariq']
+        images: ['/uploads/constructor1.svg', '/uploads/constructor2.svg'],
+        colors: ['Yashil', 'Sariq']
       }
     ];
 
@@ -247,7 +216,7 @@ async function main() {
             slug: productSlug,
             product_image: {
               create: productData.images.map((img) => ({
-                url: `/uploads/${img}`
+                url: img.startsWith('/uploads') ? img : `/uploads/${img}`
               }))
             }
           }

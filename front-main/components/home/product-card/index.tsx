@@ -16,8 +16,21 @@ const ProductCard: React.FC<CardProps> = ({
   isFavorite,
   onToggleFavorite,
 }) => {
-  const { id, images, product_image, title, condition, price, negotiable } =
-    product;
+  const {
+    id,
+    product_image,
+    title,
+    condition,
+    price,
+    negotiable,
+  } = product as any;
+
+  const images = (product as any).images as Array<{ url?: string }> | undefined;
+  const imageUrl =
+    images?.[0]?.url ||
+    product_image?.url ||
+    product_image ||
+    '';
 
   const handleFavoriteClick = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -28,7 +41,7 @@ const ProductCard: React.FC<CardProps> = ({
   return (
     <Link href={`/productdetails/${id}`} className={styles.card}>
       <ProductImageSlider
-        images={images || product_image || []}
+        images={images ? images.map(img => img.url || '').filter(Boolean) : [imageUrl].filter(Boolean)}
         title={title}
         autoSlide={true}
         autoSlideInterval={4000}

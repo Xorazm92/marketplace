@@ -10,7 +10,7 @@ import { User } from '@prisma/client';
 import { ApiAuthTags } from '../common/decorators/api-tags.decorator';
 import { ApiBearerAuth, ApiBody, ApiCookieAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { LoginResponseDto } from './dto/login-response.dto';
-import { RefreshTokenDto } from './dto/refresh-token.dto';
+import { RefreshTokenResponseDto } from './dto/refresh-token.dto';
 
 @ApiTags('Authentication')
 @Controller('auth/user')
@@ -72,7 +72,7 @@ export class UserAuthController {
   @ApiResponse({ 
     status: HttpStatus.OK, 
     description: 'Successfully refreshed token',
-    type: RefreshTokenDto
+    type: RefreshTokenResponseDto
   })
   @ApiResponse({ 
     status: HttpStatus.UNAUTHORIZED, 

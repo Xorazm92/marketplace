@@ -11,6 +11,7 @@ import { useEffect, useState } from "react";
 import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import PerformanceMonitor from "@/components/common/PerformanceMonitor";
 import SEOMonitor from "@/components/common/SEOMonitor";
+import { SessionProvider } from "@/components/providers/SessionProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient({
@@ -54,32 +55,34 @@ export default function App({ Component, pageProps }: AppProps) {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ApolloProvider client={client}>
-        <ReduxProvider>
-          <GoogleAnalytics />
-          <PerformanceMonitor />
-          <SEOMonitor />
-          {shouldShowLayout ? (
-            <MainLayout>
+    <SessionProvider>
+      <QueryClientProvider client={queryClient}>
+        <ApolloProvider client={client}>
+          <ReduxProvider>
+            <GoogleAnalytics />
+            <PerformanceMonitor />
+            <SEOMonitor />
+            {shouldShowLayout ? (
+              <MainLayout>
+                <Component {...pageProps} />
+              </MainLayout>
+            ) : (
               <Component {...pageProps} />
-            </MainLayout>
-          ) : (
-            <Component {...pageProps} />
-          )}
-          <ToastContainer 
-            position="top-right"
-            autoClose={5000}
-            hideProgressBar={false}
-            newestOnTop={false}
-            closeOnClick
-            rtl={false}
-            pauseOnFocusLoss
-            draggable
-            pauseOnHover
-          />
-        </ReduxProvider>
-      </ApolloProvider>
-    </QueryClientProvider>
+            )}
+            <ToastContainer 
+              position="top-right"
+              autoClose={5000}
+              hideProgressBar={false}
+              newestOnTop={false}
+              closeOnClick
+              rtl={false}
+              pauseOnFocusLoss
+              draggable
+              pauseOnHover
+            />
+          </ReduxProvider>
+        </ApolloProvider>
+      </QueryClientProvider>
+    </SessionProvider>
   );
 }

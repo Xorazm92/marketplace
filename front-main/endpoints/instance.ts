@@ -1,14 +1,17 @@
 
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
-// API base URL
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
+// API base URL (prefer BACKEND, fallback to API)
+const API_BASE_URL =
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:3001';
 
 // Axios instance yaratish
 const instance: AxiosInstance = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   timeout: 30000,
-  withCredentials: false, // CORS muammosini hal qilish uchun
+  withCredentials: false, // cookie-based authga o'tsangiz true qilamiz
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -107,16 +110,23 @@ instance.interceptors.response.use(
 
 // Health check funksiyasi
 export const checkApiHealth = async (): Promise<boolean> => {
-  try {
-    const response = await axios.get(`${API_BASE_URL}/health`, {
-      timeout: 5000,
-    });
-    console.log('💚 API Health Check:', response.data);
-    return response.status === 200;
-  } catch (error) {
-    console.error('❌ API Health Check failed:', error);
-    return false;
+  const candidates = [
+    `${API_BASE_URL}/health`,
+    `${API_BASE_URL}/api/health`,
+    `${API_BASE_URL}/api/v1/health`,
+  ];
+
+  for (const url of candidates) {
+    try {
+      const response = await axios.get(url, { timeout: 7000 });
+      console.log('💚 API Health Check OK:', { url, data: response.data });
+      return response.status === 200;
+    } catch (error) {
+      console.warn('⚠️ Health check attempt failed:', { url, error: (error as any)?.message });
+    }
   }
+  console.error('❌ API Health Check failed: All candidates exhausted', { candidates });
+  return false;
 };
 
 // API connection test

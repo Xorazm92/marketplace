@@ -25,8 +25,10 @@ const PerformanceMonitor = () => {
         const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
         if (navigation && window.gtag) {
           window.gtag('event', 'timing_complete', {
-            name: 'load',
+            event_category: 'performance',
+            event_label: 'load',
             value: Math.round(navigation.loadEventEnd - navigation.loadEventStart),
+            non_interaction: true,
           });
         }
       });

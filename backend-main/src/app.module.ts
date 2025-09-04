@@ -53,8 +53,8 @@ import { HealthModule } from './health/health.module';
     ]),
     JwtModule.register({
       global: true,
-      secret: process.env.ACCESS_TOKEN_KEY || 'default-secret',
-      signOptions: { expiresIn: process.env.ACCESS_TOKEN_TIME || '15m' },
+      secret: process.env.JWT_ACCESS_SECRET,
+      signOptions: { expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m' },
     }),
     GraphQLModule.forRoot<ApolloDriverConfig>({
       driver: ApolloDriver,
@@ -100,10 +100,9 @@ import { HealthModule } from './health/health.module';
   ],
   providers: [
     // Development da rate limiting o'chirildi
-    // {
-    //   provide: APP_GUARD,
-    //   useClass: ThrottlerGuard,
-    // },
+    ...(process.env.NODE_ENV === 'production'
+      ? [{ provide: APP_GUARD, useClass: ThrottlerGuard }]
+      : []),
   ],
 })
 export class AppModule {}

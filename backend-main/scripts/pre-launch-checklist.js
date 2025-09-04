@@ -165,7 +165,7 @@ class PreLaunchChecklist {
       await new Promise(resolve => setTimeout(resolve, 10000));
       
       // Check health endpoint
-      const response = await fetch('http://localhost:4000/health');
+      const response = await fetch('http://localhost:3001/health');
       if (response.ok) {
         this.addCheck('Health endpoint responding correctly');
       } else {

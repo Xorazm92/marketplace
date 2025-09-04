@@ -1,4 +1,5 @@
 import React from 'react';
+// @ts-ignore - Framer Motion types will be available after installation
 import { motion } from 'framer-motion';
 import { FaShieldAlt, FaCheckCircle, FaExclamationTriangle, FaInfoCircle } from 'react-icons/fa';
 import { MdSecurity, MdVerified } from 'react-icons/md';

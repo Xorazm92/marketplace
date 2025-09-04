@@ -85,7 +85,7 @@ print_step "9. Running health checks..."
 sleep 10
 
 # Health check
-if curl -f http://0.0.0.0:4000/health > /dev/null 2>&1; then
+if curl -f http://0.0.0.0:3001/health > /dev/null 2>&1; then
     print_status "✅ Backend health check passed"
 else
     print_error "❌ Backend health check failed"
@@ -115,7 +115,7 @@ echo "   pm2 restart all     - Restart all processes"
 echo "   pm2 stop all        - Stop all processes"
 echo ""
 echo "🌐 Application URLs:"
-echo "   Backend API: http://your-domain.com:4000/api"
-echo "   Health Check: http://your-domain.com:4000/health"
+echo "   Backend API: http://your-domain.com:3001/api"
+echo "   Health Check: http://your-domain.com:3001/health"
 echo ""
 print_status "Deployment completed successfully! 🚀"

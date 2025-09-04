@@ -132,7 +132,7 @@ alerting:
 scrape_configs:
   - job_name: 'inbola-backend'
     static_configs:
-      - targets: ['backend:4000']
+      - targets: ['backend:3001']
     metrics_path: '/metrics'
     scrape_interval: 5s
 

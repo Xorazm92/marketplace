@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class RefreshTokenDto {
+// This DTO represents the response shape for a refreshed access token
+export class RefreshTokenResponseDto {
   @ApiProperty({
     description: 'New JWT access token',
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',

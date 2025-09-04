@@ -18,6 +18,14 @@ const nextConfig: NextConfig = {
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizeCss: false, // Disable to prevent critters issues
     scrollRestoration: true,
+    turbo: {
+      rules: {
+        '*.svg': {
+          loaders: ['@svgr/webpack'],
+          as: '*.js',
+        },
+      },
+    },
   },
 
   // Server external packages
@@ -68,26 +76,31 @@ const nextConfig: NextConfig = {
   // API rewrites
   async rewrites() {
     return [
+      // Keep NextAuth routes handled by Next.js (do not proxy to backend)
+      {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/api/v1/:path*`,
       },
       {
         source: '/uploads/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/uploads/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/uploads/:path*`,
       },
       // Handle any double /uploads in the path
       {
         source: '/uploads/uploads/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/uploads/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/uploads/:path*`,
       },
       {
         source: '/graphql',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/graphql`,
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/graphql`,
       },
       {
         source: '/health',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/health`,
+        destination: `${process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001'}/health`,
       }
     ];
   },
@@ -189,7 +202,8 @@ const nextConfig: NextConfig = {
   // Environment variables
   env: {
     NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3002',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:3001',
+    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'INBOLA Kids Marketplace',
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   },
@@ -239,18 +253,6 @@ const nextConfig: NextConfig = {
     // Hot reload optimizatsiyasi
     reactStrictMode: false,
   }),
-
-  // Turbopack konfiguratsiyasi
-  experimental: {
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
-  },
 
   // Webpack konfiguratsiyasi (fallback)
   webpack: (config, { dev, isServer }) => {

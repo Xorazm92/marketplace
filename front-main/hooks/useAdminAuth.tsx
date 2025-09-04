@@ -13,6 +13,7 @@ interface AdminUser {
 interface UseAdminAuthReturn {
   admin: AdminUser | null;
   isLoading: boolean;
+  loading: boolean; // Alias for isLoading for backward compatibility
   isAuthenticated: boolean;
   login: (token: string, adminData: AdminUser) => void;
   logout: () => void;
@@ -157,6 +158,7 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
   return {
     admin,
     isLoading,
+    loading: isLoading, // Alias for backward compatibility
     isAuthenticated,
     login,
     logout,

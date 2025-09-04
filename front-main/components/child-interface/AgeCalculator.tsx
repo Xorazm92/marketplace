@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+// @ts-ignore - Framer Motion types will be available after installation
 import { motion } from 'framer-motion';
 import { FaBaby, FaChild, FaGraduationCap, FaBirthdayCake } from 'react-icons/fa';
 import { MdCalculate, MdTrendingUp } from 'react-icons/md';
