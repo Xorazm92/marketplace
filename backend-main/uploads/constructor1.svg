@@ -1,0 +1,28 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Konstruktor asosi -->
+  <rect x="20" y="140" width="160" height="40" fill="#4CAF50" rx="5"/>
+  
+  <!-- Konstruktor bloklari -->
+  <rect x="40" y="100" width="30" height="40" fill="#FF5722" rx="3"/>
+  <rect x="80" y="100" width="30" height="40" fill="#2196F3" rx="3"/>
+  <rect x="120" y="100" width="30" height="40" fill="#FFC107" rx="3"/>
+  
+  <!-- Ikkinchi qator bloklar -->
+  <rect x="60" y="60" width="30" height="40" fill="#9C27B0" rx="3"/>
+  <rect x="100" y="60" width="30" height="40" fill="#FF9800" rx="3"/>
+  
+  <!-- Yuqori blok -->
+  <rect x="80" y="20" width="30" height="40" fill="#E91E63" rx="3"/>
+  
+  <!-- Konstruktor tugmalari -->
+  <circle cx="55" cy="115" r="3" fill="#FFFFFF"/>
+  <circle cx="95" cy="115" r="3" fill="#FFFFFF"/>
+  <circle cx="135" cy="115" r="3" fill="#FFFFFF"/>
+  <circle cx="75" cy="75" r="3" fill="#FFFFFF"/>
+  <circle cx="115" cy="75" r="3" fill="#FFFFFF"/>
+  <circle cx="95" cy="35" r="3" fill="#FFFFFF"/>
+  
+  <!-- Dekorativ elementlar -->
+  <path d="M30 160 L50 150 L70 160" stroke="#2E7D32" stroke-width="2" fill="none"/>
+  <path d="M130 160 L150 150 L170 160" stroke="#2E7D32" stroke-width="2" fill="none"/>
+</svg>
