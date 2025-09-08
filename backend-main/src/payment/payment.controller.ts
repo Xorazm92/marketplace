@@ -9,130 +9,175 @@ import {
   ParseIntPipe,
   UseGuards,
   Query,
+  Req,
+  Headers,
+  RawBodyRequest,
+  HttpCode,
+  HttpStatus
 } from '@nestjs/common';
 import { PaymentService } from './payment.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { CreatePaymentDto, PaymentWebhookDto } from './dto/create-payment.dto';
 import { ApiBearerAuth, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AdminSelfGuard } from '../guards/admin-self.guard';
 import { AdminGuard } from '../guards/admin.guard';
 import { UserGuard } from '../guards/user.guard';
-import { UserSelfGuard } from '../guards/user-self.guard';
-import { ClickService } from './services/click.service';
-import { PaymeService } from './services/payme.service';
+import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
+import { PayPalService } from './services/paypal.service';
+import { StripeService } from './services/stripe.service';
 
 @ApiTags('Payments')
 @Controller('payment')
 export class PaymentController {
   constructor(
     private readonly paymentService: PaymentService,
-    private readonly clickService: ClickService,
-    private readonly paymeService: PaymeService,
+    private readonly paypalService: PayPalService,
+    private readonly stripeService: StripeService,
   ) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create payment' })
-  @ApiResponse({ status: 201, description: 'Payment created successfully' })
+  @Post('initiate')
+  @UseGuards(UserGuard)
+  @ApiBearerAuth('inbola')
+  @ApiOperation({ summary: 'Initiate payment for an order' })
+  @ApiResponse({ status: 201, description: 'Payment initiated successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
-  create(@Body() createPaymentDto: CreatePaymentDto) {
-    return this.paymentService.create(createPaymentDto);
+  @ApiResponse({ status: 404, description: 'Order not found' })
+  initiatePayment(
+    @Body() createPaymentDto: CreatePaymentDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.paymentService.initiatePayment(createPaymentDto, userId);
   }
 
-  @Get()
-  @ApiOperation({ summary: 'Get all payments' })
-  @ApiResponse({ status: 200, description: 'List of payments' })
+  @Post(':id/confirm')
+  @UseGuards(UserGuard)
   @ApiBearerAuth('inbola')
-  @UseGuards(AdminGuard, AdminSelfGuard)
-  findAll() {
-    return this.paymentService.findAll();
+  @ApiOperation({ summary: 'Confirm payment after gateway processing' })
+  @ApiResponse({ status: 200, description: 'Payment confirmed successfully' })
+  @ApiResponse({ status: 404, description: 'Payment not found' })
+  confirmPayment(
+    @Param('id', ParseIntPipe) paymentId: number,
+    @Body() gatewayData: any,
+  ) {
+    return this.paymentService.confirmPayment(paymentId, gatewayData);
+  }
+
+  @Get('admin/all')
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth('inbola')
+  @ApiOperation({ summary: 'Get all payments (Admin only)' })
+  @ApiResponse({ status: 200, description: 'List of payments' })
+  findAll(
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '20',
+  ) {
+    return this.paymentService.findAll(+page, +limit);
+  }
+
+  @Get('admin/stats')
+  @UseGuards(AdminGuard)
+  @ApiBearerAuth('inbola')
+  @ApiOperation({ summary: 'Get payment statistics (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Payment statistics' })
+  getPaymentStats() {
+    return this.paymentService.getPaymentStats();
+  }
+
+  @Get('history')
+  @UseGuards(UserGuard)
+  @ApiBearerAuth('inbola')
+  @ApiOperation({ summary: 'Get user payment history' })
+  @ApiResponse({ status: 200, description: 'Payment history retrieved' })
+  getPaymentHistory(
+    @GetCurrentUserId() userId: number,
+    @Query('page') page: string = '1',
+    @Query('limit') limit: string = '10',
+  ) {
+    return this.paymentService.getPaymentHistory(userId, +page, +limit);
   }
 
   @Get(':id')
+  @UseGuards(UserGuard)
+  @ApiBearerAuth('inbola')
   @ApiOperation({ summary: 'Get payment by ID' })
   @ApiResponse({ status: 200, description: 'Payment found' })
   @ApiResponse({ status: 404, description: 'Payment not found' })
-  @ApiBearerAuth('inbola')
-  @UseGuards(UserGuard, UserSelfGuard)
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.paymentService.findOne(id);
   }
 
-  @Patch(':id')
-  @ApiOperation({ summary: 'Update payment by ID' })
-  @ApiResponse({ status: 200, description: 'Payment updated' })
-  @ApiResponse({ status: 404, description: 'Payment not found' })
+  @Post(':id/refund')
+  @UseGuards(AdminGuard)
   @ApiBearerAuth('inbola')
-  @UseGuards(UserGuard, UserSelfGuard)
-  update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updatePaymentDto: UpdatePaymentDto,
-  ) {
-    return this.paymentService.update(id, updatePaymentDto);
-  }
-
-  @Delete(':id')
-  @ApiOperation({ summary: 'Delete payment by ID' })
-  @ApiResponse({ status: 200, description: 'Payment deleted' })
+  @ApiOperation({ summary: 'Refund payment (Admin only)' })
+  @ApiResponse({ status: 200, description: 'Payment refunded successfully' })
   @ApiResponse({ status: 404, description: 'Payment not found' })
-  @ApiBearerAuth('inbola')
-  @UseGuards(UserGuard, UserSelfGuard)
-  remove(@Param('id', ParseIntPipe) id: number) {
-    return this.paymentService.remove(id);
-  }
-
-  // Click Payment endpoints
-  @Post('click/create')
-  @UseGuards(UserGuard)
-  @ApiOperation({ summary: 'Create Click payment' })
-  async createClickPayment(@Body() paymentData: {
-    order_id: number;
-    amount: number;
-    return_url?: string;
-    description?: string;
-  }) {
-    return this.clickService.createPayment(paymentData);
-  }
-
-  @Post('click/callback')
-  @ApiOperation({ summary: 'Click payment callback' })
-  async clickCallback(@Body() callbackData: any) {
-    return this.clickService.handleCallback(callbackData);
-  }
-
-  @Get('click/verify')
-  @ApiOperation({ summary: 'Verify Click payment' })
-  async verifyClickPayment(
-    @Query('payment_id') paymentId: string,
-    @Query('status') status: string,
+  refundPayment(
+    @Param('id', ParseIntPipe) paymentId: number,
+    @Body() refundData: { amount?: number },
   ) {
-    return this.clickService.verifyPayment(paymentId, status);
+    return this.paymentService.refundPayment(paymentId, refundData.amount);
   }
 
-  // Payme Payment endpoints
-  @Post('payme/create')
-  @UseGuards(UserGuard)
-  @ApiOperation({ summary: 'Create Payme payment' })
-  async createPaymePayment(@Body() paymentData: {
-    order_id: number;
-    amount: number;
-    return_url?: string;
-    description?: string;
-  }) {
-    return this.paymeService.createPayment(paymentData);
-  }
-
-  @Post('payme/callback')
-  @ApiOperation({ summary: 'Payme payment callback' })
-  async paymeCallback(@Body() callbackData: any) {
-    return this.paymeService.handleCallback(callbackData);
-  }
-
-  @Get('payme/verify')
-  @ApiOperation({ summary: 'Verify Payme payment' })
-  async verifyPaymePayment(
-    @Query('payment_id') paymentId: string,
-    @Query('status') status: string,
+  // PayPal webhook
+  @Post('webhook/paypal')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'PayPal webhook endpoint' })
+  async paypalWebhook(
+    @Headers() headers: any,
+    @Req() req: RawBodyRequest<Request>,
   ) {
-    return this.paymeService.verifyPayment(paymentId, status);
+    const body = req.rawBody.toString();
+    const isValid = await this.paypalService.verifyWebhookSignature(headers, body);
+    
+    if (!isValid) {
+      throw new Error('Invalid webhook signature');
+    }
+
+    const webhookData = JSON.parse(body);
+    const webhookDto: PaymentWebhookDto = {
+      transaction_id: webhookData.resource?.id || webhookData.id,
+      status: webhookData.event_type?.includes('COMPLETED') ? 'completed' : 'failed',
+      amount: webhookData.resource?.amount?.total || 0,
+      gateway_data: webhookData,
+    };
+
+    return this.paymentService.handleWebhook(webhookDto, 'PAYPAL');
+  }
+
+  // Stripe webhook
+  @Post('webhook/stripe')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Stripe webhook endpoint' })
+  async stripeWebhook(
+    @Headers('stripe-signature') signature: string,
+    @Req() req: RawBodyRequest<Request>,
+  ) {
+    const event = await this.stripeService.handleWebhook(req.rawBody, signature);
+    
+    const webhookDto: PaymentWebhookDto = {
+      transaction_id: (event.data.object as any).id,
+      status: event.type.includes('succeeded') ? 'succeeded' : 'failed',
+      amount: ((event.data.object as any).amount || 0) / 100, // Convert from cents
+      gateway_data: event,
+    };
+
+    return this.paymentService.handleWebhook(webhookDto, 'STRIPE');
+  }
+
+  // Local payment methods webhooks (Click, Payme, UzCard)
+  @Post('webhook/local/:method')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Local payment methods webhook' })
+  async localPaymentWebhook(
+    @Param('method') method: string,
+    @Body() webhookData: any,
+  ) {
+    const webhookDto: PaymentWebhookDto = {
+      transaction_id: webhookData.transaction_id || webhookData.id,
+      status: webhookData.status || 'completed',
+      amount: webhookData.amount || 0,
+      gateway_data: webhookData,
+    };
+
+    return this.paymentService.handleWebhook(webhookDto, method.toUpperCase());
   }
 }

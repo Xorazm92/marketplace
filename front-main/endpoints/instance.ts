@@ -1,11 +1,11 @@
 
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
-// API base URL (prefer BACKEND, fallback to API)
+// API base URL - Updated to match backend configuration
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:3001';
+  'http://localhost:4000';
 
 // Axios instance yaratish
 const instance: AxiosInstance = axios.create({

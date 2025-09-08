@@ -1,176 +1,202 @@
-import instance from "./instance";
-import { toast } from "react-toastify";
+import apiClient from '../lib/api-client';
+import { toast } from 'react-toastify';
+import type {
+  CreatePaymentData,
+  PaymentInitiationResponse,
+  PaymentConfirmationData,
+  PaymentHistory,
+  PaymentStats,
+  Payment,
+  RefundData,
+  RefundResponse,
+} from '../types/payment.types';
 
-// Payment API endpoints
-
-// Click Payment
-export const createClickPayment = async (paymentData: {
-  order_id: number;
-  amount: number;
-  return_url?: string;
-  description?: string;
-}) => {
+// Main payment operations
+export const initiatePayment = async (paymentData: CreatePaymentData): Promise<PaymentInitiationResponse> => {
   try {
-    const res = await instance.post("/payment/click/create", paymentData);
-    toast.success("Click to'lov yaratildi!");
-    return res.data;
+    const response = await apiClient.post<PaymentInitiationResponse>('/payment/initiate', paymentData);
+    toast.success('Payment initiated successfully!');
+    return response;
   } catch (error: any) {
-    console.error("Error creating Click payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Click to'lov yaratishda xatolik yuz berdi");
-      throw new Error("Click to'lov yaratishda xatolik yuz berdi");
-    }
+    console.error('Error initiating payment:', error);
+    toast.error(error.message || 'Failed to initiate payment');
+    throw error;
   }
 };
 
-export const verifyClickPayment = async (paymentId: string, status: string) => {
+export const confirmPayment = async (paymentId: number, confirmationData: PaymentConfirmationData): Promise<Payment> => {
   try {
-    const res = await instance.get(`/payment/click/verify?payment_id=${paymentId}&status=${status}`);
-    return res.data;
+    const response = await apiClient.post<Payment>(`/payment/${paymentId}/confirm`, confirmationData);
+    toast.success('Payment confirmed successfully!');
+    return response;
   } catch (error: any) {
-    console.error("Error verifying Click payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Click to'lovni tekshirishda xatolik yuz berdi");
-      throw new Error("Click to'lovni tekshirishda xatolik yuz berdi");
-    }
+    console.error('Error confirming payment:', error);
+    toast.error(error.message || 'Failed to confirm payment');
+    throw error;
   }
 };
 
-// Payme Payment
-export const createPaymePayment = async (paymentData: {
-  order_id: number;
-  amount: number;
-  return_url?: string;
-  description?: string;
-}) => {
+export const getPaymentHistory = async (page: number = 1, limit: number = 10): Promise<PaymentHistory> => {
   try {
-    const res = await instance.post("/payment/payme/create", paymentData);
-    toast.success("Payme to'lov yaratildi!");
-    return res.data;
+    const response = await apiClient.get<PaymentHistory>(`/payment/history?page=${page}&limit=${limit}`);
+    return response;
   } catch (error: any) {
-    console.error("Error creating Payme payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Payme to'lov yaratishda xatolik yuz berdi");
-      throw new Error("Payme to'lov yaratishda xatolik yuz berdi");
-    }
+    console.error('Error loading payment history:', error);
+    toast.error(error.message || 'Failed to load payment history');
+    throw error;
   }
 };
 
-export const verifyPaymePayment = async (paymentId: string, status: string) => {
+export const getPayment = async (paymentId: number): Promise<Payment> => {
   try {
-    const res = await instance.get(`/payment/payme/verify?payment_id=${paymentId}&status=${status}`);
-    return res.data;
+    const response = await apiClient.get<Payment>(`/payment/${paymentId}`);
+    return response;
   } catch (error: any) {
-    console.error("Error verifying Payme payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Payme to'lovni tekshirishda xatolik yuz berdi");
-      throw new Error("Payme to'lovni tekshirishda xatolik yuz berdi");
-    }
+    console.error('Error loading payment:', error);
+    toast.error(error.message || 'Failed to load payment details');
+    throw error;
   }
 };
 
-// Generic payment methods
-export const getPaymentMethods = async () => {
+// Admin operations
+export const getAllPayments = async (page: number = 1, limit: number = 20): Promise<PaymentHistory> => {
   try {
-    const res = await instance.get("/payment-methods");
-    return res.data;
+    const response = await apiClient.get<PaymentHistory>(`/payment/admin/all?page=${page}&limit=${limit}`);
+    return response;
   } catch (error: any) {
-    console.error("Error loading payment methods:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("To'lov usullarini yuklashda xatolik yuz berdi");
-      throw new Error("To'lov usullarini yuklashda xatolik yuz berdi");
-    }
+    console.error('Error loading all payments:', error);
+    toast.error(error.message || 'Failed to load payments');
+    throw error;
   }
 };
 
-export const getPaymentHistory = async (page: number = 1, limit: number = 10) => {
+export const getPaymentStats = async (): Promise<PaymentStats> => {
   try {
-    const res = await instance.get(`/payment?page=${page}&limit=${limit}`);
-    return res.data;
+    const response = await apiClient.get<PaymentStats>('/payment/admin/stats');
+    return response;
   } catch (error: any) {
-    console.error("Error loading payment history:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("To'lov tarixini yuklashda xatolik yuz berdi");
-      throw new Error("To'lov tarixini yuklashda xatolik yuz berdi");
-    }
+    console.error('Error loading payment stats:', error);
+    toast.error(error.message || 'Failed to load payment statistics');
+    throw error;
   }
 };
 
-// Payment processing helper
-export const processPayment = async (
-  method: 'click' | 'payme',
-  orderData: {
-    order_id: number;
-    amount: number;
-    return_url?: string;
-    description?: string;
-  }
-) => {
+export const refundPayment = async (paymentId: number, refundData: RefundData): Promise<RefundResponse> => {
   try {
-    let paymentResponse;
+    const response = await apiClient.post<RefundResponse>(`/payment/${paymentId}/refund`, refundData);
+    toast.success('Payment refunded successfully!');
+    return response;
+  } catch (error: any) {
+    console.error('Error refunding payment:', error);
+    toast.error(error.message || 'Failed to refund payment');
+    throw error;
+  }
+};
+
+// Payment method helpers
+export const getPaymentMethodIcon = (method: string): string => {
+  const icons: Record<string, string> = {
+    PAYPAL: '💳',
+    STRIPE: '💳',
+    CLICK: '🔵',
+    PAYME: '🟢',
+    UZCARD: '🟡',
+  };
+  return icons[method] || '💳';
+};
+
+export const getPaymentStatusColor = (status: string): string => {
+  const colors: Record<string, string> = {
+    PENDING: 'text-yellow-600',
+    PROCESSING: 'text-blue-600',
+    COMPLETED: 'text-green-600',
+    FAILED: 'text-red-600',
+    CANCELLED: 'text-gray-600',
+    REFUNDED: 'text-purple-600',
+    PARTIALLY_REFUNDED: 'text-orange-600',
+  };
+  return colors[status] || 'text-gray-600';
+};
+
+export const formatPaymentAmount = (amount: number, currency: string = 'USD'): string => {
+  return new Intl.NumberFormat('en-US', {
+    style: 'currency',
+    currency,
+  }).format(amount);
+};
+
+// Payment flow helpers
+export const handlePaymentRedirect = (paymentResponse: PaymentInitiationResponse): void => {
+  // Handle PayPal redirect
+  if (paymentResponse.links) {
+    const approvalLink = paymentResponse.links.find(link => link.rel === 'approve');
+    if (approvalLink) {
+      window.location.href = approvalLink.href;
+      return;
+    }
+  }
+
+  // Handle local payment methods
+  if (paymentResponse.payment_url) {
+    window.location.href = paymentResponse.payment_url;
+    return;
+  }
+
+  // For Stripe, we'll handle this in the component with Stripe Elements
+  console.log('Payment initiated:', paymentResponse);
+};
+
+// Legacy local payment methods (for backward compatibility)
+export const createClickPayment = async (paymentData: CreatePaymentData): Promise<PaymentInitiationResponse> => {
+  return initiatePayment({ ...paymentData, payment_method: 'CLICK' });
+};
+
+export const createPaymePayment = async (paymentData: CreatePaymentData): Promise<PaymentInitiationResponse> => {
+  return initiatePayment({ ...paymentData, payment_method: 'PAYME' });
+};
+
+export const createUzCardPayment = async (paymentData: CreatePaymentData): Promise<PaymentInitiationResponse> => {
+  return initiatePayment({ ...paymentData, payment_method: 'UZCARD' });
+};
+
+// Main payment processing function
+export const processPayment = async (paymentData: CreatePaymentData): Promise<PaymentInitiationResponse> => {
+  try {
+    const paymentResponse = await initiatePayment(paymentData);
     
-    if (method === 'click') {
-      paymentResponse = await createClickPayment(orderData);
-    } else if (method === 'payme') {
-      paymentResponse = await createPaymePayment(orderData);
-    } else {
-      throw new Error('Noto\'g\'ri to\'lov usuli');
-    }
-
-    // Redirect to payment gateway
-    if (paymentResponse.payment_url) {
-      window.location.href = paymentResponse.payment_url;
+    // Handle redirect for non-Stripe payments
+    if (paymentData.payment_method !== 'STRIPE') {
+      handlePaymentRedirect(paymentResponse);
     }
 
     return paymentResponse;
   } catch (error: any) {
-    console.error("Error processing payment:", error);
+    console.error('Error processing payment:', error);
     throw error;
   }
 };
 
 export default {
-  createClickPayment,
-  verifyClickPayment,
-  createPaymePayment,
-  verifyPaymePayment,
-  getPaymentMethods,
+  // Main operations
+  initiatePayment,
+  confirmPayment,
   getPaymentHistory,
+  getPayment,
   processPayment,
+  
+  // Admin operations
+  getAllPayments,
+  getPaymentStats,
+  refundPayment,
+  
+  // Legacy methods
+  createClickPayment,
+  createPaymePayment,
+  createUzCardPayment,
+  
+  // Helpers
+  getPaymentMethodIcon,
+  getPaymentStatusColor,
+  formatPaymentAmount,
+  handlePaymentRedirect,
 };

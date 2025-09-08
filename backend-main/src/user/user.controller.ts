@@ -44,6 +44,7 @@ export class UserController {
     return this.userService.findAll();
   }
 
+  @UseGuards(AdminGuard)
   @Get("search")
   @ApiOperation({
     summary: "Search users by first name, last name, or phone number",
@@ -60,6 +61,7 @@ export class UserController {
     return this.userService.searchUsers(query, page, limit);
   }
 
+  @UseGuards(AdminGuard)
   @Get(":id")
   @ApiOperation({ summary: "Get user by ID" })
   @ApiResponse({ status: 200, description: "User found" })

@@ -1,8 +1,9 @@
 import instance from "./instance";
 import { toast } from "react-toastify";
+import { CreateOrderData, Order, UpdateOrderStatusData, OrderStatistics } from "../types/order.types";
 
 // Order API endpoints
-export const createOrder = async (orderData: any) => {
+export const createOrder = async (orderData: CreateOrderData): Promise<Order> => {
   try {
     const res = await instance.post("/orders", orderData);
     toast.success("Buyurtma muvaffaqiyatli yaratildi!");
@@ -22,7 +23,7 @@ export const createOrder = async (orderData: any) => {
   }
 };
 
-export const getOrders = async (page: number = 1, limit: number = 10, status?: string) => {
+export const getOrders = async (page: number = 1, limit: number = 10, status?: string): Promise<{ orders: Order[]; total: number; page: number; limit: number }> => {
   try {
     const params = new URLSearchParams({
       page: page.toString(),
@@ -50,7 +51,7 @@ export const getOrders = async (page: number = 1, limit: number = 10, status?: s
   }
 };
 
-export const getOrderById = async (orderId: number) => {
+export const getOrderById = async (orderId: number): Promise<Order> => {
   try {
     const res = await instance.get(`/orders/${orderId}`);
     return res.data;
@@ -69,9 +70,9 @@ export const getOrderById = async (orderId: number) => {
   }
 };
 
-export const updateOrderStatus = async (orderId: number, status: string) => {
+export const updateOrderStatus = async (orderId: number, statusData: UpdateOrderStatusData): Promise<Order> => {
   try {
-    const res = await instance.patch(`/orders/${orderId}/status`, { status });
+    const res = await instance.patch(`/orders/${orderId}/status`, statusData);
     toast.success("Buyurtma holati yangilandi!");
     return res.data;
   } catch (error: any) {
@@ -89,7 +90,7 @@ export const updateOrderStatus = async (orderId: number, status: string) => {
   }
 };
 
-export const getOrderStatistics = async () => {
+export const getOrderStatistics = async (): Promise<OrderStatistics> => {
   try {
     const res = await instance.get("/orders/admin/statistics");
     return res.data;

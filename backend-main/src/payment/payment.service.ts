@@ -1,161 +1,227 @@
-
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreatePaymentDto } from './dto/create-payment.dto';
-import { UpdatePaymentDto } from './dto/update-payment.dto';
+import { CreatePaymentDto, PaymentWebhookDto } from './dto/create-payment.dto';
+import { PayPalService } from './services/paypal.service';
+import { StripeService } from './services/stripe.service';
 
 @Injectable()
 export class PaymentService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private paypalService: PayPalService,
+    private stripeService: StripeService,
+  ) {}
 
-  async createPayment(createPaymentDto: CreatePaymentDto) {
-    return this.prisma.payment.create({
-      data: createPaymentDto,
-      include: {
-        user: true,
-        payment_method: true,
-        currency: true
-      }
-    });
-  }
+  async initiatePayment(createPaymentDto: CreatePaymentDto, userId: number) {
+    const { order_id, amount, payment_method, currency = 'USD', return_url, cancel_url } = createPaymentDto;
 
-  async processPayment(orderId: number, paymentData: any) {
+    // Verify order exists and belongs to user
     const order = await this.prisma.order.findUnique({
-      where: { id: orderId },
-      include: {
-        user: true,
-        items: {
-          include: {
-            product: true
-          }
-        }
-      }
+      where: { id: order_id },
+      include: { user: true }
     });
 
     if (!order) {
-      throw new Error('Order not found');
+      throw new HttpException('Order not found', HttpStatus.NOT_FOUND);
     }
 
+    if (order.user_id !== userId) {
+      throw new HttpException('Unauthorized access to order', HttpStatus.FORBIDDEN);
+    }
+
+    // Generate unique transaction ID
+    const transaction_id = `${payment_method.toLowerCase()}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+    // Create payment record
+    const payment = await this.prisma.orderPayment.create({
+      data: {
+        transaction_id,
+        amount,
+        payment_method,
+        status: 'PENDING',
+        order_id,
+        gateway_response: {}
+      }
+    });
+
+    // Process payment based on method
+    let paymentResponse;
     try {
-      let paymentResult;
-      
-      switch (paymentData.method) {
-        case 'CARD':
-          paymentResult = await this.processCardPayment(order, paymentData);
+      switch (payment_method) {
+        case 'PAYPAL':
+          paymentResponse = await this.paypalService.createOrder(
+            amount,
+            currency,
+            return_url || `${process.env.FRONTEND_URL}/payment/success`,
+            cancel_url || `${process.env.FRONTEND_URL}/payment/cancel`
+          );
+          break;
+        case 'STRIPE':
+          paymentResponse = await this.stripeService.createPaymentIntent(
+            amount,
+            currency.toLowerCase(),
+            { order_id: order_id.toString(), payment_id: payment.id.toString() }
+          );
           break;
         case 'CLICK':
-          paymentResult = await this.processClickPayment(order, paymentData);
-          break;
         case 'PAYME':
-          paymentResult = await this.processPaymePayment(order, paymentData);
-          break;
-        case 'CASH_ON_DELIVERY':
-          paymentResult = await this.processCashOnDelivery(order);
+        case 'UZCARD':
+          paymentResponse = await this.processLocalPayment(payment_method, amount, currency, transaction_id);
           break;
         default:
-          throw new Error('Unsupported payment method');
+          throw new HttpException('Unsupported payment method', HttpStatus.BAD_REQUEST);
       }
 
-      // Create payment record
-      const payment = await this.prisma.orderPayment.create({
+      // Update payment with gateway response
+      await this.prisma.orderPayment.update({
+        where: { id: payment.id },
         data: {
-          order_id: orderId,
-          amount: order.final_amount,
-          payment_method: paymentData.method,
-          transaction_id: paymentResult.transactionId,
-          status: paymentResult.status,
-          gateway_response: paymentResult.response
+          gateway_response: paymentResponse,
+          transaction_id: paymentResponse.id || paymentResponse.client_secret || transaction_id
         }
       });
 
-      // Update order status
-      await this.prisma.order.update({
-        where: { id: orderId },
-        data: {
-          payment_status: paymentResult.status,
-          status: paymentResult.status === 'PAID' ? 'CONFIRMED' : 'PENDING'
-        }
-      });
-
-      return payment;
+      return {
+        payment_id: payment.id,
+        transaction_id: payment.transaction_id,
+        ...paymentResponse,
+      };
     } catch (error) {
-      // Log error and update order status
-      await this.prisma.order.update({
-        where: { id: orderId },
+      await this.prisma.orderPayment.update({
+        where: { id: payment.id },
         data: {
-          payment_status: 'FAILED'
+          status: 'FAILED',
+          gateway_response: { error: error.message }
         }
       });
-
       throw error;
     }
   }
 
-  private async processCardPayment(order: any, paymentData: any) {
-    // Integration with card payment gateway
-    // This is a mock implementation
+  private async processLocalPayment(method: string, amount: number, currency: string, transactionId: string) {
+    // Mock implementation for local payment methods
+    // In production, integrate with actual payment gateways
     return {
-      transactionId: `card_${Date.now()}`,
-      status: 'PAID',
-      response: {
-        success: true,
-        message: 'Payment successful'
-      }
+      id: transactionId,
+      status: 'requires_confirmation',
+      payment_url: `${process.env.FRONTEND_URL}/payment/local/${method.toLowerCase()}/${transactionId}`,
+      method,
     };
   }
 
-  private async processClickPayment(order: any, paymentData: any) {
-    // Integration with Click payment system
-    // This is a mock implementation
-    return {
-      transactionId: `click_${Date.now()}`,
-      status: 'PAID',
-      response: {
-        success: true,
-        message: 'Click payment successful'
+  async confirmPayment(paymentId: number, gatewayData: any) {
+    const payment = await this.prisma.orderPayment.findUnique({
+      where: { id: paymentId },
+      include: { order: true }
+    });
+
+    if (!payment) {
+      throw new HttpException('Payment not found', HttpStatus.NOT_FOUND);
+    }
+
+    try {
+      let confirmationResult;
+      
+      switch (payment.payment_method) {
+        case 'PAYPAL':
+          confirmationResult = await this.paypalService.captureOrder(gatewayData.orderId);
+          break;
+        case 'STRIPE':
+          confirmationResult = await this.stripeService.confirmPaymentIntent(gatewayData.paymentIntentId);
+          break;
+        default:
+          confirmationResult = { status: 'succeeded' }; // For local methods
       }
-    };
+
+      // Update payment status
+      const newStatus = confirmationResult.status === 'succeeded' || confirmationResult.status === 'COMPLETED' ? 'PAID' : 'FAILED';
+      
+      const updatedPayment = await this.prisma.orderPayment.update({
+        where: { id: paymentId },
+        data: {
+          status: newStatus,
+          gateway_response: { ...(payment.gateway_response as object || {}), confirmation: confirmationResult }
+        }
+      });
+
+      // Update order status if payment completed
+      if (newStatus === 'PAID') {
+        await this.prisma.order.update({
+          where: { id: payment.order_id },
+          data: { status: 'CONFIRMED' }
+        });
+      }
+
+      return updatedPayment;
+    } catch (error) {
+      await this.prisma.orderPayment.update({
+        where: { id: paymentId },
+        data: {
+          status: 'FAILED',
+          gateway_response: { ...(payment.gateway_response as object || {}), error: error.message }
+        }
+      });
+      throw error;
+    }
   }
 
-  private async processPaymePayment(order: any, paymentData: any) {
-    // Integration with Payme payment system
-    // This is a mock implementation
-    return {
-      transactionId: `payme_${Date.now()}`,
-      status: 'PAID',
-      response: {
-        success: true,
-        message: 'Payme payment successful'
-      }
-    };
-  }
+  async handleWebhook(webhookDto: PaymentWebhookDto, paymentMethod: string) {
+    const payment = await this.prisma.orderPayment.findFirst({
+      where: { transaction_id: webhookDto.transaction_id }
+    });
 
-  private async processCashOnDelivery(order: any) {
-    return {
-      transactionId: `cod_${Date.now()}`,
-      status: 'PENDING',
-      response: {
-        success: true,
-        message: 'Cash on delivery order created'
-      }
+    if (!payment) {
+      throw new HttpException('Payment not found', HttpStatus.NOT_FOUND);
+    }
+
+    // Update payment status based on webhook
+    const statusMap = {
+      'completed': 'PAID',
+      'succeeded': 'PAID',
+      'failed': 'FAILED',
+      'cancelled': 'CANCELLED',
+      'refunded': 'REFUNDED'
     };
+
+    const newStatus = statusMap[webhookDto.status.toLowerCase()] || 'PROCESSING';
+    
+    await this.prisma.orderPayment.update({
+      where: { id: payment.id },
+      data: {
+        status: newStatus,
+        gateway_response: { ...(payment.gateway_response as object || {}), webhook: webhookDto.gateway_data }
+      }
+    });
+
+    // Update order status if payment completed
+    if (newStatus === 'PAID') {
+      await this.prisma.order.update({
+        where: { id: payment.order_id },
+        data: { status: 'CONFIRMED' }
+      });
+    }
+
+    return { success: true, payment_id: payment.id };
   }
 
   async getPaymentHistory(userId: number, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     
     const [payments, total] = await Promise.all([
-      this.prisma.payment.findMany({
-        where: { user_id: userId },
+      this.prisma.orderPayment.findMany({
+        where: { 
+          order: { user_id: userId }
+        },
+        include: { order: true },
         skip,
         take: limit,
-        include: {
-          payment_method: true,
-          currency: true
-        },
         orderBy: { createdAt: 'desc' }
       }),
-      this.prisma.payment.count({ where: { user_id: userId } })
+      this.prisma.orderPayment.count({
+        where: { 
+          order: { user_id: userId }
+        }
+      })
     ]);
 
     return {
@@ -176,84 +242,120 @@ export class PaymentService {
     });
 
     if (!payment) {
-      throw new Error('Payment not found');
+      throw new HttpException('Payment not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (payment.status !== 'PAID') {
+      throw new HttpException('Cannot refund non-completed payment', HttpStatus.BAD_REQUEST);
     }
 
     const refundAmount = amount || payment.amount;
     
-    // Process refund based on payment method
-    const refundResult = await this.processRefund(payment, Number(refundAmount));
-
-    // Update payment status
-    await this.prisma.orderPayment.update({
-      where: { id: paymentId },
-      data: {
-        status: refundAmount >= payment.amount ? 'REFUNDED' : 'PARTIALLY_REFUNDED'
+    try {
+      let refundResult;
+      
+      switch (payment.payment_method) {
+        case 'PAYPAL':
+          refundResult = await this.paypalService.refundPayment(
+            payment.transaction_id,
+            Number(refundAmount),
+            'USD'
+          );
+          break;
+        case 'STRIPE':
+          refundResult = await this.stripeService.createRefund(
+            payment.transaction_id,
+            Number(refundAmount)
+          );
+          break;
+        default:
+          // Mock refund for local methods
+          refundResult = {
+            id: `refund_${Date.now()}`,
+            status: 'succeeded',
+            amount: refundAmount
+          };
       }
-    });
 
-    return refundResult;
+      // Update payment status
+      const newStatus = refundAmount >= payment.amount ? 'REFUNDED' : 'PARTIALLY_REFUNDED';
+      
+      await this.prisma.orderPayment.update({
+        where: { id: paymentId },
+        data: {
+          status: newStatus,
+          gateway_response: { ...(payment.gateway_response as object || {}), refund: refundResult }
+        }
+      });
+
+      return refundResult;
+    } catch (error) {
+      throw new HttpException(`Refund failed: ${error.message}`, HttpStatus.BAD_REQUEST);
+    }
   }
 
-  private async processRefund(payment: any, amount: number) {
-    // Process refund based on payment method
-    // This is a mock implementation
+  // Admin methods
+  async findAll(page: number = 1, limit: number = 20) {
+    const skip = (page - 1) * limit;
+    
+    const [payments, total] = await Promise.all([
+      this.prisma.orderPayment.findMany({
+        include: { 
+          order: { 
+            include: { user: true }
+          }
+        },
+        skip,
+        take: limit,
+        orderBy: { createdAt: 'desc' }
+      }),
+      this.prisma.orderPayment.count()
+    ]);
+
     return {
-      success: true,
-      refundId: `refund_${Date.now()}`,
-      amount,
-      message: 'Refund processed successfully'
+      payments,
+      pagination: {
+        page,
+        limit,
+        total,
+        totalPages: Math.ceil(total / limit)
+      }
     };
   }
 
-  // CRUD methods needed by controller
-  async create(createPaymentDto: CreatePaymentDto) {
-    return this.createPayment(createPaymentDto);
-  }
-
-  async findAll() {
-    return this.prisma.payment.findMany({
-      include: {
-        user: {
-          select: { id: true, first_name: true, last_name: true }
-        },
-        payment_method: true,
-        currency: true
-      },
-      orderBy: { createdAt: 'desc' }
-    });
-  }
-
   async findOne(id: number) {
-    return this.prisma.payment.findUnique({
+    const payment = await this.prisma.orderPayment.findUnique({
       where: { id },
-      include: {
-        user: {
-          select: { id: true, first_name: true, last_name: true }
-        },
-        payment_method: true,
-        currency: true
+      include: { 
+        order: { 
+          include: { user: true }
+        }
       }
     });
+
+    if (!payment) {
+      throw new HttpException('Payment not found', HttpStatus.NOT_FOUND);
+    }
+
+    return payment;
   }
 
-  async update(id: number, updatePaymentDto: UpdatePaymentDto) {
-    return this.prisma.payment.update({
-      where: { id },
-      data: updatePaymentDto,
-      include: {
-        user: {
-          select: { id: true, first_name: true, last_name: true }
-        },
-        payment_method: true,
-        currency: true
-      }
-    });
-  }
+  async getPaymentStats() {
+    const [totalPayments, totalRevenue, successfulPayments, failedPayments] = await Promise.all([
+      this.prisma.orderPayment.count(),
+      this.prisma.orderPayment.aggregate({
+        where: { status: 'PAID' },
+        _sum: { amount: true }
+      }),
+      this.prisma.orderPayment.count({ where: { status: 'PAID' } }),
+      this.prisma.orderPayment.count({ where: { status: 'FAILED' } })
+    ]);
 
-  async remove(id: number) {
-    return this.prisma.payment.delete({
-      where: { id }
-    });
+    return {
+      total_payments: totalPayments,
+      total_revenue: totalRevenue._sum.amount || 0,
+      successful_payments: successfulPayments,
+      failed_payments: failedPayments
+    };
   }
 }

@@ -7,6 +7,7 @@ import { MdChildCare, MdFavorite } from 'react-icons/md';
 import styles from './Header.module.scss';
 import { getAllCategories } from '../../endpoints/category';
 import { getCart } from '../../endpoints/cart';
+import NotificationBell from '../Notification/NotificationBell';
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -220,6 +221,8 @@ const Header: React.FC = () => {
               <Link href="/login" className={styles.signInLink}>
                 Kirish
               </Link>
+
+              <NotificationBell />
 
               <Link href="/wishlist" className={styles.iconLink} title="Sevimlilar">
                 <FiHeart className={styles.icon} />

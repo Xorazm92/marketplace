@@ -1,12 +1,14 @@
 import React, { useEffect, useRef, useState } from "react";
-import style from "./CreateProduct.module.scss";
-import { MdOutlineCameraAlt } from "react-icons/md";
+import { useRouter } from "next/router";
 import { useSelector } from "react-redux";
+import { toast } from "react-hot-toast";
+import { MdOutlineCameraAlt } from "react-icons/md";
 import { RootState } from "../../store/store";
-import { useRouter } from "next/navigation";
-import { CreateProductProps } from "@/types";
-import { toast } from "react-toastify";
-import { getAllCategories } from "../../endpoints/category";
+import { CreateProductProps, AgeGroup, EducationalCategory, EventType } from "../../types/product";
+import { ageGroupAPI } from "../../endpoints/ageGroup";
+import { educationalCategoryAPI } from "../../endpoints/educationalCategory";
+import { eventTypeAPI } from "../../endpoints/eventType";
+import style from "./CreateProduct.module.scss";
 import { useCategory, useCurrency } from "../../hooks/category";
 import { useGetRegions, useGetRegionById, useUserPhoneNumbers } from "../../hooks/user";
 import { AddressData } from "../../types/userData";
@@ -41,21 +43,40 @@ const CreateProduct = () => {
   const router = useRouter();
   const [selectTypeLocation, setSelectTypeLocation] = useState<SelectType>(SelectType.default);
   const [categories, setCategories] = useState<any[]>([]);
+  const [ageGroups, setAgeGroups] = useState<AgeGroup[]>([]);
+  const [educationalCategories, setEducationalCategories] = useState<EducationalCategory[]>([]);
+  const [eventTypes, setEventTypes] = useState<EventType[]>([]);
   const { user, isAuthenticated } = useSelector((state: RootState) => state.auth);
 
   const [productData, setProductData] = useState<CreateProductProps>({
+    // Basic information
     title: "",
+    user_id: Number(user?.id) || 0,
     brand_id: 0,
     price: 0,
     currency_id: 1,
     description: "",
     negotiable: false,
+    condition: 'new',
     phone_number: "",
-    user_id: Number(user?.id) || 0,
     address_id: 0,
-    condition: false,
+    
+    // Categorization
     category_id: 0,
-    age_range: "",
+    
+    // Child-specific fields
+    parental_guidance: false,
+    
+    // Safety information
+    assembly_required: false,
+    battery_required: false,
+    choking_hazard: false,
+    
+    // Business information
+    availability_status: 'in_stock',
+    min_order_quantity: 1,
+    
+    // Optional fields with defaults
     material: "",
     color: "",
     size: "",
@@ -63,7 +84,6 @@ const CreateProduct = () => {
     safety_info: "",
     features: [],
     weight: 0,
-    dimensions: "",
   });
 
   const [addressData, setAddressData] = useState<AddressData>({
@@ -86,26 +106,37 @@ const CreateProduct = () => {
   const { data: regions } = useGetRegions();
   const { data: oneRegion } = useGetRegionById(addressData.region_id || 0);
 
-  // Load categories
+  // Load categories and child-specific data
   useEffect(() => {
-    const loadCategories = async () => {
+    const loadData = async () => {
       try {
-        const response = await getAllCategories();
-        if (response && response.length > 0) {
-          setCategories(response);
-        }
+        // Load categories using existing hook
+        const categoriesData = categories || [];
+        setCategories(categoriesData);
+        
+        // Load age groups
+        const ageGroupsData = await ageGroupAPI.getAllAgeGroups();
+        setAgeGroups(ageGroupsData);
+        
+        // Load educational categories
+        const educationalCategoriesData = await educationalCategoryAPI.getAllEducationalCategories();
+        setEducationalCategories(educationalCategoriesData);
+        
+        // Load event types
+        const eventTypesData = await eventTypeAPI.getAllEventTypes();
+        setEventTypes(eventTypesData);
       } catch (error) {
-        console.error('Error loading categories:', error);
+        console.error('Error loading data:', error);
       }
     };
 
-    loadCategories();
-  }, []);
+    loadData();
+  }, [categories]);
 
   // Authentication check
   useEffect(() => {
     if (!isAuthenticated) {
-      toast.info("Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.");
+      toast("Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.");
       router.push("/login");
     }
   }, [isAuthenticated, router]);
@@ -134,25 +165,25 @@ const CreateProduct = () => {
 
       // Basic validation
       if (!sanitizedData.title.trim()) {
-        toast.info("Mahsulot nomini kiriting");
+        toast("Mahsulot nomini kiriting");
         return;
       } else if (!sanitizedData.brand_id) {
-        toast.info("Brand tanlang");
+        toast("Brend tanlang");
         return;
       } else if (!sanitizedData.category_id) {
-        toast.info("Kategoriya tanlang");
+        toast("Kategoriya tanlang");
         return;
       } else if (!images.length) {
-        toast.info("Kamida bitta rasm yuklang");
+        toast("Kamida bitta rasm yuklang");
         return;
       } else if (!sanitizedData.description.trim()) {
-        toast.info("Mahsulot tavsifini kiriting");
+        toast("Mahsulot tavsifini kiriting");
         return;
       } else if (!sanitizedData.price || sanitizedData.price <= 0) {
-        toast.info("To'g'ri narx kiriting");
+        toast("To'g'ri narx kiriting");
         return;
       } else if (!sanitizedData.phone_number) {
-        toast.info("Telefon raqamni kiriting");
+        toast("Telefon raqam kiriting");
         return;
       }
 
@@ -163,7 +194,7 @@ const CreateProduct = () => {
       });
       
       if (response) {
-        toast.success("Mahsulot muvaffaqiyatli yaratildi");
+        toast.success("Mahsulot muvaffaqiyatli yaratildi!");
         router.push("/");
       }
     } catch (error: any) {
@@ -263,19 +294,19 @@ const CreateProduct = () => {
             <label className={style.label}>Yosh oralig'i</label>
             <select
               className={style.select}
-              value={productData.age_range || ""}
+              value={productData.recommended_age_min || ""}
               onChange={(e) =>
-                setProductData({ ...productData, age_range: e.target.value })
+                setProductData({ ...productData, recommended_age_min: parseInt(e.target.value) || undefined })
               }
             >
               <option disabled value="">
                 Yosh oralig'ini tanlang
               </option>
-              <option value="0-1">0-1 yosh</option>
-              <option value="1-3">1-3 yosh</option>
-              <option value="3-6">3-6 yosh</option>
-              <option value="6-12">6-12 yosh</option>
-              <option value="12+">12+ yosh</option>
+              <option value="0">0-12 oy</option>
+              <option value="12">1-3 yosh</option>
+              <option value="36">3-6 yosh</option>
+              <option value="72">6-12 yosh</option>
+              <option value="144">12+ yosh</option>
             </select>
           </div>
 
@@ -407,9 +438,9 @@ const CreateProduct = () => {
                 <input
                   type="radio"
                   name="condition"
-                  checked={productData.condition === true}
+                  checked={productData.condition === 'new'}
                   onChange={() =>
-                    setProductData({ ...productData, condition: true })
+                    setProductData({ ...productData, condition: 'new' })
                   }
                 />
                 Yangi
@@ -418,14 +449,219 @@ const CreateProduct = () => {
                 <input
                   type="radio"
                   name="condition"
-                  checked={productData.condition === false}
+                  checked={productData.condition === 'used'}
                   onChange={() =>
-                    setProductData({ ...productData, condition: false })
+                    setProductData({ ...productData, condition: 'used' })
                   }
                 />
                 Ishlatilgan
               </label>
+              <label className={style.radio_label}>
+                <input
+                  type="radio"
+                  name="condition"
+                  checked={productData.condition === 'refurbished'}
+                  onChange={() =>
+                    setProductData({ ...productData, condition: 'refurbished' })
+                  }
+                />
+                Qayta tiklangan
+              </label>
             </div>
+          </div>
+
+          {/* Age Group Selection */}
+          <div className={style.form_section}>
+            <label className={style.label}>Yosh guruhi</label>
+            <select
+              className={style.select}
+              value={productData.age_group_id || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, age_group_id: parseInt(e.target.value) || undefined })
+              }
+            >
+              <option value="">Yosh guruhini tanlang</option>
+              {ageGroups.map((ageGroup) => (
+                <option key={ageGroup.id} value={ageGroup.id}>
+                  {ageGroup.name} ({Math.floor(ageGroup.min_age_months / 12)}-{Math.floor(ageGroup.max_age_months / 12)} yosh)
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Educational Category */}
+          <div className={style.form_section}>
+            <label className={style.label}>Ta'lim kategoriyasi</label>
+            <select
+              className={style.select}
+              value={productData.educational_category_id || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, educational_category_id: parseInt(e.target.value) || undefined })
+              }
+            >
+              <option value="">Ta'lim kategoriyasini tanlang</option>
+              {educationalCategories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Event Type */}
+          <div className={style.form_section}>
+            <label className={style.label}>Tadbir turi</label>
+            <select
+              className={style.select}
+              value={productData.event_type_id || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, event_type_id: parseInt(e.target.value) || undefined })
+              }
+            >
+              <option value="">Tadbir turini tanlang</option>
+              {eventTypes.map((eventType) => (
+                <option key={eventType.id} value={eventType.id}>
+                  {eventType.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Gender Specific */}
+          <div className={style.form_section}>
+            <label className={style.label}>Jins uchun</label>
+            <select
+              className={style.select}
+              value={productData.gender_specific || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, gender_specific: e.target.value as 'Erkak' | 'Ayol' | 'Umumiy' || undefined })
+              }
+            >
+              <option value="">Hammasi uchun</option>
+              <option value="Erkak">O'g'il bolalar uchun</option>
+              <option value="Ayol">Qiz bolalar uchun</option>
+              <option value="Umumiy">Uniseks</option>
+            </select>
+          </div>
+
+          {/* Difficulty Level */}
+          <div className={style.form_section}>
+            <label className={style.label}>Qiyinchilik darajasi</label>
+            <select
+              className={style.select}
+              value={productData.difficulty_level || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, difficulty_level: e.target.value as 'Oson' | 'O\'rta' | 'Qiyin' || undefined })
+              }
+            >
+              <option value="">Qiyinchilik darajasini tanlang</option>
+              <option value="Oson">Oson</option>
+              <option value="O'rta">O'rtacha</option>
+              <option value="Qiyin">Qiyin</option>
+            </select>
+          </div>
+
+          {/* Safety Information */}
+          <div className={style.form_section}>
+            <label className={style.label}>Xavfsizlik ma'lumotlari</label>
+            <textarea
+              className={style.textarea}
+              value={productData.safety_info || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, safety_info: e.target.value })
+              }
+              placeholder="Xavfsizlik bo'yicha muhim ma'lumotlar..."
+              rows={3}
+            />
+          </div>
+
+          {/* Safety Checkboxes */}
+          <div className={style.form_section}>
+            <label className={style.label}>Xavfsizlik belgilari</label>
+            <div className={style.checkbox_group}>
+              <label className={style.checkbox_label}>
+                <input
+                  type="checkbox"
+                  checked={productData.parental_guidance}
+                  onChange={(e) =>
+                    setProductData({ ...productData, parental_guidance: e.target.checked })
+                  }
+                />
+                Ota-ona nazorati talab qilinadi
+              </label>
+              <label className={style.checkbox_label}>
+                <input
+                  type="checkbox"
+                  checked={productData.assembly_required}
+                  onChange={(e) =>
+                    setProductData({ ...productData, assembly_required: e.target.checked })
+                  }
+                />
+                Yig'ish talab qilinadi
+              </label>
+              <label className={style.checkbox_label}>
+                <input
+                  type="checkbox"
+                  checked={productData.battery_required}
+                  onChange={(e) =>
+                    setProductData({ ...productData, battery_required: e.target.checked })
+                  }
+                />
+                Batareya talab qilinadi
+              </label>
+              <label className={style.checkbox_label}>
+                <input
+                  type="checkbox"
+                  checked={productData.choking_hazard}
+                  onChange={(e) =>
+                    setProductData({ ...productData, choking_hazard: e.target.checked })
+                  }
+                />
+                Bo'g'ilish xavfi mavjud
+              </label>
+            </div>
+          </div>
+
+          {/* Educational Value */}
+          <div className={style.form_section}>
+            <label className={style.label}>Ta'limiy qiymati</label>
+            <textarea
+              className={style.textarea}
+              value={productData.educational_value || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, educational_value: e.target.value })
+              }
+              placeholder="Bu mahsulot qanday ta'limiy qiymatga ega..."
+              rows={3}
+            />
+          </div>
+
+          {/* Play Time */}
+          <div className={style.form_section}>
+            <label className={style.label}>O'yin vaqti</label>
+            <input
+              type="text"
+              className={style.input}
+              value={productData.play_time || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, play_time: e.target.value })
+              }
+              placeholder="Masalan: 30-60 daqiqa"
+            />
+          </div>
+
+          {/* Player Count */}
+          <div className={style.form_section}>
+            <label className={style.label}>O'yinchilar soni</label>
+            <input
+              type="text"
+              className={style.input}
+              value={productData.player_count || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, player_count: e.target.value })
+              }
+              placeholder="Masalan: 2-4 kishi"
+            />
           </div>
 
           {/* Negotiable */}

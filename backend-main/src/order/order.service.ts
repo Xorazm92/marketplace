@@ -2,6 +2,7 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateOrderDto, CreateOrderInput } from './dto/create-order.dto';
 import { UpdateOrderDto, UpdateOrderInput, OrderStatus, PaymentStatus } from './dto/update-order.dto';
+import { OrderStatus as UpdateOrderStatus } from './dto/update-order-status.dto';
 import { Order } from './types/order.types';
 
 @Injectable()
@@ -323,5 +324,58 @@ export class OrderService {
       cancelledOrders,
       totalRevenue: totalRevenue._sum.final_amount || 0,
     };
+  }
+
+  async updateOrderStatus(orderId: number, status: UpdateOrderStatus, reason?: string): Promise<Order> {
+    const order = await this.prisma.order.findUnique({
+      where: { id: orderId },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    if (!order) {
+      throw new NotFoundException('Order not found');
+    }
+
+    // Status transition validation
+    const validTransitions = {
+      [UpdateOrderStatus.PENDING]: [UpdateOrderStatus.CONFIRMED, UpdateOrderStatus.CANCELLED],
+      [UpdateOrderStatus.CONFIRMED]: [UpdateOrderStatus.PROCESSING, UpdateOrderStatus.CANCELLED],
+      [UpdateOrderStatus.PROCESSING]: [UpdateOrderStatus.SHIPPED, UpdateOrderStatus.CANCELLED],
+      [UpdateOrderStatus.SHIPPED]: [UpdateOrderStatus.DELIVERED],
+      [UpdateOrderStatus.DELIVERED]: [],
+      [UpdateOrderStatus.CANCELLED]: [],
+    };
+
+    const currentStatus = order.status as UpdateOrderStatus;
+    if (!validTransitions[currentStatus]?.includes(status)) {
+      throw new BadRequestException(`Cannot change status from ${currentStatus} to ${status}`);
+    }
+
+    const updatedOrder = await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status: status,
+        updatedAt: new Date(),
+        // Add status change log if needed
+        ...(reason && { notes: order.notes ? `${order.notes}\n[${new Date().toISOString()}] Status changed to ${status}: ${reason}` : `[${new Date().toISOString()}] Status changed to ${status}: ${reason}` }),
+      },
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        user: true,
+      },
+    });
+
+    return updatedOrder as unknown as Order;
   }
 }

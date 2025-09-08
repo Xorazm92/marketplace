@@ -135,7 +135,7 @@ export class ProductController {
   
   @ApiOperation({ summary: "Create new product" })
   @ApiBearerAuth("inbola")
-  // @UseGuards(UserGuard) // Temporarily disabled for admin testing
+  @UseGuards(UserGuard)
   @Post("create")
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(
@@ -228,6 +228,8 @@ export class ProductController {
   @ApiQuery({ name: "limit", required: false, type: Number })
   @ApiQuery({ name: "search", required: false, type: String })
   @ApiQuery({ name: "status", required: false, type: String })
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @Get("admin/all")
   findAllForAdmin(
     @Query("page") page = 1,

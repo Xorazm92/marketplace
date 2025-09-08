@@ -116,6 +116,7 @@ model User {
   // Add this if you want to ensure updated_at is not in the future and not before created_at
   // @@check("updatedAt <= NOW() AND updatedAt >= createdAt")
   recommendations      ProductRecommendationEngine[]
+  notifications        Notification[]
 
   @@map("user")
 }
@@ -1018,4 +1019,40 @@ enum MovementType {
   ADJUSTMENT
   RESERVED
   RELEASED
+}
+
+model Notification {
+  id           Int      @id @default(autoincrement())
+  title        String
+  message      String
+  type         NotificationType @default(SYSTEM)
+  channel      NotificationChannel @default(IN_APP)
+  is_read      Boolean  @default(false)
+  action_url   String?
+  metadata     Json?
+  scheduled_at DateTime?
+  sent_at      DateTime?
+  user_id      Int
+  created_at   DateTime @default(now())
+  updated_at   DateTime @updatedAt
+
+  user         User     @relation(fields: [user_id], references: [id], onDelete: Cascade)
+
+  @@map("notification")
+}
+
+enum NotificationType {
+  ORDER
+  PAYMENT
+  PRODUCT
+  SYSTEM
+  PROMOTION
+  SECURITY
+}
+
+enum NotificationChannel {
+  PUSH
+  EMAIL
+  SMS
+  IN_APP
 }

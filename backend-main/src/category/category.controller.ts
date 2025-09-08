@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { AdminGuard } from '../guards/admin.guard';
 
 @ApiTags('Categories')
 @Controller('category')
@@ -11,6 +12,8 @@ export class CategoryController {
 
   @Post()
   @ApiOperation({ summary: 'Create a new category' })
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
@@ -29,6 +32,8 @@ export class CategoryController {
 
   @Post('seed')
   @ApiOperation({ summary: 'Seed default categories' })
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   seedCategories() {
     return this.categoryService.seedCategories();
   }
@@ -41,12 +46,16 @@ export class CategoryController {
 
   @Patch(':id')
   @ApiOperation({ summary: 'Update category' })
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Delete category' })
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);
   }

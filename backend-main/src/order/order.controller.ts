@@ -13,8 +13,10 @@ import {
 import { OrderService } from './order.service';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto, OrderStatus } from './dto/update-order.dto';
+import { UpdateOrderStatusDto } from './dto/update-order-status.dto';
 import { UserGuard } from '../guards/user.guard';
 import { AdminGuard } from '../guards/admin.guard';
+import { AdminOrOwnerGuard } from '../guards/admin-or-owner.guard';
 import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 
 @Controller('orders')
@@ -106,6 +108,16 @@ export class OrderController {
     @Body() updateOrderDto: UpdateOrderDto,
   ) {
     return this.orderService.updateOrder(id, updateOrderDto);
+  }
+
+  @Patch(':id/status')
+  @UseGuards(UserGuard, AdminOrOwnerGuard)
+  async updateStatus(
+    @Param('id', ParseIntPipe) id: number,
+    @Body() updateStatusDto: UpdateOrderStatusDto,
+    @GetCurrentUserId() userId: number,
+  ) {
+    return this.orderService.updateOrderStatus(id, updateStatusDto.status, updateStatusDto.reason);
   }
 
   @Patch(':id/cancel')
