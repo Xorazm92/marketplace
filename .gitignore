@@ -1,0 +1,4 @@
+*.env
+*.env.*
+frontend-env-fixed.txt
+backend-main/.env.fixed
