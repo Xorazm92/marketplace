@@ -1,0 +1,235 @@
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+  min-height: 80vh;
+
+  h1 {
+    font-size: 2.5rem;
+    color: #333;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.2rem;
+  color: #666;
+}
+
+.emptyCart {
+  text-align: center;
+  padding: 4rem;
+
+  h2 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+
+  p {
+    color: #666;
+  }
+}
+
+.checkoutContent {
+  display: grid;
+  grid-template-columns: 1fr 400px;
+  gap: 3rem;
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+}
+
+.checkoutForm {
+  .section {
+    background: white;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid #f0f0f0;
+    margin-bottom: 2rem;
+
+    h2 {
+      font-size: 1.3rem;
+      color: #333;
+      margin: 0 0 1.5rem 0;
+      font-weight: 600;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 0.5rem;
+    }
+  }
+
+  .formRow {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+
+    @media (max-width: 768px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .formGroup {
+    margin-bottom: 1.5rem;
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    input, textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+
+      &:focus {
+        outline: none;
+        border-color: #4e46b4;
+        box-shadow: 0 0 0 2px rgba(78, 70, 180, 0.1);
+      }
+
+      &::placeholder {
+        color: #999;
+      }
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+  }
+
+  .paymentMethods {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+
+    .paymentOption {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+
+      &:hover {
+        border-color: #4e46b4;
+        background: #f8f9ff;
+      }
+
+      input[type="radio"] {
+        margin-right: 0.75rem;
+        width: auto;
+      }
+
+      span {
+        font-weight: 500;
+        color: #333;
+      }
+    }
+  }
+
+  .placeOrderBtn {
+    width: 100%;
+    background: #4e46b4;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 1rem;
+
+    &:hover:not(:disabled) {
+      background: #3d3691;
+    }
+
+    &:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+    }
+  }
+}
+
+.orderSummary {
+  background: white;
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #f0f0f0;
+  height: fit-content;
+  position: sticky;
+  top: 2rem;
+
+  h3 {
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0 0 1.5rem 0;
+    font-weight: 600;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 0.5rem;
+  }
+
+  .orderItems {
+    margin-bottom: 1.5rem;
+
+    .orderItem {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f0f0f0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .itemName {
+        color: #333;
+        font-weight: 500;
+        flex: 1;
+      }
+
+      .itemPrice {
+        color: #4e46b4;
+        font-weight: 600;
+      }
+    }
+  }
+
+  .summaryRow {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+
+    &.total {
+      border-top: 1px solid #e0e0e0;
+      padding-top: 1rem;
+      font-weight: 600;
+      font-size: 1.1rem;
+      color: #333;
+    }
+
+    span:first-child {
+      color: #666;
+    }
+
+    span:last-child {
+      font-weight: 600;
+      color: #333;
+    }
+  }
+}

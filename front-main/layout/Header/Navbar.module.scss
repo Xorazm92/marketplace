@@ -1,0 +1,551 @@
+// Main Header - Etsy Style
+.header {
+  background: white;
+  border-bottom: 1px solid #e1e3df;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  height: 64px;
+  display: flex;
+  align-items: center;
+}
+
+.container {
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 24px;
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  height: 100%;
+}
+
+// Logo
+.logo {
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  min-width: 120px;
+  
+  .logoText {
+    color: #f16521;
+    font-size: 32px;
+    font-weight: 700;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    letter-spacing: -1px;
+    margin: 0;
+    
+    &:hover {
+      color: #e1306c;
+    }
+  }
+}
+
+// Categories Section
+.categoriesSection {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.categoriesButton {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: 1px solid #222;
+  border-radius: 24px;
+  padding: 8px 16px;
+  color: #222;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #222;
+    color: white;
+  }
+  
+  svg:last-child {
+    transition: transform 0.2s ease;
+  }
+  
+  &:hover svg:last-child {
+    transform: rotate(180deg);
+  }
+}
+
+.categoriesDropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: white;
+  border: 1px solid #e1e3df;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  min-width: 280px;
+  z-index: 1000;
+  margin-top: 8px;
+  overflow: hidden;
+  animation: fadeIn 0.2s ease;
+}
+
+.categoriesList {
+  padding: 8px 0;
+}
+
+.categoryItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  color: #222;
+  text-decoration: none;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: #f5f5f5;
+    color: #f16521;
+  }
+  
+  span:first-child {
+    font-size: 20px;
+    width: 24px;
+    text-align: center;
+  }
+  
+  div {
+    display: flex;
+    flex-direction: column;
+    
+    strong {
+      font-size: 14px;
+      font-weight: 600;
+      line-height: 1.2;
+    }
+    
+    small {
+      font-size: 12px;
+      color: #767676;
+      line-height: 1.2;
+    }
+  }
+}
+
+// Search Section
+.searchSection {
+  flex: 1;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.searchForm {
+  width: 100%;
+}
+
+.searchContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #222;
+  border-radius: 24px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  
+  &:focus-within {
+    border-color: #f16521;
+    box-shadow: 0 0 0 2px rgba(241, 101, 33, 0.2);
+  }
+}
+
+.searchInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  background: transparent;
+  
+  &::placeholder {
+    color: #767676;
+    font-weight: 400;
+  }
+}
+
+.searchButton {
+  background: #f16521;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 0 24px 24px 0;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: #e1306c;
+  }
+}
+
+// User Actions
+.userActions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+.signInLink {
+  color: #222;
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 14px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    background: #f5f5f5;
+    color: #f16521;
+  }
+}
+
+.userMenu {
+  display: flex;
+  align-items: center;
+}
+
+.iconLink {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #222;
+  text-decoration: none;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+  position: relative;
+  
+  &:hover {
+    background: #f5f5f5;
+    color: #f16521;
+  }
+}
+
+.cartContainer {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cartBadge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: #f16521;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  min-width: 18px;
+}
+
+// Mobile Menu Button
+.mobileMenuButton {
+  display: none;
+  background: none;
+  border: none;
+  color: #222;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+
+
+// Mobile Menu Overlay
+.mobileMenuOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 2000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-end;
+}
+
+.mobileMenu {
+  background: white;
+  width: 100%;
+  max-width: 400px;
+  height: 100vh;
+  overflow-y: auto;
+  box-shadow: -2px 0 10px rgba(0, 0, 0, 0.1);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.mobileMenuHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e1e3df;
+  
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #222;
+  }
+}
+
+.closeButton {
+  background: none;
+  border: none;
+  color: #222;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: background 0.2s ease;
+  
+  &:hover {
+    background: #f5f5f5;
+  }
+}
+
+.mobileMenuContent {
+  padding: 24px;
+}
+
+.mobileSearch {
+  display: flex;
+  align-items: center;
+  background: white;
+  border: 1px solid #e1e3df;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.mobileSearchInput {
+  flex: 1;
+  padding: 12px 16px;
+  border: none;
+  outline: none;
+  font-size: 16px;
+  
+  &::placeholder {
+    color: #767676;
+  }
+}
+
+.mobileSearchButton {
+  background: #f16521;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:hover {
+    background: #e1306c;
+  }
+}
+
+.mobileCategories {
+  margin-bottom: 32px;
+  
+  h4 {
+    margin: 0 0 16px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+  }
+}
+
+.mobileCategoryLink {
+  display: block;
+  color: #222;
+  text-decoration: none;
+  padding: 12px 0;
+  font-size: 16px;
+  border-bottom: 1px solid #f5f5f5;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #f16521;
+  }
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.mobileActions {
+  border-top: 1px solid #e1e3df;
+  padding-top: 24px;
+}
+
+.mobileActionLink {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #222;
+  text-decoration: none;
+  padding: 12px 0;
+  font-size: 16px;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #f16521;
+  }
+}
+
+// Responsive Design
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 16px;
+    gap: 16px;
+  }
+  
+  .logo {
+    min-width: 100px;
+    
+    .logoText {
+      font-size: 28px;
+    }
+  }
+  
+  .searchSection {
+    max-width: 400px;
+  }
+  
+  .userActions {
+    gap: 16px;
+    min-width: 160px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    height: 56px;
+  }
+  
+  .container {
+    padding: 0 12px;
+    gap: 12px;
+  }
+  
+  .logo {
+    min-width: 80px;
+    
+    .logoText {
+      font-size: 24px;
+    }
+  }
+  
+  .categoriesSection {
+    display: none;
+  }
+  
+  .searchSection {
+    display: none;
+  }
+  
+  .userActions {
+    gap: 12px;
+    min-width: 120px;
+  }
+  
+  .mobileMenuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .iconLink {
+    padding: 6px;
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+  
+  .signInLink {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 0 8px;
+    gap: 8px;
+  }
+  
+  .logo {
+    min-width: 70px;
+    
+    .logoText {
+      font-size: 20px;
+    }
+  }
+  
+  .userActions {
+    gap: 8px;
+    min-width: 100px;
+  }
+  
+  .iconLink {
+    padding: 4px;
+    
+    svg {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  .signInLink {
+    font-size: 12px;
+    padding: 4px 8px;
+  }
+  
+  .mobileMenu {
+    max-width: 100%;
+  }
+}
+
+

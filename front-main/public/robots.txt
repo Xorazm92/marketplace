@@ -1,0 +1,40 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://inbola.uz/sitemap.xml
+
+# Disallow admin pages
+Disallow: /admin/
+Disallow: /api/
+Disallow: /_next/
+Disallow: /static/
+Disallow: /private/
+Disallow: /temp/
+
+# Allow important pages
+Allow: /products/
+Allow: /categories/
+Allow: /about/
+Allow: /contact/
+Allow: /faq/
+Allow: /blog/
+Allow: /reviews/
+
+# Crawl delay
+Crawl-delay: 1
+
+# Google specific
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0.5
+
+# Bing specific
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+
+# Yandex specific
+User-agent: Yandex
+Allow: /
+Crawl-delay: 1

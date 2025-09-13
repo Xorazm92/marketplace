@@ -1,0 +1,8 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="200" height="200" fill="#F0F8FF"/>
+  <path d="M60 60 L60 40 Q60 30 70 30 L130 30 Q140 30 140 40 L140 60 L160 80 L160 160 Q160 170 150 170 L50 170 Q40 170 40 160 L40 80 L60 60 Z" fill="#87CEEB"/>
+  <circle cx="80" cy="50" r="8" fill="#FFF"/>
+  <circle cx="120" cy="50" r="8" fill="#FFF"/>
+  <rect x="70" y="80" width="60" height="60" fill="#B0E0E6" rx="5"/>
+  <text x="100" y="180" text-anchor="middle" fill="#333" font-family="Arial" font-size="14">Kiyim</text>
+</svg>

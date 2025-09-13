@@ -1,0 +1,326 @@
+// Featured Products - Etsy Style
+.featured {
+  padding: 80px 0;
+  background: white;
+
+  .container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  .header {
+    text-align: center;
+    margin-bottom: 50px;
+  }
+
+  .headerContent {
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      color: #2c3e50;
+      margin-bottom: 12px;
+      line-height: 1.2;
+    }
+
+    .subtitle {
+      font-size: 1.1rem;
+      color: #7f8c8d;
+      margin: 0;
+      line-height: 1.5;
+    }
+  }
+
+  // Filter Tabs - Etsy style
+  .filterTabs {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 48px;
+    border-bottom: 1px solid #e1e3df;
+    padding-bottom: 16px;
+  }
+
+  .filterTab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 12px 20px;
+    background: none;
+    border: none;
+    color: #767676;
+    font-weight: 500;
+    cursor: pointer;
+    border-radius: 24px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+
+    &:hover {
+      background: #f5f5f5;
+      color: #222;
+    }
+
+    &.active {
+      background: #222;
+      color: white;
+    }
+  }
+
+  .tabIcon {
+    font-size: 14px;
+  }
+
+  // Products Grid - Etsy style
+  .productsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 24px;
+    margin-bottom: 48px;
+
+    @media (max-width: 768px) {
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+  }
+
+  // Product Card - Etsy style
+  .productCard {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    color: inherit;
+    border: 1px solid transparent;
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+      border-color: #e1e3df;
+    }
+  }
+
+  .productImageContainer {
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: #f5f5f5;
+  }
+
+  .productImage {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+
+  .productCard:hover .productImage {
+    transform: scale(1.05);
+  }
+
+  .wishlistBtn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: white;
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease;
+
+    &:hover {
+      transform: scale(1.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+  }
+
+  .heartIcon {
+    font-size: 16px;
+    color: #767676;
+
+    .wishlistBtn:hover & {
+      color: #f16521;
+    }
+  }
+
+  .popularBadge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: #f16521;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .badgeIcon {
+    font-size: 10px;
+  }
+
+  // Product Info - Etsy style
+  .productInfo {
+    padding: 16px;
+  }
+
+  .shopName {
+    font-size: 12px;
+    color: #767676;
+    margin-bottom: 4px;
+    font-weight: 500;
+  }
+
+  .productTitle {
+    font-size: 14px;
+    font-weight: 500;
+    color: #222;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .rating {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 8px;
+  }
+
+  .stars {
+    display: flex;
+    gap: 1px;
+  }
+
+  .starFilled {
+    color: #f16521;
+    font-size: 12px;
+  }
+
+  .starEmpty {
+    color: #e1e3df;
+    font-size: 12px;
+  }
+
+  .reviewCount {
+    font-size: 12px;
+    color: #767676;
+  }
+
+  .priceContainer {
+    margin-bottom: 8px;
+  }
+
+  .currency {
+    font-size: 12px;
+    color: #767676;
+    margin-right: 4px;
+  }
+
+  .price {
+    font-size: 16px;
+    font-weight: 600;
+    color: #222;
+  }
+
+  .productMeta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .category {
+    font-size: 12px;
+    color: #767676;
+  }
+
+  .stats {
+    display: flex;
+    gap: 8px;
+  }
+
+  .stat {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 12px;
+    color: #767676;
+  }
+
+  .statIcon {
+    font-size: 10px;
+  }
+
+  // View More - Etsy style
+  .viewMore {
+    text-align: center;
+    margin-top: 48px;
+  }
+
+  .viewMoreBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: none;
+    border: 2px solid #222;
+    border-radius: 24px;
+    color: #222;
+    text-decoration: none;
+    font-weight: 500;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: #222;
+      color: white;
+      transform: translateY(-2px);
+    }
+  }
+
+  .arrowIcon {
+    font-size: 16px;
+    transition: transform 0.2s ease;
+  }
+
+  .viewMoreBtn:hover .arrowIcon {
+    transform: translateX(4px);
+  }
+}
+
+// Loading State
+.loading {
+  text-align: center;
+  padding: 60px 0;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f5f5f5;
+    border-top: 3px solid #f16521;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 16px;
+  }
+
+  p {
+    color: #767676;
+    font-size: 16px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}

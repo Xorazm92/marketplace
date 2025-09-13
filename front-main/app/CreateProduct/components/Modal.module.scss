@@ -1,0 +1,64 @@
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+
+  &.active {
+    opacity: 1;
+    visibility: visible;
+  }
+}
+
+.modal {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 24px;
+  padding: 32px;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 16px;
+  background-color: #fff;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-20px);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  position: relative;
+  z-index: 1001;
+
+  &.active {
+    transform: translateY(0);
+    opacity: 1;
+  }
+
+  p {
+    font-size: 20px;
+    font-weight: 500;
+    color: #1a1a1a;
+    text-align: center;
+    line-height: 1.4;
+    margin: 0;
+  }
+
+  svg {
+    width: 64px;
+    height: 64px;
+  }
+
+  button {
+    margin-top: 8px;
+    width: 100%;
+    max-width: 200px;
+  }
+}

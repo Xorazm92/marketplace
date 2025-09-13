@@ -1,0 +1,739 @@
+import React, { useEffect, useRef, useState } from "react";
+import style from "./CreateProduct.module.scss";
+import { MdOutlineCameraAlt } from "react-icons/md";
+import MapComponent from "./components/MapComponent";
+import SuccessCreateModel from "./components/SuccessCreateModel";
+import { useSelector } from "react-redux";
+import { RootState } from "../../store/store";
+import { useRouter } from "next/navigation";
+import { CreateProductProps } from "@/types";
+import { jwtDecode } from "jwt-decode";
+import { toast } from "react-toastify";
+import {
+  useColors,
+  useCurrency,
+} from "../../hooks/category";
+import { getAllCategories } from "../../endpoints/category";
+import {
+  useGetRegionById,
+  useGetRegions,
+  useUserPhoneNumbers,
+} from "../../hooks/user";
+import { AddressData } from "../../types/userData";
+import { createProduct } from "../../endpoints/product";
+import { IoMdCheckmarkCircleOutline } from "react-icons/io";
+
+enum SelectType {
+  default = "default",
+  manual = "manual",
+}
+
+interface Color {
+  id: number | string;
+  name: string;
+  code?: string;
+}
+
+interface Model {
+  id: number | string;
+  name: string;
+  brand_id: number | string;
+}
+
+interface Brand {
+  id: number | string;
+  name: string;
+  model: Model[];
+}
+
+interface Currency {
+  id: number | string;
+  name: string;
+}
+
+interface Region {
+  id: number;
+  name: string;
+}
+
+interface District {
+  id: number;
+  name: string;
+}
+
+const CreateProduct = () => {
+  const router = useRouter();
+  const [selectType, setSelectType] = useState<SelectType>(SelectType.default);
+  const [selectTypeLocation, setSelectTypeLocation] = useState<SelectType>(
+    SelectType.default,
+  );
+
+  const [createModal, setCreateModal] = useState<boolean>(false);
+  const [categories, setCategories] = useState<any[]>([]);
+  const { user, isAuthenticated } = useSelector(
+    (state: RootState) => state.auth,
+  );
+
+  const [productData, setProductData] = useState<CreateProductProps>({
+    title: "",
+    brand_id: 0,
+    price: 0,
+    currency_id: 1,
+    description: "",
+    negotiable: false,
+    phone_number: "",
+    user_id: Number(user?.id) || 0,
+    address_id: 0,
+    condition: false,
+    category_id: 0,
+    age_range: "",
+    material: "",
+    color: "",
+    size: "",
+    manufacturer: "",
+    safety_info: "",
+    features: [],
+    weight: 0,
+    dimensions: "",
+  });
+
+  const [addressData, setAddressData] = useState<AddressData>({
+    user_id: Number(user?.id) || 0,
+    region_id: null,
+    district_id: null,
+    name: "",
+    lat: null,
+    long: null,
+    address: "",
+  });
+
+  const [images, setImages] = useState<File[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // API hooks
+  const { data: brands } = useCategory();
+  const { data: colors } = useColors();
+  const { data: currency } = useCurrency();
+  const { data: phoneNumbers } = useUserPhoneNumbers(Number(user?.id));
+  const { data: regions } = useGetRegions();
+  const { data: oneRegion } = useGetRegionById(addressData.region_id || 0);
+
+  // Load categories
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const response = await getAllCategories();
+        if (response && response.length > 0) {
+          setCategories(response);
+        }
+      } catch (error) {
+        console.error('Error loading categories:', error);
+      }
+    };
+
+    loadCategories();
+  }, []);
+
+  const handleClickPublishing = async () => {
+    try {
+      // Basic validation
+      if (!productData.title.trim()) {
+        toast.info("Mahsulot nomini kiriting");
+      } else if (!productData.brand_id) {
+        toast.info("Brand tanlang");
+      } else if (!productData.category_id) {
+        toast.info("Kategoriya tanlang");
+      } else if (!images.length) {
+        toast.info("Kamida bitta rasm yuklang");
+      } else if (!productData.description.trim()) {
+        toast.info("Mahsulot tavsifini kiriting");
+      } else if (
+        !addressData.region_id &&
+        selectTypeLocation === SelectType.default &&
+        !addressData.district_id
+      ) {
+        toast.info("Viloyat va tumanni tanlang");
+      } else if (
+        !addressData.lat &&
+        selectTypeLocation === SelectType.manual &&
+        !addressData.long
+      ) {
+        toast.info("Joylashuvni belgilang");
+      } else if (!productData.price) {
+        toast.info("Narxni kiriting");
+      } else if (!productData.phone_number) {
+        toast.info("Telefon raqamni kiriting");
+      } else {
+        const response = await createProduct({
+          data: productData,
+          images: images,
+          addressData: addressData,
+        });
+        console.log("response: ", response);
+        if (response) {
+          toast.success("Mahsulot muvaffaqiyatli yaratildi");
+          setCreateModal(true);
+        }
+      }
+    } catch (error: any) {
+      console.log("Errorjon: ", error);
+      toast.error(error.response?.data?.message || "Mahsulot yaratishda xatolik");
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setImages((prevImages) => [...prevImages, ...filesArray].slice(0, 10)); // Limit to 10 images
+    }
+  };
+
+  const removeImage = (index: number) => {
+    setImages((prevImages) => prevImages.filter((_, i) => i !== index));
+  };
+
+  const triggerFileInput = () => {
+    fileInputRef.current?.click();
+  };
+
+  // Authentication check
+  useEffect(() => {
+    if (isAuthenticated) {
+      const token = localStorage.getItem("accessToken");
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          const currentTime = Date.now() / 1000; // seconds
+
+          if (
+            typeof decoded === "object" &&
+            decoded &&
+            "exp" in decoded &&
+            typeof (decoded as any).exp === "number" &&
+            (decoded as any).exp < currentTime
+          ) {
+            toast.info(
+              "Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.",
+            );
+            router.push("/login");
+          }
+        } catch (error) {
+          toast.info(
+            "Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.",
+          );
+          router.push("/login");
+        }
+      } else {
+        toast.info(
+          "Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.",
+        );
+        router.push("/login");
+      }
+    } else {
+      toast.info(
+        "Tizim sizni xavfsizlik uchun chiqarib qo'ydi. Iltimos, qayta kiring.",
+      );
+      router.push("/login");
+    }
+  }, [isAuthenticated, router]);
+
+
+
+  return (
+    <div className={style.create_product_wrapper}>
+      <div className={style.container}>
+        <p>Создать объявление</p>
+
+        <form className={style.form}>
+          {/* Product Title */}
+          <div>
+            <p className={style.select_label}>Mahsulot nomi</p>
+            <input
+              type="text"
+              className={style.input}
+              placeholder="Mahsulot nomini kiriting"
+              value={productData.title}
+              onChange={(e) =>
+                setProductData({ ...productData, title: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Brand Selection */}
+          <div>
+            <p className={style.select_label}>Brand tanlang</p>
+            <select
+              className={style.select}
+              value={productData.brand_id || ""}
+              onChange={(e) => {
+                setProductData({
+                  ...productData,
+                  brand_id: +e.target.value,
+                });
+              }}
+            >
+              <option disabled value="">
+                Brand tanlang
+              </option>
+              {brands?.map((brand: Brand) => (
+                <option key={brand.id} value={brand.id.toString()}>
+                  {brand.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category Selection */}
+          <div>
+            <p className={style.select_label}>Kategoriya</p>
+            <select
+              className={style.select}
+              value={productData.category_id || ""}
+              onChange={(e) =>
+                setProductData({
+                  ...productData,
+                  category_id: +e.target.value,
+                })
+              }
+            >
+              <option disabled value="">
+                Kategoriya tanlang
+              </option>
+              {categories?.map((category: any) => (
+                <option key={category.id} value={category.id.toString()}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Age Range */}
+          <div>
+            <p className={style.select_label}>Yosh oralig'i</p>
+            <select
+              className={style.select}
+              value={productData.age_range || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, age_range: e.target.value })
+              }
+            >
+              <option disabled value="">
+                Yosh oralig'ini tanlang
+              </option>
+              <option value="0-1">0-1 yosh</option>
+              <option value="1-3">1-3 yosh</option>
+              <option value="3-6">3-6 yosh</option>
+              <option value="6-12">6-12 yosh</option>
+              <option value="12+">12+ yosh</option>
+            </select>
+          </div>
+
+          {/* Material */}
+          <div>
+            <p className={style.select_label}>Material</p>
+            <select
+              className={style.select}
+              value={productData.material || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, material: e.target.value })
+              }
+            >
+              <option disabled value="">
+                Material tanlang
+              </option>
+              <option value="plastik">Plastik</option>
+              <option value="yog'och">Yog'och</option>
+              <option value="mato">Mato</option>
+              <option value="metall">Metall</option>
+              <option value="qog'oz">Qog'oz</option>
+              <option value="rezina">Rezina</option>
+              <option value="boshqa">Boshqa</option>
+            </select>
+          </div>
+
+          {/* Color */}
+          <div>
+            <p className={style.select_label}>Rang</p>
+            <input
+              type="text"
+              className={style.input}
+              placeholder="Rangni kiriting"
+              value={productData.color || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, color: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Size */}
+          <div>
+            <p className={style.select_label}>O'lcham</p>
+            <select
+              className={style.select}
+              value={productData.size || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, size: e.target.value })
+              }
+            >
+              <option disabled value="">
+                O'lcham tanlang
+              </option>
+              <option value="kichik">Kichik</option>
+              <option value="o'rta">O'rta</option>
+              <option value="katta">Katta</option>
+              <option value="XS">XS</option>
+              <option value="S">S</option>
+              <option value="M">M</option>
+              <option value="L">L</option>
+              <option value="XL">XL</option>
+            </select>
+          </div>
+
+          {/* Manufacturer */}
+          <div>
+            <p className={style.select_label}>Ishlab chiqaruvchi</p>
+            <input
+              type="text"
+              className={style.input}
+              placeholder="Ishlab chiqaruvchi nomini kiriting"
+              value={productData.manufacturer || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, manufacturer: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Safety Info */}
+          <div>
+            <p className={style.select_label}>Xavfsizlik ma'lumotlari</p>
+            <textarea
+              className={style.textarea}
+              placeholder="Xavfsizlik bo'yicha ma'lumotlar"
+              value={productData.safety_info || ""}
+              onChange={(e) =>
+                setProductData({ ...productData, safety_info: e.target.value })
+              }
+            />
+          </div>
+
+          {/* Product Specifications */}
+          <div>
+            <p>Mahsulot xususiyatlari</p>
+            <div className={style.selects_wrapper}>
+              <div>
+                <p style={{ fontSize: "16px", marginBottom: "10px" }}>
+                  Og'irlik (kg)
+                </p>
+                <input
+                  type="number"
+                  step="0.1"
+                  className={style.input}
+                  placeholder="Og'irlikni kiriting"
+                  value={productData.weight || ""}
+                  onChange={(e) =>
+                    setProductData({ ...productData, weight: +e.target.value })
+                  }
+                />
+              </div>
+              <div>
+                <p style={{ fontSize: "16px", marginBottom: "10px" }}>
+                  O'lchamlar (uzunlik x kenglik x balandlik)
+                </p>
+                <input
+                  type="text"
+                  className={style.input}
+                  placeholder="Masalan: 30x20x15 sm"
+                  value={productData.dimensions || ""}
+                  onChange={(e) =>
+                    setProductData({ ...productData, dimensions: e.target.value })
+                  }
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Image Upload Section */}
+          <div>
+            <p>📸 Mahsulot rasmlarini qo'shing (maksimal 10 ta)</p>
+            <div className={style.image_upload_section}>
+              <div className={style.photo_upload_container}>
+                {images.length < 10 && (
+                  <div
+                    className={`${style.upload_placeholder} ${style.photo_upload_box}`}
+                    onClick={triggerFileInput}
+                  >
+                    <MdOutlineCameraAlt size={24} />
+                    <span>Rasm qo'shish</span>
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      style={{ display: "none" }}
+                      accept="image/*"
+                      multiple
+                      onChange={handleImageChange}
+                    />
+                  </div>
+                )}
+                {images.map((image, index) => (
+                  <div
+                    key={index}
+                    className={`${style.image_preview} ${style.photo_box}`}
+                  >
+                    <img
+                      src={URL.createObjectURL(image)}
+                      alt={`Preview ${index + 1}`}
+                    />
+                    <button
+                      type="button"
+                      className={style.remove_image_btn}
+                      onClick={() => removeImage(index)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className={style.form__description}>
+            <p>Описание</p>
+            <textarea
+              className={`${style.input} ${style.textarea}`}
+              placeholder="Напишите что-нибудь..."
+              value={productData.description}
+              onChange={(e) =>
+                setProductData({ ...productData, description: e.target.value })
+              }
+              maxLength={1000}
+            />
+            <p className={style.text_area_max_characters}>
+              Максимум 1000 символов
+            </p>
+          </div>
+
+          {/* Location */}
+          <div className={style.form__location}>
+            <p>Адрес продажи</p>
+            <div className={style.select_buttons_wrapper}>
+              <button
+                type="button"
+                className={
+                  style.select_button +
+                  " " +
+                  (selectTypeLocation === SelectType.default
+                    ? style.active
+                    : "")
+                }
+                onClick={() => setSelectTypeLocation(SelectType.default)}
+              >
+                Выбрать
+              </button>
+              <button
+                type="button"
+                className={
+                  style.select_button +
+                  " " +
+                  (selectTypeLocation === SelectType.manual ? style.active : "")
+                }
+                onClick={() => setSelectTypeLocation(SelectType.manual)}
+              >
+                Ввести вручную
+              </button>
+            </div>
+
+            {selectTypeLocation === SelectType.default ? (
+              <div>
+                <div>
+                  <p className={style.select_label}>Выбрать регион</p>
+                  <select
+                    className={style.select}
+                    value={addressData.region_id || ""}
+                    onChange={(e) =>
+                      setAddressData({
+                        ...addressData,
+                        region_id: +e.target.value,
+                        district_id: null, // Reset district when region changes
+                      })
+                    }
+                  >
+                    <option disabled value="">
+                      Выберите регион
+                    </option>
+                    {regions?.map((region: Region) => (
+                      <option key={region.id} value={region.id}>
+                        {region.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <p className={style.select_label}>Выбрать город или район</p>
+                  <select
+                    className={style.select}
+                    value={addressData.district_id || ""}
+                    onChange={(e) =>
+                      setAddressData({
+                        ...addressData,
+                        district_id: +e.target.value,
+                      })
+                    }
+                    disabled={!addressData.region_id}
+                  >
+                    <option disabled value="">
+                      Выберите город или район
+                    </option>
+                    {oneRegion?.district?.map((district: District) => (
+                      <option key={district.id} value={district.id}>
+                        {district.name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+            ) : (
+              <div>
+                <MapComponent
+                  addressData={addressData}
+                  setAddressData={setAddressData}
+                />
+              </div>
+            )}
+          </div>
+
+          {/* Price */}
+          <div>
+            <p>Цена</p>
+            <div className={style.form__price}>
+              <input
+                type="number"
+                className={style.input}
+                placeholder="Сумма"
+                value={productData.price || ""}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    price: Number(e.target.value),
+                  })
+                }
+              />
+              <select
+                style={{ width: "100px" }}
+                className={style.select}
+                value={productData.currency_id || "1"}
+                onChange={(e) =>
+                  setProductData({
+                    ...productData,
+                    currency_id: +e.target.value,
+                  })
+                }
+              >
+                {currency?.map((item: Currency) => (
+                  <option key={item.id} value={item.id}>
+                    {item.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Negotiable */}
+            <div>
+              <p>Цена окончательная?</p>
+              <div className={style.negotiable_wrapper}>
+                <div className={style.radio_wrapper}>
+                  <input
+                    name="negotiable"
+                    type="radio"
+                    checked={productData.negotiable === true}
+                    onChange={() =>
+                      setProductData({ ...productData, negotiable: true })
+                    }
+                  />
+                  <p>Торг есть</p>
+                </div>
+                <div className={style.radio_wrapper}>
+                  <input
+                    name="negotiable"
+                    type="radio"
+                    checked={productData.negotiable === false}
+                    onChange={() =>
+                      setProductData({ ...productData, negotiable: false })
+                    }
+                  />
+                  <p>Да, окончательная</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Condition */}
+            <div>
+              <p>Состояние</p>
+              <div className={style.negotiable_wrapper}>
+                <div className={style.radio_wrapper}>
+                  <input
+                    name="condition"
+                    type="radio"
+                    checked={productData.condition === true}
+                    onChange={() =>
+                      setProductData({ ...productData, condition: true })
+                    }
+                  />
+                  <p>Новый</p>
+                </div>
+                <div className={style.radio_wrapper}>
+                  <input
+                    name="condition"
+                    type="radio"
+                    checked={productData.condition === false}
+                    onChange={() =>
+                      setProductData({ ...productData, condition: false })
+                    }
+                  />
+                  <p>Б/У</p>
+                </div>
+              </div>
+            </div>
+
+
+
+          {/* Phone Number */}
+          <div>
+            <p>Номер телефона</p>
+            <div className={style.phone_wrapper}>
+              {phoneNumbers?.map((item: any) => (
+                <div key={item.phone_number} className={style.radio_wrapper}>
+                  <input
+                    name="phone"
+                    value={item.phone_number}
+                    type="radio"
+                    checked={productData.phone_number === item.phone_number}
+                    onChange={(e) =>
+                      setProductData({
+                        ...productData,
+                        phone_number: e.target.value,
+                      })
+                    }
+                  />
+                  <p>{item.phone_number}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Submit Buttons */}
+          <div className={style.form__submit_buttons}>
+            <a href="">Предпросмотр</a>
+            <button type="button" onClick={handleClickPublishing}>
+              Опубликовать
+            </button>
+          </div>
+        </form>
+
+        <SuccessCreateModel isOpen={createModal} setIsOpen={setCreateModal} />
+      </div>
+    </div>
+  );
+};
+
+export default CreateProduct;

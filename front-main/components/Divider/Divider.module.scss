@@ -1,0 +1,16 @@
+.divider {
+  background-color: #e2e8f0;
+  border: none;
+  
+  &.horizontal {
+    height: 1px;
+    width: 100%;
+    margin: 1rem 0;
+  }
+  
+  &.vertical {
+    width: 1px;
+    height: 1.5rem;
+    margin: 0 0.5rem;
+  }
+}

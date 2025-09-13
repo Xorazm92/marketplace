@@ -1,0 +1,14 @@
+<!-- This would be a placeholder for a real image file -->
+<!-- For now, we'll create an SVG placeholder -->
+<svg width="1240" height="375" viewBox="0 0 1240 375" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroGradient1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#667eea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#764ba2;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="1240" height="375" fill="url(#heroGradient1)"/>
+  <text x="620" y="150" text-anchor="middle" fill="#FFF" font-family="Arial" font-size="48" font-weight="bold">INBOLA</text>
+  <text x="620" y="200" text-anchor="middle" fill="#FFF" font-family="Arial" font-size="24">Bolalar uchun eng yaxshi mahsulotlar</text>
+  <text x="620" y="240" text-anchor="middle" fill="#FFF" font-family="Arial" font-size="18">Sifatli, xavfsiz va qiziqarli</text>
+</svg>
