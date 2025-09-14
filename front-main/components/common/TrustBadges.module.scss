@@ -1,0 +1,631 @@
+// Trust Badges & Safety Components - Etsy Inspired
+
+.trustBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  background: var(--badge-bg, var(--primary-orange));
+  color: var(--badge-text, white);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  transition: var(--transition-fast);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  
+  // Sizes
+  &.sm {
+    padding: var(--space-xs) var(--space-sm);
+    font-size: var(--text-xs);
+    
+    .badgeIcon {
+      width: 14px;
+      height: 14px;
+    }
+  }
+  
+  &.md {
+    padding: var(--space-sm) var(--space-md);
+    font-size: var(--text-sm);
+    
+    .badgeIcon {
+      width: 16px;
+      height: 16px;
+    }
+  }
+  
+  &.lg {
+    padding: var(--space-md) var(--space-lg);
+    font-size: var(--text-base);
+    
+    .badgeIcon {
+      width: 20px;
+      height: 20px;
+    }
+  }
+  
+  // Variants
+  &.compact {
+    padding: var(--space-xs) var(--space-sm);
+    
+    .badgeDescription {
+      display: none;
+    }
+  }
+  
+  &.detailed {
+    padding: var(--space-md) var(--space-lg);
+    border-radius: var(--radius-lg);
+    
+    .badgeContent {
+      display: flex;
+      flex-direction: column;
+      gap: var(--space-xs);
+    }
+  }
+  
+  // Colors
+  &.green {
+    --badge-bg: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
+  }
+  
+  &.blue {
+    --badge-bg: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  }
+  
+  &.orange {
+    --badge-bg: linear-gradient(135deg, #f16521 0%, #ea580c 100%);
+  }
+  
+  &.purple {
+    --badge-bg: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%);
+  }
+  
+  &.pink {
+    --badge-bg: linear-gradient(135deg, #ec4899 0%, #db2777 100%);
+  }
+  
+  &.teal {
+    --badge-bg: linear-gradient(135deg, #14b8a6 0%, #0d9488 100%);
+  }
+  
+  &.indigo {
+    --badge-bg: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+  }
+  
+  &.red {
+    --badge-bg: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  }
+}
+
+.badgeIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  svg {
+    width: 100%;
+    height: 100%;
+  }
+}
+
+.badgeContent {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.badgeTitle {
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.badgeDescription {
+  font-size: var(--text-xs);
+  opacity: 0.9;
+  line-height: 1.3;
+}
+
+// Trust Banner
+.trustBanner {
+  background: linear-gradient(135deg, var(--background-secondary) 0%, var(--background-tertiary) 100%);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  padding: var(--space-xl);
+  margin: var(--space-xl) 0;
+  
+  &.light {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    color: var(--text-primary);
+  }
+  
+  &.dark {
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    color: white;
+  }
+  
+  &.kids {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    color: var(--text-primary);
+    border-color: #fbbf24;
+  }
+  
+  &.horizontal {
+    .badgeContainer {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--space-md);
+      justify-content: center;
+      
+      @media (max-width: 768px) {
+        justify-content: flex-start;
+      }
+    }
+  }
+  
+  &.grid {
+    .badgeContainer {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: var(--space-lg);
+    }
+  }
+}
+
+.bannerHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-xl);
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+}
+
+.bannerIcon {
+  width: 60px;
+  height: 60px;
+  background: var(--primary-orange);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.bannerContent {
+  flex: 1;
+}
+
+.bannerTitle {
+  font-size: var(--text-xl);
+  font-weight: 700;
+  margin-bottom: var(--space-sm);
+  color: inherit;
+}
+
+.bannerSubtitle {
+  font-size: var(--text-base);
+  opacity: 0.8;
+  margin: 0;
+}
+
+.badgeContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-md);
+  justify-content: center;
+}
+
+// Kids Safety Indicator
+.kidsSafety {
+  background: linear-gradient(135deg, #fef7ff 0%, #fae8ff 100%);
+  border: 2px solid #d8b4fe;
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin: var(--space-xl) 0;
+}
+
+.safetyHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+}
+
+.safetyIcon {
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: white;
+  border-radius: var(--radius-full);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  svg {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+.safetyTitle {
+  font-size: var(--text-2xl);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: var(--text-xl);
+  }
+}
+
+.safetyFeatures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-xl);
+  margin-bottom: var(--space-2xl);
+}
+
+.safetyFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(168, 85, 247, 0.2);
+  transition: var(--transition-fast);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    background: rgba(255, 255, 255, 1);
+  }
+}
+
+.featureIcon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: white;
+  border-radius: var(--radius-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.featureContent {
+  flex: 1;
+}
+
+.featureTitle {
+  font-size: var(--text-base);
+  font-weight: 600;
+  margin-bottom: var(--space-xs);
+  color: var(--text-primary);
+}
+
+.featureDescription {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.safetyActions {
+  display: flex;
+  gap: var(--space-lg);
+  justify-content: center;
+  
+  @media (max-width: 640px) {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+}
+
+.safetyButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, #a855f7 0%, #9333ea 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+// Product Safety Badge
+.productSafetyBadge {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  padding: var(--space-md);
+  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  border: 1px solid #0ea5e9;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-sm);
+}
+
+.ageRange {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--primary-orange);
+  font-weight: 600;
+  
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.certified,
+.parentApproved {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  color: var(--success);
+  font-size: var(--text-xs);
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+.safetyRating {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.stars {
+  display: flex;
+  gap: 2px;
+}
+
+.starFilled {
+  color: #fbbf24;
+  width: 12px;
+  height: 12px;
+}
+
+.starEmpty {
+  color: #d1d5db;
+  width: 12px;
+  height: 12px;
+}
+
+.ratingText {
+  font-size: var(--text-xs);
+  color: var(--text-muted);
+}
+
+// Parent Control
+.parentControl {
+  background: linear-gradient(135deg, #fff7ed 0%, #fed7aa 100%);
+  border: 2px solid #fb923c;
+  border-radius: var(--radius-xl);
+  padding: var(--space-2xl);
+  margin: var(--space-xl) 0;
+}
+
+.controlHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--space-md);
+  margin-bottom: var(--space-xl);
+  
+  svg {
+    width: 24px;
+    height: 24px;
+    color: var(--primary-orange);
+  }
+  
+  h3 {
+    font-size: var(--text-xl);
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0;
+  }
+}
+
+.controlFeatures {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: var(--space-lg);
+  margin-bottom: var(--space-2xl);
+}
+
+.controlFeature {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-md);
+  padding: var(--space-lg);
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: var(--radius-lg);
+  border: 1px solid rgba(251, 146, 60, 0.3);
+  
+  svg {
+    width: 20px;
+    height: 20px;
+    color: var(--primary-orange);
+    margin-top: 2px;
+    flex-shrink: 0;
+  }
+  
+  h4 {
+    font-size: var(--text-base);
+    font-weight: 600;
+    margin-bottom: var(--space-xs);
+    color: var(--text-primary);
+  }
+  
+  p {
+    font-size: var(--text-sm);
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+.setupControlButton {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-md) var(--space-xl);
+  background: linear-gradient(135deg, var(--primary-orange) 0%, var(--primary-coral) 100%);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--text-base);
+  font-weight: 600;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  margin: 0 auto;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .trustBanner {
+    padding: var(--space-lg);
+    
+    &.horizontal .badgeContainer {
+      justify-content: flex-start;
+    }
+  }
+  
+  .kidsSafety,
+  .parentControl {
+    padding: var(--space-lg);
+  }
+  
+  .safetyFeatures,
+  .controlFeatures {
+    grid-template-columns: 1fr;
+    gap: var(--space-md);
+  }
+  
+  .safetyActions {
+    flex-direction: column;
+    gap: var(--space-md);
+  }
+  
+  .trustBadge {
+    &.lg {
+      padding: var(--space-sm) var(--space-md);
+      font-size: var(--text-sm);
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .bannerHeader,
+  .safetyHeader {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .badgeContainer {
+    justify-content: center;
+  }
+  
+  .trustBadge {
+    &.detailed {
+      padding: var(--space-sm) var(--space-md);
+    }
+  }
+}
+
+// Animation for badges
+@keyframes badgePulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.trustBadge:hover {
+  animation: badgePulse 0.6s ease-in-out;
+}
+
+// High contrast mode
+@media (prefers-contrast: high) {
+  .trustBadge {
+    border: 2px solid currentColor;
+  }
+  
+  .trustBanner,
+  .kidsSafety,
+  .parentControl {
+    border: 3px solid currentColor;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .trustBadge:hover {
+    animation: none;
+    transform: none;
+  }
+  
+  .safetyFeature:hover {
+    transform: none;
+  }
+}

@@ -1,0 +1,482 @@
+// Enhanced Product Gallery - Etsy Inspired
+.galleryContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-lg);
+  width: 100%;
+  max-width: 600px;
+  
+  @media (min-width: 768px) {
+    max-width: 700px;
+  }
+}
+
+// Main Gallery
+.mainGallery {
+  width: 100%;
+  aspect-ratio: 1;
+  position: relative;
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+  background: var(--background-secondary);
+}
+
+.imageContainer {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  cursor: zoom-in;
+  
+  &:hover {
+    .navButton {
+      opacity: 1;
+      transform: translateY(-50%) scale(1);
+    }
+    
+    .actionButtons {
+      opacity: 1;
+    }
+    
+    .zoomHint {
+      opacity: 1;
+    }
+  }
+}
+
+.mainImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: var(--transition-normal);
+  
+  &:hover {
+    transform: scale(1.02);
+  }
+}
+
+// Trust Badges Overlay
+.badgesOverlay {
+  position: absolute;
+  top: var(--space-md);
+  left: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  z-index: 3;
+}
+
+// Action Buttons
+.actionButtons {
+  position: absolute;
+  top: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-sm);
+  opacity: 0;
+  transition: var(--transition-fast);
+  z-index: 3;
+}
+
+.actionBtn {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: var(--background-primary);
+    transform: scale(1.1);
+    box-shadow: var(--shadow-md);
+  }
+  
+  &.wishlisted {
+    background: var(--error);
+    color: white;
+    border-color: var(--error);
+  }
+  
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+// Navigation Buttons
+.navButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%) scale(0.8);
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: var(--transition-fast);
+  z-index: 4;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: var(--background-primary);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  svg {
+    width: 20px;
+    height: 20px;
+  }
+}
+
+.prevButton {
+  left: var(--space-md);
+}
+
+.nextButton {
+  right: var(--space-md);
+}
+
+// Image Counter
+.imageCounter {
+  position: absolute;
+  bottom: var(--space-md);
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: var(--space-xs) var(--space-md);
+  border-radius: var(--radius-full);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  z-index: 3;
+  backdrop-filter: blur(10px);
+}
+
+// Zoom Hint
+.zoomHint {
+  position: absolute;
+  bottom: var(--space-md);
+  right: var(--space-md);
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--text-muted);
+  padding: var(--space-xs) var(--space-sm);
+  border-radius: var(--radius-md);
+  font-size: var(--text-xs);
+  opacity: 0;
+  transition: var(--transition-fast);
+  z-index: 3;
+  backdrop-filter: blur(10px);
+  
+  svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+// Thumbnail Gallery
+.thumbnailGallery {
+  width: 100%;
+}
+
+.thumbnailContainer {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  padding: var(--space-xs) 0;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-medium) transparent;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 2px;
+  }
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  width: 80px;
+  height: 80px;
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  background: var(--background-tertiary);
+  
+  &:hover {
+    border-color: var(--border-medium);
+    transform: scale(1.05);
+  }
+  
+  &.active {
+    border-color: var(--primary-orange);
+    box-shadow: 0 0 0 1px var(--primary-orange);
+  }
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+// Modal Styles
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: var(--z-modal);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-lg);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.modalContent {
+  width: 100%;
+  height: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--background-primary);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+  animation: scaleIn 0.3s ease-out;
+  
+  &.fullscreen {
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+  }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  background: var(--background-secondary);
+  border-bottom: 1px solid var(--border-light);
+}
+
+.modalTitle {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+  
+  h3 {
+    font-size: var(--text-lg);
+    font-weight: 600;
+    margin: 0;
+    color: var(--text-primary);
+  }
+  
+  .price {
+    font-size: var(--text-base);
+    font-weight: 700;
+    color: var(--primary-orange);
+  }
+}
+
+.modalControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  
+  button {
+    width: 36px;
+    height: 36px;
+    border-radius: var(--radius-md);
+    background: var(--background-primary);
+    border: 1px solid var(--border-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: var(--transition-fast);
+    
+    &:hover {
+      background: var(--background-tertiary);
+      border-color: var(--border-medium);
+    }
+    
+    svg {
+      width: 18px;
+      height: 18px;
+    }
+  }
+}
+
+.zoomLevel {
+  font-size: var(--text-sm);
+  font-weight: 500;
+  color: var(--text-secondary);
+  min-width: 50px;
+  text-align: center;
+}
+
+.modalImageContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--background-tertiary);
+  overflow: hidden;
+}
+
+.modalImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+  user-select: none;
+}
+
+.modalNavButton {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid var(--border-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  z-index: 2;
+  backdrop-filter: blur(10px);
+  
+  &:hover {
+    background: var(--background-primary);
+    transform: translateY(-50%) scale(1.1);
+    box-shadow: var(--shadow-lg);
+  }
+  
+  svg {
+    width: 24px;
+    height: 24px;
+  }
+}
+
+.modalPrevButton {
+  left: var(--space-lg);
+}
+
+.modalNextButton {
+  right: var(--space-lg);
+}
+
+.modalFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-lg);
+  background: var(--background-secondary);
+  border-top: 1px solid var(--border-light);
+}
+
+.modalThumbnails {
+  display: flex;
+  gap: var(--space-sm);
+  overflow-x: auto;
+  max-width: 60%;
+  
+  &::-webkit-scrollbar {
+    height: 4px;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 2px;
+  }
+}
+
+.modalThumbnail {
+  flex-shrink: 0;
+  width: 50px;
+  height: 50px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  
+  &:hover {
+    border-color: var(--border-medium);
+  }
+  
+  &.active {
+    border-color: var(--primary-orange);
+  }
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+.modalActions {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-xs);
+}
+
+.imageInfo {
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.safetyRating {
+  font-size: var(--text-sm);
+  color: var(--warning);
+  font-weight: 500;
+}
+
+// Responsive Design
+@media (max-width: 768px) {
+  .galleryContainer {
+    gap: var(--space-md);
+  }
+  
+  .actionButtons {
+    opacity: 1; // Always visible on mobile
+    
+    .actionBtn {
+      width: 36px;
+      height: 36px;\n    }\n  }\n  \n  .navButton {\n    opacity: 1; // Always visible on mobile\n    width: 40px;\n    height: 40px;\n  }\n  \n  .thumbnailContainer {\n    gap: var(--space-xs);\n  }\n  \n  .thumbnail {\n    width: 60px;\n    height: 60px;\n  }\n  \n  .modalOverlay {\n    padding: 0;\n  }\n  \n  .modalContent {\n    width: 100vw;\n    height: 100vh;\n    max-width: 100vw;\n    max-height: 100vh;\n    border-radius: 0;\n  }\n  \n  .modalHeader {\n    padding: var(--space-md);\n  }\n  \n  .modalTitle h3 {\n    font-size: var(--text-base);\n  }\n  \n  .modalControls {\n    gap: var(--space-xs);\n    \n    button {\n      width: 32px;\n      height: 32px;\n    }\n  }\n  \n  .modalNavButton {\n    width: 44px;\n    height: 44px;\n  }\n  \n  .modalFooter {\n    padding: var(--space-md);\n    flex-direction: column;\n    gap: var(--space-md);\n  }\n  \n  .modalThumbnails {\n    max-width: 100%;\n    order: 2;\n  }\n  \n  .modalActions {\n    order: 1;\n    align-items: center;\n  }\n}\n\n@media (max-width: 480px) {\n  .badgesOverlay {\n    top: var(--space-sm);\n    left: var(--space-sm);\n    gap: var(--space-xs);\n  }\n  \n  .actionButtons {\n    top: var(--space-sm);\n    right: var(--space-sm);\n    gap: var(--space-xs);\n  }\n  \n  .imageCounter {\n    bottom: var(--space-sm);\n    font-size: var(--text-xs);\n  }\n  \n  .zoomHint {\n    bottom: var(--space-sm);\n    right: var(--space-sm);\n  }\n  \n  .thumbnail {\n    width: 50px;\n    height: 50px;\n  }\n}\n\n// Animations\n@keyframes fadeIn {\n  from {\n    opacity: 0;\n  }\n  to {\n    opacity: 1;\n  }\n}\n\n@keyframes scaleIn {\n  from {\n    opacity: 0;\n    transform: scale(0.9);\n  }\n  to {\n    opacity: 1;\n    transform: scale(1);\n  }\n}\n\n// High contrast mode\n@media (prefers-contrast: high) {\n  .modalOverlay {\n    background: rgba(0, 0, 0, 1);\n  }\n  \n  .actionBtn,\n  .navButton,\n  .modalNavButton {\n    border: 2px solid currentColor;\n  }\n}\n\n// Reduced motion\n@media (prefers-reduced-motion: reduce) {\n  .mainImage:hover {\n    transform: none;\n  }\n  \n  .modalOverlay,\n  .modalContent {\n    animation: none;\n  }\n  \n  .modalImage {\n    transition: none;\n  }\n}\n\n// Print styles\n@media print {\n  .actionButtons,\n  .navButton,\n  .zoomHint {\n    display: none;\n  }\n  \n  .modalOverlay {\n    position: static;\n    background: transparent;\n  }\n  \n  .modalContent {\n    max-width: 100%;\n    max-height: 100%;\n    box-shadow: none;\n  }\n}\n\n// Touch device optimizations\n@media (hover: none) and (pointer: coarse) {\n  .actionButtons,\n  .navButton {\n    opacity: 1;\n  }\n  \n  .thumbnail:hover,\n  .actionBtn:hover,\n  .navButton:hover {\n    transform: none;\n  }\n}\n\n// Dark mode support\n@media (prefers-color-scheme: dark) {\n  .modalHeader,\n  .modalFooter {\n    background: #1a1a1a;\n    border-color: #333;\n  }\n  \n  .modalImageContainer {\n    background: #000;\n  }\n  \n  .modalContent {\n    background: #1a1a1a;\n  }\n}"

@@ -1,0 +1,357 @@
+/* FAQ Page Styles */
+.faqPage {
+  min-height: 100vh;
+  background: #ffffff;
+}
+
+/* Page Header */
+.pageHeader {
+  background: linear-gradient(135deg, #ff6b35 0%, #f7931e 100%);
+  color: white;
+  padding: 4rem 0 3rem;
+  margin-bottom: 3rem;
+
+  .headerContent {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .title {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+
+  .subtitle {
+    font-size: 1.2rem;
+    opacity: 0.9;
+    line-height: 1.6;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+}
+
+/* Categories Filter */
+.categoriesFilter {
+  margin-bottom: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 1px solid #e1e5e9;
+
+  .filterHeader {
+    margin-bottom: 1.5rem;
+  }
+
+  .filterTitle {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+  }
+
+  .categoryButtons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  .categoryButton {
+    padding: 0.75rem 1.5rem;
+    border: 2px solid #e1e5e9;
+    background: white;
+    color: #4a5568;
+    border-radius: 25px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.9rem;
+
+    &:hover {
+      border-color: #ff6b35;
+      color: #ff6b35;
+      transform: translateY(-2px);
+    }
+
+    &.active {
+      background: #ff6b35;
+      border-color: #ff6b35;
+      color: white;
+      box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
+    }
+  }
+}
+
+/* FAQ Section */
+.faqSection {
+  margin-bottom: 4rem;
+}
+
+.faqComponent {
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+/* Support Section */
+.supportSection {
+  margin: 4rem 0;
+  padding: 3rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 20px;
+
+  .supportCard {
+    max-width: 800px;
+    margin: 0 auto;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .supportTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    margin-bottom: 1rem;
+  }
+
+  .supportText {
+    font-size: 1.1rem;
+    color: #666;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+  }
+
+  .contactOptions {
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+  }
+
+  .contactButton {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    &.phone {
+      background: #10b981;
+      color: white;
+
+      &:hover {
+        background: #059669;
+      }
+    }
+
+    &.telegram {
+      background: #0088cc;
+      color: white;
+
+      &:hover {
+        background: #006fa5;
+      }
+    }
+
+    &.email {
+      background: #6366f1;
+      color: white;
+
+      &:hover {
+        background: #4f46e5;
+      }
+    }
+  }
+
+  .workingHours {
+    color: #666;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+}
+
+/* Popular Topics */
+.popularTopics {
+  margin: 4rem 0;
+
+  .topicsTitle {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1a1a1a;
+    text-align: center;
+    margin-bottom: 2rem;
+  }
+
+  .topicsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+  }
+
+  .topicCard {
+    background: white;
+    padding: 2rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+    border: 1px solid #f1f5f9;
+
+    &:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.1);
+      border-color: #ff6b35;
+    }
+
+    .topicTitle {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 0.75rem;
+    }
+
+    .topicDescription {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+
+    .topicButton {
+      background: none;
+      border: none;
+      color: #ff6b35;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: #e55a2b;
+      }
+    }
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .pageHeader {
+    padding: 2rem 0 1.5rem;
+    margin-bottom: 2rem;
+
+    .title {
+      font-size: 2rem;
+    }
+
+    .subtitle {
+      font-size: 1rem;
+    }
+  }
+
+  .categoriesFilter {
+    .categoryButtons {
+      gap: 0.75rem;
+    }
+
+    .categoryButton {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+  }
+
+  .supportSection {
+    margin: 2rem 0;
+    padding: 2rem 0;
+
+    .supportCard {
+      padding: 1rem;
+    }
+
+    .supportTitle {
+      font-size: 1.5rem;
+    }
+
+    .contactOptions {
+      flex-direction: column;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .contactButton {
+      padding: 0.75rem 1.25rem;
+      width: 100%;
+      max-width: 280px;
+      justify-content: center;
+    }
+  }
+
+  .popularTopics {
+    .topicsTitle {
+      font-size: 1.5rem;
+    }
+
+    .topicsGrid {
+      grid-template-columns: 1fr;
+      gap: 1.5rem;
+    }
+
+    .topicCard {
+      padding: 1.5rem;
+
+      .topicTitle {
+        font-size: 1.1rem;
+      }
+    }
+  }
+}
+
+@media (max-width: 480px) {
+  .pageHeader {
+    .title {
+      font-size: 1.5rem;
+    }
+  }
+
+  .categoriesFilter {
+    .categoryButtons {
+      justify-content: center;
+    }
+
+    .categoryButton {
+      flex: 1;
+      min-width: 120px;
+      max-width: 160px;
+    }
+  }
+
+  .supportSection {
+    .supportCard {
+      padding: 0.5rem;
+    }
+
+    .supportTitle {
+      font-size: 1.25rem;
+    }
+
+    .supportText {
+      font-size: 1rem;
+    }
+  }
+
+  .popularTopics {
+    .topicCard {
+      padding: 1.25rem;
+    }
+  }
+}
