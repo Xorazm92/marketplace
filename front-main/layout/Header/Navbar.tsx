@@ -17,7 +17,7 @@ import type { RootState } from "../../store/store";
 import { getLocalStorage } from "../../utils/local-storege";
 import { DropDown } from "./components";
 import { getCart } from "../../endpoints/cart";
-import { Shield } from 'lucide-react';
+import { ShieldCheck } from 'lucide-react';
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -328,7 +328,7 @@ const Navbar = () => {
                       Sevimlilar
                     </Link>
                     <Link href="/child-safety" className={style.mobileActionLink}>
-                      <Shield size={20} />
+                      <ShieldCheck size={20} />
                       Xavfsizlik
                     </Link>
                                          <Link href="/cart" className={style.mobileActionLink}>
