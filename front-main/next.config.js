@@ -1,4 +1,3 @@
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -62,13 +61,13 @@ const nextConfig = {
 
   eslint: {
     dirs: [
-      'pages', 
-      'components', 
-      'layout', 
-      'store', 
-      'hooks', 
-      'types', 
-      'utils', 
+      'pages',
+      'components',
+      'layout',
+      'store',
+      'hooks',
+      'types',
+      'utils',
       'app',
       'endpoints'
     ],
@@ -86,37 +85,8 @@ const nextConfig = {
   // API rewrites
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000';
-    
-    // Validate backend URL
-    if (!backendUrl || typeof backendUrl !== 'string') {
-      console.warn('Backend URL is not properly configured, using default');
-      const defaultUrl = 'http://0.0.0.0:4000';
-      return [
-        {
-          source: '/api/auth/:path*',
-          destination: '/api/auth/:path*',
-        },
-        {
-          source: '/api/:path*',
-          destination: `${defaultUrl}/api/:path*`,
-        },
-        {
-          source: '/uploads/:path*',
-          destination: `${defaultUrl}/uploads/:path*`,
-        },
-        {
-          source: '/graphql',
-          destination: `${defaultUrl}/graphql`,
-        },
-        {
-          source: '/health',
-          destination: `${defaultUrl}/health`,
-        }
-      ];
-    }
-    
+
     return [
-      // Keep NextAuth routes handled by Next.js
       {
         source: '/api/auth/:path*',
         destination: '/api/auth/:path*',
@@ -140,12 +110,12 @@ const nextConfig = {
     ];
   },
 
+  // Development konfiguratsiyasi
   ...(process.env.NODE_ENV === 'development' && {
     onDemandEntries: {
       maxInactiveAge: 25 * 1000,
       pagesBufferLength: 2,
     },
-    reactStrictMode: false,
   }),
 
   // Webpack konfiguratsiyasi
@@ -156,9 +126,19 @@ const nextConfig = {
       use: ['@svgr/webpack'],
     });
 
-    // Development da cache ni o'chirish
+    // Resolve aliases
+    config.resolve.alias = {
+      ...config.resolve.alias,
+    };
+
+    // Development da cache ni disable qilish
     if (dev) {
       config.cache = false;
+      config.watchOptions = {
+        ...config.watchOptions,
+        poll: 1000,
+        aggregateTimeout: 300,
+      };
     }
 
     return config;
