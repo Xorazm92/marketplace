@@ -1,13 +1,11 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
   poweredByHeader: false,
   compress: true,
-
-  experimental: {
-    optimizeCss: false,
-    scrollRestoration: true,
-  },
+  trailingSlash: false,
+  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
 
   images: {
     remotePatterns: [
@@ -54,10 +52,6 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
 
-  output: 'standalone',
-  trailingSlash: false,
-  pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
-
   // API rewrites
   async rewrites() {
     const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://0.0.0.0:4000';
@@ -87,19 +81,32 @@ const nextConfig = {
   },
 
   // Webpack konfiguratsiyasi
-  webpack: (config, { dev }) => {
+  webpack: (config, { dev, isServer }) => {
     // SVG support
     config.module.rules.push({
       test: /\.svg$/,
       use: ['@svgr/webpack'],
     });
 
+    // Resolve configuration
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      path: false,
+      crypto: false,
+    };
+
     // Development optimization
-    if (dev) {
+    if (dev && !isServer) {
       config.watchOptions = {
         poll: 1000,
         aggregateTimeout: 300,
-        ignored: ['**/node_modules/**', '**/.git/**', '**/.next/**'],
+        ignored: [
+          '**/node_modules/**',
+          '**/.git/**',
+          '**/.next/**',
+          '**/pages.__isolate/**'
+        ],
       };
     }
 

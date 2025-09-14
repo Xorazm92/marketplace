@@ -6,7 +6,7 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Frontend Clean Start"
+runButton = "Clean Frontend Start"
 
 [[workflows.workflow]]
 name = "Project"
@@ -55,6 +55,15 @@ mode = "sequential"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd front-main && rm -rf .next && npm run dev"
+
+[[workflows.workflow]]
+name = "Clean Frontend Start"
+author = 47594518
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main && rm -rf .next && npm install && npm run dev"
 
 [[ports]]
 localPort = 5000
