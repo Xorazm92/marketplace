@@ -59,6 +59,16 @@ const nextConfig = {
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   },
 
+  // Additional safety measures
+  experimental: {
+    webVitalsAttribution: ['CLS', 'LCP'],
+    optimizeCss: false,
+    scrollRestoration: true,
+    // Disable problematic features that might cause path issues
+    turbo: undefined,
+    serverComponentsExternalPackages: undefined,
+  },
+
   eslint: {
     dirs: [
       'pages', 
@@ -84,7 +94,35 @@ const nextConfig = {
 
   // API rewrites
   async rewrites() {
-    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://0.0.0.0:4000';
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000';
+    
+    // Validate backend URL
+    if (!backendUrl || typeof backendUrl !== 'string') {
+      console.warn('Backend URL is not properly configured, using default');
+      const defaultUrl = 'http://0.0.0.0:4000';
+      return [
+        {
+          source: '/api/auth/:path*',
+          destination: '/api/auth/:path*',
+        },
+        {
+          source: '/api/:path*',
+          destination: `${defaultUrl}/api/:path*`,
+        },
+        {
+          source: '/uploads/:path*',
+          destination: `${defaultUrl}/uploads/:path*`,
+        },
+        {
+          source: '/graphql',
+          destination: `${defaultUrl}/graphql`,
+        },
+        {
+          source: '/health',
+          destination: `${defaultUrl}/health`,
+        }
+      ];
+    }
     
     return [
       // Keep NextAuth routes handled by Next.js
