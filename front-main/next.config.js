@@ -6,6 +6,11 @@ const nextConfig = {
   compress: true,
   trailingSlash: false,
   pageExtensions: ['tsx', 'ts', 'jsx', 'js'],
+  
+  experimental: {
+    appDir: true,
+    serverComponentsExternalPackages: [],
+  },
 
   images: {
     remotePatterns: [

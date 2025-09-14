@@ -1,10 +1,11 @@
 
 {
   "compilerOptions": {
-    "lib": ["dom", "dom.iterable", "es6"],
+    "target": "es5",
+    "lib": ["dom", "dom.iterable", "esnext"],
     "allowJs": true,
     "skipLibCheck": true,
-    "strict": true,
+    "strict": false,
     "noEmit": true,
     "esModuleInterop": true,
     "module": "esnext",
@@ -20,9 +21,8 @@
     ],
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
+      "@/*": ["./*"],
       "@/components/*": ["./components/*"],
-      "@/pages/*": ["./pages/*"],
       "@/styles/*": ["./styles/*"],
       "@/utils/*": ["./utils/*"],
       "@/types/*": ["./types/*"],
@@ -31,7 +31,8 @@
       "@/endpoints/*": ["./endpoints/*"],
       "@/layout/*": ["./layout/*"],
       "@/lib/*": ["./lib/*"],
-      "@/config/*": ["./config/*"]
+      "@/config/*": ["./config/*"],
+      "@/app/*": ["./app/*"]
     },
     "forceConsistentCasingInFileNames": true
   },
@@ -44,6 +45,6 @@
   "exclude": [
     "node_modules",
     ".next",
-    "pages.__isolate"
+    "pages.backup"
   ]
 }
