@@ -1,14 +1,9 @@
+
 import "@/styles/globals.css";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ToastContainer } from "react-toastify";
-import { ReduxProvider } from "../store/provider";
-import { ApolloProvider } from "@apollo/client";
-import { client } from "@/apolloClient";
-import { useState } from "react";
-import GoogleAnalytics from "@/components/common/GoogleAnalytics";
-import PerformanceMonitor from "@/components/common/PerformanceMonitor";
-import SEOMonitor from "@/components/common/SEOMonitor";
+import { ReduxProvider } from "@/store/provider";
 import { SessionProvider } from "@/components/providers/SessionProvider";
+import "react-toastify/dist/ReactToastify.css";
 
 export const metadata = {
   title: "Inbola - O'yinchiqlar va Bolalar Mahsulotlari",
@@ -21,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="uz">
       <body>
         <SessionProvider>
           <ReduxProvider>
