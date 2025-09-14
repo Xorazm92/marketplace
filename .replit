@@ -6,7 +6,7 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "Project"
+runButton = "Frontend Fixed"
 
 [[workflows.workflow]]
 name = "Project"
@@ -28,6 +28,24 @@ waitForPort = 5000
 
 [workflows.workflow.metadata]
 outputType = "webview"
+
+[[workflows.workflow]]
+name = "Start Backend"
+author = 47594518
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && npm install && npm run start:dev"
+
+[[workflows.workflow]]
+name = "Frontend Fixed"
+author = 47594518
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd front-main && npm install && npm run dev"
 
 [[ports]]
 localPort = 5000

@@ -1,3 +1,4 @@
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: false,
@@ -10,8 +11,6 @@ const nextConfig = {
     optimizeCss: false,
     scrollRestoration: true,
   },
-
-  // serverExternalPackages: ['@apollo/client'], // Not available in Next.js 14
 
   images: {
     remotePatterns: [
@@ -53,9 +52,9 @@ const nextConfig = {
   },
 
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000',
-    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://0.0.0.0:4000',
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL || 'http://0.0.0.0:4000',
+    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://0.0.0.0:5000',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'INBOLA Kids Marketplace',
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   },
@@ -83,6 +82,35 @@ const nextConfig = {
     removeConsole: process.env.NODE_ENV === 'production',
   },
 
+  // API rewrites
+  async rewrites() {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://0.0.0.0:4000';
+    
+    return [
+      // Keep NextAuth routes handled by Next.js
+      {
+        source: '/api/auth/:path*',
+        destination: '/api/auth/:path*',
+      },
+      {
+        source: '/api/:path*',
+        destination: `${backendUrl}/api/:path*`,
+      },
+      {
+        source: '/uploads/:path*',
+        destination: `${backendUrl}/uploads/:path*`,
+      },
+      {
+        source: '/graphql',
+        destination: `${backendUrl}/graphql`,
+      },
+      {
+        source: '/health',
+        destination: `${backendUrl}/health`,
+      }
+    ];
+  },
+
   ...(process.env.NODE_ENV === 'development' && {
     onDemandEntries: {
       maxInactiveAge: 25 * 1000,
@@ -90,6 +118,22 @@ const nextConfig = {
     },
     reactStrictMode: false,
   }),
+
+  // Webpack konfiguratsiyasi
+  webpack: (config, { dev, isServer }) => {
+    // SVG support
+    config.module.rules.push({
+      test: /\.svg$/,
+      use: ['@svgr/webpack'],
+    });
+
+    // Development da cache ni o'chirish
+    if (dev) {
+      config.cache = false;
+    }
+
+    return config;
+  },
 };
 
 module.exports = nextConfig;
