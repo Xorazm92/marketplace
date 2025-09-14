@@ -10,6 +10,7 @@ const nextConfig = {
     webVitalsAttribution: ['CLS', 'LCP'],
     optimizeCss: false,
     scrollRestoration: true,
+    serverComponentsExternalPackages: [],
   },
 
   images: {
@@ -57,16 +58,6 @@ const nextConfig = {
     NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://0.0.0.0:5000',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'INBOLA Kids Marketplace',
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
-  },
-
-  // Additional safety measures
-  experimental: {
-    webVitalsAttribution: ['CLS', 'LCP'],
-    optimizeCss: false,
-    scrollRestoration: true,
-    // Disable problematic features that might cause path issues
-    turbo: undefined,
-    serverComponentsExternalPackages: undefined,
   },
 
   eslint: {
