@@ -5,9 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/apolloClient";
 import { useState } from "react";
-import MainLayout from "@/layout";
-
-// Import home page component - App Router uchun to'g'ri yo'l
+import AppLayout from "@/components/layout/AppLayout";
 import HomePage from "./home";
 
 export default function Home() {
@@ -23,9 +21,9 @@ export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={client}>
-        <MainLayout>
+        <AppLayout>
           <HomePage />
-        </MainLayout>
+        </AppLayout>
       </ApolloProvider>
     </QueryClientProvider>
   );

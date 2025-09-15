@@ -7,7 +7,7 @@ import LanguageSelector from "./components/LanguageSelector/LanguageSelector";
 import { IoExitOutline } from "react-icons/io5";
 import { RiDeleteBin5Line } from "react-icons/ri";
 import { toast } from "react-toastify";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { RootState } from "../../store/store";
 import { jwtDecode } from "jwt-decode";
@@ -110,22 +110,6 @@ const Settings: React.FC = () => {
 };
 
 export default Settings;
-
-// import React, { useEffect, useState } from 'react';
-// import styles from './Settings.module.scss';
-// import { GrLanguage } from 'react-icons/gr';
-// import { IoExitOutline } from 'react-icons/io5';
-// import { RiCheckboxBlankCircleFill, RiDeleteBin5Line } from 'react-icons/ri';
-// import { FaChevronDown, FaChevronUp } from 'react-icons/fa';
-// import { toast } from 'react-toastify';
-
-// const LANGUAGES = ['Русский', 'O‘zbek', 'English'];
-
-// const Settings: React.FC = () => {
-//   const [phoneOpen, setPhoneOpen] = useState(false);
-//   const [emailOpen, setEmailOpen] = useState(false);
-//   const [addressOpen, setAddressOpen] = useState(false);
-//   const [languageOpen, setLanguageOpen] = useState(false);
 
 //   const [phones, setPhones] = useState<string[]>([]);
 //   const [emails, setEmails] = useState<string[]>([]);

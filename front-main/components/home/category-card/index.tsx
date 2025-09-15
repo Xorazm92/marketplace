@@ -1,7 +1,7 @@
 import React from "react";
 import style from "./category-card.module.scss";
 import Image from "next/image";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 const CategoryCard = (props: any) => {
   const category = props.category || {};
@@ -17,14 +17,13 @@ const CategoryCard = (props: any) => {
     (category.logo || 'default-logo.png') :
     'default-logo.png';
 
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
   const getProductByCategory = (name: string) => {
-    const newQuery = router.query;
-    newQuery.brand = name;
-
-    router.push({
-      pathname: router.pathname,
-      query: newQuery,
-    });
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('brand', name);
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   // Resolve logo URL safely

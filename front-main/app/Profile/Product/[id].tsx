@@ -9,7 +9,8 @@ import {
   RightNavIcon,
   TopIcon,
 } from "@/public/icons/profile";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { useProductById } from "@/hooks/products.use";
 import { useFavorites } from "@/hooks/useFavorites";
@@ -33,7 +34,8 @@ interface ProductData {
 
 const Product = () => {
   const router = useRouter();
-  const id = router.query.id;
+  const params = useParams();
+  const id = params.id;
   const likedProducts = JSON.parse(localStorage.getItem("favorites") || "[]");
   const { data: productData2, isLoading } = useProductById(Number(id));
 

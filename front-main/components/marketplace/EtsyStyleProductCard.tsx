@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-// import { addToCart } from '../../store/slices/cartSlice';
-// import { addToWishlist, removeFromWishlist } from '../../store/slices/wishlistSlice';
 import { toast } from 'react-toastify';
 import styles from './EtsyStyleProductCard.module.scss';
 

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import style from "./input.module.scss";
 import { FilterIcon, SearchIconInput } from "../../../public/icons/profile";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 
 interface SearchInputProps {
   onFilterClick: () => void;
@@ -9,8 +9,10 @@ interface SearchInputProps {
 
 const SearchInput: React.FC<SearchInputProps> = ({ onFilterClick }) => {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
   const [query, setQuery] = useState(
-    () => router.query.search?.toString() || ""
+    () => searchParams.get('search') || ""
   );
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value ?? "";
@@ -34,20 +36,17 @@ const SearchInput: React.FC<SearchInputProps> = ({ onFilterClick }) => {
 
   const doSearch = (searchTerm: string) => {
     const trimmed = searchTerm.trim();
-    const newQuery = { ...router.query };
+    const params = new URLSearchParams(searchParams.toString());
 
     if (trimmed) {
-      newQuery.search = trimmed;
+      params.set('search', trimmed);
     } else {
-      delete newQuery.search;
+      params.delete('search');
     }
 
-    delete newQuery.page;
+    params.delete('page');
 
-    router.push({
-      pathname: router.pathname,
-      query: newQuery,
-    });
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   return (

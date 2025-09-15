@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { FiSearch, FiUser, FiShoppingCart, FiHeart, FiMenu, FiX, FiGift, FiStar } from 'react-icons/fi';
 import { BiCategory } from 'react-icons/bi';
 import { MdChildCare, MdFavorite } from 'react-icons/md';

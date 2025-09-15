@@ -10,7 +10,7 @@ import { useGetMe } from "@/hooks/auth";
 import Settings from "../Settings";
 import { Product } from "../../types";
 import Chat from "../Chat";
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams } from "next/navigation";
 
 type TabType = "E'lonlar" | "Xabarlar" | "Sevimlilar" | "Sozlamalar";
 
@@ -24,11 +24,9 @@ const Profile = () => {
   });
 
   const router = useRouter();
+  const searchParams = useSearchParams();
   const handleClick = (tab: TabType) => {
-    router.push({
-      pathname: '/Profile',
-      query: { tab }
-    });
+    router.push(`/Profile?tab=${tab}`);
   };
 
   const { user } = useSelector((state: RootState) => state.auth);
@@ -103,7 +101,7 @@ const Profile = () => {
           <div
             onClick={() => handleClick(tab as TabType)}
             key={tab}
-            className={router.query.tab === tab ? styles.active : styles.tab}
+            className={searchParams.get('tab') === tab ? styles.active : styles.tab}
           >
             {tab}
           </div>
@@ -112,7 +110,7 @@ const Profile = () => {
 
       <div className={styles.hrLine} />
 
-      {router.query.tab !== "Xabarlar" && router.query.tab !== "Sozlamalar" && (
+      {searchParams.get('tab') !== "Xabarlar" && searchParams.get('tab') !== "Sozlamalar" && (
         <div className={styles.search}>
           <div className={styles.searchInput}>
             <SearchIcon />
@@ -122,7 +120,7 @@ const Profile = () => {
         </div>
       )}
 
-      {router.query.tab === "Sevimlilar" ? (
+      {searchParams.get('tab') === "Sevimlilar" ? (
         favoriteProducts.length === 0 ? (
           <div className={styles.emptyState}>
             <div className={styles.emptyIcon}>
@@ -143,9 +141,9 @@ const Profile = () => {
             ))}
           </div>
         )
-      ) : router.query.tab === "Sozlamalar" ? (
+      ) : searchParams.get('tab') === "Sozlamalar" ? (
         <Settings />
-      ) : router.query.tab === "Xabarlar" ? (
+      ) : searchParams.get('tab') === "Xabarlar" ? (
         <Chat />
       ) : (
         <div className={styles.cardGrid}>

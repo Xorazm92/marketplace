@@ -4,17 +4,17 @@ import React from 'react';
 import AdminLayout from '../../../components/admin/AdminLayout';
 import { withAdminAuth } from '../../../hooks/useAdminAuth';
 
-function AdminUsersPage() {
+function AdminOrdersPage() {
   return (
-    <AdminLayout activeTab="users">
+    <AdminLayout activeTab="orders">
       <div className="p-6">
-        <h1 className="text-2xl font-bold mb-4">Foydalanuvchilar boshqaruvi</h1>
+        <h1 className="text-2xl font-bold mb-4">Buyurtmalar boshqaruvi</h1>
         <div className="bg-white rounded-lg shadow p-6">
-          <p>Foydalanuvchilar ro'yxati va boshqaruv paneli</p>
+          <p>Buyurtmalar ro'yxati va boshqaruv paneli</p>
         </div>
       </div>
     </AdminLayout>
   );
 }
 
-export default withAdminAuth(AdminUsersPage);
+export default withAdminAuth(AdminOrdersPage);

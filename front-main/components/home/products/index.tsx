@@ -1,4 +1,4 @@
-import { useRouter } from "next/router";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import style from "./product.module.scss";
 import { useProducts } from "../../../hooks/products.use";
@@ -13,36 +13,33 @@ const ProductSide = () => {
 
   const { toggleFavorite, isFavorite } = useFavorites();
 
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+  
   useEffect(() => {
-    const query = router.query;
-    const pageFromUrl = Number(query.page) || 1;
+    const pageFromUrl = Number(searchParams.get('page')) || 1;
 
     const filterParams: Record<string, string> = {};
 
-    if (query.search) filterParams.search = query.search as string;
-    if (query.brand) filterParams.brand = query.brand as string;
-    if (query.color) filterParams.color = query.color as string;
-    if (query.memory) filterParams.memory = query.memory as string;
-    if (query.region) filterParams.region = query.region as string;
-    if (query.othermodel) filterParams.othermodel = query.othermodel as string;
-    if (query.condition) filterParams.condition = query.condition as string;
-    if (query["is-top"]) filterParams["is-top"] = query["is-top"] as string;
+    if (searchParams.get('search')) filterParams.search = searchParams.get('search')!;
+    if (searchParams.get('brand')) filterParams.brand = searchParams.get('brand')!;
+    if (searchParams.get('color')) filterParams.color = searchParams.get('color')!;
+    if (searchParams.get('memory')) filterParams.memory = searchParams.get('memory')!;
+    if (searchParams.get('region')) filterParams.region = searchParams.get('region')!;
+    if (searchParams.get('othermodel')) filterParams.othermodel = searchParams.get('othermodel')!;
+    if (searchParams.get('condition')) filterParams.condition = searchParams.get('condition')!;
+    if (searchParams.get('is-top')) filterParams['is-top'] = searchParams.get('is-top')!;
 
     setPage(pageFromUrl);
     setFilters(filterParams);
-  }, [router.query]);
+  }, [searchParams]);
 
   const { data: products, isLoading } = useProducts(page, filters);
 
   const handlePageChange = (newPage: number) => {
-    router.push(
-      {
-        pathname: router.pathname,
-        query: { ...router.query, page: newPage },
-      },
-      undefined,
-      { shallow: true }
-    );
+    const params = new URLSearchParams(searchParams.toString());
+    params.set('page', newPage.toString());
+    router.push(`${pathname}?${params.toString()}`);
   };
 
   if (isLoading) {

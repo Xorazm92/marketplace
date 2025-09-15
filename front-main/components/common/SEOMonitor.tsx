@@ -1,8 +1,8 @@
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 const SEOMonitor = () => {
-  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
@@ -12,7 +12,7 @@ const SEOMonitor = () => {
           window.gtag('event', 'page_view', {
             page_title: document.title,
             page_location: window.location.href,
-            page_path: router.asPath,
+            page_path: pathname,
           });
         }
       };
@@ -70,7 +70,7 @@ const SEOMonitor = () => {
         window.removeEventListener('beforeunload', trackTimeOnPage);
       };
     }
-  }, [router.asPath]);
+  }, [pathname]);
 
   return null;
 };

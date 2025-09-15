@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import Head from 'next/head';
 import Navbar from './Header/Navbar';
@@ -35,13 +35,14 @@ const Layout: React.FC<LayoutProps> = ({
   noIndex = false
 }) => {
   const router = useRouter();
+  const pathname = usePathname();
   const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'disconnected'>('checking');
   const [isKidsMode, setIsKidsMode] = useState(false);
 
   // Route-based layout detection
-  const isAdminRoute = router.pathname.startsWith('/admin');
-  const isAuthRoute = ['/login', '/sign-up'].includes(router.pathname);
-  const isProfileRoute = router.pathname.startsWith('/profile');
+  const isAdminRoute = pathname.startsWith('/admin');
+  const isAuthRoute = ['/login', '/sign-up'].includes(pathname);
+  const isProfileRoute = pathname.startsWith('/profile');
 
   // API health check
   useEffect(() => {

@@ -1,5 +1,5 @@
 import Head from 'next/head';
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 interface SEOProps {
   title?: string;
@@ -24,8 +24,8 @@ const SEO: React.FC<SEOProps> = ({
   noindex = false,
   nofollow = false,
 }) => {
-  const router = useRouter();
-  const canonicalUrl = url || `https://inbola.uz${router.asPath}`;
+  const pathname = usePathname();
+  const canonicalUrl = url || `https://inbola.uz${pathname}`;
   
   const robots = noindex || nofollow 
     ? `${noindex ? 'noindex' : 'index'}, ${nofollow ? 'nofollow' : 'follow'}`

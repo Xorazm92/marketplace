@@ -1,4 +1,4 @@
-import { useRouter } from 'next/router';
+import { usePathname } from 'next/navigation';
 
 interface BreadcrumbSchemaProps {
   items: Array<{
@@ -8,7 +8,7 @@ interface BreadcrumbSchemaProps {
 }
 
 const BreadcrumbSchema: React.FC<BreadcrumbSchemaProps> = ({ items }) => {
-  const router = useRouter();
+  const pathname = usePathname();
   const baseUrl = 'https://inbola.uz';
 
   const structuredData = {

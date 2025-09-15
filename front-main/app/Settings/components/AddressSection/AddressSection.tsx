@@ -14,7 +14,7 @@ import { toast } from 'react-toastify';
 import { AddressData } from '../../../../types/userData';
 import MapComponent from '../../../CreateProduct/components/MapComponent';
 import { useGetRegionById, useGetRegions } from '../../../../hooks/user';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import { MdGppBad, MdOutlineGppGood } from 'react-icons/md';
 
 type Address = {

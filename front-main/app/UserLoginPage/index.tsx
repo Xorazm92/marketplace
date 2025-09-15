@@ -8,7 +8,7 @@ import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../store/features/authSlice";
 import { isValidUzbekPhoneNumber } from "../../utils/validator";
 import { setLocalStorage } from "../../utils/local-storege";
-import { useRouter } from "next/router";
+import { useRouter } from "next/navigation";
 import GoogleSignInButton from "../../components/auth/GoogleSignInButton";
 import TelegramLoginButton from "../../components/auth/TelegramLoginButton";
 

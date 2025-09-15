@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
+import { useRouter, usePathname } from 'next/navigation';
 import styles from './AdminLayout.module.scss';
 
 type AdminTab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'settings';
@@ -71,12 +71,33 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
 
+  const pathname = usePathname();
+  
   // Tab o'zgarganda URL'ni yangilash
   const handleTabChange = (tab: AdminTab) => {
     onTabChange(tab);
-    // URL'ni yangilash (agar kerak bo'lsa)
-    if (router.pathname === '/admin') {
-      router.push(`/admin?tab=${tab}`, undefined, { shallow: true });
+    // URL'ni yangilash - har bir tab uchun alohida sahifa
+    switch (tab) {
+      case 'dashboard':
+        router.push('/admin/dashboard');
+        break;
+      case 'products':
+        router.push('/admin/products');
+        break;
+      case 'orders':
+        router.push('/admin/orders');
+        break;
+      case 'users':
+        router.push('/admin/users');
+        break;
+      case 'analytics':
+        router.push('/admin/analytics');
+        break;
+      case 'settings':
+        router.push('/admin/settings');
+        break;
+      default:
+        router.push('/admin');
     }
   };
 
@@ -114,6 +135,36 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
               )}
             </button>
           ))}
+          
+          {/* Additional management links */}
+          <div className={styles.navDivider}></div>
+          <button
+            className={styles.navItem}
+            onClick={() => router.push('/admin/categories')}
+            title={sidebarCollapsed ? 'Kategoriyalar' : ''}
+          >
+            <span className={styles.navIcon}>📂</span>
+            {!sidebarCollapsed && (
+              <div className={styles.navContent}>
+                <span className={styles.navLabel}>Kategoriyalar</span>
+                <span className={styles.navDescription}>Kategoriya boshqaruvi</span>
+              </div>
+            )}
+          </button>
+          
+          <button
+            className={styles.navItem}
+            onClick={() => router.push('/admin/brands')}
+            title={sidebarCollapsed ? 'Brendlar' : ''}
+          >
+            <span className={styles.navIcon}>🏷️</span>
+            {!sidebarCollapsed && (
+              <div className={styles.navContent}>
+                <span className={styles.navLabel}>Brendlar</span>
+                <span className={styles.navDescription}>Brend boshqaruvi</span>
+              </div>
+            )}
+          </button>
         </nav>
 
         <div className={styles.sidebarFooter}>
