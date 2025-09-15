@@ -1,6 +1,7 @@
 import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
+import { PaymentStatus } from '@prisma/client';
 import * as crypto from 'crypto';
 import axios from 'axios';
 
@@ -154,7 +155,7 @@ export class PaymeService {
       // Update payment status
       await this.prisma.orderPayment.update({
         where: { id: payment.id },
-        data: { status: newStatus },
+        data: { status: newStatus as PaymentStatus },
       });
 
       // Update order status
@@ -246,7 +247,7 @@ export class PaymeService {
       }
 
       // Check if amount matches
-      if (amount !== order.total_amount * 100) { // Convert to tiyin for comparison
+      if (amount !== Number(order.total_amount) * 100) { // Convert to tiyin for comparison
         return this.createErrorResponse(this.PAYME_ERRORS.INVALID_AMOUNT, 'Invalid amount');
       }
 
@@ -258,7 +259,7 @@ export class PaymeService {
             items: [
               {
                 title: `Order #${order.order_number}`,
-                price: order.total_amount * 100,
+                price: Number(order.total_amount) * 100,
                 count: 1,
                 code: 'order',
                 package_code: 'order',
@@ -295,8 +296,8 @@ export class PaymeService {
           result: {
             transaction: payment.id.toString(),
             state,
-            create_time: payment.created_at.getTime(),
-            perform_time: state === 2 ? payment.updated_at.getTime() : 0,
+            create_time: payment.createdAt.getTime(),
+            perform_time: state === 2 ? payment.updatedAt.getTime() : 0,
             cancel_time: 0,
             reason: null
           }
@@ -336,6 +337,7 @@ export class PaymeService {
             state: 1, // Created
           },
         },
+        include: { order: true }
       });
 
       return {
@@ -377,7 +379,7 @@ export class PaymeService {
           result: {
             transaction: payment.id.toString(),
             state: 2, // Performed
-            perform_time: payment.updated_at.getTime(),
+            perform_time: payment.updatedAt.getTime(),
             cancel_time: 0
           }
         };
@@ -446,7 +448,7 @@ export class PaymeService {
           result: {
             transaction: payment.id.toString(),
             state: -1, // Cancelled
-            cancel_time: payment.updated_at.getTime(),
+            cancel_time: payment.updatedAt.getTime(),
             reason: (payment.gateway_response as any)?.reason || null
           }
         };
@@ -463,20 +465,17 @@ export class PaymeService {
             reason: reason || 'Cancelled by user',
             state: -1 // Cancelled
           }
-        },
-        include: { order: true }
+        }
       });
 
       // Update order status if needed
-      if (updatedPayment.order) {
-        await this.prisma.order.update({
-          where: { id: updatedPayment.order_id },
-          data: { 
-            payment_status: 'CANCELLED',
-            status: 'CANCELLED'
-          },
-        });
-      }
+      await this.prisma.order.update({
+        where: { id: payment.order_id },
+        data: { 
+          payment_status: 'CANCELLED',
+          status: 'CANCELLED'
+        },
+      });
 
       return {
         result: {
@@ -516,9 +515,9 @@ export class PaymeService {
         result: {
           transaction: payment.id.toString(),
           state,
-          create_time: payment.created_at.getTime(),
-          perform_time: state === 2 ? payment.updated_at.getTime() : 0,
-          cancel_time: state === -1 ? payment.updated_at.getTime() : 0,
+          create_time: payment.createdAt.getTime(),
+          perform_time: state === 2 ? payment.updatedAt.getTime() : 0,
+          cancel_time: state === -1 ? payment.updatedAt.getTime() : 0,
           reason: gatewayResponse?.reason || null
         }
       };
@@ -542,7 +541,7 @@ export class PaymeService {
       const payments = await this.prisma.orderPayment.findMany({
         where: {
           payment_method: 'PAYME',
-          created_at: {
+          createdAt: {
             gte: fromDate,
             lte: toDate
           },
@@ -551,7 +550,7 @@ export class PaymeService {
           }
         },
         orderBy: {
-          created_at: 'asc'
+          createdAt: 'asc'
         }
       });
 
@@ -559,14 +558,14 @@ export class PaymeService {
         const gatewayResponse = payment.gateway_response as any;
         return {
           id: payment.transaction_id,
-          time: payment.created_at.getTime(),
-          amount: payment.amount * 100, // Convert to tiyin
+          time: payment.createdAt.getTime(),
+          amount: Number(payment.amount) * 100, // Convert to tiyin
           account: {
             order_id: payment.order_id.toString()
           },
-          create_time: payment.created_at.getTime(),
-          perform_time: payment.status === 'PAID' ? payment.updated_at.getTime() : 0,
-          cancel_time: payment.status === 'CANCELLED' ? payment.updated_at.getTime() : 0,
+          create_time: payment.createdAt.getTime(),
+          perform_time: payment.status === 'PAID' ? payment.updatedAt.getTime() : 0,
+          cancel_time: payment.status === 'CANCELLED' ? payment.updatedAt.getTime() : 0,
           transaction: payment.id.toString(),
           state: this.getPaymeTransactionState(payment.status),
           reason: gatewayResponse?.reason || null
@@ -609,6 +608,87 @@ export class PaymeService {
         return -1;
       default:
         return 0;
+    }
+  }
+
+  async checkPaymentStatus(paymentId: string): Promise<any> {
+    try {
+      const payment = await this.prisma.orderPayment.findFirst({
+        where: { transaction_id: paymentId },
+        include: { order: true }
+      });
+
+      if (!payment) {
+        throw new BadRequestException('Payment not found');
+      }
+
+      return {
+        payment_id: paymentId,
+        status: payment.status,
+        amount: payment.amount,
+        order_id: payment.order_id,
+        created_at: payment.createdAt,
+        updated_at: payment.updatedAt
+      };
+    } catch (error) {
+      this.logger.error('Error checking payment status:', error);
+      throw error;
+    }
+  }
+
+  async processRefund(transactionId: string, amount: number): Promise<any> {
+    try {
+      const payment = await this.prisma.orderPayment.findFirst({
+        where: { transaction_id: transactionId },
+        include: { order: true }
+      });
+
+      if (!payment) {
+        throw new BadRequestException('Payment not found');
+      }
+
+      if (payment.status !== 'PAID') {
+        throw new BadRequestException('Payment is not in PAID status');
+      }
+
+      if (amount > Number(payment.amount)) {
+        throw new BadRequestException('Refund amount cannot exceed payment amount');
+      }
+
+      // Update payment status to REFUNDED
+      const updatedPayment = await this.prisma.orderPayment.update({
+        where: { id: payment.id },
+        data: {
+          status: 'REFUNDED',
+          gateway_response: {
+            ...(payment.gateway_response as object || {}),
+            refund_amount: amount,
+            refund_time: Date.now(),
+            refund_status: 'COMPLETED'
+          }
+        }
+      });
+
+      // Update order status
+      await this.prisma.order.update({
+        where: { id: payment.order_id },
+        data: {
+          payment_status: 'REFUNDED',
+          status: 'REFUNDED'
+        }
+      });
+
+      this.logger.log(`Payme refund processed: ${transactionId} - Amount: ${amount}`);
+
+      return {
+        transaction_id: transactionId,
+        refund_amount: amount,
+        status: 'REFUNDED',
+        refund_time: new Date()
+      };
+    } catch (error) {
+      this.logger.error('Error processing refund:', error);
+      throw error;
     }
   }
 

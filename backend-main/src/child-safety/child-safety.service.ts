@@ -232,7 +232,7 @@ export class ChildSafetyService {
         include: {
           category: true,
           product_image: true,
-          product_certifications: {
+          safety_certifications: {
             include: {
               certification: true
             }
