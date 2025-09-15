@@ -11,7 +11,7 @@
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
     "dev": "nest start --watch",
     "start": "node dist/simple-main",
-    "start:dev": "nest start --watch --exec \"node dist/simple-main\"",
+    "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/simple-main",
     "start:simple": "nest build && node dist/simple-main",

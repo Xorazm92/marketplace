@@ -23,6 +23,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   compact = false,
   className = ''
 }) => {
+  // Early return if product is not provided
+  if (!product) {
+    return null;
+  }
+
   const { user } = useSelector((state: RootState) => state.auth);
   const { toggleFavorite, isFavorite } = useFavorites();
   const [imageLoaded, setImageLoaded] = useState(false);
@@ -65,13 +70,14 @@ const ProductCard: React.FC<ProductCardProps> = ({
   };
 
   const getDiscountedPrice = () => {
-    if (product.discount_percentage && product.discount_percentage > 0) {
-      return product.price * (1 - product.discount_percentage / 100);
+    const discount = product?.discount_percentage ?? 0;
+    if (discount > 0) {
+      return product.price * (1 - discount / 100);
     }
     return product.price;
   };
 
-  const hasDiscount = product.discount_percentage && product.discount_percentage > 0;
+  const hasDiscount = (product?.discount_percentage ?? 0) > 0;
   const finalPrice = getDiscountedPrice();
   const isNewProduct = product.created_at && 
     new Date(product.created_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -100,7 +106,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             
             {hasDiscount && (
               <span className={`${styles.badge} ${styles.discountBadge}`}>
-                -{product.discount_percentage}%
+                -{product?.discount_percentage ?? 0}%
               </span>
             )}
             

@@ -76,18 +76,26 @@ export const useAdminAuth = (): UseAdminAuthReturn => {
       // Parse admin data
       const parsedAdmin = JSON.parse(adminData);
       
-      // Verify token with backend - use a simple endpoint that just checks auth
-      const response = await fetch(`${API_BASE_URL}/api/v1/admin/dashboard`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-      });
+      // Only verify token if user has admin role - avoid 403 errors for regular users
+      if (parsedAdmin.role && ['SUPER_ADMIN', 'ADMIN', 'MODERATOR'].includes(parsedAdmin.role)) {
+        // Verify token with backend - use a simple endpoint that just checks auth
+        const response = await fetch(`${API_BASE_URL}/api/v1/admin/dashboard`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
 
-      if (response.ok) {
-        setAdmin(parsedAdmin);
+        if (response.ok) {
+          setAdmin(parsedAdmin);
+        } else {
+          // Token is invalid, clear storage
+          localStorage.removeItem('admin_access_token');
+          localStorage.removeItem('admin_user');
+          setAdmin(null);
+        }
       } else {
-        // Token is invalid, clear storage
+        // User doesn't have admin role, clear admin data
         localStorage.removeItem('admin_access_token');
         localStorage.removeItem('admin_user');
         setAdmin(null);

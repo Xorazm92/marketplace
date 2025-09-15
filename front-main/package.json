@@ -8,6 +8,7 @@
     "build": "next build",
     "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint",
+    "format": "prettier --write \"**/*.{ts,tsx,scss,md,json}\"",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
