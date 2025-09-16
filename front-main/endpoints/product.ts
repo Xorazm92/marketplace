@@ -1,6 +1,6 @@
 // api/index.ts
 
-import instance, { API_BASE_URL, API_PREFIX } from "./instance";
+import instance, { API_BASE_URL } from "./instance";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { AddressData } from "../types/userData";
@@ -173,22 +173,20 @@ export const getAllProducts = async (params?: { category?: string; limit?: numbe
   try {
     // Handle both object and string parameters
     let category: string | undefined;
+    let queryParams: any = {};
     
     if (typeof params === 'string') {
       category = params;
+      queryParams = { category };
     } else if (params && typeof params === 'object') {
       category = params.category;
+      queryParams = { category, limit: params.limit };
     }
-<<<<<<< HEAD
-    
-    // Call the backend with the category as a query parameter
-    const res = await instance.get('/product/all', {
-      params: { category }
-    });
-=======
 
-    const res = await instance.get(`/api/v1/product/all`, { params: queryParams });
->>>>>>> 7a50308 (auth)
+    // Call the backend with query parameters
+    const res = await instance.get('/v1/product/all', {
+      params: queryParams
+    });
 
     // Accept multiple backend response shapes
     const raw = Array.isArray(res.data)
@@ -306,7 +304,7 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     }
 
     // Use unified base URL (defaults to http://localhost:4000)
-    const res = await axios.post(`${API_BASE_URL}${API_PREFIX}/product/create`, formData, {
+    const res = await axios.post(`${API_BASE_URL}/v1/product/create`, formData, {
       headers: {
         "Content-Type": "multipart/form-data",
         Authorization: `Bearer ${token}`,

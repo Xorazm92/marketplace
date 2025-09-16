@@ -1,28 +1,11 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
-// API base URL (prefer BACKEND, fallback to API) and sanitize to root (no /api or /api/v1)
-const RAW_API_BASE =
-  process.env.NEXT_PUBLIC_BACKEND_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  'http://localhost:4000';
-<<<<<<< HEAD
-
-// Remove trailing slashes
-const trimmed = RAW_API_BASE.replace(/\/$/, '');
-// Remove trailing /api or /api/v{n}
-const API_BASE_URL = trimmed.replace(/\/(api)(\/v\d+)?$/, '');
-const API_PREFIX = '/api/v1';
-const apiUrl = (path: string) => `${API_BASE_URL}${API_PREFIX}${path.startsWith('/') ? '' : '/'}${path}`;
+// API base URL using relative path for Replit proxy support
+const API_BASE_URL = '/api';
 
 // Axios instance yaratish
 const instance: AxiosInstance = axios.create({
-  baseURL: `${API_BASE_URL}${API_PREFIX}`,
-=======
-
-// Axios instance yaratish
-const instance: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL, // API prefix is handled by NestJS global prefix now
->>>>>>> 7a50308 (auth)
+  baseURL: API_BASE_URL,
   timeout: 30000,
   withCredentials: false, // cookie-based authga o'tsangiz true qilamiz
   headers: {
@@ -127,7 +110,7 @@ export const checkApiHealth = async (): Promise<boolean> => {
 
   for (const endpoint of healthEndpoints) {
     try {
-      const response = await axios.get(`${API_BASE_URL}${endpoint}`, { 
+      const response = await axios.get(endpoint, { 
         timeout: 7000,
         validateStatus: (status) => status < 500
       });
@@ -138,7 +121,7 @@ export const checkApiHealth = async (): Promise<boolean> => {
       }
     } catch (error) {
       console.warn('⚠️ Health check attempt failed:', { 
-        url: `${API_BASE_URL}${endpoint}`, 
+        url: endpoint, 
         error: (error as any)?.message 
       });
     }
@@ -171,7 +154,7 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_MODE === 'tru
 export default instance;
 
 // Export utility functions
-export { API_BASE_URL, apiUrl, API_PREFIX };
+export { API_BASE_URL };
 
 // Types
 export interface ApiResponse<T = any> {

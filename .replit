@@ -6,7 +6,7 @@ expertMode = true
 channel = "stable-25_05"
 
 [workflows]
-runButton = "App Router Clean Start"
+runButton = "Project"
 
 [[workflows.workflow]]
 name = "Project"
@@ -17,17 +17,21 @@ author = "agent"
 task = "workflow.run"
 args = "Frontend"
 
+[[workflows.workflow.tasks]]
+task = "workflow.run"
+args = "Backend"
+
 [[workflows.workflow]]
 name = "Frontend"
 author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "webview"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "cd front-main && npm run dev"
 waitForPort = 5000
-
-[workflows.workflow.metadata]
-outputType = "webview"
 
 [[workflows.workflow]]
 name = "Start Backend"
@@ -74,6 +78,26 @@ mode = "sequential"
 task = "shell.exec"
 args = "cd front-main && rm -rf .next && npm run dev"
 
+[[workflows.workflow]]
+name = "Backend"
+author = "agent"
+
+[workflows.workflow.metadata]
+outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && npm run start:dev"
+waitForPort = 3001
+
+[[ports]]
+localPort = 3001
+externalPort = 3001
+
 [[ports]]
 localPort = 5000
 externalPort = 80
+
+[[ports]]
+localPort = 43313
+externalPort = 3000

@@ -9,7 +9,7 @@ import compression from 'compression';
 import helmet from 'helmet';
 import cookieParser from 'cookie-parser';
 import * as express from 'express';
-import * as session from 'express-session';
+import session from 'express-session';
 import { join } from 'path';
 import { setupSwagger } from './config/swagger.config';
 
@@ -34,7 +34,7 @@ async function bootstrap(): Promise<void> {
     app.use(cookieParser());
     
     // Session middleware for OAuth
-    app.use(session.default({
+    app.use(session({
       secret: process.env.JWT_ACCESS_SECRET || 'your-session-secret',
       resave: false,
       saveUninitialized: false,
@@ -190,7 +190,7 @@ async function bootstrap(): Promise<void> {
         },
         'JWT-auth',
       )
-      .addServer('http://0.0.0.0:4000', 'Development server')
+      .addServer('http://0.0.0.0:3001', 'Development server')
       .addTag('🔐 Authentication', 'Foydalanuvchi autentifikatsiyasi')
       .addTag('📦 Products', 'Mahsulotlar boshqaruvi')
       .addTag('👤 Users', 'Foydalanuvchilar boshqaruvi')
