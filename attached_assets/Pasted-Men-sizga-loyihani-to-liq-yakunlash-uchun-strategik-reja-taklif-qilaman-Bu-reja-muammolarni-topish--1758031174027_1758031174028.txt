@@ -1,0 +1,97 @@
+Men sizga loyihani to'liq yakunlash uchun strategik reja taklif qilaman. Bu reja muammolarni topish, ularni tizimli ravishda hal qilish va loyihani production-ready (ishlab chiqarishga tayyor) holatga keltirishga yordam beradi.
+Loyihani "Davolash" va Optimizatsiya qilish uchun Strategik Yo'l Xaritasi
+Bu jarayonni 5 ta asosiy bosqichga bo'lamiz:
+1-Bosqich: Fundamental Tizimni Barqarorlashtirish (Foundation Stabilization)
+2-Bosqich: Modul-bo'yicha Tizimli Testlash va Tuzatish (Systematic Module Fixing)
+3-Bosqich: Integratsiya va Foydalanuvchi Oqimlarini To'liq Testlash (End-to-End Flow Testing)
+4-Bosqich: Optimallashtirish va Sifatni Oshirish (Optimization & Quality Assurance)
+5-Bosqich: Yakuniy Tayyorgarlik va Deployment (Final Prep & Deployment)
+1-Bosqich: Fundamental Tizimni Barqarorlashtirish
+Hozirgi maqsadingiz yangi funksiya qo'shish emas, balki mavjud poydevorni mustahkamlash. Agar poydevor qimirlab tursa, ustidagi hech narsa to'g'ri ishlamaydi.
+Ishchi Muhitni Birxillashtirish (Environment Consistency):
+docker-compose.yml faylini to'liq ishchi holatga keltiring. Barcha kerakli servislar (backend, frontend, database, ehtimol Redis) bitta docker-compose up komandasi bilan ko'tarilishi kerak.
+backend-main/.env.example va front-main/.env.example fayllarini ko'rib chiqing. Barcha kerakli o'zgaruvchilar borligiga va ularning nomlari bir-biriga mos kelishiga ishonch hosil qiling (.env fayllaringizda).
+Ma'lumotlar Bazasi (Database Integrity):
+Barcha Prisma migratsiyalarini (backend-main/prisma/migrations) tozalang yoki tartibga soling. Agar boshidan boshlash imkoni bo'lsa, bu eng yaxshi yechim.
+Bitta komanda bilan ma'lumotlar bazasini toza holatdan ishga tushiring:
+code
+Bash
+cd backend-main
+npx prisma migrate reset # BAZANI TOZALAB, QAYTADAN MIGRATE QILADI
+npx prisma db seed # SEED SKRIPTINI ISHGA TUSHIRADI
+prisma/seed.ts faylini tekshiring. U testlash uchun kerakli minimal ma'lumotlarni (masalan, admin, 1-2 ta kategoriya, hududlar) yaratishi kerak.
+Asosiy Autentifikatsiya (Core Authentication):
+Boshqa hamma narsadan oldin, autentifikatsiya 100% barqaror ishlashi kerak.
+Test Senariysi (Postman orqali):
+Foydalanuvchi ro'yxatdan o'tishi: POST /api/v1/user-auth/sign-up (yoki email/phone). Muvaffaqiyatli javob va ma'lumotlar bazasida yozuv paydo bo'lishini tekshiring.
+Foydalanuvchi kirishi: POST /api/v1/user-auth/login. Muvaffaqiyatli javobda accessToken va refreshToken kelishini tekshiring.
+Himoyalangan Endpointga Kirish: accessTokenni Authorization: Bearer <token> sarlavhasiga qo'yib, oddiy bir himoyalangan endpointga (masalan, GET /api/v1/user/{id}) so'rov yuboring. 200 OK javobini olishingiz kerak. Noto'g'ri yoki eski token bilan 401 Unauthorized xatosini olishingiz kerak.
+Token yangilanishi: refreshToken yordamida POST /api/v1/user-auth/refresh endpointini tekshiring. Yangi accessToken qaytarishi kerak.
+Admin Kirishi: POST /api/v1/admin/auth/phone-signin orqali admin sifatida kiring va admin uchun himoyalangan endpointni (GET /api/v1/admin/profile) tekshiring.
+2-Bosqich: Modul-bo'yicha Tizimli Testlash va Tuzatish
+Poydevor mustahkam bo'lgach, har bir modulni alohida, izolyatsiya qilingan holda tekshirib chiqamiz. Har bir modul uchun quyidagi sxemada ishlang: Backend (API) -> Frontend (UI).
+Testlash Prioriteti (Muhimlik darajasi bo'yicha):
+Mahsulotlar, Kategoriyalar, Brendlar (Core E-commerce Data):
+Backend:
+Admin sifatida POST /api/v1/category, POST /api/v1/brand, POST /api/v1/colors orqali bir nechta ma'lumot yarating.
+Sotuvchi (yoki admin) sifatida POST /api/v1/product/create orqali yangi mahsulot yarating. pending statusida bo'lishi kerak.
+Admin sifatida GET /api/v1/admin/products orqali pending mahsulotni ko'ring, so'ng PUT /api/v1/admin/products/{id}/approve bilan tasdiqlang.
+GET /api/v1/product va GET /api/v1/product/{id} orqali tasdiqlangan mahsulotni ko'ra olishingizni tekshiring.
+Frontend:
+Admin panelida kategoriya, brend, rang yaratish sahifalari to'g'ri ishlayaptimi?
+Sotuvchi mahsulot yaratish formasini to'ldirib, yubora olyaptimi?
+Admin panelida yangi mahsulotlar "Tasdiqlash uchun" ro'yxatida ko'rinyaptimi? Tasdiqlash tugmasi ishlayaptimi?
+Asosiy sahifada va kategoriya sahifalarida mahsulotlar to'g'ri ko'rsatilyaptimi?
+Savat va Buyurtma (User Journey):
+Backend:
+POST /api/v1/cart/add: Savatga mahsulot qo'shing.
+GET /api/v1/cart: Savat tarkibini tekshiring.
+PUT /api/v1/cart/update: Miqdorni o'zgartiring.
+POST /api/v1/orders: Savat asosida buyurtma yarating. Ma'lumotlar bazasida Order va OrderItem jadvallari to'g'ri to'ldirilganligini tekshiring. Mahsulot soni (inventory) kamayishi kerak.
+Frontend:
+Mahsulot sahifasida "Savatga qo'shish" tugmasi ishlayaptimi?
+Savat ikonkasida mahsulot soni yangilanyaptimi?
+Savat sahifasida mahsulotlarni ko'rish, miqdorini o'zgartirish, o'chirish imkoniyati bormi?
+"Buyurtma berish" tugmasi checkout sahifasiga olib boradimi va buyurtma muvaffaqiyatli yaratiladimi?
+To'lov Tizimlari (Payments):
+Backend:
+BITTA TIZIMNI TO'LIQ TEST QILING (masalan, Payme).
+POST /api/v1/payment/payme/create: Buyurtma IDsi bilan to'lov yarating. To'lov tizimiga yo'naltirish uchun link qaytarishi kerak.
+POST /api/v1/payment/payme/callback: To'lov tizimidan keladigan callback so'rovini Postman orqali simulyatsiya qiling. Buyurtma statusi "to'langan" (PAID) ga o'zgarishi kerak.
+Frontend:
+Buyurtma berilgandan keyin to'lov usulini tanlash va to'lovga o'tish oynasi ochiladimi?
+To'lov muvaffaqiyatli bo'lganda "To'lov muvaffaqiyatli amalga oshirildi" sahifasiga yo'naltiriladimi?
+Profil va Manzil Boshqaruvi (User Profile):
+Backend: PUT /api/v1/user/{id}, POST /api/v1/address/byUser/{id} endpointlarini tekshiring.
+Frontend: "Profil sozlamalari" sahifasida ism-familiyani o'zgartirish, yangi manzil qo'shish, mavjudini tahrirlash ishlayaptimi?
+... va shu tartibda qolgan modullarni (Sharhlar, Sotuvchilar, Bolalar xavfsizligi va hokazo) tekshirib chiqing.
+3-Bosqich: Integratsiya va Foydalanuvchi Oqimlarini To'liq Testlash
+Bu bosqichda alohida qismlar birgalikda qanday ishlashini tekshiramiz. Bu yerda eng ko'p mantiqiy xatolar topiladi.
+To'liq Senariylar:
+"Yangi foydalanuvchining ilk xaridi":
+Saytga kiring -> Telefon raqami orqali ro'yxatdan o'ting -> Mahsulotni toping -> Savatga qo'shing -> Savatga o'ting -> Yangi yetkazib berish manzilini qo'shing -> Buyurtma bering -> Payme orqali to'lov qiling -> Profil sahifasidagi "Mening buyurtmalarim" bo'limida yangi buyurtmani ko'ring.
+"Sotuvchining mahsulotni sotuvga chiqarishi":
+Yangi foydalanuvchi sifatida ro'yxatdan o'ting -> "Sotuvchi bo'lish" so'rovini yuboring (POST /api/v1/sellers/register) -> Admin panelidan shu so'rovni tasdiqlang (PUT /api/v1/sellers/admin/{sellerId}/verify) -> Sotuvchi akkaunti bilan kiring -> Yangi mahsulot yarating va rasmlar yuklang -> Admin panelida mahsulotni tasdiqlang -> Boshqa bir foydalanuvchi akkaunti bilan kirib, shu mahsulotni saytda ko'ring.
+Bu kabi 3-4 ta asosiy "user journey"ni aniqlab, ularni boshidan oxirigacha sinovdan o'tkazing.
+4-Bosqich: Optimallashtirish va Sifatni Oshirish
+Tizim ishlashiga ishonch hosil qilgandan so'ng, uni "yaxshilash" mumkin.
+Backend Optimizatsiyasi:
+Ma'lumotlar Bazasi So'rovlari: Prisma Studio (npx prisma studio) orqali ma'lumotlar bazasini ko'zdan kechiring. Murakkab so'rovlar uchun NestJS loglarida qancha vaqt ketayotganini tekshiring. N+1 muammosi bor-yo'qligini aniqlang.
+Kesh Caching: backend-main/src/common/services/cache.service.ts faylingiz bor. Tez-tez so'raladigan, lekin kam o'zgaradigan ma'lumotlarni (masalan, kategoriyalar, hududlar ro'yxati) Redis orqali keshlashni joriy qiling.
+Xatoliklarni Boshqarish (Error Handling): backend-main/src/common/filters/global-exception.filter.ts fayli mavjud. Barcha xatoliklar standart formatda va tushunarli xabar bilan qaytishiga ishonch hosil qiling.
+Frontend Optimizatsiyasi:
+Yuklanish Tezligi (Loading Speed): Google Chrome'dagi Lighthouse auditidan foydalaning. front-main/components/common/OptimizedImage.tsx va Next.js'ning o'zining <Image> komponentidan to'g'ri foydalaning. Kerak bo'lmagan JavaScript kodini kamaytirish uchun next/dynamic importlardan foydalaning.
+Kod Tuzilishi (Code Structure): front-main/docs/feature-sliced-design.md faylingiz bor. Bu juda yaxshi! Kodingiz shu arxitekturaga mos kelishini ta'minlang. Bu kodni kelajakda qo'llab-quvvatlashni osonlashtiradi.
+State Management: front-main/store papkasidagi Redux Toolkit'dan samarali foydalaning. Global state'ni keraksiz joyda ishlatmang.
+Xavfsizlik (Security):
+Barcha kiruvchi ma'lumotlar (DTO'lar) validatsiyadan (class-validator) o'tishiga ishonch hosil qiling.
+Ruxsatlarni tekshiring (permission.guard.ts, admin.guard.ts). Oddiy foydalanuvchi admin endpointiga kira olmasligi kerak va aksincha.
+5-Bosqich: Yakuniy Tayyorgarlik va Deployment
+Hujjatlashtirish (Documentation):
+README.md faylini yangilang: loyihani qanday ishga tushirish, asosiy texnologiyalar va .env fayli haqida ma'lumot qo'shing.
+Postman kolleksiyangizni export qilib, loyihaga qo'shing. Bu kelajakda testlashni osonlashtiradi.
+Monitoring va Logging:
+backend-main/src/common/services/sentry.service.ts va winston-logger.service.ts fayllari bor. Sentry DSN va boshqa kerakli sozlamalarni .env fayliga qo'shib, production'da yuzaga keladigan xatoliklarni avtomatik ravishda kuzatib borishni sozlang.
+Deployment:
+Docker fayllaringiz (Dockerfile) production uchun optimallashtirilganligiga (multi-stage builds) ishonch hosil qiling.
+Ishlab chiqarish (production) muhiti uchun alohida .env.production fayli yarating.
