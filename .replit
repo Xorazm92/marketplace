@@ -90,6 +90,15 @@ task = "shell.exec"
 args = "cd backend-main && npm run start:dev"
 waitForPort = 3001
 
+[[workflows.workflow]]
+name = "Start Backend Server"
+author = 47664687
+mode = "sequential"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "cd backend-main && npm run start:dev"
+
 [[ports]]
 localPort = 3001
 externalPort = 3001

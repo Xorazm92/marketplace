@@ -1,3 +1,4 @@
+
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
 // API base URL using environment variables, with fallback
@@ -200,7 +201,7 @@ if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_MODE === 'tru
 export default instance;
 
 // Export utility functions and constants
-export { API_PREFIX, API_BASE_URL };
+export { API_PREFIX };
 
 // Types for API responses and errors
 export interface ApiResponse<T = any> {
