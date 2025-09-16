@@ -173,10 +173,22 @@ async function main() {
 
   if (toyCategory && legoBrand) {
     const sampleProduct = await prisma.product.upsert({
-      where: { name: 'LEGO Classic Creative Bricks' },
-      update: {},
+      where: { title: 'LEGO Classic Creative Bricks' },
+      update: {
+        title: 'LEGO Classic Creative Bricks',
+        description: 'Ijodkorlik uchun LEGO konstruktor to\'plami',
+        price: 250000,
+        stock_quantity: 50,
+        sku: 'LEGO-001',
+        is_active: true,
+        status: 'APPROVED',
+        phone_number: testUser.phone_number,
+        category_id: toyCategory.id,
+        brand_id: legoBrand.id,
+        user_id: testUser.id,
+      },
       create: {
-        name: 'LEGO Classic Creative Bricks',
+        title: 'LEGO Classic Creative Bricks',
         description: 'Ijodkorlik uchun LEGO konstruktor to\'plami',
         price: 250000,
         stock_quantity: 50,
