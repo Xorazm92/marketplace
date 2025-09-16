@@ -7,13 +7,20 @@ import { RootState } from '../../store/store';
 import { toast } from 'react-toastify';
 import styles from './EtsyStyleProductCard.module.scss';
 
+interface ProductImage {
+  id: number;
+  url: string;
+  is_primary?: boolean;
+  product_id: number;
+}
+
 interface Product {
   id: number;
   title: string;
   price: number;
   original_price?: number;
   discount_percentage?: number;
-  images: string[];
+  product_image: ProductImage[];
   rating?: number;
   review_count?: number;
   seller_name?: string;
@@ -52,6 +59,22 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
   const discountAmount = hasDiscount ? product.original_price! - product.price : 0;
   const discountPercentage = hasDiscount ? Math.round((discountAmount / product.original_price!) * 100) : 0;
 
+  // Protection: return loading if product or product_image is missing
+  if (!product || !product.product_image) {
+    return <div>Yuklanmoqda...</div>;
+  }
+
+  const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:4000';
+  const getImageUrl = (image: ProductImage) => {
+    if (!image.url) return '/placeholder.png';
+    if (image.url.startsWith('http')) return image.url;
+    if (image.url.startsWith('/uploads/')) return `${backendUrl}${image.url}`;
+    return `${backendUrl}/uploads/${image.url}`;
+  };
+
+  const primaryImage = product.product_image.find(img => img.is_primary) || product.product_image[0];
+  const currentImage = product.product_image[currentImageIndex] || primaryImage;
+
   const handleImageHover = (index: number) => {
     setCurrentImageIndex(index);
   };
@@ -84,7 +107,7 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
       //   id: product.id,
       //   title: product.title,
       //   price: product.price,
-      //   image: product.images[0],
+      //   image: getImageUrl(primaryImage),
       //   quantity: 1
       // }));
       toast.info('Savatcha funksiyasi hozircha mavjud emas');
@@ -136,7 +159,7 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
         <div className={styles.imageSection}>
           <div className={styles.imageContainer}>
             <Image
-              src={product.images[currentImageIndex] || '/images/placeholder-product.jpg'}
+              src={currentImage ? getImageUrl(currentImage) : '/placeholder.png'}
               alt={product.title}
               fill
               style={{ objectFit: 'cover' }}
@@ -168,9 +191,9 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
             </div>
 
             {/* Image Navigation Dots */}
-            {product.images.length > 1 && (
+            {product.product_image.length > 1 && (
               <div className={styles.imageNavigation}>
-                {product.images.map((_, index) => (
+                {product.product_image.map((_, index: number) => (
                   <button
                     key={index}
                     className={`${styles.imageDot} ${

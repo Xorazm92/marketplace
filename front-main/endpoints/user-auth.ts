@@ -4,7 +4,7 @@ import instance from "./instance";
 
 export const sendOtp = async (phone_number: string) => {
   try {
-    const res = await instance.post("/otp/send", { phone_number });
+    const res = await instance.post("/api/v1/phone-auth/send-otp", { phone_number });
     return res.data;
   } catch (error: any) {
     console.log(error);
@@ -12,9 +12,14 @@ export const sendOtp = async (phone_number: string) => {
   }
 };
 
-export const verifyOtp = async (data: any) => {
+export const verifyOtp = async (data: { phone_number: string; otp_code: string; purpose?: 'registration' | 'login' | 'password_reset' }) => {
   try {
-    const res = await instance.post("/otp/verify", data);
+    const verifyPayload = {
+      phone_number: data.phone_number,
+      otp_code: data.otp_code,
+      purpose: data.purpose || 'login'
+    };
+    const res = await instance.post("/api/v1/phone-auth/verify-otp", verifyPayload);
     return res.data;
   } catch (error: any) {
     console.log(error);
@@ -24,7 +29,8 @@ export const verifyOtp = async (data: any) => {
 
 export const signUpUser = async (data: any) => {
   try {
-    const res = await instance.post("/user-auth/sign-up", data);
+    // Corrected endpoint based on user-auth.controller.ts
+    const res = await instance.post("/api/v1/auth/user/signup/email", data);
     return res.data;
   } catch (error: any) {
     console.log(error);
@@ -32,27 +38,31 @@ export const signUpUser = async (data: any) => {
   }
 };
 
-export const loginUser = async (data: any) => {
+export const loginUser = async (data: { phone_number: string; password: string }) => {
   try {
-    const res = await instance.post("/user-auth/login", data);
+    // Format data for phone auth login
+    const loginPayload = {
+      phone_number: data.phone_number,
+      otp_code: data.password // Assuming password field contains the OTP code
+    };
+    
+    const res = await instance.post("/api/v1/phone-auth/login", loginPayload);
     return res.data;
   } catch (error: any) {
-    console.log(error);
-    toast.error(` ${error.response.data.message}`);
+    console.error('Login error:', error);
+    const errorMessage = error.response?.data?.message || 'Login failed. Please check your credentials.';
+    toast.error(errorMessage);
+    throw error;
   }
 };
 
-export const sign_OutUser = async (userId: number | undefined) => {
+export const sign_OutUser = async () => {
   try {
-    if (!userId) {
-      console.warn("No user ID provided for sign-out");
-      toast.error("User ID not found");
-      return;
-    }
-    console.log("sign-out");
-    const res = await instance.post(`/user-auth/sign-out`, { userId });
-    console.log("res::: ", res);
-    if (res.status === 201) {
+    // Corrected endpoint based on unified-auth.controller.ts
+    // The backend identifies the user via JWT, so no need to send userId
+    const res = await instance.post(`/api/v1/auth/logout`);
+
+    if (res.status === 200 || res.status === 201) {
       localStorage.removeItem("accessToken");
       toast.success("Successfully signed out");
       return res.data;
@@ -66,11 +76,24 @@ export const sign_OutUser = async (userId: number | undefined) => {
 };
 export const getMe = async (id: number) => {
   try {
-    const token = JSON.parse(localStorage.getItem("accessToken") || "");
-    const res = await instance.get(`/user/${id}`);
-    return res.data;
+    const token = localStorage.getItem("accessToken");
+    if (!token) {
+      return null;
+    }
+    
+    const res = await instance.get(`/api/v1/user/${id}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    // Check if response is successful and has data
+    if (res.status === 200 && res.data) {
+      return res.data;
+    }
+
+    return null;
   } catch (error: any) {
-    console.log(error);
-    toast.error(` ${error?.response.data.message}`);
+    // If there's an error (e.g., 401 Unauthorized), return null
+    console.error("Error fetching user data:", error);
+    return null;
   }
 };

@@ -179,11 +179,16 @@ export const getAllProducts = async (params?: { category?: string; limit?: numbe
     } else if (params && typeof params === 'object') {
       category = params.category;
     }
+<<<<<<< HEAD
     
     // Call the backend with the category as a query parameter
     const res = await instance.get('/product/all', {
       params: { category }
     });
+=======
+
+    const res = await instance.get(`/api/v1/product/all`, { params: queryParams });
+>>>>>>> 7a50308 (auth)
 
     // Accept multiple backend response shapes
     const raw = Array.isArray(res.data)

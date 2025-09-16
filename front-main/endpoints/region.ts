@@ -3,7 +3,7 @@ import instance from "./instance";
 
 export const getRegions = async () => {
   try {
-    const res = await instance.get("/region");
+    const res = await instance.get("/api/v1/region");
     return res.data;
   } catch (error: any) {
     console.log(error);

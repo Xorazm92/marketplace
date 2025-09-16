@@ -14,7 +14,7 @@ const getToken = (): string => {
 
 export const getUserPhoneNumbers = async (id: number | string) => {
   try {
-    const res = await instance.get(`/phone-number/byUser/${id}`, {
+    const res = await instance.get(`/api/v1/phone-number/byUser/${id}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -29,7 +29,7 @@ export const getUserPhoneNumbers = async (id: number | string) => {
 
 export const getRegions = async () => {
   try {
-    const res = await instance.get(`/region`, {
+    const res = await instance.get(`/api/v1/region`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -42,7 +42,7 @@ export const getRegions = async () => {
 
 export const getRegionById = async (id: number) => {
   try {
-    const res = await instance.get(`/region/${id}`, {
+    const res = await instance.get(`/api/v1/region/${id}`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -55,7 +55,7 @@ export const getRegionById = async (id: number) => {
 
 export const getDistricts = async () => {
   try {
-    const res = await instance.get(`/district`, {
+    const res = await instance.get(`/api/v1/district`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -68,7 +68,7 @@ export const getDistricts = async () => {
 
 export const createAddress = async (data: AddressData) => {
   try {
-    const res = await instance.post(`/address`, data, {
+    const res = await instance.post(`/api/v1/address`, data, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -81,7 +81,7 @@ export const createAddress = async (data: AddressData) => {
 
 export const getAddresses = async () => {
   try {
-    const res = await instance.get(`/address`, {
+    const res = await instance.get(`/api/v1/address`, {
       headers: { Authorization: `Bearer ${getToken()}` },
     });
     return res.data;
@@ -98,7 +98,7 @@ export const updateUser = async (id: number, data: FormData) => {
       console.log(`${pair[0]}: ${pair[1]}`);
     }
 
-    const response = await instance.put(`/user/${id}`, data, {
+    const response = await instance.put(`/api/v1/user/${id}`, data, {
       headers: {
         Authorization: `Bearer ${getToken()}`,
         "Content-Type": "multipart/form-data",

@@ -5,7 +5,7 @@ import { AddAddress } from "../app/Settings/components/AddressSection/AddressSec
 
 export const getAddresses = async (id: number | undefined) => {
   try {
-    const res = await instance.get(`/address/byUser/${id}`, {
+    const res = await instance.get(`/api/v1/address/byUser/${id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(
           localStorage.getItem("accessToken") || "",
@@ -23,7 +23,7 @@ export const addAddress = async (address: AddAddress) => {
   try {
     console.log("address: ", address);
     const res = await instance.post(
-      `/address/byUser/${address.user_id}`,
+      `/api/v1/address/byUser/${address.user_id}`,
       address, // ✅ to'g'ridan-to'g'ri yuboriladi
       {
         headers: {
@@ -45,7 +45,7 @@ export const addAddress = async (address: AddAddress) => {
 
 export const deleteAddress = async (id: number, user_id: number | undefined) => {
   try {
-    await instance.delete(`/address/${user_id}?addressId=${id}`, {
+    await instance.delete(`/api/v1/address/${user_id}?addressId=${id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(
           localStorage.getItem('accessToken') || '',

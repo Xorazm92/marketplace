@@ -7,7 +7,7 @@ export const getEmails = async (id: number | undefined) => {
       "keldi: ",
       JSON.parse(localStorage.getItem("accessToken") || ""),
     );
-    const res = await instance.get(`/email/byUser/${id}`, {
+    const res = await instance.get(`/api/v1/email/byUser/${id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(
           localStorage.getItem("accessToken") || "",
@@ -26,7 +26,7 @@ export const addEmail = async (id: number | undefined, email: string) => {
   try {
     console.log("my email: ", email);
     const res = await instance.post(
-      `/email/byUser/${id}`,
+      `/api/v1/email/byUser/${id}`,
       { user_id: id, email, is_main: true },
       {
         headers: {
@@ -51,7 +51,7 @@ export const deleteEmail = async (
   try {
     console.log("email_id: ", email_id);
     console.log("user_id: ", user_id);
-    await instance.delete(`/email/${user_id}?emailId=${email_id}`, {
+    await instance.delete(`/api/v1/email/${user_id}?emailId=${email_id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(
           localStorage.getItem("accessToken") || "",

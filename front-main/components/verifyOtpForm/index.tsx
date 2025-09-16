@@ -114,7 +114,7 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
     const code = otp.join("");
 
     // verify phone number by otp code
-    const res = await verifyOtp({ verification_key: user?.key, code });
+    const res = await verifyOtp({ phone_number: user?.phone_number || user?.key, otp_code: code, purpose: 'registration' });
     if (res?.status) {
       // after verify phone number create user
       const resSignup = await signUp({

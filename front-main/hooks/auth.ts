@@ -15,12 +15,14 @@ export const useSendOtp = () =>
 export const useVerifyOtp = () =>
   useMutation({
     mutationFn: ({
-      verification_key,
-      code,
+      phone_number,
+      otp_code,
+      purpose,
     }: {
-      verification_key: string;
-      code: string;
-    }) => verifyOtp({ verification_key, code }),
+      phone_number: string;
+      otp_code: string;
+      purpose?: 'registration' | 'login' | 'password_reset';
+    }) => verifyOtp({ phone_number, otp_code, purpose }),
   });
 
 export const useSignUp = () =>

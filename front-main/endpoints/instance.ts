@@ -5,6 +5,7 @@ const RAW_API_BASE =
   process.env.NEXT_PUBLIC_BACKEND_URL ||
   process.env.NEXT_PUBLIC_API_URL ||
   'http://localhost:4000';
+<<<<<<< HEAD
 
 // Remove trailing slashes
 const trimmed = RAW_API_BASE.replace(/\/$/, '');
@@ -16,6 +17,12 @@ const apiUrl = (path: string) => `${API_BASE_URL}${API_PREFIX}${path.startsWith(
 // Axios instance yaratish
 const instance: AxiosInstance = axios.create({
   baseURL: `${API_BASE_URL}${API_PREFIX}`,
+=======
+
+// Axios instance yaratish
+const instance: AxiosInstance = axios.create({
+  baseURL: API_BASE_URL, // API prefix is handled by NestJS global prefix now
+>>>>>>> 7a50308 (auth)
   timeout: 30000,
   withCredentials: false, // cookie-based authga o'tsangiz true qilamiz
   headers: {

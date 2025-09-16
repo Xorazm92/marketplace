@@ -30,31 +30,31 @@ export interface Review {
 }
 
 export const createReview = async (reviewData: CreateReviewData) => {
-  const response = await instance.post('/reviews', reviewData);
+  const response = await instance.post('/api/v1/reviews', reviewData);
   return response.data;
 };
 
 export const getProductReviews = async (productId: number, page: number = 1, limit: number = 10) => {
-  const response = await instance.get(`/reviews/product/${productId}?page=${page}&limit=${limit}`);
+  const response = await instance.get(`/api/v1/reviews/product/${productId}?page=${page}&limit=${limit}`);
   return response.data;
 };
 
 export const getProductRatingStats = async (productId: number) => {
-  const response = await instance.get(`/reviews/product/${productId}/stats`);
+  const response = await instance.get(`/api/v1/reviews/product/${productId}/stats`);
   return response.data;
 };
 
 export const markReviewHelpful = async (reviewId: number) => {
-  const response = await instance.post(`/reviews/${reviewId}/helpful`);
+  const response = await instance.post(`/api/v1/reviews/${reviewId}/helpful`);
   return response.data;
 };
 
 export const updateReview = async (reviewId: number, reviewData: Partial<CreateReviewData>) => {
-  const response = await instance.patch(`/reviews/${reviewId}`, reviewData);
+  const response = await instance.patch(`/api/v1/reviews/${reviewId}`, reviewData);
   return response.data;
 };
 
 export const deleteReview = async (reviewId: number) => {
-  const response = await instance.delete(`/reviews/${reviewId}`);
+  const response = await instance.delete(`/api/v1/reviews/${reviewId}`);
   return response.data;
 };

@@ -4,7 +4,7 @@ import { toast } from "react-toastify";
 // Cart API endpoints
 export const getCart = async () => {
   try {
-    const res = await instance.get("/cart");
+    const res = await instance.get("/api/v1/cart");
     return res.data;
   } catch (error: any) {
     console.error("Error loading cart:", error);
@@ -33,7 +33,7 @@ export const getCart = async () => {
 
 export const addToCart = async (productId: number, quantity: number = 1) => {
   try {
-    const res = await instance.post("/cart/add", {
+    const res = await instance.post("/api/v1/cart/add", {
       product_id: productId,
       quantity: quantity
     });
@@ -56,7 +56,7 @@ export const addToCart = async (productId: number, quantity: number = 1) => {
 
 export const updateCartItem = async (cartItemId: number, quantity: number) => {
   try {
-    const res = await instance.put("/cart/update", {
+    const res = await instance.put("/api/v1/cart/update", {
       cart_item_id: cartItemId,
       quantity: quantity
     });
@@ -79,7 +79,7 @@ export const updateCartItem = async (cartItemId: number, quantity: number) => {
 
 export const removeFromCart = async (cartItemId: number) => {
   try {
-    const res = await instance.delete("/cart/remove", {
+    const res = await instance.delete("/api/v1/cart/remove", {
       data: { cart_item_id: cartItemId }
     });
     toast.success("Mahsulot savatchadan olib tashlandi!");
@@ -101,7 +101,7 @@ export const removeFromCart = async (cartItemId: number) => {
 
 export const clearCart = async () => {
   try {
-    const res = await instance.delete("/cart/clear");
+    const res = await instance.delete("/api/v1/cart/clear");
     toast.success("Savatcha tozalandi!");
     return res.data;
   } catch (error: any) {
