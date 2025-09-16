@@ -1,13 +1,25 @@
 import axios, { AxiosInstance, AxiosError, AxiosResponse } from 'axios';
 
-// API base URL using relative path for Replit proxy support
-const API_BASE_URL = '/api';
+// API base URL using environment variables, with fallback
+const RAW_API_BASE = 
+  process.env.NEXT_PUBLIC_BACKEND_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  'http://localhost:4000';
 
-// Axios instance yaratish
+// Remove trailing slashes from the base URL
+const trimmedApiBaseUrl = RAW_API_BASE.replace(/\/$/, '');
+
+// API prefix
+const API_PREFIX = '/api';
+
+// Final API base URL
+export const API_BASE_URL = `${trimmedApiBaseUrl}${API_PREFIX}`;
+
+// Axios instance creation
 const instance: AxiosInstance = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: `${API_BASE_URL}`,
   timeout: 30000,
-  withCredentials: false, // cookie-based authga o'tsangiz true qilamiz
+  withCredentials: false, // Set to true if using cookie-based authentication
   headers: {
     'Content-Type': 'application/json',
     'Accept': 'application/json',
@@ -18,9 +30,8 @@ const instance: AxiosInstance = axios.create({
 // Request interceptor
 instance.interceptors.request.use(
   (config) => {
-    // Token qo'shish
+    // Add token to the request headers
     if (typeof window !== 'undefined') {
-      // Admin panel uchun alohida token ishlatiladi
       const adminToken = localStorage.getItem('admin_access_token');
       const userToken = localStorage.getItem('accessToken');
       const token = adminToken || userToken;
@@ -29,7 +40,7 @@ instance.interceptors.request.use(
       }
     }
 
-    // Debug log
+    // Debug log for requests
     if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
       console.log('🔗 API Request:', {
         method: config.method?.toUpperCase(),
@@ -50,7 +61,7 @@ instance.interceptors.request.use(
 // Response interceptor
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
-    // Debug log
+    // Debug log for successful responses
     if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
       console.log('✅ API Response:', {
         status: response.status,
@@ -61,8 +72,8 @@ instance.interceptors.response.use(
 
     return response;
   },
-  (error: AxiosError) => {
-    // Error handling
+  async (error: AxiosError) => {
+    // Log API errors
     console.error('❌ API Error:', {
       status: error.response?.status,
       statusText: error.response?.statusText,
@@ -71,33 +82,68 @@ instance.interceptors.response.use(
       data: error.response?.data,
     });
 
-    // 401 - Unauthorized
+    // Handle 401 - Unauthorized errors
     if (error.response?.status === 401) {
-          if (typeof window !== 'undefined') {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user_data');
+      if (typeof window !== 'undefined') {
+        const refreshToken = localStorage.getItem('refreshToken');
+        const currentAccessToken = localStorage.getItem('accessToken');
 
-        // Login sahifasiga yo'naltirish
-        if (window.location.pathname !== '/login') {
-          window.location.href = '/login';
+        // If there's a refresh token and the error is not a retry attempt
+        if (refreshToken && !error.config!._retry) {
+          error.config!._retry = true; // Mark as retry attempt
+
+          try {
+            // Attempt to refresh the token
+            const refreshResponse = await axios.post(`${API_BASE_URL}/v1/user-auth/refresh`, {
+              refreshToken
+            });
+
+            const { accessToken: newAccessToken } = refreshResponse.data;
+            localStorage.setItem('accessToken', newAccessToken);
+            
+            // Update the Authorization header for the original request
+            if (error.config && error.config.headers) {
+              error.config.headers.Authorization = `Bearer ${newAccessToken}`;
+            }
+
+            // Re-send the original request with the new token
+            return instance(error.config!);
+          } catch (refreshError) {
+            // If token refresh fails, redirect to login
+            console.error('❌ Token refresh failed:', refreshError);
+            localStorage.removeItem('accessToken');
+            localStorage.removeItem('refreshToken');
+            localStorage.removeItem('user_data');
+            if (window.location.pathname !== '/login') {
+              window.location.href = '/login';
+            }
+            return Promise.reject(refreshError);
+          }
+        } else {
+          // If no refresh token or already retried, clear tokens and redirect to login
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('user_data');
+          if (window.location.pathname !== '/login') {
+            window.location.href = '/login';
+          }
         }
       }
     }
 
-    // 403 - Forbidden
+    // Handle 403 - Forbidden errors
     if (error.response?.status === 403) {
       console.warn('🚫 Access denied');
     }
 
-    // 500 - Server Error
+    // Handle 5xx - Server errors
     if (error.response?.status && error.response.status >= 500) {
       console.error('🔥 Server error occurred');
     }
 
-    // Network Error
+    // Handle Network errors (server not reachable)
     if (!error.response) {
-      console.error('🌐 Network error - Server mavjud emas');
+      console.error('🌐 Network error - Server not reachable');
     }
 
     return Promise.reject(error);
@@ -110,9 +156,9 @@ export const checkApiHealth = async (): Promise<boolean> => {
 
   for (const endpoint of healthEndpoints) {
     try {
-      const response = await axios.get(endpoint, { 
+      const response = await axios.get(`${trimmedApiBaseUrl}${endpoint}`, {
         timeout: 7000,
-        validateStatus: (status) => status < 500
+        validateStatus: (status) => status < 500 // Accept any status less than 500
       });
 
       if (response.status === 200) {
@@ -120,9 +166,9 @@ export const checkApiHealth = async (): Promise<boolean> => {
         return true;
       }
     } catch (error) {
-      console.warn('⚠️ Health check attempt failed:', { 
-        url: endpoint, 
-        error: (error as any)?.message 
+      console.warn('⚠️ Health check attempt failed:', {
+        url: endpoint,
+        error: (error as any)?.message
       });
     }
   }
@@ -146,17 +192,17 @@ export const testApiConnection = async (): Promise<void> => {
   }
 };
 
-// Initial connection test
+// Initial connection test on debug mode
 if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
   testApiConnection();
 }
 
 export default instance;
 
-// Export utility functions
-export { API_BASE_URL };
+// Export utility functions and constants
+export { API_PREFIX, API_BASE_URL };
 
-// Types
+// Types for API responses and errors
 export interface ApiResponse<T = any> {
   data: T;
   message: string;
