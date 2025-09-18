@@ -195,4 +195,109 @@ export class AuthService {
 
         return response;
     }
+
+    //===============================| Google OAuth |==========================================//
+
+    async validateGoogleUser(googleUser: any) {
+        const { googleId, email, firstName, lastName, picture } = googleUser;
+
+        try {
+            // Check if user already exists with this Google ID
+            let user = await this.prismaService.user.findFirst({
+                where: {
+                    OR: [
+                        { google_id: googleId },
+                        { email: { some: { email } } }
+                    ]
+                },
+                include: {
+                    email: true,
+                    phone_number: true
+                }
+            });
+
+            if (user) {
+                // Update Google ID if user exists but doesn't have it
+                if (!user.google_id) {
+                    user = await this.prismaService.user.update({
+                        where: { id: user.id },
+                        data: { google_id: googleId },
+                        include: {
+                            email: true,
+                            phone_number: true
+                        }
+                    });
+                }
+                return user;
+            }
+
+            // Create new user if doesn't exist
+            const newUser = await this.prismaService.user.create({
+                data: {
+                    first_name: firstName,
+                    last_name: lastName,
+                    google_id: googleId,
+                    profile_img: picture,
+                    password: await bcrypt.hash(Math.random().toString(36), 10), // Random password for Google users
+                    is_active: true,
+                    email: {
+                        create: {
+                            email,
+                            is_verified: true, // Google emails are pre-verified
+                            is_main: true
+                        }
+                    }
+                },
+                include: {
+                    email: true,
+                    phone_number: true
+                }
+            });
+
+            return newUser;
+        } catch (error) {
+            console.error('Error validating Google user:', error);
+            throw new InternalServerErrorException('Failed to process Google authentication');
+        }
+    }
+
+    async generateTokensForUser(user: any) {
+        const payload = {
+            sub: user.id,
+            email: user.email?.[0]?.email || '',
+            first_name: user.first_name,
+            last_name: user.last_name,
+        };
+
+        const accessToken = this.jwtService.sign(payload, {
+            secret: process.env.ACCESS_TOKEN_KEY,
+            expiresIn: process.env.ACCESS_TOKEN_TIME || '15m',
+        });
+
+        const refreshToken = this.jwtService.sign(payload, {
+            secret: process.env.REFRESH_TOKEN_KEY,
+            expiresIn: process.env.REFRESH_TOKEN_TIME || '7d',
+        });
+
+        // Update user's refresh token
+        await this.prismaService.user.update({
+            where: { id: user.id },
+            data: {
+                hashed_refresh_token: await bcrypt.hash(refreshToken, 10)
+            }
+        });
+
+        return {
+            accessToken,
+            refreshToken,
+            user: {
+                id: user.id,
+                first_name: user.first_name,
+                last_name: user.last_name,
+                email: user.email?.[0]?.email || '',
+                profile_img: user.profile_img,
+                is_active: user.is_active
+            }
+        };
+    }
 }

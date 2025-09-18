@@ -8,16 +8,20 @@ import { JwtModule } from '@nestjs/jwt';
 import { AdminModule } from '../admin/admin.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { MailModule } from '../mail/mail.module';
+import { GoogleAuthController } from './controllers/google-auth.controller';
+import { GoogleStrategy } from './strategies/google.strategy';
+import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports:[
+    PassportModule,
     JwtModule.register({ global: true }),
     PrismaModule,
     AdminModule,
     MailModule
   ],
-  controllers: [AuthController, PhoneAuthController],
-  providers: [AuthService, PhoneAuthService, SmsService],
-  exports: [PhoneAuthService, SmsService],
+  controllers: [AuthController, PhoneAuthController, GoogleAuthController],
+  providers: [AuthService, PhoneAuthService, SmsService, GoogleStrategy],
+  exports: [AuthService, PhoneAuthService, SmsService],
 })
 export class AuthModule {}

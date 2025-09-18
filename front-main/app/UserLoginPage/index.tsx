@@ -9,6 +9,7 @@ import { loginSuccess } from "../../store/features/authSlice";
 import { isValidUzbekPhoneNumber } from "../../utils/validator";
 import { setLocalStorage } from "../../utils/local-storege";
 import { useRouter } from "next/router";
+import GoogleLoginButton from "../../components/auth/GoogleLoginButton";
 
 const UserLoginPage = () => {
   const [phone, setPhone] = useState("");
@@ -77,6 +78,13 @@ const UserLoginPage = () => {
             {loading ? <span className={style.loading_spinner} /> : "Kirish"}
           </button>
         </form>
+        
+        <div className={style.divider}>
+          <span>yoki</span>
+        </div>
+        
+        <GoogleLoginButton />
+        
         <p className={style.link_text}>
           Hisobingiz yo'qmi?{" "}
           <a href="/sign-up" className={style.link}>

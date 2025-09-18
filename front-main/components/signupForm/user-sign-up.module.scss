@@ -199,6 +199,27 @@
   font-weight: 500;
 }
 
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e1e5e9;
+  }
+  
+  span {
+    padding: 0 16px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
 // Responsive design
 @media (max-width: 480px) {
   .form_wrapper {

@@ -1,0 +1,92 @@
+.container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 20px;
+}
+
+.loadingSpinner,
+.errorContainer,
+.successContainer {
+  background: white;
+  border-radius: 16px;
+  padding: 40px;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+  max-width: 400px;
+  width: 100%;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #4285f4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.errorIcon,
+.successIcon {
+  font-size: 48px;
+  margin-bottom: 20px;
+}
+
+.loadingSpinner h2,
+.errorContainer h2,
+.successContainer h2 {
+  color: #333;
+  margin-bottom: 16px;
+  font-size: 24px;
+  font-weight: 600;
+}
+
+.loadingSpinner p,
+.errorContainer p,
+.successContainer p {
+  color: #666;
+  font-size: 16px;
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.errorContainer {
+  border-left: 4px solid #ff4444;
+}
+
+.successContainer {
+  border-left: 4px solid #00C851;
+}
+
+// Responsive design
+@media (max-width: 480px) {
+  .container {
+    padding: 10px;
+  }
+  
+  .loadingSpinner,
+  .errorContainer,
+  .successContainer {
+    padding: 30px 20px;
+  }
+  
+  .loadingSpinner h2,
+  .errorContainer h2,
+  .successContainer h2 {
+    font-size: 20px;
+  }
+  
+  .loadingSpinner p,
+  .errorContainer p,
+  .successContainer p {
+    font-size: 14px;
+  }
+}

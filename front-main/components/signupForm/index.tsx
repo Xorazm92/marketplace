@@ -7,6 +7,7 @@ import { isValidUzbekPhoneNumber } from "../../utils/validator";
 import { setLocalStorage } from "../../utils/local-storege";
 import { useSendOtp } from "../../hooks/auth";
 import { toast } from "react-toastify";
+import GoogleLoginButton from "../auth/GoogleLoginButton";
 
 const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
   const [user, setUser] = useState({
@@ -127,6 +128,13 @@ const UserSignUpForm = ({ onNext }: { onNext: () => void }) => {
             "Ro'yxatdan o'tish"
           )}
         </button>
+
+        <div className={style.divider}>
+          <span>yoki</span>
+        </div>
+
+        <GoogleLoginButton text="Google orqali ro'yxatdan o'tish" />
+
         <p className={style.link_text}>
           Hisobingiz bormi?{" "}
           <a href="/login" className={style.link}>

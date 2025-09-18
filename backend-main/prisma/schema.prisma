@@ -30,6 +30,7 @@ model User {
   last_name            String
   password             String
   profile_img          String?
+  google_id            String?         @unique
   is_active            Boolean         @default(true)
   is_premium           Boolean         @default(false)
   birth_date           String?

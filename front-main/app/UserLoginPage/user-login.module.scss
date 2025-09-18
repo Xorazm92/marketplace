@@ -131,10 +131,33 @@
     box-shadow: 0 0 0 3px rgba(255, 77, 79, 0.1) !important;
   }
 }
+
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  
+  &::before,
+  &::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: #e1e5e9;
+  }
+  
+  span {
+    padding: 0 16px;
+    color: #666;
+    font-size: 14px;
+    font-weight: 500;
+  }
+}
+
 .link_text {
-  margin-top: 1rem;
   text-align: center;
+  color: #666;
   font-size: 14px;
+  margin: 0;
 }
 
 .link {
