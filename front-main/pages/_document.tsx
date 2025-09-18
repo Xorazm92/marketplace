@@ -162,9 +162,9 @@ export default function Document() {
         <meta name="apple-mobile-web-app-title" content="INBOLA" />
         
         {/* Performance optimizations */}
-        <link rel="preload" href="/fonts/SF-Pro-Display-Regular.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/SF-Pro-Display-Medium.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/SF-Pro-Display-Bold.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Regular.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Medium.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Bold.otf" as="font" type="font/otf" crossOrigin="anonymous" />
       </Head>
       <body>
         <Main />

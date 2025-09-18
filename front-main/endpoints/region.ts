@@ -6,7 +6,7 @@ export const getRegions = async () => {
     const res = await instance.get("/region");
     return res.data;
   } catch (error: any) {
-    console.log(error);
+    if (process.env.NODE_ENV === "development") console.log(error);
     toast.error(` ${error.response.data.message}`);
   }
 };

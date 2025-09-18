@@ -152,7 +152,9 @@ const Layout: React.FC<LayoutProps> = ({
                 end: '20:00'
               }
             }}
-            onProductSelect={(id) => console.log('Product selected:', id)}
+            onProductSelect={(id) => {
+              if (process.env.NODE_ENV === "development") console.log('Product selected:', id);
+            }}
           />
           {children}
         </div>

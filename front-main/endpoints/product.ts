@@ -56,7 +56,7 @@ export const createProduct = async ({
       formData.append("images", img);
     });
     try {
-      console.log(formData.get("address_id"));
+      if (process.env.NODE_ENV === "development") console.log(formData.get("address_id"));
 
       const res = await instance.post("/product/create", formData, {
         headers: {
@@ -64,17 +64,17 @@ export const createProduct = async ({
           Authorization: `Bearer ${token}`,
         },
       });
-      console.log(res.data);
+      if (process.env.NODE_ENV === "development") console.log(res.data);
       return res.data;
     } catch (error: any) {
-      console.log("Errorjon:", error);
+      if (process.env.NODE_ENV === "development") console.log("Errorjon:", error);
       toast.error(error.response?.data?.message || "Something went wrong");
     }
-    // console.log( "Product created successfully: ",res.data);
+    // if (process.env.NODE_ENV === "development") console.log( "Product created successfully: ",res.data);
 
     // return res.data;
   } catch (error: any) {
-    console.log("Errorjon:", error);
+    if (process.env.NODE_ENV === "development") console.log("Errorjon:", error);
     toast.error(error.response?.data?.message || "Something went wrong");
   }
 };
@@ -148,8 +148,8 @@ export const getAllProducts = async (params?: { category?: string; limit?: numbe
 
 export const addProductImage = async (productId: number, image: File) => {
   try {
-    console.log("productId: ", productId);
-    console.log("product image", image);
+    if (process.env.NODE_ENV === "development") console.log("productId: ", productId);
+    if (process.env.NODE_ENV === "development") console.log("product image", image);
 
     const formData = new FormData();
     formData.append('image', image); // The field name should match what your backend expects, typically 'image' or 'file'
@@ -178,7 +178,7 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       const demoToken = "demo-admin-token-for-development";
       localStorage.setItem("accessToken", JSON.stringify(demoToken));
       token = demoToken;
-      console.log("Demo token created for development");
+      if (process.env.NODE_ENV === "development") console.log("Demo token created for development");
     }
 
     if (!token) {
@@ -231,9 +231,9 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     });
 
     // Debug FormData contents
-    console.log("=== FORMDATA DEBUG ===");
+    if (process.env.NODE_ENV === "development") console.log("=== FORMDATA DEBUG ===");
     for (let [key, value] of formData.entries()) {
-      console.log(`${key}:`, value);
+      if (process.env.NODE_ENV === "development") console.log(`${key}:`, value);
     }
 
     // Use direct URL to ensure correct endpoint
@@ -262,7 +262,7 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
 
 export const deleteProductImage = async (productId: number, imageId: number) => {
   try {
-    console.log(productId, imageId);
+    if (process.env.NODE_ENV === "development") console.log(productId, imageId);
     
     const res = await instance.delete(`/product/${productId}/image/${imageId}`, {
       headers: {

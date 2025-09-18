@@ -14,7 +14,7 @@ const generalSlice = createSlice({
     },
 
     toggleCreateRoomModal: (state) => {
-      console.log("Working toggle modal")
+      if (process.env.NODE_ENV === "development") console.log("Working toggle modal")
       state.isCreateRoomModalOpen = !state.isCreateRoomModalOpen
     },
   },

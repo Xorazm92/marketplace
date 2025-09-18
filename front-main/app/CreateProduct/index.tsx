@@ -167,7 +167,7 @@ const CreateProduct = () => {
         router.push("/");
       }
     } catch (error: any) {
-      console.log("Error: ", error);
+      if (process.env.NODE_ENV === "development") console.log("Error: ", error);
       toast.error(error.response?.data?.message || "Mahsulot yaratishda xatolik");
     }
   };

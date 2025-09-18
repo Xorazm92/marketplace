@@ -29,16 +29,16 @@ const API_CACHE_PATTERNS = [
 
 // Install event - cache static files
 self.addEventListener('install', (event) => {
-  console.log('SW: Installing service worker...');
+  if (process.env.NODE_ENV === "development") console.log('SW: Installing service worker...');
   
   event.waitUntil(
     caches.open(STATIC_CACHE)
       .then((cache) => {
-        console.log('SW: Caching static files');
+        if (process.env.NODE_ENV === "development") console.log('SW: Caching static files');
         return cache.addAll(STATIC_FILES);
       })
       .then(() => {
-        console.log('SW: Static files cached successfully');
+        if (process.env.NODE_ENV === "development") console.log('SW: Static files cached successfully');
         return self.skipWaiting();
       })
       .catch((error) => {
@@ -49,7 +49,7 @@ self.addEventListener('install', (event) => {
 
 // Activate event - clean up old caches
 self.addEventListener('activate', (event) => {
-  console.log('SW: Activating service worker...');
+  if (process.env.NODE_ENV === "development") console.log('SW: Activating service worker...');
   
   event.waitUntil(
     caches.keys()
@@ -59,14 +59,14 @@ self.addEventListener('activate', (event) => {
             if (cacheName !== STATIC_CACHE && 
                 cacheName !== DYNAMIC_CACHE && 
                 cacheName !== IMAGE_CACHE) {
-              console.log('SW: Deleting old cache:', cacheName);
+              if (process.env.NODE_ENV === "development") console.log('SW: Deleting old cache:', cacheName);
               return caches.delete(cacheName);
             }
           })
         );
       })
       .then(() => {
-        console.log('SW: Service worker activated');
+        if (process.env.NODE_ENV === "development") console.log('SW: Service worker activated');
         return self.clients.claim();
       })
   );
@@ -110,7 +110,7 @@ async function handleImageRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.log('SW: Image request failed:', error);
+    if (process.env.NODE_ENV === "development") console.log('SW: Image request failed:', error);
     return new Response('Image not available', { status: 404 });
   }
 }
@@ -136,7 +136,7 @@ async function handleAPIRequest(request) {
       throw networkError;
     }
   } catch (error) {
-    console.log('SW: API request failed:', error);
+    if (process.env.NODE_ENV === "development") console.log('SW: API request failed:', error);
     return new Response(JSON.stringify({ 
       error: 'Network unavailable', 
       offline: true 
@@ -153,7 +153,7 @@ async function handleNavigationRequest(request) {
     const networkResponse = await fetch(request);
     return networkResponse;
   } catch (error) {
-    console.log('SW: Navigation request failed, serving offline page');
+    if (process.env.NODE_ENV === "development") console.log('SW: Navigation request failed, serving offline page');
     const cache = await caches.open(STATIC_CACHE);
     return cache.match('/offline.html') || 
            cache.match('/') || 
@@ -177,7 +177,7 @@ async function handleStaticRequest(request) {
     }
     return networkResponse;
   } catch (error) {
-    console.log('SW: Static request failed:', error);
+    if (process.env.NODE_ENV === "development") console.log('SW: Static request failed:', error);
     return new Response('Resource not available', { status: 404 });
   }
 }
@@ -194,7 +194,7 @@ function isNavigationRequest(request) {
 
 // Background sync for offline actions
 self.addEventListener('sync', (event) => {
-  console.log('SW: Background sync triggered:', event.tag);
+  if (process.env.NODE_ENV === "development") console.log('SW: Background sync triggered:', event.tag);
   
   if (event.tag === 'cart-sync') {
     event.waitUntil(syncCart());
@@ -205,7 +205,7 @@ self.addEventListener('sync', (event) => {
 
 // Push notification handler
 self.addEventListener('push', (event) => {
-  console.log('SW: Push notification received');
+  if (process.env.NODE_ENV === "development") console.log('SW: Push notification received');
   
   const options = {
     body: event.data ? event.data.text() : 'Yangi xabar!',
@@ -237,7 +237,7 @@ self.addEventListener('push', (event) => {
 
 // Notification click handler
 self.addEventListener('notificationclick', (event) => {
-  console.log('SW: Notification clicked');
+  if (process.env.NODE_ENV === "development") console.log('SW: Notification clicked');
   
   event.notification.close();
 
@@ -306,4 +306,4 @@ async function clearOfflineOrderData() {
   // Implementation would clear IndexedDB
 }
 
-console.log('SW: Service worker loaded successfully');
+if (process.env.NODE_ENV === "development") console.log('SW: Service worker loaded successfully');

@@ -27,9 +27,9 @@ const PhoneSection = () => {
   const fetchPhones = async (id: number | undefined) => {
     setLoading(true);
     const data = await getPhones(id);
-    console.log("dara: ", data);
+    if (process.env.NODE_ENV === "development") console.log("dara: ", data);
     if (data) setPhones(data);
-    console.log('data: ', data);
+    if (process.env.NODE_ENV === "development") console.log('data: ', data);
     setLoading(false);
   };
 
@@ -49,7 +49,7 @@ const PhoneSection = () => {
   };
 
   const handleDeletePhone = async (phoneId: number) => {
-    console.log('delete bosildi');
+    if (process.env.NODE_ENV === "development") console.log('delete bosildi');
     const confirmed = window.confirm('Ишончингиз комилми?');
     if (!confirmed) return;
 
@@ -57,7 +57,7 @@ const PhoneSection = () => {
     if (res == false) {
       toast('something went wrong on deleting');
     } else {
-      console.log('res: ', res);
+      if (process.env.NODE_ENV === "development") console.log('res: ', res);
       setPhones((prev) => prev.filter((item) => item.id !== phoneId));
     }
   };

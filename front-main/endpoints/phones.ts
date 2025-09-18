@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 export const getPhones = async (id: number | undefined) => {
   try {
-    console.log("phone-number: ", id);
+    if (process.env.NODE_ENV === "development") console.log("phone-number: ", id);
     const res = await instance.get(`/phone-number/byUser/${id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(
@@ -11,7 +11,7 @@ export const getPhones = async (id: number | undefined) => {
         )}`,
       },
     });
-    console.log("phones: ", res.data);
+    if (process.env.NODE_ENV === "development") console.log("phones: ", res.data);
     return res.data;
   } catch (error: any) {
     console.error(error);
@@ -55,8 +55,8 @@ export const deletePhone = async (
   phone_id: number,
 ): Promise<boolean> => {
   try {
-    console.log("user_id: ", id);
-    console.log("phone_id: ", phone_id);
+    if (process.env.NODE_ENV === "development") console.log("user_id: ", id);
+    if (process.env.NODE_ENV === "development") console.log("phone_id: ", phone_id);
     const result = await instance.delete(
       `/phone-number/${id}?phoneId=${phone_id}`,
       {
@@ -67,7 +67,7 @@ export const deletePhone = async (
         },
       },
     );
-    console.log("result: ", result);
+    if (process.env.NODE_ENV === "development") console.log("result: ", result);
     toast.success("Телефон рақам ўчирилди");
     return true;
   } catch (error: any) {

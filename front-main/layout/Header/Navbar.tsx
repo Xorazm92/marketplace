@@ -108,7 +108,7 @@ const Navbar = () => {
     e.preventDefault();
     if (searchQuery.trim()) {
       // Handle search functionality
-      console.log("Searching for:", searchQuery);
+      if (process.env.NODE_ENV === "development") console.log("Searching for:", searchQuery);
     }
   };
 

@@ -75,7 +75,7 @@ const FeaturedProducts: React.FC = () => {
 
       if (response.ok) {
         // Update UI to show added to wishlist
-        console.log('Added to wishlist');
+        if (process.env.NODE_ENV === "development") console.log('Added to wishlist');
       }
     } catch (error) {
       console.error('Error adding to wishlist:', error);
@@ -101,7 +101,7 @@ const FeaturedProducts: React.FC = () => {
 
       if (response.ok) {
         // Update UI to show added to cart
-        console.log('Added to cart');
+        if (process.env.NODE_ENV === "development") console.log('Added to cart');
       }
     } catch (error) {
       console.error('Error adding to cart:', error);

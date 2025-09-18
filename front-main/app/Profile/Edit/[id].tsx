@@ -249,7 +249,7 @@ const EditProduct = () => {
       )
       
       if (imageToDelete?.id) {
-        console.log(imageToDelete);
+        if (process.env.NODE_ENV === "development") console.log(imageToDelete);
         await deleteProductImage(imageToDelete.product_id,imageToDelete.id)
         // Remove the image from the UI
         setExistingImages(prev => prev.filter((_, i) => i !== index))
@@ -278,7 +278,7 @@ const EditProduct = () => {
             },
             {
               onSuccess: (data) => {
-                console.log("Image added successfully:", data)
+                if (process.env.NODE_ENV === "development") console.log("Image added successfully:", data)
                 if (data?.url) {
                   // Add the new image URL to existing images
                   setExistingImages((prev) => [...prev, data.url])
@@ -365,14 +365,14 @@ editProduct(
         if (images.length > 0) {
           // Use useAddProductImage here
         }
-        console.log("response: ", response)
+        if (process.env.NODE_ENV === "development") console.log("response: ", response)
         toast.success("Product updated successfully")
         router.push(`/productdetails/${id}`)
       }
     }
   )
     } catch (error: any) {
-      console.log("Error in handleClickPublishing:", error)
+      if (process.env.NODE_ENV === "development") console.log("Error in handleClickPublishing:", error)
       toast.error(error.response?.data?.message || "Failed to update product")
     }
   }

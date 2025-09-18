@@ -55,7 +55,7 @@ const AdminPage: React.FC = () => {
       setIsLoading(true);
 
       // Hozircha mock data ishlatamiz (authentication kerak bo'lganda real API'ga o'tamiz)
-      console.log('📊 Loading dashboard data with mock data...');
+      if (process.env.NODE_ENV === "development") console.log('📊 Loading dashboard data with mock data...');
 
       const mockOrderStats = {
         totalOrders: 45,
@@ -96,7 +96,7 @@ const AdminPage: React.FC = () => {
         topProducts: mockProducts.data.slice(0, 5)
       });
 
-      console.log('✅ Dashboard data loaded successfully');
+      if (process.env.NODE_ENV === "development") console.log('✅ Dashboard data loaded successfully');
     } catch (error) {
       console.error('❌ Error loading dashboard data:', error);
       // Fallback data

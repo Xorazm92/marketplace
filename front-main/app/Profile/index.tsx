@@ -63,7 +63,7 @@ const Profile = () => {
     birth_date: string;
     profile_img: string;
   }) => {
-    console.log("");
+    if (process.env.NODE_ENV === "development") console.log("");
   };
 
   const toggleFavorite = (id: number) => {

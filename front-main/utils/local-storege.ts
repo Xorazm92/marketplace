@@ -5,7 +5,14 @@ export const setLocalStorage = (key: string, data: any) => {
 export const getLocalStorage = (key: string) => {
   if (typeof window === "undefined") return null;
   const data = localStorage.getItem(key);
-  return data ? JSON.parse(data) : null;
+  if (!data) return null;
+  
+  try {
+    return JSON.parse(data);
+  } catch (e) {
+    // If it's not valid JSON, return the raw string
+    return data;
+  }
 };
 
 export const removeLocalStorage = (key: string) => {

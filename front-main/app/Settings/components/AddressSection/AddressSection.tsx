@@ -103,7 +103,7 @@ const AddressSection = () => {
         const { user_id, name, lat, long, address, region_id, district_id } =
           addressData;
 
-        console.log('addressData: ', addressData);
+        if (process.env.NODE_ENV === "development") console.log('addressData: ', addressData);
 
         if (!name || !lat || !long || !address) {
           toast.error('Iltimos, xaritadan to‘liq manzil tanlang');
@@ -153,7 +153,7 @@ const AddressSection = () => {
           district_id: addressData.district_id || undefined,
           address: fullAddress.trim(),
         };
-        console.log('newAddress: ', newAddress);
+        if (process.env.NODE_ENV === "development") console.log('newAddress: ', newAddress);
         const cleanedAddress: AddAddress = {
           user_id: Number(user?.id),
           name: name.trim(),
@@ -378,7 +378,7 @@ const AddressSection = () => {
                     onChange={(e) => {
                       setAddressData({ ...addressData, name: e.target.value });
                       setName(e.target.value);
-                      console.log(e.target.value);
+                      if (process.env.NODE_ENV === "development") console.log(e.target.value);
                     }}
                     className={styles.input}
                     placeholder="Например: Дом, Офис..."

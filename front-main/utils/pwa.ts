@@ -15,14 +15,14 @@ export class PWAService {
     if ('serviceWorker' in navigator) {
       try {
         this.swRegistration = await navigator.serviceWorker.register('/sw.js');
-        console.log('SW registered: ', this.swRegistration);
+        if (process.env.NODE_ENV === "development") console.log('SW registered: ', this.swRegistration);
         
         // Check for updates
         this.swRegistration.addEventListener('updatefound', () => {
           this.handleUpdateFound();
         });
       } catch (registrationError) {
-        console.log('SW registration failed: ', registrationError);
+        if (process.env.NODE_ENV === "development") console.log('SW registration failed: ', registrationError);
       }
     }
   }
@@ -85,7 +85,7 @@ export class PWAService {
   // Push notification setup
   async requestNotificationPermission(): Promise<boolean> {
     if (!('Notification' in window)) {
-      console.log('This browser does not support notifications');
+      if (process.env.NODE_ENV === "development") console.log('This browser does not support notifications');
       return false;
     }
 
@@ -103,7 +103,7 @@ export class PWAService {
 
   async subscribeToPushNotifications(): Promise<PushSubscription | null> {
     if (!this.swRegistration) {
-      console.log('Service worker not registered');
+      if (process.env.NODE_ENV === "development") console.log('Service worker not registered');
       return null;
     }
 
@@ -119,7 +119,7 @@ export class PWAService {
       await this.sendSubscriptionToServer(subscription);
       return subscription;
     } catch (error) {
-      console.log('Error subscribing to push notifications:', error);
+      if (process.env.NODE_ENV === "development") console.log('Error subscribing to push notifications:', error);
       return null;
     }
   }
@@ -134,7 +134,7 @@ export class PWAService {
         body: JSON.stringify(subscription),
       });
     } catch (error) {
-      console.log('Error sending subscription to server:', error);
+      if (process.env.NODE_ENV === "development") console.log('Error sending subscription to server:', error);
     }
   }
 
@@ -227,9 +227,9 @@ export class PWAService {
     const { outcome } = await this.deferredPrompt.userChoice;
     
     if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
+      if (process.env.NODE_ENV === "development") console.log('User accepted the install prompt');
     } else {
-      console.log('User dismissed the install prompt');
+      if (process.env.NODE_ENV === "development") console.log('User dismissed the install prompt');
     }
     
     this.deferredPrompt = null;

@@ -59,7 +59,7 @@ const ChatWindow: React.FC = () => {
     if (deletedData?.messageDeleted?.id) {
       const deletedId = deletedData.messageDeleted.id;
       setMessages((prev) => prev.filter((m) => {
-        console.log(m.id)
+        if (process.env.NODE_ENV === "development") console.log(m.id)
         if(m.id !== deletedId)
           return m.id
       }));

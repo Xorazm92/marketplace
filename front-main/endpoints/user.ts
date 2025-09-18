@@ -93,9 +93,9 @@ export const getAddresses = async () => {
 };
 export const updateUser = async (id: number, data: FormData) => {
   try {
-    console.log("FormData ichidagi qiymatlar:");
+    if (process.env.NODE_ENV === "development") console.log("FormData ichidagi qiymatlar:");
     for (const pair of data.entries()) {
-      console.log(`${pair[0]}: ${pair[1]}`);
+      if (process.env.NODE_ENV === "development") console.log(`${pair[0]}: ${pair[1]}`);
     }
 
     const response = await instance.put(`/user/${id}`, data, {

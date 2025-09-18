@@ -1,0 +1,28 @@
+.aboutContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.title {
+  font-size: 2.5rem;
+  color: var(--etsy-black);
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.content {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--etsy-gray);
+}
+
+.section {
+  margin-bottom: 2rem;
+}
+
+.sectionTitle {
+  font-size: 1.5rem;
+  color: var(--etsy-black);
+  margin-bottom: 1rem;
+}

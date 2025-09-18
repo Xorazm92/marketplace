@@ -132,7 +132,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ userId }) => {
 
   const handleAddToCart = (item: WishlistItem) => {
     // Cart ga qo'shish logikasi
-    console.log('Adding to cart:', item);
+    if (process.env.NODE_ENV === "development") console.log('Adding to cart:', item);
     alert(`"${item.title}" savatchaga qo'shildi!`);
   };
 
@@ -144,7 +144,7 @@ const WishlistPage: React.FC<WishlistPageProps> = ({ userId }) => {
     }
     
     // Barcha mavjud mahsulotlarni cart ga qo'shish
-    console.log('Adding all to cart:', inStockItems);
+    if (process.env.NODE_ENV === "development") console.log('Adding all to cart:', inStockItems);
     alert(`${inStockItems.length} ta mahsulot savatchaga qo'shildi!`);
   };
 

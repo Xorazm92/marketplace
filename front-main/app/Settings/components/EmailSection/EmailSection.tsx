@@ -32,11 +32,11 @@ const EmailSection = () => {
   const fetchEmails = async (userId: number | undefined) => {
     setLoading(true);
     const data = await getEmails(userId);
-    console.log("emails:  :", userId);
-    console.log("emails:  :", data);
+    if (process.env.NODE_ENV === "development") console.log("emails:  :", userId);
+    if (process.env.NODE_ENV === "development") console.log("emails:  :", data);
     if (data && Array.isArray(data)) {
       setEmails(data);
-      console.log("emails: ", data);
+      if (process.env.NODE_ENV === "development") console.log("emails: ", data);
     }
     setLoading(false);
   };

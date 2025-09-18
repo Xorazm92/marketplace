@@ -21,7 +21,7 @@ export const getAddresses = async (id: number | undefined) => {
 
 export const addAddress = async (address: AddAddress) => {
   try {
-    console.log("address: ", address);
+    if (process.env.NODE_ENV === "development") console.log("address: ", address);
     const res = await instance.post(
       `/address/byUser/${address.user_id}`,
       address, // ✅ to'g'ridan-to'g'ri yuboriladi

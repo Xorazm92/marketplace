@@ -101,7 +101,7 @@ const EtsyStyleProductCard: React.FC<EtsyStyleProductCardProps> = ({
     e.preventDefault();
     e.stopPropagation();
     // Quick view modal logic here
-    console.log('Quick view:', product.id);
+    if (process.env.NODE_ENV === "development") console.log('Quick view:', product.id);
   };
 
   const productUrl = `/product/${product.slug || product.id}`;

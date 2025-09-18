@@ -60,7 +60,7 @@ const RoomList: React.FC = () => {
   }
 
   if (error) {
-    console.log(error)
+    if (process.env.NODE_ENV === "development") console.log(error)
     return <div className={styles.error}>Error loading chats.</div>;
   }
 

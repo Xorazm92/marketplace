@@ -55,7 +55,7 @@ const ProductManagement: React.FC = () => {
       dispatch(setLoading(true));
 
       // Load real products from API
-      console.log('Loading products from API...');
+      if (process.env.NODE_ENV === "development") console.log('Loading products from API...');
       const apiProducts = await getAllProducts();
 
       if (apiProducts && Array.isArray(apiProducts)) {
@@ -79,8 +79,8 @@ const ProductManagement: React.FC = () => {
 
   // Load products on component mount
   useEffect(() => {
-    console.log('=== ADMIN PANEL LOADING ===');
-    console.log('Current products in Redux:', realProducts);
+    if (process.env.NODE_ENV === "development") console.log('=== ADMIN PANEL LOADING ===');
+    if (process.env.NODE_ENV === "development") console.log('Current products in Redux:', realProducts);
     loadProducts();
   }, [loadProducts]);
 
@@ -213,15 +213,15 @@ const ProductManagement: React.FC = () => {
           dimensions: JSON.stringify({length: 20, width: 15, height: 10}) // JSON string
         };
 
-        console.log('Sending product data to API:', productData);
-        console.log('Images:', images);
+        if (process.env.NODE_ENV === "development") console.log('Sending product data to API:', productData);
+        if (process.env.NODE_ENV === "development") console.log('Images:', images);
 
         // Call API to create product (temporarily without images for testing)
-        console.log('Calling API with data:', productData);
+        if (process.env.NODE_ENV === "development") console.log('Calling API with data:', productData);
         const apiResponse = await createAdminProduct(productData, []);
 
         if (apiResponse && apiResponse.product) {
-          console.log('Product created successfully:', apiResponse);
+          if (process.env.NODE_ENV === "development") console.log('Product created successfully:', apiResponse);
 
           // Don't add to Redux store manually, just reload from API
           toast.success('Mahsulot database ga muvaffaqiyatli qo\'shildi!');

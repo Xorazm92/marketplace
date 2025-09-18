@@ -29,7 +29,7 @@ const UserLoginPage = () => {
 
     try {
       const res = await login({ phone_number: phone, password });
-      console.log(res);
+      if (process.env.NODE_ENV === "development") console.log(res);
       if (res?.status_code === 200) {
         toast.success("Muvaffaqiyatli kirish");
         const { data } = res;

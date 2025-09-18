@@ -26,7 +26,7 @@ const CategoryGrid: React.FC = () => {
       try {
         setLoading(true);
         const response = await getAllCategories();
-        console.log('Categories API response:', response);
+        if (process.env.NODE_ENV === "development") console.log('Categories API response:', response);
 
         // Safe processing of categories
         if (response && response.data && Array.isArray(response.data)) {
@@ -44,7 +44,7 @@ const CategoryGrid: React.FC = () => {
               createdAt: String(cat.createdAt || new Date().toISOString()),
               updatedAt: String(cat.updatedAt || new Date().toISOString())
             };
-            console.log('Processed category:', safeCat);
+            if (process.env.NODE_ENV === "development") console.log('Processed category:', safeCat);
             return safeCat;
           });
           setRealCategories(processedCategories);

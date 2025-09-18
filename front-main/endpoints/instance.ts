@@ -29,7 +29,7 @@ instance.interceptors.request.use(
 
     // Debug log
     if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
-      console.log('🔗 API Request:', {
+      if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.log('🔗 API Request:', {
         method: config.method?.toUpperCase(),
         url: config.url,
         baseURL: config.baseURL,
@@ -50,7 +50,7 @@ instance.interceptors.response.use(
   (response: AxiosResponse) => {
     // Debug log
     if (process.env.NEXT_PUBLIC_DEBUG_MODE === 'true') {
-      console.log('✅ API Response:', {
+      if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.log('✅ API Response:', {
         status: response.status,
         url: response.config.url,
         data: response.data,
@@ -108,7 +108,7 @@ export const checkApiHealth = async (): Promise<boolean> => {
     const response = await axios.get(`${API_BASE_URL}/health`, {
       timeout: 5000,
     });
-    console.log('💚 API Health Check:', response.data);
+    if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.log('💚 API Health Check:', response.data);
     return response.status === 200;
   } catch (error) {
     console.error('❌ API Health Check failed:', error);
@@ -119,11 +119,11 @@ export const checkApiHealth = async (): Promise<boolean> => {
 // API connection test
 export const testApiConnection = async (): Promise<void> => {
   try {
-    console.log('🔍 Testing API connection...');
+    if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.log('🔍 Testing API connection...');
     const isHealthy = await checkApiHealth();
     
     if (isHealthy) {
-      console.log('✅ API connection successful');
+      if (process.env.NODE_ENV === "development") if (process.env.NODE_ENV === "development") console.log('✅ API connection successful');
     } else {
       console.error('❌ API connection failed');
     }

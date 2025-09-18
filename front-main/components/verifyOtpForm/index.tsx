@@ -13,7 +13,6 @@ import { toast } from "react-toastify";
 import { useDispatch } from "react-redux";
 import { loginSuccess } from "../../store/features/authSlice";
 import { useRouter } from "next/router";
-import { cookies } from "next/headers";
 
 const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
   const [otp, setOtp] = useState(["", "", "", ""]);
@@ -112,10 +111,20 @@ const VerifyOtpForm = ({ onNext }: { onNext: () => void }) => {
       toast.error("Xatolik yuz berdi");
       return onNext();
     }
+    
+    if (!user?.phoneNumber) {
+      console.error("❌ Missing phone in form");
+      toast.error("Telefon raqami topilmadi");
+      return;
+    }
+    
     const code = otp.join("");
 
     // verify phone number by otp code
-    const res = await verifyOtp({ verification_key: user?.key, code });
+    const res = await verifyOtp({ 
+      verification_key: user?.key,
+      code: code
+    });
     if (res?.status) {
       // after verify phone number create user
       const resSignup = await signUp({

@@ -120,17 +120,17 @@ const ProductDetailPage: React.FC = () => {
 
   const handleAddToCart = () => {
     // Cart ga qo'shish logikasi
-    console.log('Adding to cart:', { productId: product.id, quantity });
+    if (process.env.NODE_ENV === "development") console.log('Adding to cart:', { productId: product.id, quantity });
   };
 
   const handleAddToWishlist = () => {
     // Wishlist ga qo'shish logikasi
-    console.log('Adding to wishlist:', product.id);
+    if (process.env.NODE_ENV === "development") console.log('Adding to wishlist:', product.id);
   };
 
   const handleBuyNow = () => {
     // Darhol sotib olish logikasi
-    console.log('Buy now:', { productId: product.id, quantity });
+    if (process.env.NODE_ENV === "development") console.log('Buy now:', { productId: product.id, quantity });
   };
 
   return (

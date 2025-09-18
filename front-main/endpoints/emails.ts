@@ -3,7 +3,7 @@ import { toast } from "react-toastify";
 
 export const getEmails = async (id: number | undefined) => {
   try {
-    console.log(
+    if (process.env.NODE_ENV === "development") console.log(
       "keldi: ",
       JSON.parse(localStorage.getItem("accessToken") || ""),
     );
@@ -14,7 +14,7 @@ export const getEmails = async (id: number | undefined) => {
         )}`,
       },
     });
-    console.log("keldi4", res.data);
+    if (process.env.NODE_ENV === "development") console.log("keldi4", res.data);
     return res.data;
   } catch (error: any) {
     console.error(error);
@@ -24,7 +24,7 @@ export const getEmails = async (id: number | undefined) => {
 
 export const addEmail = async (id: number | undefined, email: string) => {
   try {
-    console.log("my email: ", email);
+    if (process.env.NODE_ENV === "development") console.log("my email: ", email);
     const res = await instance.post(
       `/email/byUser/${id}`,
       { user_id: id, email, is_main: true },
@@ -49,8 +49,8 @@ export const deleteEmail = async (
   user_id: number | undefined,
 ) => {
   try {
-    console.log("email_id: ", email_id);
-    console.log("user_id: ", user_id);
+    if (process.env.NODE_ENV === "development") console.log("email_id: ", email_id);
+    if (process.env.NODE_ENV === "development") console.log("user_id: ", user_id);
     await instance.delete(`/email/${user_id}?emailId=${email_id}`, {
       headers: {
         Authorization: `Bearer ${JSON.parse(

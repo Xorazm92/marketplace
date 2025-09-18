@@ -57,7 +57,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
   const handleProfileSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     // API call to update profile
-    console.log('Updating profile:', profileData);
+    if (process.env.NODE_ENV === "development") console.log('Updating profile:', profileData);
     alert('Profil ma\'lumotlari yangilandi!');
   };
 
@@ -75,7 +75,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
     }
     
     // API call to change password
-    console.log('Changing password');
+    if (process.env.NODE_ENV === "development") console.log('Changing password');
     alert('Parol muvaffaqiyatli o\'zgartirildi!');
     setPasswordData({
       currentPassword: '',
@@ -90,7 +90,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
       [key]: value
     }));
     // API call to update notification settings
-    console.log('Updating notification settings:', { [key]: value });
+    if (process.env.NODE_ENV === "development") console.log('Updating notification settings:', { [key]: value });
   };
 
   const handlePrivacyChange = (key: string, value: any) => {
@@ -99,7 +99,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
       [key]: value
     }));
     // API call to update privacy settings
-    console.log('Updating privacy settings:', { [key]: value });
+    if (process.env.NODE_ENV === "development") console.log('Updating privacy settings:', { [key]: value });
   };
 
   const handleDeleteAccount = () => {
@@ -110,7 +110,7 @@ const AccountSettings: React.FC<AccountSettingsProps> = ({ user }) => {
     if (confirmation === 'DELETE') {
       if (window.confirm('Rostdan ham hisobingizni o\'chirmoqchimisiz? Bu amalni bekor qilib bo\'lmaydi!')) {
         // API call to delete account
-        console.log('Deleting account');
+        if (process.env.NODE_ENV === "development") console.log('Deleting account');
         alert('Hisobingiz o\'chirildi. Xayr!');
       }
     } else if (confirmation !== null) {

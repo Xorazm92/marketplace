@@ -58,9 +58,9 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
 
         // First check Redux store
         if (currentProducts.length > 0) {
-          console.log('All products from Redux:', currentProducts);
-          console.log('Looking for category:', title, 'or products:', products);
-          console.log('First product structure:', currentProducts[0]);
+          if (process.env.NODE_ENV === "development") console.log('All products from Redux:', currentProducts);
+          if (process.env.NODE_ENV === "development") console.log('Looking for category:', title, 'or products:', products);
+          if (process.env.NODE_ENV === "development") console.log('First product structure:', currentProducts[0]);
 
           // Filter products by category from Redux store with safe checks
           const filteredProducts = currentProducts.filter(product => {
@@ -68,7 +68,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
               // Safe category extraction
               const productCategory = product?.category;
               if (!productCategory || typeof productCategory !== 'string') {
-                console.log('Product without valid category:', product);
+                if (process.env.NODE_ENV === "development") console.log('Product without valid category:', product);
                 return false; // Skip products without valid category
               }
 
@@ -76,7 +76,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
               const titleLower = title.toLowerCase();
               const productsLower = products.toLowerCase();
 
-              console.log(`Comparing: "${productCategory}" with title: "${title}" and products: "${products}"`);
+              if (process.env.NODE_ENV === "development") console.log(`Comparing: "${productCategory}" with title: "${title}" and products: "${products}"`);
 
               // Enhanced matching strategies
               const isMatch = (
@@ -128,7 +128,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
                 ))
               );
 
-              console.log(`Match result for "${productCategory}": ${isMatch}`);
+              if (process.env.NODE_ENV === "development") console.log(`Match result for "${productCategory}": ${isMatch}`);
               return isMatch;
             } catch (error) {
               console.error('Error filtering product:', error, product);
@@ -136,7 +136,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
             }
           });
 
-          console.log('Filtered products:', filteredProducts);
+          if (process.env.NODE_ENV === "development") console.log('Filtered products:', filteredProducts);
 
           if (filteredProducts.length > 0) {
             setRealProducts(filteredProducts.slice(0, 8)); // Show max 8 products
@@ -144,7 +144,7 @@ const ProductSection: React.FC<ProductSectionProps> = ({ title, viewAllLink, pro
             return;
           } else {
             // If no specific category match, show all available products
-            console.log('No category match found, showing all products for:', title);
+            if (process.env.NODE_ENV === "development") console.log('No category match found, showing all products for:', title);
             if (currentProducts.length > 0) {
               setRealProducts(currentProducts.slice(0, 4)); // Show first 4 products
             } else {

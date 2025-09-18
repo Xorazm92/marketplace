@@ -28,9 +28,9 @@ const HomePage: React.FC = () => {
 
           // Try to load from API
           try {
-            console.log('Loading products from API...');
+            if (process.env.NODE_ENV === "development") console.log('Loading products from API...');
             const response = await getAllProducts();
-            console.log('API Response:', response);
+            if (process.env.NODE_ENV === "development") console.log('API Response:', response);
 
             if (response && response.length > 0) {
               // Safe processing of API products
@@ -54,7 +54,7 @@ const HomePage: React.FC = () => {
                 user: product.user || { first_name: 'User', last_name: '' }
               }));
 
-              console.log('Processed products:', safeProducts);
+              if (process.env.NODE_ENV === "development") console.log('Processed products:', safeProducts);
               dispatch(setProducts(safeProducts));
 
               // Cache products in localStorage
@@ -63,12 +63,12 @@ const HomePage: React.FC = () => {
               return;
             }
           } catch (apiError) {
-            console.log('API error:', apiError);
-            console.log('API not available, using mock data');
+            if (process.env.NODE_ENV === "development") console.log('API error:', apiError);
+            if (process.env.NODE_ENV === "development") console.log('API not available, using mock data');
           }
 
           // If API fails, show empty state
-          console.log('No products available from API');
+          if (process.env.NODE_ENV === "development") console.log('No products available from API');
           dispatch(setProducts([]));
 
         } catch (error) {

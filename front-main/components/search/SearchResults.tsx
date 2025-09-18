@@ -152,8 +152,8 @@ const SearchResults: React.FC<SearchResultsProps> = ({
 
           // Category filter
           if (filters.category && filters.category.length > 0) {
-            console.log('Category filter:', filters.category);
-            console.log('Products before category filter:', results.length);
+            if (process.env.NODE_ENV === "development") console.log('Category filter:', filters.category);
+            if (process.env.NODE_ENV === "development") console.log('Products before category filter:', results.length);
             results = results.filter((product: any) => {
               let productCategory = '';
               
@@ -171,10 +171,10 @@ const SearchResults: React.FC<SearchResultsProps> = ({
                 productCategory.includes(cat.toLowerCase()) ||
                 cat.toLowerCase().includes(productCategory)
               );
-              console.log(`Product "${product.title}" category: "${productCategory}", match: ${isMatch}`);
+              if (process.env.NODE_ENV === "development") console.log(`Product "${product.title}" category: "${productCategory}", match: ${isMatch}`);
               return isMatch;
             });
-            console.log('Products after category filter:', results.length);
+            if (process.env.NODE_ENV === "development") console.log('Products after category filter:', results.length);
           }
 
           // Brand filter
