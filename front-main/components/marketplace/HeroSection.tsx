@@ -1,20 +1,10 @@
-import React, { useState } from 'react';
-import { useRouter } from 'next/router';
+import React from 'react';
 import Link from 'next/link';
 import { FiArrowRight, FiStar, FiShield, FiHeart } from 'react-icons/fi';
 import { MdChildCare, MdSecurity } from 'react-icons/md';
 import styles from './HeroSection.module.scss';
 
 const HeroSection: React.FC = () => {
-  const router = useRouter();
-  const [searchQuery, setSearchQuery] = useState('');
-
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
 
   const featuredCategories = [
     { name: "O'yinchoqlar", icon: '🧸', color: '#FF6B6B', slug: 'oyinchoqlar' },

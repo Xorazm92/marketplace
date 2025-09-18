@@ -16,7 +16,6 @@ interface HeroSlide {
 const EtsyStyleHero: React.FC = () => {
   const router = useRouter();
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [searchQuery, setSearchQuery] = useState('');
 
   const heroSlides: HeroSlide[] = [
     {
@@ -101,14 +100,6 @@ const EtsyStyleHero: React.FC = () => {
     }
   ];
 
-  const popularSearches = [
-    "LEGO o'yinchoqlar",
-    "Ta'limiy kitoblar",
-    "Bolalar kiyimlari",
-    "Sport anjomlari",
-    "Maktab buyumlari",
-    "Chaqaloq mahsulotlari"
-  ];
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -118,16 +109,6 @@ const EtsyStyleHero: React.FC = () => {
     return () => clearInterval(interval);
   }, [heroSlides.length]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      router.push(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
-    }
-  };
-
-  const handlePopularSearch = (query: string) => {
-    router.push(`/search?q=${encodeURIComponent(query)}`);
-  };
 
   const goToSlide = (index: number) => {
     setCurrentSlide(index);
@@ -181,47 +162,6 @@ const EtsyStyleHero: React.FC = () => {
             </button>
           </div>
 
-          {/* Search Section */}
-          <div className={styles.heroSearch}>
-            <form onSubmit={handleSearch} className={styles.searchForm}>
-              <div className={styles.searchInputWrapper}>
-                <input
-                  type="text"
-                  placeholder="Qidirayotgan mahsulotingizni kiriting..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className={styles.searchInput}
-                />
-                <button type="submit" className={styles.searchButton}>
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
-                    <path
-                      d="M21 21L16.514 16.506L21 21ZM19 10.5C19 15.194 15.194 19 10.5 19C5.806 19 2 15.194 2 10.5C2 5.806 5.806 2 10.5 2C15.194 2 19 5.806 19 10.5Z"
-                      stroke="currentColor"
-                      strokeWidth="2"
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </form>
-
-            {/* Popular Searches */}
-            <div className={styles.popularSearches}>
-              <span className={styles.popularLabel}>Mashhur qidiruvlar:</span>
-              <div className={styles.popularTags}>
-                {popularSearches.map((search, index) => (
-                  <button
-                    key={index}
-                    className={styles.popularTag}
-                    onClick={() => handlePopularSearch(search)}
-                  >
-                    {search}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Slide Indicators */}

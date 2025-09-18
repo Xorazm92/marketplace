@@ -24,6 +24,7 @@ const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileSearchQuery, setMobileSearchQuery] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
 
   useEffect(() => {
@@ -107,8 +108,15 @@ const Navbar = () => {
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      // Handle search functionality
-      if (process.env.NODE_ENV === "development") console.log("Searching for:", searchQuery);
+      window.location.href = `/search?query=${encodeURIComponent(searchQuery.trim())}`;
+    }
+  };
+
+  const handleMobileSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (mobileSearchQuery.trim()) {
+      window.location.href = `/search?query=${encodeURIComponent(mobileSearchQuery.trim())}`;
+      setIsMenuOpen(false);
     }
   };
 
@@ -271,16 +279,18 @@ const Navbar = () => {
             </div>
             
             <div className={style.mobileMenuContent}>
-              <div className={style.mobileSearch}>
+              <form onSubmit={handleMobileSearch} className={style.mobileSearch}>
                 <input
                   type="text"
                   placeholder="Qidirish..."
+                  value={mobileSearchQuery}
+                  onChange={(e) => setMobileSearchQuery(e.target.value)}
                   className={style.mobileSearchInput}
                 />
-                <button className={style.mobileSearchButton}>
+                <button type="submit" className={style.mobileSearchButton}>
                   <FaSearch size={16} />
                 </button>
-              </div>
+              </form>
 
               <div className={style.mobileCategories}>
                 <h4>Kategoriyalar</h4>

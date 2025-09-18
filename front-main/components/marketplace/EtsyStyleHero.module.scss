@@ -1,14 +1,22 @@
 .hero {
   position: relative;
   width: 100%;
-  height: 80vh;
-  min-height: 600px;
+  height: 35vh; /* Optimized for e-commerce standards */
+  min-height: 400px;
+  max-height: 500px;
   overflow: hidden;
   background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
 
   @media (max-width: 768px) {
-    height: 70vh;
-    min-height: 500px;
+    height: 50vh; /* Mobile optimized */
+    min-height: 350px;
+    max-height: 450px;
+  }
+
+  @media (max-width: 480px) {
+    height: 45vh;
+    min-height: 320px;
+    max-height: 400px;
   }
 }
 
@@ -48,6 +56,15 @@
   position: relative;
   width: 100%;
   height: 100%;
+  
+  img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    background-size: cover;
+    background-position: center;
+  }
 }
 
 .heroOverlay {
@@ -71,29 +88,27 @@
   max-width: 1200px;
   width: 100%;
   padding: 0 2rem;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 4rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    gap: 2rem;
-    text-align: center;
-  }
+  justify-content: center;
+  text-align: center;
+  height: 100%;
 
   @media (max-width: 768px) {
+    padding: 0 1.5rem;
+  }
+
+  @media (max-width: 480px) {
     padding: 0 1rem;
   }
 }
 
 .heroText {
   color: white;
-  animation: slideInLeft 1s ease-out;
-
-  @media (max-width: 1024px) {
-    order: 2;
-  }
+  animation: slideInUp 0.8s ease-out;
+  max-width: 800px;
+  margin: 0 auto;
 }
 
 .heroCategory {
@@ -110,18 +125,21 @@
 }
 
 .heroTitle {
-  font-size: 3.5rem;
-  font-weight: 800;
-  line-height: 1.1;
-  margin-bottom: 1rem;
+  font-size: 2.8rem;
+  font-weight: 700;
+  line-height: 1.2;
+  margin-bottom: 0.8rem;
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  letter-spacing: -0.02em;
 
   @media (max-width: 768px) {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
+    margin-bottom: 0.6rem;
   }
 
   @media (max-width: 480px) {
-    font-size: 2rem;
+    font-size: 1.8rem;
+    line-height: 1.3;
   }
 }
 
