@@ -161,10 +161,9 @@ export default function Document() {
         <meta name="apple-mobile-web-app-status-bar-style" content="default" />
         <meta name="apple-mobile-web-app-title" content="INBOLA" />
         
-        {/* Performance optimizations */}
-        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Regular.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Medium.otf" as="font" type="font/otf" crossOrigin="anonymous" />
-        <link rel="preload" href="/fonts/SF/SF-Pro-Display-Bold.otf" as="font" type="font/otf" crossOrigin="anonymous" />
+        {/* Performance optimizations - Google Fonts */}
+        <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" as="style" />
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
       </Head>
       <body>
         <Main />

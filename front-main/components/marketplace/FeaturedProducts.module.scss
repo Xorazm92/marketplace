@@ -1,18 +1,37 @@
 // Featured Products - Etsy Style
 .featured {
-  padding: 80px 0;
-  background: white;
-
-  .container {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 0 24px;
+  padding: 2rem 0;
+  background: #fff;
+  
+  @media (max-width: 768px) {
+    padding: 1rem 0;
   }
+}
 
-  .header {
-    text-align: center;
-    margin-bottom: 50px;
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1rem;
+  
+  @media (min-width: 640px) {
+    padding: 0 1.5rem;
   }
+}
+
+.header {
+  margin-bottom: 1.5rem;
+  
+  h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #222;
+    margin: 0;
+    
+    @media (max-width: 768px) {
+      font-size: 1.25rem;
+    }
+  }
+}
 
   .headerContent {
     h2 {
@@ -76,7 +95,7 @@
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 24px;
     margin-bottom: 48px;
-
+  
     @media (max-width: 768px) {
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 16px;
@@ -86,18 +105,22 @@
   // Product Card - Etsy style
   .productCard {
     background: white;
-    border-radius: 8px;
+    border-radius: 0.5rem;
     overflow: hidden;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     color: inherit;
-    border: 1px solid transparent;
-
+    display: block;
+  
     &:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-      border-color: #e1e3df;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
+  }
+
+  .productLink {
+    text-decoration: none;
+    color: inherit;
+    display: block;
   }
 
   .productImageContainer {
@@ -170,26 +193,26 @@
 
   // Product Info - Etsy style
   .productInfo {
-    padding: 16px;
+    padding: 0.75rem;
   }
 
   .shopName {
-    font-size: 12px;
-    color: #767676;
-    margin-bottom: 4px;
-    font-weight: 500;
+    font-size: 0.75rem;
+    color: #888;
+    margin-bottom: 0.25rem;
   }
 
   .productTitle {
-    font-size: 14px;
-    font-weight: 500;
+    font-size: 0.875rem;
+    font-weight: 400;
     color: #222;
-    margin-bottom: 8px;
+    margin-bottom: 0.5rem;
     line-height: 1.3;
     display: -webkit-box;
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
+    line-clamp: 2;
   }
 
   .rating {
@@ -220,17 +243,20 @@
   }
 
   .priceContainer {
-    margin-bottom: 8px;
+    display: flex;
+    align-items: baseline;
+    gap: 0.25rem;
+    margin-top: 0.5rem;
   }
 
   .currency {
-    font-size: 12px;
-    color: #767676;
-    margin-right: 4px;
+    font-size: 0.75rem;
+    color: #666;
+    font-weight: 400;
   }
 
   .price {
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 600;
     color: #222;
   }
@@ -269,7 +295,7 @@
     margin-top: 48px;
   }
 
-  .viewMoreBtn {
+  .viewMoreBtn, .loadMoreBtn {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -281,11 +307,19 @@
     text-decoration: none;
     font-weight: 500;
     transition: all 0.2s ease;
+    cursor: pointer;
+    font-size: 0.875rem;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: #222;
       color: white;
       transform: translateY(-2px);
+    }
+
+    &:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
     }
   }
 
@@ -297,27 +331,38 @@
   .viewMoreBtn:hover .arrowIcon {
     transform: translateX(4px);
   }
-}
+
+  .miniSpinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid transparent;
+    border-top: 2px solid currentColor;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
 
 // Loading State
 .loading {
-  text-align: center;
-  padding: 60px 0;
-
-  .spinner {
-    width: 40px;
-    height: 40px;
-    border: 3px solid #f5f5f5;
-    border-top: 3px solid #f16521;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 0 auto 16px;
-  }
-
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 0;
+  
   p {
-    color: #767676;
-    font-size: 16px;
+    color: #666;
+    margin-top: 1rem;
+    font-size: 0.875rem;
   }
+}
+
+.spinner {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid #f0f0f0;
+  border-top: 2px solid #ff6b35;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
 }
 
 @keyframes spin {

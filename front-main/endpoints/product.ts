@@ -244,19 +244,35 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
         Authorization: `Bearer ${token}`,
       },
     });
-
+    if (process.env.NODE_ENV === "development") console.log("=== PRODUCT CREATE RESPONSE ===");
+    if (process.env.NODE_ENV === "development") console.log(res.data);
     return res.data;
   } catch (error: any) {
-    console.error("=== FRONTEND API ERROR ===");
-    console.error("Full error object:", error);
-    console.error("Error response:", error.response);
-    console.error("Error response data:", error.response?.data);
-    console.error("Error response status:", error.response?.status);
-    console.error("Error message:", error.message);
-
-    const errorMessage = error.response?.data?.message || error.message || "Failed to create product";
-    toast.error(`API Error: ${errorMessage}`);
-    throw error;
+    // Enhanced error logging for debugging
+    if (process.env.NODE_ENV === "development") {
+      console.error("=== PRODUCT CREATE ERROR ===");
+      console.error("Full error object:", error);
+      if (error.response) {
+        console.error("Error response:", error.response);
+        console.error("Error response data:", error.response.data);
+        console.error("Error response status:", error.response.status);
+        console.error("Error response headers:", error.response.headers);
+        
+        // Show validation errors if available
+        if (error.response.data?.message) {
+          console.error("Backend validation errors:", error.response.data.message);
+        }
+        if (error.response.data?.errors) {
+          console.error("Detailed errors:", error.response.data.errors);
+        }
+      }
+      console.error("Error message:", error.message);
+      console.error("Request config:", error.config);
+    }
+    
+    // Return more detailed error for UI
+    const errorMessage = error.response?.data?.message || error.message || 'Mahsulot yaratishda xato yuz berdi';
+    throw new Error(errorMessage);
   }
 };
 

@@ -119,33 +119,7 @@ const EtsyStyleHero: React.FC = () => {
   return (
     <section className={styles.hero}>
       <div className={styles.heroContainer}>
-        {/* Background Slider */}
-        <div className={styles.heroBackground}>
-          {heroSlides.map((slide, index) => (
-            <div
-              key={slide.id}
-              className={`${styles.heroSlide} ${
-                index === currentSlide ? styles.active : ''
-              }`}
-            >
-              <div className={styles.heroImage}>
-                <img
-                  src={slide.image}
-                  alt={slide.title}
-                  style={{
-                    width: '100%',
-                    height: '100%',
-                    objectFit: 'cover'
-                  }}
-                  loading={index === 0 ? 'eager' : 'lazy'}
-                />
-                <div className={styles.heroOverlay} />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Hero Content */}
+        {/* Left Content */}
         <div className={styles.heroContent}>
           <div className={styles.heroText}>
             <span className={styles.heroCategory}>{currentHero.category}</span>
@@ -161,7 +135,19 @@ const EtsyStyleHero: React.FC = () => {
               <span className={styles.ctaArrow}>→</span>
             </button>
           </div>
+        </div>
 
+        {/* Right Content - Featured Image */}
+        <div className={styles.heroImageSection}>
+          <div className={styles.heroImageContainer}>
+            <img
+              src={currentHero.image}
+              alt={currentHero.title}
+              className={styles.heroMainImage}
+              loading="eager"
+            />
+            <div className={styles.heroImageOverlay} />
+          </div>
         </div>
 
         {/* Slide Indicators */}
@@ -210,26 +196,6 @@ const EtsyStyleHero: React.FC = () => {
             />
           </svg>
         </button>
-      </div>
-
-      {/* Trust Indicators */}
-      <div className={styles.trustIndicators}>
-        <div className={styles.trustItem}>
-          <div className={styles.trustIcon}>🛡️</div>
-          <span>Xavfsiz to'lov</span>
-        </div>
-        <div className={styles.trustItem}>
-          <div className={styles.trustIcon}>🚚</div>
-          <span>Tez yetkazib berish</span>
-        </div>
-        <div className={styles.trustItem}>
-          <div className={styles.trustIcon}>↩️</div>
-          <span>14 kun qaytarish</span>
-        </div>
-        <div className={styles.trustItem}>
-          <div className={styles.trustIcon}>⭐</div>
-          <span>Sifat kafolati</span>
-        </div>
       </div>
     </section>
   );
