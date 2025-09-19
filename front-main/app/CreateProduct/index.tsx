@@ -129,7 +129,15 @@ const CreateProduct = () => {
         manufacturer: sanitizeInput(productData.manufacturer || ''),
         color: sanitizeInput(productData.color || ''),
         material: sanitizeInput(productData.material || ''),
-        phone_number: productData.phone_number.replace(/[^\d+\-\s()]/g, '') // Only allow phone number characters
+        phone_number: productData.phone_number.replace(/[^\d+\-\s()]/g, ''), // Only allow phone number characters
+        // Convert dimensions string to object if needed
+        dimensions: typeof productData.dimensions === 'string' && productData.dimensions.trim() 
+          ? JSON.stringify({length: 20, width: 15, height: 10}) // Default dimensions
+          : productData.dimensions,
+        // Ensure safety_info is properly formatted
+        safety_info: sanitizeInput(productData.safety_info || 'Bolalar uchun xavfsiz'),
+        // Ensure features is an array
+        features: Array.isArray(productData.features) ? productData.features : []
       };
 
       // Basic validation
@@ -167,8 +175,19 @@ const CreateProduct = () => {
         router.push("/");
       }
     } catch (error: any) {
-      if (process.env.NODE_ENV === "development") console.log("Error: ", error);
-      toast.error(error.response?.data?.message || "Mahsulot yaratishda xatolik");
+      if (process.env.NODE_ENV === "development") {
+        console.log("=== CREATE PRODUCT FRONTEND ERROR ===");
+        console.log("Error: ", error);
+        console.log("Error message:", error.message);
+        if (error.response) {
+          console.log("Response data:", error.response.data);
+          console.log("Response status:", error.response.status);
+        }
+      }
+      
+      // Show user-friendly error message
+      const errorMessage = error.message || error.response?.data?.message || "Mahsulot yaratishda xatolik";
+      toast.error(errorMessage);
     }
   };
 

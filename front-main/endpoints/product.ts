@@ -231,9 +231,22 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
     });
 
     // Debug FormData contents
-    if (process.env.NODE_ENV === "development") console.log("=== FORMDATA DEBUG ===");
-    for (let [key, value] of formData.entries()) {
-      if (process.env.NODE_ENV === "development") console.log(`${key}:`, value);
+    if (process.env.NODE_ENV === "development") {
+      console.log("=== FORMDATA DEBUG ===");
+      console.log("Original productData:", productData);
+      console.log("ProductData with user:", productDataWithUser);
+      console.log("Images count:", images.length);
+      
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+      
+      // Validate required fields
+      const requiredFields = ['title', 'description', 'price', 'category_id', 'brand_id'];
+      const missingFields = requiredFields.filter(field => !formData.has(field));
+      if (missingFields.length > 0) {
+        console.warn("Missing required fields:", missingFields);
+      }
     }
 
     // Use direct URL to ensure correct endpoint
