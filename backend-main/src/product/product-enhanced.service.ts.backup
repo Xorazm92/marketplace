@@ -1,0 +1,509 @@
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
+import { CreateProductDto } from './dto/create-product.dto';
+import { UpdateProductDto } from './dto/update-product.dto';
+import { CategoryService } from '../category/category.service';
+import { UploadService } from '../upload/upload.service';
+
+export interface Product {
+  id: number;
+  title: string;
+  user_id?: number;
+  brand_id: number;
+  price: number;
+  currency_id: number;
+  description: string;
+  negotiable: boolean;
+  condition: boolean;
+  phone_number: string;
+  address_id?: string;
+  category_id: number;
+  subcategory_id?: number;
+  age_range?: string;
+  material?: string;
+  color?: string;
+  size?: string;
+  manufacturer?: string;
+  safety_info?: string;
+  features?: string[];
+  weight?: number;
+  dimensions?: string;
+  slug: string;
+  is_active: boolean;
+  is_checked: boolean;
+  is_deleted: boolean;
+  view_count: number;
+  like_count: number;
+  createdAt: Date;
+  updatedAt: Date;
+  images?: string[];
+}
+
+@Injectable()
+export class ProductEnhancedService {
+  private products: Product[] = [];
+  private nextId = 1;
+
+  constructor(
+    private categoryService: CategoryService,
+    private uploadService: UploadService,
+  ) {
+    // Initialize with demo products
+    this.initializeDemoProducts();
+  }
+
+  async create(createProductDto: CreateProductDto, files?: Express.Multer.File[]): Promise<Product> {
+    console.log('=== PRODUCT CREATE DEBUG ===');
+    console.log('DTO received:', JSON.stringify(createProductDto, null, 2));
+    console.log('Files received:', files?.length || 0);
+    
+    try {
+      // 1. Validate category exists
+      console.log('Validating category ID:', createProductDto.category_id);
+      const category = await this.categoryService.findOne(createProductDto.category_id);
+      if (!category) {
+        throw new NotFoundException(`Category with ID ${createProductDto.category_id} not found`);
+      }
+      console.log('Category validation passed:', category);
+      
+      // 2. Validate brand exists if provided
+      if (createProductDto.brand_id) {
+        console.log('Validating brand ID:', createProductDto.brand_id);
+        // Replace with your actual brand service check
+        // const brandExists = await this.brandService.findOne(createProductDto.brand_id);
+        // if (!brandExists) {
+        //   throw new NotFoundException(`Brand with ID ${createProductDto.brand_id} not found`);
+        // }
+        console.log('Brand validation passed (skipped in debug mode)');
+      }
+      
+      // 3. Validate currency exists if provided
+      if (createProductDto.currency_id) {
+        console.log('Validating currency ID:', createProductDto.currency_id);
+        // Replace with your actual currency service check
+        // const currencyExists = await this.currencyService.findOne(createProductDto.currency_id);
+        // if (!currencyExists) {
+        //   throw new NotFoundException(`Currency with ID ${createProductDto.currency_id} not found`);
+        // }
+        console.log('Currency validation passed (skipped in debug mode)');
+      }
+
+    // 4. Validate subcategory if provided
+    if (createProductDto.subcategory_id) {
+      console.log('Validating subcategory ID:', createProductDto.subcategory_id);
+      try {
+        const subcategory = await this.categoryService.findOne(createProductDto.subcategory_id);
+        if (!subcategory) {
+          console.warn(`Subcategory with ID ${createProductDto.subcategory_id} not found`);
+          throw new BadRequestException(`Subcategory with ID ${createProductDto.subcategory_id} not found`);
+        }
+        
+        console.log('Subcategory found:', subcategory);
+        
+        // Verify subcategory belongs to the selected category
+        if (subcategory.parent_id !== createProductDto.category_id) {
+          const errorMsg = `Subcategory ${subcategory.id} (${subcategory.name}) does not belong to category ${createProductDto.category_id}`;
+          console.error(errorMsg);
+          throw new BadRequestException(errorMsg);
+        }
+        console.log('Subcategory validation passed');
+      } catch (error) {
+        console.error('Subcategory validation failed:', error.message);
+        throw new BadRequestException(`Invalid subcategory: ${error.message}`);
+      }
+    } else {
+      console.log('No subcategory provided, skipping subcategory validation');
+    }
+
+    // 5. Validate and transform data types
+    console.log('Validating and transforming data types...');
+    
+    // Transform condition from boolean to string if needed
+    if (typeof createProductDto.condition === 'boolean') {
+      (createProductDto as any).condition = createProductDto.condition ? 'new' : 'used';
+      console.log('Transformed condition from boolean to string:', (createProductDto as any).condition);
+    }
+    
+    // Validate required fields
+    const requiredFields = [
+      'title', 'brand_id', 'price', 'currency_id', 
+      'description', 'phone_number', 'category_id'
+    ];
+    
+    const missingFields = requiredFields.filter(field => !(field in createProductDto));
+    if (missingFields.length > 0) {
+      const errorMsg = `Missing required fields: ${missingFields.join(', ')}`;
+      console.error(errorMsg);
+      throw new BadRequestException(errorMsg);
+    }
+    
+    // Validate foreign key existence
+    console.log('Validating foreign key references...');
+    
+    // Check if brand exists (mock validation for now)
+    if (createProductDto.brand_id && ![1, 2, 3].includes(createProductDto.brand_id)) {
+      console.warn(`Brand ID ${createProductDto.brand_id} might not exist, but continuing...`);
+    }
+    
+    // Check if currency exists (mock validation for now)
+    if (createProductDto.currency_id && ![1, 2, 3].includes(createProductDto.currency_id)) {
+      console.warn(`Currency ID ${createProductDto.currency_id} might not exist, but continuing...`);
+    }
+    
+    console.log('All validations passed');
+
+    // 4. Upload images if provided (temporarily disabled for debugging)
+    let imageUrls: string[] = [];
+    if (files && files.length > 0) {
+      console.log('Image upload temporarily disabled, using mock URLs');
+      // Generate mock image URLs for testing
+      imageUrls = files.map((file, index) => `/uploads/mock-${Date.now()}-${index}.jpg`);
+    }
+
+    // 5. Generate slug
+    const slug = this.generateSlug(createProductDto.title);
+
+    // 6. Parse dimensions if provided
+    let parsedDimensions = createProductDto.dimensions;
+    if (createProductDto.dimensions && typeof createProductDto.dimensions === 'string') {
+      try {
+        // Try to parse as JSON, if fails keep as string
+        JSON.parse(createProductDto.dimensions);
+      } catch {
+        // If not valid JSON, create default dimensions object
+        parsedDimensions = JSON.stringify({ length: 20, width: 15, height: 10 });
+      }
+    }
+
+    // 7. Create product
+    console.log('Creating product with data:', {
+      title: createProductDto.title,
+      category_id: createProductDto.category_id,
+      subcategory_id: createProductDto.subcategory_id,
+      imageUrls: imageUrls.length
+    });
+    
+    const newProduct: Product = {
+      id: this.nextId++,
+      title: createProductDto.title,
+      user_id: createProductDto.user_id,
+      brand_id: createProductDto.brand_id,
+      price: createProductDto.price,
+      currency_id: createProductDto.currency_id,
+      description: createProductDto.description,
+      negotiable: Boolean(createProductDto.negotiable),
+      condition: Boolean(createProductDto.condition),
+      phone_number: createProductDto.phone_number,
+      address_id: createProductDto.address_id,
+      category_id: createProductDto.category_id,
+      subcategory_id: createProductDto.subcategory_id,
+      age_range: createProductDto.age_range,
+      material: createProductDto.material,
+      color: createProductDto.color,
+      size: createProductDto.size,
+      manufacturer: createProductDto.manufacturer,
+      safety_info: createProductDto.safety_info || 'Bolalar uchun xavfsiz',
+      features: createProductDto.features || [],
+      weight: createProductDto.weight || 0,
+      dimensions: parsedDimensions || '',
+      slug,
+      is_active: false, // Needs admin approval
+      is_checked: false, // Pending admin approval
+      is_deleted: false,
+      view_count: 0,
+      like_count: 0,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      images: imageUrls
+    };
+
+    this.products.push(newProduct);
+    console.log('Product created successfully:', newProduct.id, newProduct.title);
+    console.log('Total products now:', this.products.length);
+    return newProduct;
+  }
+
+  async findAll(filters?: {
+    category_id?: number;
+    subcategory_id?: number;
+    is_active?: boolean;
+    search?: string;
+    min_price?: number;
+    max_price?: number;
+  }): Promise<Product[]> {
+    let filteredProducts = this.products.filter(p => !p.is_deleted);
+
+    if (filters) {
+      if (filters.category_id) {
+        filteredProducts = filteredProducts.filter(p => p.category_id === filters.category_id);
+      }
+      if (filters.subcategory_id) {
+        filteredProducts = filteredProducts.filter(p => p.subcategory_id === filters.subcategory_id);
+      }
+      if (filters.is_active !== undefined) {
+        filteredProducts = filteredProducts.filter(p => p.is_active === filters.is_active);
+      }
+      if (filters.search) {
+        const searchTerm = filters.search.toLowerCase();
+        filteredProducts = filteredProducts.filter(p => 
+          p.title.toLowerCase().includes(searchTerm) ||
+          p.description.toLowerCase().includes(searchTerm)
+        );
+      }
+      if (filters.min_price) {
+        filteredProducts = filteredProducts.filter(p => p.price >= filters.min_price);
+      }
+      if (filters.max_price) {
+        filteredProducts = filteredProducts.filter(p => p.price <= filters.max_price);
+      }
+    }
+
+    return filteredProducts;
+  }
+
+  async findOne(id: number): Promise<Product> {
+    const product = this.products.find(p => p.id === id && !p.is_deleted);
+    if (!product) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Increment view count
+    product.view_count++;
+    product.updatedAt = new Date();
+
+    return product;
+  }
+
+  async findBySlug(slug: string): Promise<Product> {
+    const product = this.products.find(p => p.slug === slug && !p.is_deleted);
+    if (!product) {
+      throw new NotFoundException(`Product with slug ${slug} not found`);
+    }
+
+    // Increment view count
+    product.view_count++;
+    product.updatedAt = new Date();
+
+    return product;
+  }
+
+  async update(id: number, updateProductDto: UpdateProductDto, files?: Express.Multer.File[]): Promise<Product> {
+    const productIndex = this.products.findIndex(p => p.id === id && !p.is_deleted);
+    if (productIndex === -1) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Validate category if being updated
+    if (updateProductDto.category_id) {
+      const categoryExists = await this.categoryService.validateCategoryExists(updateProductDto.category_id);
+      if (!categoryExists) {
+        throw new NotFoundException(`Category with ID ${updateProductDto.category_id} not found`);
+      }
+    }
+
+    // Validate subcategory if being updated
+    if (updateProductDto.subcategory_id) {
+      const subcategoryExists = await this.categoryService.validateCategoryExists(updateProductDto.subcategory_id);
+      if (!subcategoryExists) {
+        throw new NotFoundException(`Subcategory with ID ${updateProductDto.subcategory_id} not found`);
+      }
+    }
+
+    // Upload new images if provided
+    let newImageUrls: string[] = [];
+    if (files && files.length > 0) {
+      try {
+        newImageUrls = await this.uploadService.uploadProductImages(files);
+      } catch (error) {
+        throw new BadRequestException(`Image upload failed: ${error.message}`);
+      }
+    }
+
+    // Update product
+    const currentProduct = this.products[productIndex];
+    this.products[productIndex] = {
+      ...currentProduct,
+      ...updateProductDto,
+      updatedAt: new Date(),
+      // Append new images to existing ones
+      images: newImageUrls.length > 0 
+        ? [...(currentProduct.images || []), ...newImageUrls]
+        : currentProduct.images,
+      // Update slug if title changed
+      slug: updateProductDto.title 
+        ? this.generateSlug(updateProductDto.title)
+        : currentProduct.slug,
+    };
+
+    return this.products[productIndex];
+  }
+
+  async remove(id: number): Promise<{ message: string }> {
+    const productIndex = this.products.findIndex(p => p.id === id && !p.is_deleted);
+    if (productIndex === -1) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    // Soft delete
+    this.products[productIndex].is_deleted = true;
+    this.products[productIndex].is_active = false;
+    this.products[productIndex].updatedAt = new Date();
+
+    return { message: 'Product deleted successfully' };
+  }
+
+  async approve(id: number): Promise<Product> {
+    const productIndex = this.products.findIndex(p => p.id === id && !p.is_deleted);
+    if (productIndex === -1) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    this.products[productIndex].is_checked = true; // Approved
+    this.products[productIndex].is_active = true;
+    this.products[productIndex].updatedAt = new Date();
+
+    return this.products[productIndex];
+  }
+
+  async reject(id: number, reason?: string): Promise<Product> {
+    const productIndex = this.products.findIndex(p => p.id === id && !p.is_deleted);
+    if (productIndex === -1) {
+      throw new NotFoundException(`Product with ID ${id} not found`);
+    }
+
+    this.products[productIndex].is_checked = false; // Rejected
+    this.products[productIndex].is_active = false;
+    this.products[productIndex].updatedAt = new Date();
+
+    return this.products[productIndex];
+  }
+
+  private validateProductData(productData: CreateProductDto): void {
+    // Validate price
+    if (productData.price <= 0) {
+      throw new BadRequestException('Price must be greater than 0');
+    }
+
+    // Validate title length
+    if (productData.title.length < 3) {
+      throw new BadRequestException('Title must be at least 3 characters long');
+    }
+
+    // Validate description length
+    if (productData.description.length < 10) {
+      throw new BadRequestException('Description must be at least 10 characters long');
+    }
+
+    // Validate phone number format (basic)
+    const phoneRegex = /^\+?[1-9]\d{1,14}$/;
+    if (!phoneRegex.test(productData.phone_number.replace(/[\s\-\(\)]/g, ''))) {
+      throw new BadRequestException('Invalid phone number format');
+    }
+  }
+
+  private generateSlug(title: string): string {
+    return title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+  }
+
+  private initializeDemoProducts(): void {
+    // Initialize with some demo products
+    const demoProducts: Partial<Product>[] = [
+      {
+        title: "Yumshoq o'yinchoq - oq ayiq",
+        brand_id: 1,
+        price: 120000,
+        currency_id: 1,
+        description: "Yumshoq va yoqimli o'yinchoq bolalaringiz uchun ajoyib sovg'a. 100% xavfsiz materiallardan tayyorlangan.",
+        negotiable: true,
+        condition: true, // Changed from "new" to boolean true
+        phone_number: "+998901234567",
+        category_id: 1,
+        subcategory_id: 1,
+        age_range: "0-3",
+        material: "Polyester",
+        color: "Oq",
+        size: "30x40sm",
+        manufacturer: "SoftToys",
+        safety_info: "Ishlatilgan materiallar dermatologik testlardan o'tkazilgan",
+        features: ["Yuvish mumkin", "Gigiyenik", "Xavfsiz"],
+        weight: 0.5,
+        user_id: 1,
+        is_active: true,
+        is_checked: true, // Approved
+        is_deleted: false,
+        view_count: Math.floor(Math.random() * 100),
+        like_count: Math.floor(Math.random() * 50),
+        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last week
+        updatedAt: new Date(),
+        images: [
+          `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop`,
+          `https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&h=300&fit=crop`
+        ]
+      },
+      {
+        title: "Bolalar kiyimi - rangli ko'ylak",
+        brand_id: 2,
+        price: 85000,
+        currency_id: 1,
+        description: "100% paxta materialidan tayyorlangan chiroyli bolalar ko'ylagi. Turli ranglar mavjud.",
+        negotiable: true,
+        condition: true, // Changed from "new" to boolean true
+        phone_number: "+998901234568",
+        category_id: 1,
+        subcategory_id: 2,
+        age_range: "3-6",
+        material: "100% Paxta",
+        color: "Ko'p rangli",
+        size: "M",
+        manufacturer: "KidsWear",
+        safety_info: "Organik materiallar ishlatilgan",
+        features: ["Organik", "Yumshoq", "Nafas oluvchi"],
+        weight: 0.2,
+        user_id: 1,
+      }
+    ];
+
+    demoProducts.forEach((productData, index) => {
+      const product: Product = {
+        id: this.nextId++,
+        title: productData.title,
+        brand_id: productData.brand_id,
+        price: productData.price,
+        currency_id: productData.currency_id,
+        description: productData.description,
+        negotiable: Boolean(productData.negotiable),
+        condition: productData.condition,
+        phone_number: productData.phone_number,
+        category_id: productData.category_id,
+        subcategory_id: productData.subcategory_id,
+        age_range: productData.age_range,
+        material: productData.material,
+        color: productData.color,
+        size: productData.size,
+        manufacturer: productData.manufacturer,
+        safety_info: productData.safety_info || 'Bolalar uchun xavfsiz',
+        features: productData.features || [],
+        weight: productData.weight || 0,
+        dimensions: JSON.stringify({ length: 20, width: 15, height: 10 }),
+        slug: this.generateSlug(productData.title),
+        is_active: true,
+        is_checked: true, // Approved
+        is_deleted: false,
+        view_count: Math.floor(Math.random() * 100),
+        like_count: Math.floor(Math.random() * 50),
+        createdAt: new Date(Date.now() - Math.random() * 7 * 24 * 60 * 60 * 1000), // Random date within last week
+        updatedAt: new Date(),
+        images: [
+          `https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=300&h=300&fit=crop`,
+          `https://images.unsplash.com/photo-1519689680058-324335c77eba?w=300&h=300&fit=crop`
+        ]
+      };
+      
+      this.products.push(product);
+    });
+  }
+}

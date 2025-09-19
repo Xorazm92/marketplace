@@ -1421,4 +1421,43 @@
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+
+  // Main Image Styles
+  .mainImage {
+    border: 3px solid #3498db !important;
+    box-shadow: 0 0 10px rgba(52, 152, 219, 0.3);
+  }
+
+  .mainImageBadge {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    background: #3498db;
+    color: white;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: bold;
+    z-index: 2;
+  }
+
+  .setMainImageButton {
+    position: absolute;
+    top: 5px;
+    right: 30px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 4px 6px;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 2;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #3498db;
+      color: white;
+      transform: scale(1.1);
+    }
+  }
 }

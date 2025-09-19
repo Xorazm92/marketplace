@@ -1,24 +1,86 @@
-import { Test, TestingModule } from '@nestjs/testing';
 import { INestApplication } from '@nestjs/common';
+import { Test, TestingModule } from '@nestjs/testing';
 import * as request from 'supertest';
 import { AppModule } from '../../app.module';
 import { PrismaService } from '../../prisma/prisma.service';
 
-describe('INBOLA Kids Marketplace E2E Tests', () => {
+// Helper function to convert string IDs to numbers for Prisma operations
+const toPrismaId = (id: string): number => {
+  const num = parseInt(id, 10);
+  if (isNaN(num)) {
+    throw new Error(`Invalid ID: ${id}`);
+  }
+  return num;
+};
+
+describe('Marketplace API (e2e)', () => {
   let app: INestApplication;
   let prisma: PrismaService;
   let authToken: string;
   let userId: string;
 
   beforeAll(async () => {
-    const moduleFixture: TestingModule = await Test.createTestingModule({
+    const moduleRef: TestingModule = await Test.createTestingModule({
       imports: [AppModule],
     }).compile();
 
-    app = moduleFixture.createNestApplication();
-    prisma = app.get<PrismaService>(PrismaService);
+    const app = moduleRef.createNestApplication();
+    const prisma = app.get<PrismaService>(PrismaService);
     
+    // Initialize the app
     await app.init();
+    
+    // First create a phone number
+    const phone = await prisma.phoneNumber.create({
+      data: {
+        number: '+1234567890',
+        is_primary: true,
+        is_verified: true
+      }
+    });
+
+    // Then create the user
+    const user = await prisma.user.upsert({
+      where: { email: 'test@example.com' },
+      update: {},
+      create: {
+        first_name: 'Test',
+        last_name: 'User',
+        email: 'test@example.com',
+        password: 'test123',
+        is_active: true,
+        is_premium: false,
+        balance: 0,
+        slug: 'test-user',
+        phone_number: {
+          connect: { id: phone.id }
+        },
+        // Create default email
+        email: {
+          create: {
+            email: 'test@example.com',
+            is_primary: true,
+            is_verified: true
+          }
+        }
+      },
+      include: {
+        phone_number: true,
+        email: true
+      }
+    });
+    
+    const userId = user.id.toString();
+    
+    // Login to get auth token
+    const loginRes = await request(app.getHttpServer())
+      .post('/api/v1/auth/login')
+      .send({
+        email: 'test@example.com',
+        password: 'test123',
+      });
+      
+    const authToken = loginRes.body.accessToken;
   });
 
   afterAll(async () => {
@@ -118,6 +180,7 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
   describe('Products API', () => {
     let categoryId: string;
     let productId: string;
+    
 
     beforeAll(async () => {
       // Create a test category
@@ -125,10 +188,13 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
         data: {
           name: 'Test Category',
           description: 'Test category for products',
-          status: 'ACTIVE'
+          slug: 'test-category',
+          is_active: true,
+          sort_order: 0,
+          parent_id: null
         }
       });
-      categoryId = category.id;
+      categoryId = category.id.toString();
     });
 
     it('should get all products', () => {
@@ -195,16 +261,25 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
       if (category) {
         const product = await prisma.product.create({
           data: {
-            name: 'Cart Test Product',
+            title: 'Cart Test Product',
             description: 'Product for cart testing',
             price: 25000,
-            category_id: category.id,
-            age_min: 3,
-            age_max: 12,
-            status: 'ACTIVE'
+            brand_id: 1, // Assuming brand with ID 1 exists
+            currency_id: 1, // Assuming currency with ID 1 exists
+            condition: 'new',
+            phone_number: '+1234567890',
+            negotiable: true,
+            is_active: true,
+            is_checked: 'APPROVED',
+            is_deleted: false,
+            view_count: 0,
+            like_count: 0,
+            slug: 'cart-test-product',
+            availability_status: 'in_stock',
+            min_order_quantity: 1
           }
         });
-        productId = product.id;
+        productId = product.id.toString();
       }
     });
 
@@ -214,7 +289,7 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
           .post('/api/v1/cart/add')
           .set('Authorization', `Bearer ${authToken}`)
           .send({
-            product_id: productId,
+            product_id: toPrismaId(productId),
             quantity: 2
           })
           .expect(201)
@@ -241,7 +316,7 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
           .put('/api/v1/cart/update')
           .set('Authorization', `Bearer ${authToken}`)
           .send({
-            product_id: productId,
+            product_id: toPrismaId(productId),
             quantity: 3
           })
           .expect(200)
@@ -271,23 +346,53 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
       if (category) {
         const product = await prisma.product.create({
           data: {
-            name: 'Order Test Product',
+            title: 'Order Test Product',
             description: 'Product for order testing',
             price: 75000,
-            category_id: category.id,
-            age_min: 3,
-            age_max: 12,
-            status: 'ACTIVE'
+            brand_id: 1, // Assuming brand with ID 1 exists
+            currency_id: 1, // Assuming currency with ID 1 exists
+            condition: 'new',
+            phone_number: '+1234567890',
+            negotiable: true,
+            is_active: true,
+            is_checked: 'APPROVED',
+            is_deleted: false,
+            view_count: 0,
+            like_count: 0,
+            slug: 'order-test-product',
+            availability_status: 'in_stock',
+            min_order_quantity: 1
           }
         });
-        productId = product.id;
+        productId = product.id.toString();
 
         // Add to cart
+        // First create a cart if it doesn't exist
+        const cart = await prisma.cart.upsert({
+          where: { user_id: toPrismaId(userId) },
+          update: {},
+          create: {
+            user_id: toPrismaId(userId),
+            // Create a default cart with minimal required fields
+            cart_items: {
+              create: []
+            }
+          },
+          include: {
+            cart_items: true
+          }
+        });
+
+        // Then create cart item
         await prisma.cartItem.create({
           data: {
-            user_id: userId,
-            product_id: productId,
-            quantity: 1
+            cart_id: cart.id,
+            product_id: toPrismaId(productId),
+            quantity: 1,
+            unit_price: 25000, // Should match product price
+            total_price: 25000, // quantity * unit_price
+            createdAt: new Date(),
+            updatedAt: new Date()
           }
         });
       }
@@ -342,16 +447,25 @@ describe('INBOLA Kids Marketplace E2E Tests', () => {
       if (category) {
         const product = await prisma.product.create({
           data: {
-            name: 'Wishlist Test Product',
+            title: 'Wishlist Test Product',
             description: 'Product for wishlist testing',
             price: 35000,
-            category_id: category.id,
-            age_min: 3,
-            age_max: 12,
-            status: 'ACTIVE'
+            brand_id: 1, // Assuming brand with ID 1 exists
+            currency_id: 1, // Assuming currency with ID 1 exists
+            condition: 'new',
+            phone_number: '+1234567890',
+            negotiable: true,
+            is_active: true,
+            is_checked: 'APPROVED',
+            is_deleted: false,
+            view_count: 0,
+            like_count: 0,
+            slug: 'wishlist-test-product',
+            availability_status: 'in_stock',
+            min_order_quantity: 1
           }
         });
-        productId = product.id;
+        productId = product.id.toString();
       }
     });
 

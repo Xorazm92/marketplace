@@ -50,11 +50,16 @@ export class CreateProductDto {
   @Transform(({ value }) => value === 'true' || value === true)
   negotiable: boolean;
 
-  @ApiProperty({ description: 'Holat (yangi/ishlatilgan)' })
-  @IsBoolean()
+  @ApiProperty({ description: 'Holat (yangi/ishlatilgan)', enum: ['new', 'used', 'refurbished'] })
+  @IsString()
   @IsNotEmpty()
-  @Transform(({ value }) => value === 'true' || value === true)
-  condition: boolean;
+  @Transform(({ value }) => {
+    if (typeof value === 'boolean') {
+      return value ? 'new' : 'used';
+    }
+    return value;
+  })
+  condition: string;
 
   @ApiProperty({ description: 'Telefon raqam' })
   @IsString()
@@ -66,11 +71,17 @@ export class CreateProductDto {
   @Type(() => String)
   address_id?: string;
 
-  @ApiProperty({ required: false, description: 'Kategoriya ID' })
+  @ApiProperty({ description: 'Kategoriya ID' })
+  @IsNumber()
+  @IsNotEmpty()
+  @Type(() => Number)
+  category_id: number;
+
+  @ApiProperty({ required: false, description: 'Ichki kategoriya ID' })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
-  category_id?: number;
+  subcategory_id?: number;
 
   @ApiProperty({ required: false, description: 'Yosh oralig\'i (masalan: 3-6, 6-12)' })
   @IsOptional()

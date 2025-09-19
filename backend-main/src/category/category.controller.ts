@@ -27,10 +27,34 @@ export class CategoryController {
     return this.categoryService.findBySlug(slug);
   }
 
-  @Post('seed')
-  @ApiOperation({ summary: 'Seed default categories' })
-  seedCategories() {
-    return this.categoryService.seedCategories();
+  @Get('hierarchy')
+  @ApiOperation({ summary: 'Get categories with hierarchy' })
+  findAllWithHierarchy() {
+    return this.categoryService.findAllWithHierarchy();
+  }
+
+  @Get('root')
+  @ApiOperation({ summary: 'Get root categories only' })
+  getRootCategories() {
+    return this.categoryService.getRootCategories();
+  }
+
+  @Get(':id/children')
+  @ApiOperation({ summary: 'Get children of a category' })
+  findChildren(@Param('id') id: string) {
+    return this.categoryService.findChildren(+id);
+  }
+
+  @Get(':id/path')
+  @ApiOperation({ summary: 'Get category path (breadcrumb)' })
+  getCategoryPath(@Param('id') id: string) {
+    return this.categoryService.getCategoryPath(+id);
+  }
+
+  @Get('level/:level')
+  @ApiOperation({ summary: 'Get categories by level' })
+  findByLevel(@Param('level') level: string) {
+    return this.categoryService.findByLevel(+level);
   }
 
   @Get(':id')

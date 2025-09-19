@@ -3,7 +3,7 @@
 import instance from "./instance";
 import axios from "axios";
 import { toast } from "react-toastify";
-import { AddressData } from "../types/userData";
+import { validateApiRequest } from '../utils/productValidation';
 import { AddressType as Address, AddressRes, CreateProductProps, UpdateProductProps } from "../types";
 
 interface FindAddressDto {
@@ -122,7 +122,9 @@ export const getAllProducts = async (params?: { category?: string; limit?: numbe
     const res = await instance.get(`/product/all`, { params: queryParams });
 
     // Transform API response to match frontend expectations
-    const products = (res.data || []).map((product: any) => ({
+    // Backend returns: { success: true, data: [...], count: number }
+    const productsData = res.data?.data || res.data || [];
+    const products = (productsData || []).map((product: any) => ({
       ...product,
       images: product.product_image?.map((img: any) => img.url) || ['/images/placeholder.jpg'],
       rating: product.rating || 4.5,
@@ -167,9 +169,43 @@ export const addProductImage = async (productId: number, image: File) => {
   }
 };
 
+// ✅ Validation utilities imported above
+
 // Admin product creation function
-export const createAdminProduct = async (productData: any, images: File[]) => {
+export const createAdminProduct = async (productData: any, images: File[], mainImageIndex: number = 0) => {
   try {
+    console.log('🚀 Mahsulot yaratish boshlandi...');
+    
+    // ✅ API request uchun ma'lumotlarni validatsiya qilish
+    const validation = validateApiRequest(productData);
+    if (!validation.isValid) {
+      console.error('❌ Frontend validatsiya xatolari:', validation.errors);
+      throw new Error(`Validatsiya xatolari: ${validation.errors.join(', ')}`);
+    }
+    
+    if (validation.warnings.length > 0) {
+      console.warn('⚠️ Frontend validatsiya ogohlantirishlari:', validation.warnings);
+    }
+    
+    // ✅ Rasmlar tekshiruvi
+    if (!images || images.length === 0) {
+      throw new Error('Kamida bitta rasm yuklash majburiy');
+    }
+    
+    // ✅ Rasm formatini tekshirish
+    const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+    const invalidImages = images.filter(img => !allowedTypes.includes(img.type));
+    if (invalidImages.length > 0) {
+      throw new Error(`Noto'g'ri rasm formati: ${invalidImages.map(img => img.name).join(', ')}`);
+    }
+    
+    // ✅ Rasm hajmini tekshirish (5MB limit)
+    const maxSize = 5 * 1024 * 1024; // 5MB
+    const oversizedImages = images.filter(img => img.size > maxSize);
+    if (oversizedImages.length > 0) {
+      throw new Error(`Rasm hajmi juda katta (5MB dan oshmasin): ${oversizedImages.map(img => img.name).join(', ')}`);
+    }
+
     const tokenString = localStorage.getItem("accessToken");
     let token = tokenString ? JSON.parse(tokenString) : null;
 
@@ -186,7 +222,7 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       if (typeof window !== 'undefined') {
         window.location.href = '/login';
       }
-      throw new Error("Please login first to create products");
+      throw new Error("Avval tizimga kiring");
     }
 
     const formData = new FormData();
@@ -199,14 +235,12 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
 
     // Add product data to formData with proper type conversion
     Object.entries(productDataWithUser).forEach(([key, value]) => {
-      if (value !== undefined && value !== null) {
+      if (value !== undefined && value !== null && value !== '') {
         // Handle arrays (like features)
         if (Array.isArray(value)) {
           if (value.length > 0) {
-            // For arrays, append each item separately
-            value.forEach((item) => {
-              formData.append(key, String(item));
-            });
+            // For arrays, append as JSON string
+            formData.append(key, JSON.stringify(value));
           }
           // Don't append empty arrays
         }
@@ -225,10 +259,23 @@ export const createAdminProduct = async (productData: any, images: File[]) => {
       }
     });
 
-    // Add images to formData
-    images.forEach((img) => {
-      formData.append("images", img);
-    });
+    // Add images to formData with main image first
+    if (images.length > 0) {
+      // Add main image first
+      if (mainImageIndex >= 0 && mainImageIndex < images.length) {
+        formData.append("images", images[mainImageIndex]);
+        if (process.env.NODE_ENV === "development") {
+          console.log("Main image (first):", images[mainImageIndex].name);
+        }
+      }
+      
+      // Add other images
+      images.forEach((img, index) => {
+        if (index !== mainImageIndex) {
+          formData.append("images", img);
+        }
+      });
+    }
 
     // Debug FormData contents
     if (process.env.NODE_ENV === "development") {
@@ -350,21 +397,16 @@ export const searchProducts = async (params: {
   brand?: string;
   minPrice?: number;
   maxPrice?: number;
-  rating?: number;
-  availability?: string;
-  sort?: string;
-  page?: number;
-  limit?: number;
 }) => {
   try {
     const queryParams = new URLSearchParams();
-
+    
     Object.entries(params).forEach(([key, value]) => {
       if (value !== undefined && value !== null && value !== '') {
         queryParams.append(key, value.toString());
       }
     });
-
+    
     const res = await instance.get(`/product/search?${queryParams.toString()}`);
     return res.data;
   } catch (error: any) {
@@ -372,9 +414,6 @@ export const searchProducts = async (params: {
     if (error.response?.data?.message) {
       toast.error(error.response.data.message);
       throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
     } else {
       toast.error("Mahsulotlarni qidirishda xatolik yuz berdi");
       throw new Error("Mahsulotlarni qidirishda xatolik yuz berdi");
@@ -417,5 +456,73 @@ export const getAllProductsWithFilters = async (params: {
       toast.error("Mahsulotlarni yuklashda xatolik yuz berdi");
       throw new Error("Mahsulotlarni yuklashda xatolik yuz berdi");
     }
+  }
+};
+
+// Admin product update function
+export const updateAdminProduct = async (productId: number, productData: any, images: File[] = [], mainImageIndex: number = 0) => {
+  try {
+    const tokenString = localStorage.getItem("accessToken");
+    let token = tokenString ? JSON.parse(tokenString) : null;
+
+    if (!token && process.env.NODE_ENV === 'development') {
+      const demoToken = "demo-admin-token-for-development";
+      localStorage.setItem("accessToken", JSON.stringify(demoToken));
+      token = demoToken;
+    }
+
+    if (!token) {
+      throw new Error("Please login first to update products");
+    }
+
+    const formData = new FormData();
+
+    Object.entries(productData).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && value !== '') {
+        if (Array.isArray(value)) {
+          if (value.length > 0) {
+            formData.append(key, JSON.stringify(value));
+          }
+        } else if (typeof value === 'boolean') {
+          formData.append(key, value.toString());
+        } else if (typeof value === 'number') {
+          formData.append(key, value.toString());
+        } else {
+          formData.append(key, String(value));
+        }
+      }
+    });
+
+    if (images && images.length > 0) {
+      // Add main image first
+      if (mainImageIndex >= 0 && mainImageIndex < images.length) {
+        formData.append("images", images[mainImageIndex]);
+        if (process.env.NODE_ENV === "development") {
+          console.log("Main image for update (first):", images[mainImageIndex].name);
+        }
+      }
+      
+      // Add other images
+      images.forEach((img, index) => {
+        if (index !== mainImageIndex) {
+          formData.append("images", img);
+        }
+      });
+    }
+
+    const response = await instance.patch(`/product/${productId}`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    return response.data;
+
+  } catch (error: any) {
+    console.error("Product update error:", error);
+    if (error.response?.data?.message) {
+      throw new Error(error.response.data.message);
+    }
+    throw error;
   }
 };

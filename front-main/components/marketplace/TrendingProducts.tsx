@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { FiTrendingUp, FiHeart, FiShoppingCart, FiEye, FiStar } from 'react-icons/fi';
+import { FiTrendingUp, FiHeart, FiShoppingCart, FiEye, FiStar, FiAlertCircle } from 'react-icons/fi';
 import { MdFavoriteBorder } from 'react-icons/md';
 import styles from './TrendingProducts.module.scss';
 import { getAllProducts } from '../../endpoints/product';
-
-interface Product {
-  id: number;
-  title: string;
-  price: number;
-  slug: string;
-  product_image: Array<{ url: string }>;
-  brand: { name: string };
-  category: { name: string };
-  reviews: Array<{ rating: number }>;
-  view_count: number;
-  like_count: number;
-  trending_score?: number;
-}
+import { Product } from '../../types/product';
+import { 
+  validateProduct, 
+  getProductImage, 
+  getProductName, 
+  getBrandName, 
+  formatProductPrice,
+  calculateAverageRating,
+  getDemoProducts,
+  showValidationErrors
+} from '../../utils/productValidation';
 
 const TrendingProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
@@ -28,30 +25,71 @@ const TrendingProducts: React.FC = () => {
     loadTrendingProducts();
   }, [activeTab]);
 
+  // ✅ Xavfsiz trending mahsulotlarni yuklash
   const loadTrendingProducts = async () => {
     try {
       setLoading(true);
+      console.log('🔥 Trending mahsulotlar yuklanmoqda...');
+      
       const response = await getAllProducts();
-      if (response && Array.isArray(response)) {
-        let filteredProducts = response;
+      
+      if (response && Array.isArray(response) && response.length > 0) {
+        console.log(`✅ ${response.length} ta mahsulot topildi`);
+        
+        // ✅ Har bir mahsulotni tekshirish
+        const validProducts: Product[] = [];
+        
+        response.forEach((product: any, index: number) => {
+          const validation = validateProduct(product);
+          
+          if (validation.isValid) {
+            validProducts.push(product as Product);
+          } else {
+            console.warn(`⚠️ Trending mahsulot ${index + 1} noto'g'ri:`, validation.errors);
+          }
+        });
+        
+        if (validProducts.length === 0) {
+          console.warn('❌ Hech qanday to\'g\'ri trending mahsulot topilmadi, demo ishlatiladi');
+          const demoProducts = getDemoProducts();
+          setProducts(demoProducts.slice(0, 8));
+          return;
+        }
 
-        // Sort based on active tab
+        // ✅ Tab asosida saralash
+        let filteredProducts = [...validProducts];
+
         if (activeTab === 'trending') {
-          filteredProducts = response
-            .map(p => ({ ...p, trending_score: (p.view_count || 0) * 0.6 + (p.like_count || 0) * 0.4 }))
+          // Trending score hisoblash: view_count * 0.6 + like_count * 0.4
+          filteredProducts = filteredProducts
+            .map(p => ({ 
+              ...p, 
+              trending_score: (p.view_count || 0) * 0.6 + (p.like_count || 0) * 0.4 
+            }))
             .sort((a, b) => (b.trending_score || 0) - (a.trending_score || 0));
         } else if (activeTab === 'popular') {
-          filteredProducts = response.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
+          filteredProducts = filteredProducts.sort((a, b) => (b.view_count || 0) - (a.view_count || 0));
         } else if (activeTab === 'new') {
-          filteredProducts = response.sort((a, b) =>
-            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-          );
+          filteredProducts = filteredProducts.sort((a, b) => {
+            const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+            const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+            return dateB - dateA;
+          });
         }
 
         setProducts(filteredProducts.slice(0, 8));
+        console.log(`✅ ${filteredProducts.length} ta trending mahsulot yuklandi`);
+        
+      } else {
+        console.warn('⚠️ API dan trending mahsulotlar kelmadi, demo ishlatiladi');
+        const demoProducts = getDemoProducts();
+        setProducts(demoProducts.slice(0, 8));
       }
-    } catch (error) {
-      console.error('Error loading trending products:', error);
+    } catch (error: any) {
+      console.error('❌ Trending mahsulotlarni yuklashda xato:', error);
+      // Xato holatida demo mahsulotlar
+      const demoProducts = getDemoProducts();
+      setProducts(demoProducts.slice(0, 8));
     } finally {
       setLoading(false);
     }
@@ -135,79 +173,115 @@ const TrendingProducts: React.FC = () => {
 
         {/* Products Grid */}
         <div className={styles.productsGrid}>
-          {products.map((product, index) => (
-            <Link key={product.id} href={`/product/${product.slug}`} className={styles.productCard}>
-              <div className={styles.productImageContainer}>
-                {index < 3 && (
-                  <div className={styles.rankBadge}>
-                    #{index + 1}
-                  </div>
-                )}
-                <img
-                  src={
-                    product.product_image[0]?.url
-                      ? (product.product_image[0].url.startsWith('http')
-                          ? product.product_image[0].url
-                          : `http://127.0.0.1:4001${product.product_image[0].url.replace('/uploads//uploads/', '/uploads/')}`)
-                      : '/img/placeholder-product.jpg'
-                  }
-                  alt={product.title}
-                  className={styles.productImage}
-                />
-                <button
-                  className={styles.wishlistBtn}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    addToWishlist(product.id);
-                  }}
-                >
-                  <MdFavoriteBorder className={styles.heartIcon} />
-                </button>
-                {activeTab === 'trending' && (
-                  <div className={styles.trendingBadge}>
-                    <FiTrendingUp className={styles.badgeIcon} />
-                    Trending
-                  </div>
-                )}
-              </div>
+          {products && products.length > 0 ? (
+            products.map((product, index) => {
+              // ✅ Har bir mahsulot uchun xavfsizlik tekshiruvi
+              if (!product || !product.id) {
+                console.warn('⚠️ Noto\'g\'ri trending mahsulot obyekti:', product);
+                return null;
+              }
 
-              <div className={styles.productInfo}>
-                <div className={styles.shopName}>{product.brand.name}</div>
-                <h3 className={styles.productTitle}>{product.title}</h3>
+              const validation = validateProduct(product);
+              if (!validation.isValid) {
+                console.warn('⚠️ Trending mahsulot validatsiyadan o\'tmadi:', validation.errors);
+                return null;
+              }
 
-                <div className={styles.rating}>
-                  <div className={styles.stars}>
-                    {renderStars(calculateAverageRating(product.reviews))}
-                  </div>
-                  <span className={styles.reviewCount}>
-                    ({product.reviews?.length || 0})
-                  </span>
-                </div>
+              // ✅ Xavfsiz qiymatlarni olish
+              const productName = getProductName(product);
+              const brandName = getBrandName(product);
+              const productImage = getProductImage(product);
+              const formattedPrice = formatProductPrice(product);
+              const averageRating = calculateAverageRating(product.reviews || []);
+              const reviewCount = product.reviews?.length || 0;
 
-                <div className={styles.priceContainer}>
-                  <span className={styles.currency}>UZS</span>
-                  <span className={styles.price}>{Number(product.price).toLocaleString()}</span>
-                </div>
+              return (
+                <Link key={product.id} href={`/product/${product.slug || product.id}`} className={styles.productCard}>
+                  <div className={styles.productImageContainer}>
+                    {index < 3 && (
+                      <div className={styles.rankBadge}>
+                        #{index + 1}
+                      </div>
+                    )}
+                    <img
+                      src={productImage}
+                      alt={productName}
+                      className={styles.productImage}
+                      onError={(e) => {
+                        // ✅ Rasm yuklanmasa, placeholder ko'rsatish
+                        const target = e.target as HTMLImageElement;
+                        target.src = '/img/placeholder-product.jpg';
+                      }}
+                    />
+                    <button
+                      className={styles.wishlistBtn}
+                      onClick={(e) => {
+                        e.preventDefault();
+                        addToWishlist(product.id);
+                      }}
+                      aria-label={`${productName} ni sevimlilar ro'yxatiga qo'shish`}
+                    >
+                      <MdFavoriteBorder className={styles.heartIcon} />
+                    </button>
+                    {activeTab === 'trending' && (
+                      <div className={styles.trendingBadge}>
+                        <FiTrendingUp className={styles.badgeIcon} />
+                        Trending
+                      </div>
+                    )}
+                  </div>
 
-                <div className={styles.productStats}>
-                  <div className={styles.stat}>
-                    <FiEye className={styles.statIcon} />
-                    <span>{product.view_count || 0}</span>
-                  </div>
-                  <div className={styles.stat}>
-                    <FiHeart className={styles.statIcon} />
-                    <span>{product.like_count || 0}</span>
-                  </div>
-                  {activeTab === 'trending' && product.trending_score && (
-                    <div className={styles.trendingScore}>
-                      <FiTrendingUp className={styles.statIcon} />
-                      <span>{Math.round(product.trending_score)}</span>
+                  <div className={styles.productInfo}>
+                    <div className={styles.shopName}>{brandName}</div>
+                    <h3 className={styles.productTitle} title={productName}>
+                      {productName}
+                    </h3>
+
+                    <div className={styles.rating}>
+                      <div className={styles.stars}>
+                        {renderStars(averageRating)}
+                      </div>
+                      <span className={styles.reviewCount}>
+                        ({reviewCount})
+                      </span>
                     </div>
-                  )}
-                </div>
-              </div>
-            </Link>
-          ))}
+
+                    <div className={styles.priceContainer}>
+                      <span className={styles.currency}>UZS</span>
+                      <span className={styles.price}>{formattedPrice}</span>
+                    </div>
+
+                    <div className={styles.productStats}>
+                      <div className={styles.stat}>
+                        <FiEye className={styles.statIcon} />
+                        <span>{product.view_count || 0}</span>
+                      </div>
+                      <div className={styles.stat}>
+                        <FiHeart className={styles.statIcon} />
+                        <span>{product.like_count || 0}</span>
+                      </div>
+                      {activeTab === 'trending' && product.trending_score && (
+                        <div className={styles.trendingScore}>
+                          <FiTrendingUp className={styles.statIcon} />
+                          <span>{Math.round(product.trending_score)}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </Link>
+              );
+            })
+          ) : (
+            // ✅ Mahsulotlar yo'q holatini ko'rsatish
+            <div className={styles.noProducts}>
+              <FiAlertCircle className={styles.noProductsIcon} />
+              <h3>Trending mahsulotlar topilmadi</h3>
+              <p>Hozirda trending mahsulotlar mavjud emas</p>
+              <button onClick={loadTrendingProducts} className={styles.retryBtn}>
+                Qayta yuklash
+              </button>
+            </div>
+          )}
         </div>
 
         {/* View More */}

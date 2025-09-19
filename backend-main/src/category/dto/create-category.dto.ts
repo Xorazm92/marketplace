@@ -1,14 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsOptional, IsBoolean, IsInt } from 'class-validator';
+import { IsString, IsOptional, IsBoolean, IsInt, MinLength, MaxLength } from 'class-validator';
+import { Transform } from 'class-transformer';
 
 export class CreateCategoryDto {
   @ApiProperty({ description: 'Category name' })
   @IsString()
+  @MinLength(2)
+  @MaxLength(255)
   name: string;
 
   @ApiProperty({ description: 'Category slug' })
+  @IsOptional()
   @IsString()
-  slug: string;
+  @MaxLength(255)
+  slug?: string;
 
   @ApiProperty({ description: 'Category description', required: false })
   @IsOptional()

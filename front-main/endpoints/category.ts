@@ -59,3 +59,33 @@ export const getCurrency = async () => {
     toast.error(` ${error.response.data.message}`);
   }
 };
+
+// Subcategory olish funksiyasi
+export const getSubcategoriesByParent = async (parentId: number) => {
+  try {
+    const res = await instance.get(`/category/${parentId}/children`);
+    return res.data;
+  } catch (error: any) {
+    console.error("Error loading subcategories:", error);
+    if (process.env.NODE_ENV === "development") {
+      console.log("Subcategory error for parent ID:", parentId, error);
+    }
+    return []; // Bo'sh array qaytarish xato bo'lsa
+  }
+};
+
+// Kategoriya hierarchy bilan olish
+export const getCategoriesWithHierarchy = async () => {
+  try {
+    const res = await instance.get("/category/hierarchy");
+    return res.data;
+  } catch (error: any) {
+    console.error("Error loading category hierarchy:", error);
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+    } else {
+      toast.error("Kategoriya daraxtini yuklashda xatolik");
+    }
+    throw error;
+  }
+};
