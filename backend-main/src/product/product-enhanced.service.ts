@@ -86,6 +86,11 @@ export class ProductEnhancedService {
       }
 
       // 4. Validate subcategory if provided
+      console.log('🔍 SUBCATEGORY CHECK:', {
+        subcategory_id: createProductDto.subcategory_id,
+        type: typeof createProductDto.subcategory_id,
+        truthy: !!createProductDto.subcategory_id
+      });
       if (createProductDto.subcategory_id) {
         console.log('Validating subcategory ID:', createProductDto.subcategory_id);
         try {

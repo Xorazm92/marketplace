@@ -157,7 +157,7 @@ async function main() {
         price: 150000,
         category_slug: 'clothing',
         brand_name: 'INBOLA',
-        images: ['/uploads/product1.svg', '/uploads/product1_2.svg']
+        images: ['product1.svg', 'product1_2.svg']
       },
       {
         title: "Kichkintoylar uchun o'yinchoq mashina",
@@ -165,7 +165,7 @@ async function main() {
         price: 85000,
         category_slug: 'toys',
         brand_name: 'INBOLA',
-        images: ['/uploads/toy1.svg', '/uploads/toy1_2.svg']
+        images: ['toy1.svg', 'toy1_2.svg']
       },
       {
         title: "Bolalar uchun hikoyalar kitobi",
@@ -173,7 +173,7 @@ async function main() {
         price: 45000,
         category_slug: 'books',
         brand_name: 'INBOLA',
-        images: ['/uploads/book1.svg']
+        images: ['book1.svg']
       },
       {
         title: "Bolalar futbol to'pi",
@@ -181,7 +181,7 @@ async function main() {
         price: 120000,
         category_slug: 'sports',
         brand_name: 'INBOLA',
-        images: ['/uploads/ball1.svg']
+        images: ['ball1.svg']
       },
       {
         title: "Maktab sumkasi",
@@ -189,7 +189,7 @@ async function main() {
         price: 180000,
         category_slug: 'school',
         brand_name: 'INBOLA',
-        images: ['/uploads/bag1.svg', '/uploads/bag1_2.svg'],
+        images: ['bag1.svg', 'bag1_2.svg'],
         colors: ['Qora', 'Ko\'k', 'Qizil']
       },
       {
@@ -198,7 +198,7 @@ async function main() {
         price: 45000,
         category_slug: 'school',
         brand_name: 'INBOLA',
-        images: ['/uploads/pencils1.svg', '/uploads/pencils2.svg'],
+        images: ['pencils1.svg', 'pencils2.svg'],
         colors: ['Ko\'k', 'Qizil', 'Yashil', 'Sariq', 'Binafsha', 'To\'q sariq']
       }
     ];
@@ -231,13 +231,14 @@ async function main() {
             currency_id: currency.id,
             user_id: testUser.id,
             is_checked: 'APPROVED',
+            is_active: true,
             negotiable: false,
             condition: "new",
             phone_number: '+998901234567',
             slug: productSlug,
             product_image: {
               create: productData.images.map((img) => ({
-                url: `/uploads/${img}`
+                url: `uploads/${img}`
               }))
             }
           }

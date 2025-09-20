@@ -78,9 +78,13 @@ const authLink = setContext((_, { headers }) => {
   };
 });
 
-const uploadLink = createUploadLink({
+const httpLinkWithCredentials = new HttpLink({
   uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
   credentials: 'include',
+});
+
+const uploadLink = createUploadLink({
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_ENDPOINT || 'http://localhost:3001/graphql',
   headers: {
     "apollo-require-preflight": "true",
     "authorization": `Bearer ${getLocalStorage("accessToken")}`,
@@ -90,7 +94,7 @@ const uploadLink = createUploadLink({
 // WebSocket link for subscriptions (disabled for now)
 const wsLink = null;
 
-const httpLink = ApolloLink.from([errorLink, authLink, uploadLink]);
+const httpLink = ApolloLink.from([errorLink, authLink, httpLinkWithCredentials]);
 const splitLink =
   typeof window !== "undefined" && wsLink
     ? split(
@@ -115,7 +119,6 @@ export const client = new ApolloClient({
     },
   }),
   link: splitLink,
-  credentials: "include",
   defaultOptions: {
     watchQuery: {
       errorPolicy: 'all',

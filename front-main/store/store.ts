@@ -2,6 +2,8 @@ import { configureStore, combineReducers } from "@reduxjs/toolkit";
 import { persistStore, persistReducer } from "redux-persist";
 import authReducer from "./features/authSlice";
 import productReducer from "./features/productSlice";
+import cartReducer from "./features/cartSlice";
+import favoritesReducer from "./features/favoritesSlice";
 
 // SSR-safe storage
 const createNoopStorage = () => {
@@ -25,12 +27,14 @@ const storage = typeof window !== "undefined"
 const rootReducer = combineReducers({
   auth: authReducer,
   products: productReducer,
+  cart: cartReducer,
+  favorites: favoritesReducer,
 });
 
 const persistConfig = {
   key: "root",
   storage,
-  whitelist: ["auth", "products"],
+  whitelist: ["auth", "products", "cart", "favorites"],
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);

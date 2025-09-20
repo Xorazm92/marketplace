@@ -23,7 +23,7 @@ export class BrandService {
     return await this.prismaService.brand.create({
       data: {
         name: createBrandDto.name,
-        logo: 'default-brand-logo.png'
+        logo: createBrandDto.logo || 'default-brand-logo.png'
       },
     });
   }

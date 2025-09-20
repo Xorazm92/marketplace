@@ -32,9 +32,16 @@ export class BrandController {
   constructor(private readonly brandService: BrandService) {}
 
   @Post()
+  @ApiOperation({ summary: "Create new brand" })
+  @ApiResponse({ status: 201, description: "Brand created successfully" })
+  create(@Body() createBrandDto: CreateBrandDto) {
+    return this.brandService.createWithoutImage(createBrandDto);
+  }
+
+  @Post("with-image")
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)
-  @ApiOperation({ summary: "Create new brand" })
+  @ApiOperation({ summary: "Create new brand with image" })
   @ApiConsumes("multipart/form-data")
   @ApiBody({
     schema: {
@@ -50,7 +57,7 @@ export class BrandController {
   })
   @ApiResponse({ status: 201, description: "Brand created successfully" })
   @UseInterceptors(FileInterceptor("image", multerOptions))
-  create(
+  createWithImage(
     @Body() createBrandDto: CreateBrandDto,
     @UploadedFile() image: Express.Multer.File
   ) {

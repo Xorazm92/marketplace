@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate Placeholder Image</title>
+  <script>
+    function generatePlaceholder() {
+      const canvas = document.createElement('canvas');
+      canvas.width = 800;
+      canvas.height = 600;
+      const ctx = canvas.getContext('2d');
+      
+      // Fill with light gray background
+      ctx.fillStyle = '#f5f5f5';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      // Add text
+      ctx.fillStyle = '#999';
+      ctx.font = '36px Arial';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('No Image Available', canvas.width/2, canvas.height/2);
+      
+      // Convert to data URL and download
+      const dataUrl = canvas.toDataURL('image/jpeg');
+      const link = document.createElement('a');
+      link.download = 'placeholder-product.jpg';
+      link.href = dataUrl;
+      link.click();
+    }
+  </script>
+</head>
+<body style="font-family: Arial, sans-serif; text-align: center; margin-top: 50px;">
+  <h1>Generate Placeholder Image</h1>
+  <p>Click the button below to generate and download a placeholder image.</p>
+  <button onclick="generatePlaceholder()" style="padding: 10px 20px; font-size: 16px; cursor: pointer;">
+    Download Placeholder Image
+  </button>
+  <p>After downloading, save it to: <code>public/images/placeholder-product.jpg</code></p>
+</body>
+</html>

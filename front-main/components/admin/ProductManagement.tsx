@@ -1,11 +1,12 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styles from './ProductManagement.module.scss';
+import { toast } from 'react-hot-toast';
+import styles from './ProductManagement.module.css';
+import SafeImage from '../common/SafeImage';
 import { MdOutlineCameraAlt } from 'react-icons/md';
-import { toast } from 'react-toastify';
 import { RootState } from '../../store/store';
 import { setProducts, addProduct, updateProduct, deleteProduct, setLoading } from '../../store/features/productSlice';
-import { createAdminProduct, getAllProducts, updateAdminProduct } from '../../endpoints/product';
+import { createAdminProduct, getProducts, updateAdminProduct, deleteProduct as deleteProductAPI } from '../../endpoints/product';
 import { getAllCategories, getSubcategoriesByParent } from '../../endpoints/category';
 
 interface ProductFormData {
@@ -94,7 +95,7 @@ const ProductManagement: React.FC = () => {
 
       // Load real products from API
       if (process.env.NODE_ENV === "development") console.log('Loading products from API...');
-      const apiProducts = await getAllProducts();
+      const apiProducts = await getProducts();
 
       if (apiProducts && Array.isArray(apiProducts)) {
         dispatch(setProducts(apiProducts));
@@ -102,7 +103,7 @@ const ProductManagement: React.FC = () => {
       } else {
         // Fallback to empty array
         dispatch(setProducts([]));
-        toast.info('Hech qanday mahsulot topilmadi');
+        toast('Hech qanday mahsulot topilmadi');
       }
 
     } catch (error) {
@@ -307,10 +308,18 @@ const ProductManagement: React.FC = () => {
   };
 
   // Handle delete product
-  const handleDeleteProduct = (productId: number) => {
+  const handleDeleteProduct = async (productId: number) => {
     if (window.confirm('Bu mahsulotni o\'chirishni xohlaysizmi?')) {
-      dispatch(deleteProduct(productId));
-      toast.success('Mahsulot o\'chirildi');
+      try {
+        await deleteProductAPI(productId);
+        dispatch(deleteProduct(productId));
+        toast.success('Mahsulot database\'dan o\'chirildi');
+        // Reload products to reflect changes
+        loadProducts();
+      } catch (error: any) {
+        console.error('Delete error:', error);
+        toast.error(error.message || 'Mahsulotni o\'chirishda xato');
+      }
     }
   };
 
@@ -455,20 +464,23 @@ const ProductManagement: React.FC = () => {
         // Create new product via API
         const apiResponse = await createAdminProduct(productData, images, mainImageIndex);
 
-        if (apiResponse && (apiResponse.data || apiResponse.product)) {
-          const product = apiResponse.data || apiResponse.product;
-          if (process.env.NODE_ENV === "development") console.log('Product created successfully:', product);
+        // Backend returns product object directly (not wrapped in data)
+        if (apiResponse && apiResponse.id) {
+          const newProduct = apiResponse;
+          dispatch(addProduct(newProduct));
 
-          toast.success('Mahsulot muvaffaqiyatli yaratildi!');
+          toast.success(`Mahsulot "${newProduct.title}" muvaffaqiyatli yaratildi! ID: ${newProduct.id}`);
           
           // Reload products from API to get fresh data
           await loadProducts();
+          
+          // Reset form but keep it open for next product
+          resetForm();
         } else {
+          console.error('Invalid response structure:', apiResponse);
           throw new Error('API javob bo\'sh yoki noto\'g\'ri');
         }
       }
-      
-      resetForm();
 
     } catch (error: any) {
       console.error('Error saving product:', error);
@@ -510,7 +522,9 @@ const ProductManagement: React.FC = () => {
     });
     setImages([]);
     setMainImageIndex(0);
-    setShowAddForm(false);
+    setSubcategories([]); // Reset subcategories
+    // Don't close the form automatically - let user decide
+    // setShowAddForm(false);
     setEditingProduct(null);
   };
 
@@ -635,15 +649,15 @@ const ProductManagement: React.FC = () => {
             {realProducts.map((product) => (
               <div key={product?.id || Math.random()} className={styles.realProductCard}>
                 <div className={styles.productImageContainer}>
-                  {product?.product_image?.[0]?.url ? (
-                    <img
-                      src={product.product_image[0].url}
-                      alt={product.title}
-                      className={styles.productImage}
-                    />
-                  ) : (
-                    <div className={styles.imagePlaceholder}>📦</div>
-                  )}
+                  <SafeImage
+                    src={product?.product_image?.[0]?.url || (product as any)?.images?.[0]}
+                    alt={product?.title || 'Mahsulot rasmi'}
+                    className={styles.productImage}
+                    width="100%"
+                    height="150px"
+                    objectFit="cover"
+                    fallbackSrc="/images/placeholder-product.jpg"
+                  />
                 </div>
                 <div className={styles.productInfo}>
                   <h4 className={styles.productTitle}>{product?.title || 'Mahsulot'}</h4>

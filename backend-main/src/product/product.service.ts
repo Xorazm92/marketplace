@@ -5,15 +5,24 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { RedisService } from '../microservices/redis/redis.service';
 import { ChildSafetyService } from '../child-safety/child-safety.service';
+import { UploadService } from '../upload/upload.service';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private uploadService: UploadService
+  ) {}
 
   async create(createProductDto: CreateProductDto, userId?: number) {
     const { images, user_id, ...productData } = createProductDto;
+
+    console.log('=== PRODUCT SERVICE CREATE DEBUG ===');
+    console.log('Received productData:', productData);
+    console.log('userId:', userId);
+    console.log('user_id from DTO:', user_id);
 
     const product = await this.prisma.product.create({
       data: {
@@ -23,10 +32,11 @@ export class ProductService {
         currency_id: productData.currency_id,
         description: productData.description,
         negotiable: productData.negotiable,
-        condition: productData.condition ? "new" : "used",
+        condition: productData.condition,
         phone_number: productData.phone_number,
         address_id: productData.address_id ? +productData.address_id : null,
         category_id: productData.category_id,
+        subcategory_id: productData.subcategory_id,
         age_range: productData.age_range,
         material: productData.material,
         color: productData.color,
@@ -302,8 +312,8 @@ export class ProductService {
     };
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto) {
-    const { images, user_id, ...productData } = updateProductDto;
+  async update(id: number, updateProductDto: UpdateProductDto, images?: Express.Multer.File[]) {
+    const { user_id, ...productData } = updateProductDto;
 
     // Only include fields that exist in the Product model
     const allowedFields = {
@@ -317,6 +327,7 @@ export class ProductService {
       phone_number: productData.phone_number,
       address_id: productData.address_id ? +productData.address_id : undefined,
       category_id: productData.category_id,
+      subcategory_id: productData.subcategory_id,
       age_range: productData.age_range,
       material: productData.material,
       color: productData.color,
@@ -332,7 +343,7 @@ export class ProductService {
       Object.entries(allowedFields).filter(([_, value]) => value !== undefined)
     );
 
-    return this.prisma.product.update({
+    const updatedProduct = await this.prisma.product.update({
       where: { id },
       data: updateData,
       include: {
@@ -349,6 +360,39 @@ export class ProductService {
         }
       }
     });
+
+    // Handle image uploads if provided
+    if (images && images.length > 0) {
+      for (const image of images) {
+        const imageUrl = await this.uploadService.uploadSingleImage(image, 'products');
+        await this.prisma.productImage.create({
+          data: {
+            product_id: id,
+            url: imageUrl
+          }
+        });
+      }
+
+      // Return updated product with new images
+      return this.prisma.product.findUnique({
+        where: { id },
+        include: {
+          product_image: true,
+          brand: true,
+          category: true,
+          user: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              profile_img: true
+            }
+          }
+        }
+      });
+    }
+
+    return updatedProduct;
   }
 
   async remove(id: number) {

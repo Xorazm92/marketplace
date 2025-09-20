@@ -59,6 +59,11 @@ async function bootstrap(): Promise<void> {
         'http://127.0.0.1:3000',
         'http://127.0.0.1:3002',
         'http://127.0.0.1:3003',
+        // Browser preview URLs
+        'http://127.0.0.1:33581',
+        'http://localhost:33581',
+        /^http:\/\/127\.0\.0\.1:\d+$/,
+        /^http:\/\/localhost:\d+$/,
         process.env.FRONTEND_URL || 'http://localhost:3003',
         // Production URLs
         'https://inbola.uz',

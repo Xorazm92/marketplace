@@ -4,15 +4,18 @@ import { useRouter } from 'next/router';
 import AdminLayout from '../../components/admin/AdminLayout';
 import Dashboard from '../../components/admin/Dashboard';
 import ProductManagement from '../../components/admin/ProductManagement';
+import ProductApproval from '../../components/admin/ProductApproval';
+import CategoryManagement from '../../components/admin/CategoryManagement';
+import BrandManagement from '../../components/admin/BrandManagement';
 import OrderManagement from '../../components/admin/OrderManagement';
 import UserManagement from '../../components/admin/UserManagement';
 import Analytics from '../../components/admin/Analytics';
 import Settings from '../../components/admin/Settings';
 import { getOrderStatistics } from '../../endpoints/order';
-import { getAllProducts } from '../../endpoints/product';
+import { getProducts } from '../../endpoints/product';
 import styles from '../../styles/Admin.module.scss';
 
-type AdminTab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'settings';
+type AdminTab = 'dashboard' | 'products' | 'approval' | 'categories' | 'brands' | 'orders' | 'users' | 'analytics' | 'settings';
 
 interface DashboardStats {
   totalOrders: number;
@@ -145,6 +148,12 @@ const AdminPage: React.FC = () => {
         return <Dashboard stats={dashboardStats} isLoading={isLoading} />;
       case 'products':
         return <ProductManagement />;
+      case 'approval':
+        return <ProductApproval />;
+      case 'categories':
+        return <CategoryManagement />;
+      case 'brands':
+        return <BrandManagement />;
       case 'orders':
         return <OrderManagement />;
       case 'users':

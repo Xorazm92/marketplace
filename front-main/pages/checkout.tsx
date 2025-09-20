@@ -1,31 +1,18 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
+import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-toastify';
-import { getCart } from '../endpoints/cart';
 import { createOrder } from '../endpoints/order';
+import { fetchCart, selectCart, clearCartItems } from '../store/features/cartSlice';
+import { RootState, AppDispatch } from '../store/store';
 import styles from '../styles/Checkout.module.scss';
-
-interface CartItem {
-  id: number;
-  quantity: number;
-  product: {
-    id: number;
-    title: string;
-    price: string;
-    currency: { symbol: string };
-  };
-}
-
-interface Cart {
-  items: CartItem[];
-  total_amount: number;
-  total_items: number;
-}
 
 export default function CheckoutPage() {
   const router = useRouter();
-  const [cart, setCart] = useState<Cart | null>(null);
-  const [loading, setLoading] = useState(true);
+  const dispatch = useDispatch<AppDispatch>();
+  
+  // Redux selectors
+  const cart = useSelector(selectCart);
   const [isPlacingOrder, setIsPlacingOrder] = useState(false);
   
   const [formData, setFormData] = useState({
@@ -52,19 +39,11 @@ export default function CheckoutPage() {
 
   const loadCart = async () => {
     try {
-      setLoading(true);
-      const cartData = await getCart();
-      if (!cartData || cartData.items.length === 0) {
-        router.push('/cart');
-        return;
-      }
-      setCart(cartData);
+      await dispatch(fetchCart()).unwrap();
     } catch (error) {
       console.error('Error loading cart:', error);
       toast.error('Savatchani yuklashda xatolik');
       router.push('/cart');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -96,7 +75,7 @@ export default function CheckoutPage() {
         items: cart.items.map(item => ({
           product_id: item.product.id,
           quantity: item.quantity,
-          unit_price: parseFloat(item.product.price)
+          unit_price: item.product.price
         })),
         currency_id: 1,
         payment_method: formData.paymentMethod,
@@ -110,6 +89,10 @@ Izoh: ${formData.notes}
       };
 
       const order = await createOrder(orderData);
+      
+      // Clear cart after successful order
+      await dispatch(clearCartItems());
+      
       toast.success('Buyurtma muvaffaqiyatli yaratildi!');
       router.push(`/orders/${order.id}`);
     } catch (error) {
@@ -124,7 +107,7 @@ Izoh: ${formData.notes}
     return <div>Tizimga kirish kerak...</div>;
   }
 
-  if (loading) {
+  if (cart.loading) {
     return (
       <div className={styles.container}>
         <div className={styles.loading}>Yuklanmoqda...</div>
@@ -138,6 +121,9 @@ Izoh: ${formData.notes}
         <div className={styles.emptyCart}>
           <h2>Savatcha bo'sh</h2>
           <p>Buyurtma berish uchun avval mahsulot qo'shing</p>
+          <button onClick={() => router.push('/')}>
+            Xarid qilishni davom ettirish
+          </button>
         </div>
       </div>
     );
@@ -297,7 +283,7 @@ Izoh: ${formData.notes}
                   {item.product.title} × {item.quantity}
                 </span>
                 <span className={styles.itemPrice}>
-                  {(parseInt(item.product.price) * item.quantity).toLocaleString('uz-UZ')} so'm
+                  {(item.product.price * item.quantity).toLocaleString('uz-UZ')} so'm
                 </span>
               </div>
             ))}

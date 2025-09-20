@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import styles from './AdminLayout.module.scss';
 
-type AdminTab = 'dashboard' | 'products' | 'orders' | 'users' | 'analytics' | 'settings';
+type AdminTab = 'dashboard' | 'products' | 'approval' | 'categories' | 'brands' | 'orders' | 'users' | 'analytics' | 'settings';
 
 interface AdminUser {
   id: number;
@@ -32,6 +32,24 @@ const menuItems = [
     label: 'Mahsulotlar',
     icon: '📦',
     description: 'Bolalar mahsulotlari boshqaruvi'
+  },
+  {
+    id: 'approval' as AdminTab,
+    label: 'Tasdiqlash',
+    icon: '✅',
+    description: 'Mahsulotlarni tasdiqlash va rad etish'
+  },
+  {
+    id: 'categories' as AdminTab,
+    label: 'Kategoriyalar',
+    icon: '📂',
+    description: 'Kategoriya va subkategoriya boshqaruvi'
+  },
+  {
+    id: 'brands' as AdminTab,
+    label: 'Brendlar',
+    icon: '🏷️',
+    description: 'Brend va ishlab chiqaruvchilar'
   },
   {
     id: 'orders' as AdminTab,

@@ -3,8 +3,9 @@ import Link from 'next/link';
 import { FiTrendingUp, FiHeart, FiShoppingCart, FiEye, FiStar, FiAlertCircle } from 'react-icons/fi';
 import { MdFavoriteBorder } from 'react-icons/md';
 import styles from './TrendingProducts.module.scss';
-import { getAllProducts } from '../../endpoints/product';
+import { getProducts } from '../../endpoints/product';
 import { Product } from '../../types/product';
+import { ProductImage } from '../../components/common/SafeImage';
 import { 
   validateProduct, 
   getProductImage, 
@@ -31,7 +32,7 @@ const TrendingProducts: React.FC = () => {
       setLoading(true);
       console.log('🔥 Trending mahsulotlar yuklanmoqda...');
       
-      const response = await getAllProducts();
+      const response = await getProducts();
       
       if (response && Array.isArray(response) && response.length > 0) {
         console.log(`✅ ${response.length} ta mahsulot topildi`);
@@ -203,15 +204,13 @@ const TrendingProducts: React.FC = () => {
                         #{index + 1}
                       </div>
                     )}
-                    <img
-                      src={productImage}
+                    <ProductImage
+                      product={product}
                       alt={productName}
+                      width={300}
+                      height={300}
                       className={styles.productImage}
-                      onError={(e) => {
-                        // ✅ Rasm yuklanmasa, placeholder ko'rsatish
-                        const target = e.target as HTMLImageElement;
-                        target.src = '/img/placeholder-product.jpg';
-                      }}
+                      priority={index < 3} // Prioritize top 3 trending products
                     />
                     <button
                       className={styles.wishlistBtn}

@@ -1,5 +1,5 @@
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiQuery } from '@nestjs/swagger';
-import { FileFieldsInterceptor, FileInterceptor } from '@nestjs/platform-express';
+import { FileFieldsInterceptor, FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import {
   Controller,
   Get,
@@ -205,8 +205,13 @@ export class ProductController {
   @UseGuards(UserProductGuard)
   @UseGuards(UserGuard)
   @Put(":id")
-  update(@Param("id") id: number, @Body() updateProductDto: UpdateProductDto) {
-    return this.productService.update(+id, updateProductDto);
+  @UseInterceptors(FilesInterceptor('images', 10, multerOptions))
+  update(
+    @Param("id") id: number, 
+    @Body() updateProductDto: UpdateProductDto,
+    @UploadedFiles() images?: Express.Multer.File[]
+  ) {
+    return this.productService.update(+id, updateProductDto, images);
   }
   
 

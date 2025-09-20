@@ -20,7 +20,7 @@ export const createProduct = async ({
 }: {
   data: CreateProductProps;
   images: File[];
-  addressData: AddressData;
+  addressData?: any; // AddressData type not defined, using any for now
 }) => {
   try {
     const token = JSON.parse(localStorage.getItem("accessToken") || "");
@@ -82,69 +82,142 @@ export const createProduct = async ({
 export const getProducts = async (
   page = 1,
   filters: Record<string, string> = {},
-) => {
+): Promise<any[]> => {
   try {
-    const res = await instance.get(`/product`, {
-      params: {
-        page,
-        ...filters,
-      },
-    });
-    return res.data;
-  } catch (error: any) {
-    console.error(error);
-    toast.error(error.response?.data?.message || "Something went wrong");
-    throw error;
-  }
-};
+    console.log('🔍 Fetching all products...');
+    
+    const res = await instance.get('/product/all');
+    console.log('✅ API Response received:', res.status);
+    
+    if (res.data) {
+      console.log('📊 Response structure:', {
+        hasData: !!res.data,
+        dataType: typeof res.data,
+        isArray: Array.isArray(res.data),
+        dataKeys: Object.keys(res.data || {}),
+        dataLength: res.data?.length || 'N/A'
+      });
 
-export const getProductById = async (id: number) => {
-  try {
-    const res = await instance.get(`/product/${id}`);
-    return res.data;
-  } catch (error: any) {
-    console.error(error);
-    toast.warning(error.response?.data?.message || "Something went wrong");
-    throw error;
-  }
-};
+      // Transform API response to match frontend expectations
+      // Backend returns: { success: true, data: [...], count: number }
+      const productsData = res.data?.data || res.data || [];
+      const products = (productsData || []).map((product: any) => ({
+        ...product,
+        // Ensure consistent image format
+        images: product.images || product.product_image?.map((img: any) => img.url) || []
+      }));
 
-export const getAllProducts = async (params?: { category?: string; limit?: number } | string) => {
-  try {
-    // Handle both object and string parameters
-    let queryParams = {};
-    if (typeof params === 'string') {
-      queryParams = { category: params };
-    } else if (params && typeof params === 'object') {
-      queryParams = params;
+      console.log(`✅ Processed ${products.length} products`);
+      return products;
     }
-
-    const res = await instance.get(`/product/all`, { params: queryParams });
-
-    // Transform API response to match frontend expectations
-    // Backend returns: { success: true, data: [...], count: number }
-    const productsData = res.data?.data || res.data || [];
-    const products = (productsData || []).map((product: any) => ({
-      ...product,
-      images: product.product_image?.map((img: any) => img.url) || ['/images/placeholder.jpg'],
-      rating: product.rating || 4.5,
-      review_count: product.review_count || Math.floor(Math.random() * 100) + 1,
-      seller_name: product.user?.first_name || 'INBOLA',
-      original_price: product.original_price || product.price * 1.2,
-      discount_percentage: product.original_price ?
-        Math.round(((product.original_price - product.price) / product.original_price) * 100) : 0,
-      is_bestseller: Math.random() > 0.7,
-      is_featured: Math.random() > 0.8,
-      safety_certified: true,
-      educational_value: product.educational_value || 'Bolalar rivojlanishi uchun',
-      shipping_info: 'Bepul yetkazib berish'
-    }));
-
-    return products;
+    
+    console.warn('⚠️ No data in response');
+    return [];
   } catch (error: any) {
-    console.error(error);
-    toast.warning(`${error.response?.data?.message || "Something went wrong"}`);
-    return { data: [] };
+    console.error('❌ Error fetching products:', error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    
+    // Return empty array instead of throwing
+    return [];
+  }
+};
+
+// ✅ Get product by ID
+export const getProductById = async (id: number): Promise<{ success: boolean; data: any | null }> => {
+  try {
+    console.log(`🔍 Fetching product by ID: ${id}`);
+    
+    if (!id || typeof id !== 'number' || id <= 0) {
+      throw new Error('Invalid product ID');
+    }
+    
+    const res = await instance.get(`/product/${id}`);
+    console.log('✅ Product API Response received:', res.status);
+    
+    if (res.data?.success && res.data?.data) {
+      const product = {
+        ...res.data.data,
+        // Ensure consistent image format
+        images: res.data.data.images || res.data.data.product_image?.map((img: any) => img.url) || []
+      };
+      
+      console.log(`✅ Product fetched: ${product.title || product.name}`);
+      return {
+        success: true,
+        data: product
+      };
+    }
+    
+    console.warn('⚠️ Product not found in response');
+    return {
+      success: false,
+      data: null
+    };
+  } catch (error: any) {
+    console.error(`❌ Error fetching product ${id}:`, error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    
+    return {
+      success: false,
+      data: null
+    };
+  }
+};
+
+// ✅ Get product by slug
+export const getProductBySlug = async (slug: string): Promise<{ success: boolean; data: any | null }> => {
+  try {
+    console.log(`🔍 Fetching product by slug: ${slug}`);
+    
+    if (!slug || typeof slug !== 'string' || slug.trim() === '') {
+      throw new Error('Invalid product slug');
+    }
+    
+    const res = await instance.get(`/product/slug/${encodeURIComponent(slug)}`);
+    console.log('✅ Product API Response received:', res.status);
+    
+    if (res.data?.success && res.data?.data) {
+      const product = {
+        ...res.data.data,
+        // Ensure consistent image format
+        images: res.data.data.images || res.data.data.product_image?.map((img: any) => img.url) || []
+      };
+      
+      console.log(`✅ Product fetched: ${product.title || product.name}`);
+      return {
+        success: true,
+        data: product
+      };
+    }
+    
+    console.warn('⚠️ Product not found in response');
+    return {
+      success: false,
+      data: null
+    };
+  } catch (error: any) {
+    console.error(`❌ Error fetching product by slug ${slug}:`, error);
+    console.error('Error details:', {
+      message: error.message,
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data
+    });
+    
+    return {
+      success: false,
+      data: null
+    };
   }
 };
 
@@ -206,11 +279,12 @@ export const createAdminProduct = async (productData: any, images: File[], mainI
       throw new Error(`Rasm hajmi juda katta (5MB dan oshmasin): ${oversizedImages.map(img => img.name).join(', ')}`);
     }
 
-    const tokenString = localStorage.getItem("accessToken");
-    let token = tokenString ? JSON.parse(tokenString) : null;
-
-    // Development mode: create demo token if none exists
-    if (!token && process.env.NODE_ENV === 'development') {
+    // Add user_id if authenticated (set to null for now to avoid FK constraint)
+    let token = localStorage.getItem('accessToken');
+    if (token) {
+      // productDataWithUser.user_id = 1; // Commented out to avoid FK constraint
+      // Real implementation should decode user ID from JWT token
+    } else if (!token && process.env.NODE_ENV === 'development') {
       const demoToken = "demo-admin-token-for-development";
       localStorage.setItem("accessToken", JSON.stringify(demoToken));
       token = demoToken;
@@ -227,33 +301,56 @@ export const createAdminProduct = async (productData: any, images: File[], mainI
 
     const formData = new FormData();
 
-    // Add default user_id for development
+    // Set user_id to valid user ID (test user from seed)
     const productDataWithUser = {
       ...productData,
-      user_id: productData.user_id || 1 // Default to user ID 1 as number
+      user_id: 1 // Use test user ID from seed data
     };
 
+    // ✅ Category/Subcategory validation and mapping
+    const mainCategories = [1, 4, 7, 10, 11, 12]; // Main categories only
+    const subcategories = [2, 3, 5, 6, 8, 9]; // Subcategories
+    
+    if (subcategories.includes(productData.category_id)) {
+      // If selected category is actually a subcategory, move it to subcategory_id
+      const subcategoryMappings: { [key: number]: number } = {
+        2: 1, 3: 1, // Ichki/Tashqi kiyim -> Kiyim-kechak
+        5: 4, 6: 4, // Konstruktor/Yumshoq -> O'yinchoqlar  
+        8: 7, 9: 7  // Ta'lim/Ertaklar -> Kitoblar
+      };
+      
+      productDataWithUser.subcategory_id = productData.category_id;
+      productDataWithUser.category_id = subcategoryMappings[productData.category_id];
+      
+      console.log(`🔄 Moved category ${productData.category_id} to subcategory, parent: ${productDataWithUser.category_id}`);
+    } else if (!mainCategories.includes(productData.category_id)) {
+      console.warn(`⚠️ Invalid category_id: ${productData.category_id}, using fallback category 4`);
+      productDataWithUser.category_id = 4; // Default to O'yinchoqlar
+    }
+
     // Add product data to formData with proper type conversion
+    // Only include fields that exist in CreateProductDto
+    const allowedFields = [
+      'title', 'user_id', 'brand_id', 'price', 'currency_id', 'description',
+      'negotiable', 'condition', 'phone_number', 'address_id', 'category_id',
+      'subcategory_id', 'age_range', 'material', 'color', 'size', 'manufacturer',
+      'safety_info', 'features', 'weight', 'dimensions'
+    ];
+
     Object.entries(productDataWithUser).forEach(([key, value]) => {
-      if (value !== undefined && value !== null && value !== '') {
+      if (allowedFields.includes(key) && value !== undefined && value !== null && value !== '') {
         // Handle arrays (like features)
         if (Array.isArray(value)) {
           if (value.length > 0) {
             // For arrays, append as JSON string
             formData.append(key, JSON.stringify(value));
           }
-          // Don't append empty arrays
-        }
-        // Convert boolean values to string
-        else if (typeof value === 'boolean') {
+        } else if (typeof value === 'boolean') {
           formData.append(key, value.toString());
-        }
-        // Convert numbers to string
-        else if (typeof value === 'number') {
+        } else if (typeof value === 'number') {
           formData.append(key, value.toString());
-        }
-        // Everything else as string
-        else {
+        } else {
+          // Everything else as string
           formData.append(key, String(value));
         }
       }
@@ -304,7 +401,13 @@ export const createAdminProduct = async (productData: any, images: File[], mainI
         Authorization: `Bearer ${token}`,
       },
     });
-    if (process.env.NODE_ENV === "development") console.log("=== PRODUCT CREATE RESPONSE ===");
+    if (process.env.NODE_ENV === "development") {
+      console.log('=== PRODUCT CREATE RESPONSE ===');
+      console.log('Response:', res);
+      console.log('Response data:', res?.data);
+      console.log('Response success:', res?.data?.success);
+      console.log('Response message:', res?.data?.message);
+    }
     if (process.env.NODE_ENV === "development") console.log(res.data);
     return res.data;
   } catch (error: any) {
@@ -336,6 +439,25 @@ export const createAdminProduct = async (productData: any, images: File[], mainI
   }
 };
 
+export const deleteProduct = async (productId: number) => {
+  try {
+    console.log(`🗑️ Deleting product ID: ${productId}`);
+    
+    const res = await instance.delete(`/product/${productId}`, {
+      headers: {
+        Authorization: `Bearer ${JSON.parse(localStorage.getItem("accessToken") || "demo-token")}`,
+      },
+    });
+    
+    console.log('✅ Product deleted successfully:', res.data);
+    return res.data;
+  } catch (error: any) {
+    console.error('❌ Error deleting product:', error);
+    const errorMessage = error.response?.data?.message || "Mahsulotni o'chirishda xato";
+    throw new Error(errorMessage);
+  }
+};
+
 export const deleteProductImage = async (productId: number, imageId: number) => {
   try {
     if (process.env.NODE_ENV === "development") console.log(productId, imageId);
@@ -353,7 +475,7 @@ export const deleteProductImage = async (productId: number, imageId: number) => 
   }
 };
 
-export const updateProduct = async (id: number, data: UpdateProductProps, addressData: AddressData) => {
+export const updateProduct = async (id: number, data: UpdateProductProps, addressData?: any) => {
   try {
     const token = JSON.parse(localStorage.getItem("accessToken") || "");
     const findAddressDto: FindAddressDto = {
@@ -510,7 +632,7 @@ export const updateAdminProduct = async (productId: number, productData: any, im
       });
     }
 
-    const response = await instance.patch(`/product/${productId}`, formData, {
+    const response = await instance.put(`/product/${productId}`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
       },

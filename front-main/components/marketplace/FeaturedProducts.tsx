@@ -4,8 +4,9 @@ import Link from 'next/link';
 import { FiHeart, FiStar, FiShoppingCart, FiEye, FiArrowRight, FiAlertCircle } from 'react-icons/fi';
 import { MdFavorite, MdFavoriteBorder } from 'react-icons/md';
 import styles from './FeaturedProducts.module.scss';
-import { getAllProducts } from '../../endpoints/product';
+import { getProducts } from '../../endpoints/product';
 import { Product } from '../../types/product';
+import { ProductImage } from '../../components/common/SafeImage';
 import { 
   validateProduct, 
   getProductImage, 
@@ -42,7 +43,7 @@ const FeaturedProducts: React.FC = () => {
       setError(null);
       console.log('🔄 Mahsulotlar yuklanmoqda...');
       
-      const response = await getAllProducts();
+      const response = await getProducts();
       
       // ✅ API javobini tekshirish
       if (response && Array.isArray(response) && response.length > 0) {
@@ -247,7 +248,7 @@ const FeaturedProducts: React.FC = () => {
         {/* Products Grid */}
         <div className={styles.productsGrid}>
           {products && products.length > 0 ? (
-            products.map((product) => {
+            products.map((product, index) => {
               // ✅ Har bir mahsulot uchun xavfsizlik tekshiruvi
               if (!product || !product.id) {
                 console.warn('⚠️ Noto\'g\'ri mahsulot obyekti:', product);
@@ -272,15 +273,13 @@ const FeaturedProducts: React.FC = () => {
                 <div key={product.id} className={styles.productCard}>
                   <Link href={`/product/${product.slug || product.id}`} className={styles.productLink}>
                     <div className={styles.productImageContainer}>
-                      <img
-                        src={productImage}
+                      <ProductImage
+                        product={product}
                         alt={productName}
+                        width={300}
+                        height={300}
                         className={styles.productImage}
-                        onError={(e) => {
-                          // ✅ Rasm yuklanmasa, placeholder ko'rsatish
-                          const target = e.target as HTMLImageElement;
-                          target.src = '/img/placeholder-product.jpg';
-                        }}
+                        priority={index < 4} // Prioritize first 4 images
                       />
                       <button
                         className={styles.wishlistBtn}

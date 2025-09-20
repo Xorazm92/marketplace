@@ -51,10 +51,20 @@ const productSlice = createSlice({
         category: typeof product.category === 'object'
           ? String(product.category?.name || product.category?.title || 'Kategoriya')
           : String(product.category || 'Kategoriya'),
-        brand: String(product.brand || 'Brand'),
-        ageRange: String(product.ageRange || ''),
+        brand: typeof product.brand === 'object'
+          ? String(product.brand?.name || 'Brand')
+          : String(product.brand || 'Brand'),
+        ageRange: String(product.ageRange || product.age_range || ''),
         stock: Number(product.stock || 0),
-        product_image: Array.isArray(product.product_image) ? product.product_image : [],
+        product_image: Array.isArray(product.product_image) 
+          ? product.product_image 
+          : Array.isArray(product.images)
+            ? product.images.map((url: string, index: number) => ({
+                id: index + 1,
+                url: url.startsWith('http') ? url : `http://localhost:4000${url}`,
+                product_id: product.id || 0
+              }))
+            : [],
         features: Array.isArray(product.features) ? product.features : [],
         specifications: typeof product.specifications === 'object' ? product.specifications : {},
         status: product.status || 'active',
@@ -63,55 +73,75 @@ const productSlice = createSlice({
         is_active: Boolean(product.is_active !== false)
       }));
     },
-    addProduct: (state, action: PayloadAction<Product>) => {
+    addProduct: (state, action: PayloadAction<any>) => {
       // Safe processing of new product
+      const product = action.payload;
       const safeProduct = {
-        ...action.payload,
-        id: action.payload.id || Date.now(),
-        title: String(action.payload.title || 'Mahsulot'),
-        description: String(action.payload.description || ''),
-        price: Number(action.payload.price || 0),
-        originalPrice: Number(action.payload.originalPrice || action.payload.price || 0),
-        category: typeof action.payload.category === 'object'
-          ? String((action.payload.category as any)?.name || (action.payload.category as any)?.title || 'Kategoriya')
-          : String(action.payload.category || 'Kategoriya'),
-        brand: String(action.payload.brand || 'Brand'),
-        ageRange: String(action.payload.ageRange || ''),
-        stock: Number(action.payload.stock || 0),
-        product_image: Array.isArray(action.payload.product_image) ? action.payload.product_image : [],
-        features: Array.isArray(action.payload.features) ? action.payload.features : [],
-        specifications: typeof action.payload.specifications === 'object' ? action.payload.specifications : {},
-        status: action.payload.status || 'active',
-        createdAt: String(action.payload.createdAt || new Date().toISOString()),
-        updatedAt: String(action.payload.updatedAt || new Date().toISOString()),
-        is_active: Boolean(action.payload.is_active !== false)
+        id: product.id || Date.now(),
+        title: String(product.title || 'Mahsulot'),
+        description: String(product.description || ''),
+        price: Number(product.price || 0),
+        originalPrice: Number(product.originalPrice || product.price || 0),
+        category: typeof product.category === 'object'
+          ? String(product.category?.name || product.category?.title || 'Kategoriya')
+          : String(product.category || 'Kategoriya'),
+        brand: typeof product.brand === 'object'
+          ? String(product.brand?.name || 'Brand')
+          : String(product.brand || 'Brand'),
+        ageRange: String(product.ageRange || product.age_range || ''),
+        stock: Number(product.stock || 0),
+        product_image: Array.isArray(product.product_image) 
+          ? product.product_image 
+          : Array.isArray(product.images)
+            ? product.images.map((url: string, index: number) => ({
+                id: index + 1,
+                url: url.startsWith('http') ? url : `http://localhost:4000${url}`,
+                product_id: product.id || 0
+              }))
+            : [],
+        features: Array.isArray(product.features) ? product.features : [],
+        specifications: typeof product.specifications === 'object' ? product.specifications : {},
+        status: product.status || 'active',
+        createdAt: String(product.createdAt || new Date().toISOString()),
+        updatedAt: String(product.updatedAt || new Date().toISOString()),
+        is_active: Boolean(product.is_active !== false)
       };
       state.products.unshift(safeProduct);
     },
-    updateProduct: (state, action: PayloadAction<Product>) => {
-      const index = state.products.findIndex(p => p.id === action.payload.id);
+    updateProduct: (state, action: PayloadAction<any>) => {
+      const product = action.payload;
+      const index = state.products.findIndex(p => p.id === product.id);
       if (index !== -1) {
         // Safe processing of updated product
         const safeProduct = {
-          ...action.payload,
-          id: action.payload.id,
-          title: String(action.payload.title || 'Mahsulot'),
-          description: String(action.payload.description || ''),
-          price: Number(action.payload.price || 0),
-          originalPrice: Number(action.payload.originalPrice || action.payload.price || 0),
-          category: typeof action.payload.category === 'object'
-            ? String((action.payload.category as any)?.name || (action.payload.category as any)?.title || 'Kategoriya')
-            : String(action.payload.category || 'Kategoriya'),
-          brand: String(action.payload.brand || 'Brand'),
-          ageRange: String(action.payload.ageRange || ''),
-          stock: Number(action.payload.stock || 0),
-          product_image: Array.isArray(action.payload.product_image) ? action.payload.product_image : [],
-          features: Array.isArray(action.payload.features) ? action.payload.features : [],
-          specifications: typeof action.payload.specifications === 'object' ? action.payload.specifications : {},
-          status: action.payload.status || 'active',
-          createdAt: String(action.payload.createdAt || new Date().toISOString()),
-          updatedAt: String(action.payload.updatedAt || new Date().toISOString()),
-          is_active: Boolean(action.payload.is_active !== false)
+          id: product.id || state.products[index].id,
+          title: String(product.title || 'Mahsulot'),
+          description: String(product.description || ''),
+          price: Number(product.price || 0),
+          originalPrice: Number(product.originalPrice || product.price || 0),
+          category: typeof product.category === 'object'
+            ? String(product.category?.name || product.category?.title || 'Kategoriya')
+            : String(product.category || 'Kategoriya'),
+          brand: typeof product.brand === 'object'
+            ? String(product.brand?.name || 'Brand')
+            : String(product.brand || 'Brand'),
+          ageRange: String(product.ageRange || product.age_range || ''),
+          stock: Number(product.stock || 0),
+          product_image: Array.isArray(product.product_image) 
+            ? product.product_image 
+            : Array.isArray(product.images)
+              ? product.images.map((url: string, index: number) => ({
+                  id: index + 1,
+                  url: url.startsWith('http') ? url : `http://localhost:4000${url}`,
+                  product_id: product.id || 0
+                }))
+              : state.products[index].product_image,
+          features: Array.isArray(product.features) ? product.features : [],
+          specifications: typeof product.specifications === 'object' ? product.specifications : {},
+          status: product.status || 'active',
+          createdAt: String(product.createdAt || state.products[index].createdAt),
+          updatedAt: String(product.updatedAt || new Date().toISOString()),
+          is_active: Boolean(product.is_active !== false)
         };
         state.products[index] = safeProduct;
       }

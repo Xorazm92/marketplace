@@ -138,5 +138,11 @@ export class CreateProductDto {
     },
   })
   @IsOptional()
-  images?: Express.Multer.File[];
+  files?: Express.Multer.File[];
+
+  @ApiProperty({ required: false, description: 'Rasm URL\'lari', type: [String] })
+  @IsOptional()
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 }

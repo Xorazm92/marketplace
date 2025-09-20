@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import styles from './SearchResults.module.scss';
-import { getAllProducts, searchProducts, getAllProductsWithFilters } from '../../endpoints/product';
+import { getProducts, searchProducts, getAllProductsWithFilters } from '../../endpoints/product';
 
 interface Product {
   id: number;
@@ -137,7 +137,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
     const loadProducts = async () => {
       try {
         setLoading(true);
-        const response = await getAllProducts();
+        const response = await getProducts();
         if (response && response.length > 0) {
           let results = response;
 

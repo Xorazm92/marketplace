@@ -18,4 +18,30 @@ export class CreateBrandDto {
   @IsOptional()
   @IsString({ message: 'Logo must be a string' })
   logo?: string;
+
+  @ApiProperty({
+    description: 'Brend tavsifi',
+    example: 'Apple kompaniyasining mahsulotlari',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Description must be a string' })
+  description?: string;
+
+  @ApiProperty({
+    description: 'Brend veb-sayti',
+    example: 'https://apple.com',
+    required: false,
+  })
+  @IsOptional()
+  @IsString({ message: 'Website must be a string' })
+  website?: string;
+
+  @ApiProperty({
+    description: 'Brend faol holati',
+    example: true,
+    required: false,
+  })
+  @IsOptional()
+  is_active?: boolean;
 }

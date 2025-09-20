@@ -217,6 +217,10 @@ const Header: React.FC = () => {
 
             {/* Header Actions - Etsy style */}
             <div className={styles.headerActions}>
+              <Link href="/products" className={styles.navLink}>
+                Mahsulotlar
+              </Link>
+
               <Link href="/login" className={styles.signInLink}>
                 Kirish
               </Link>
@@ -291,6 +295,14 @@ const Header: React.FC = () => {
                   </Link>
                 );
               })}
+              <Link
+                href="/products"
+                className={styles.mobileNavLink}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                <span className={styles.mobileIcon}>📦</span>
+                <span>Barcha Mahsulotlar</span>
+              </Link>
               <Link
                 href="/deals"
                 className={styles.mobileNavLink}
