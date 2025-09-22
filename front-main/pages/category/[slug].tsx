@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
+import Link from 'next/link';
 import SearchFilters from '../../components/search/SearchFilters';
 import SearchResults from '../../components/search/SearchResults';
 import SearchSorting from '../../components/search/SearchSorting';
+import { getSubcategoriesByParent, getCategoryById } from '../../endpoints/category';
 import styles from '../../styles/Category.module.scss';
 
 interface SearchFiltersType {
@@ -73,8 +75,55 @@ const CategoryPage: React.FC = () => {
   const [sortBy, setSortBy] = useState<string>('relevance');
   const [isLoading, setIsLoading] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
+  const [subcategories, setSubcategories] = useState<any[]>([]);
+  const [currentCategory, setCurrentCategory] = useState<any>(null);
 
   const category = categoryData[slug as string];
+
+  // Load category and subcategories
+  useEffect(() => {
+    const loadCategoryData = async () => {
+      if (slug) {
+        try {
+          // Find category by slug from static data first
+          const staticCategory = Object.entries(categoryData).find(([key]) => key === slug);
+          if (staticCategory) {
+            const [, categoryInfo] = staticCategory;
+            setCurrentCategory({
+              name: categoryInfo.name,
+              description: categoryInfo.description,
+              icon: categoryInfo.icon,
+              slug: slug as string
+            });
+          }
+
+          // Try to get category ID and load subcategories
+          // For now, use static mapping - in production, you'd get this from API
+          const categoryIdMap: Record<string, number> = {
+            'clothing': 1,
+            'toys': 2,
+            'books': 3,
+            'sports': 4,
+            'school': 5,
+            'baby': 6,
+            'electronics': 7,
+            'health': 8
+          };
+
+          const categoryId = categoryIdMap[slug as string];
+          if (categoryId) {
+            const subcategoriesData = await getSubcategoriesByParent(categoryId);
+            setSubcategories(subcategoriesData || []);
+            console.log('📂 Subcategories loaded:', subcategoriesData);
+          }
+        } catch (error) {
+          console.error('Error loading category data:', error);
+        }
+      }
+    };
+
+    loadCategoryData();
+  }, [slug]);
 
   useEffect(() => {
     if (slug) {
@@ -180,20 +229,80 @@ const CategoryPage: React.FC = () => {
                 <p className={styles.description}>{category.description}</p>
               </div>
             </div>
-            
-            <div className={styles.categoryControls}>
+          </div>
+
+          {/* Subcategories */}
+          {subcategories.length > 0 && (
+            <div className={styles.subcategoriesSection}>
+              <h3 className={styles.subcategoriesTitle}>Subkategoriyalar</h3>
+              <div className={styles.subcategoriesGrid}>
+                {subcategories.map((subcat) => (
+                  <Link 
+                    key={subcat.id} 
+                    href={`/products?category=${subcat.id}`}
+                    className={styles.subcategoryCard}
+                  >
+                    <div className={styles.subcategoryIcon}>
+                      {subcat.image_url ? (
+                        <img src={subcat.image_url} alt={subcat.name} />
+                      ) : (
+                        <span>📦</span>
+                      )}
+                    </div>
+                    <div className={styles.subcategoryInfo}>
+                      <h4>{subcat.name}</h4>
+                      {subcat.description && (
+                        <p>{subcat.description}</p>
+                      )}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
+
+          <div className={styles.filterBar}>
+            <div className={styles.filterControls}>
               <button 
                 className={styles.filterToggle}
                 onClick={() => setShowFilters(!showFilters)}
               >
-                🔍 Filtrlar {showFilters ? '▲' : '▼'}
+                Filtrlar {showFilters ? 'Yashirish' : 'Ko\'rsatish'}
               </button>
-              
-              <SearchSorting 
-                sortBy={sortBy}
-                onSortChange={handleSortChange}
-              />
+
+              {/* Category Filter Dropdown */}
+              <div className={styles.categoryFilterDropdown}>
+                <label htmlFor="categoryFilter">Saralash:</label>
+                <select 
+                  id="categoryFilter"
+                  className={styles.categoryFilterSelect}
+                  onChange={(e) => {
+                    const value = e.target.value;
+                    if (value === 'price-asc') setSortBy('price-asc');
+                    else if (value === 'price-desc') setSortBy('price-desc');
+                    else if (value === 'name-asc') setSortBy('name-asc');
+                    else if (value === 'name-desc') setSortBy('name-desc');
+                    else if (value === 'newest') setSortBy('newest');
+                    else if (value === 'oldest') setSortBy('oldest');
+                    else setSortBy('relevance');
+                  }}
+                  value={sortBy}
+                >
+                  <option value="relevance">Mos kelishi bo'yicha</option>
+                  <option value="price-asc">Narx: Arzondan qimmmatiga</option>
+                  <option value="price-desc">Narx: Qimmatdan arzonga</option>
+                  <option value="name-asc">Reyting: Yuqoridan pastga</option>
+                  <option value="newest">Yangi mahsulotlar</option>
+                  <option value="oldest">Mashhur mahsulotlar</option>
+                  <option value="name-desc">Eng katta chegirmalar</option>
+                </select>
+              </div>
             </div>
+            
+            <SearchSorting 
+              sortBy={sortBy}
+              onSortChange={handleSortChange}
+            />
           </div>
 
           <div className={styles.categoryContent}>

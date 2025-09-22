@@ -100,15 +100,15 @@ const nextConfig: NextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/api/:path*`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/:path*`,
       },
       {
         source: '/graphql',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/graphql`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/graphql`,
       },
       {
         source: '/health',
-        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001'}/health`,
+        destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/health`,
       }
     ];
   },
@@ -209,8 +209,8 @@ const nextConfig: NextConfig = {
 
   // Environment variables
   env: {
-    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001',
-    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3002',
+    NEXT_PUBLIC_API_URL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000',
+    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL || 'http://localhost:3000',
     NEXT_PUBLIC_APP_NAME: process.env.NEXT_PUBLIC_APP_NAME || 'INBOLA Kids Marketplace',
     NEXT_PUBLIC_APP_VERSION: process.env.NEXT_PUBLIC_APP_VERSION || '1.0.0',
   },

@@ -455,9 +455,10 @@ export const deleteProduct = async (productId: number) => {
   try {
     console.log(`🗑️ Deleting product ID: ${productId}`);
     
+    const token = localStorage.getItem("accessToken") || "demo-token";
     const res = await instance.delete(`/product/${productId}`, {
       headers: {
-        Authorization: `Bearer ${JSON.parse(localStorage.getItem("accessToken") || "demo-token")}`,
+        Authorization: `Bearer ${token}`,
       },
     });
     

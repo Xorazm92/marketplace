@@ -105,12 +105,24 @@ const ProductsPage: React.FC = () => {
     }
   };
 
+  // Handle URL query parameters
+  useEffect(() => {
+    const { category, search } = router.query;
+    
+    if (category) {
+      setSelectedCategory(Number(category));
+    }
+    
+    if (search) {
+      setSearchQuery(search as string);
+    }
+  }, [router.query]);
+
+  // Load data on component mount
   useEffect(() => {
     loadProducts();
     loadCategories();
   }, []);
-
-  // Filter products
   const filteredProducts = products.filter(product => {
     const matchesCategory = selectedCategory ? product.category_id === selectedCategory : true;
     const matchesSearch = searchQuery ? 

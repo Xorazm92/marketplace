@@ -20,19 +20,27 @@ export const getAllCategories = async () => {
   }
 };
 
-export const getCategoryById = async (id: number) => {
+export const getRootCategories = async () => {
   try {
-    const res = await instance.get(`/category/${id}`);
+    const res = await instance.get("/category/root");
     return res.data;
   } catch (error: any) {
-    if (process.env.NODE_ENV === "development") console.log(error);
-    // toast.error(` ${error.response.data.message}`);
+    console.error("Error loading root categories:", error);
+    if (error.response?.data?.message) {
+      toast.error(error.response.data.message);
+      throw new Error(error.response.data.message);
+    } else if (error.message) {
+      toast.error(error.message);
+      throw new Error(error.message);
+    } else {
+      throw new Error("Asosiy kategoriyalarni yuklashda xatolik yuz berdi");
+    }
   }
 };
 
-export const getCategoryBySlug = async (slug: string) => {
+export const getCategoryById = async (id: number) => {
   try {
-    const res = await instance.get(`/category/slug/${slug}`);
+    const res = await instance.get(`/category/${id}`);
     return res.data;
   } catch (error: any) {
     if (process.env.NODE_ENV === "development") console.log(error);

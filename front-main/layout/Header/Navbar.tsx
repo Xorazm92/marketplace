@@ -17,6 +17,52 @@ import type { RootState } from "../../store/store";
 import { getLocalStorage } from "../../utils/local-storege";
 import { DropDown } from "./components";
 import { getCart } from "../../endpoints/cart";
+import { getRootCategories } from "../../endpoints/category";
+
+// Helper functions for category icons and descriptions
+const getCategoryIcon = (slug: string): string => {
+  const icons: Record<string, string> = {
+    'clothing': '👕',
+    'kiyim-kechak': '👕',
+    'toys': '🧸',
+    'oyinchoqlar': '🧸',
+    'books': '📚',
+    'kitoblar': '📚',
+    'sports': '⚽',
+    'sport': '⚽',
+    'school': '🎒',
+    'maktab': '🎒',
+    'baby': '🍼',
+    'chaqaloq': '🍼',
+    'electronics': '📱',
+    'elektronika': '📱',
+    'health': '🏥',
+    'soglik': '🏥',
+  };
+  return icons[slug.toLowerCase()] || '📦';
+};
+
+const getCategoryDescription = (slug: string): string => {
+  const descriptions: Record<string, string> = {
+    'clothing': 'Bolalar kiyimlari',
+    'kiyim-kechak': 'Bolalar kiyimlari',
+    'toys': "O'yin va o'qish",
+    'oyinchoqlar': "O'yin va o'qish",
+    'books': "Ta'limiy materiallar",
+    'kitoblar': "Ta'limiy materiallar",
+    'sports': 'Sport anjomlari',
+    'sport': 'Sport anjomlari',
+    'school': 'Maktab buyumlari',
+    'maktab': 'Maktab buyumlari',
+    'baby': 'Chaqaloq buyumlari',
+    'chaqaloq': 'Chaqaloq buyumlari',
+    'electronics': 'Texnologiya',
+    'elektronika': 'Texnologiya',
+    'health': 'Salomatlik',
+    'soglik': 'Salomatlik',
+  };
+  return descriptions[slug.toLowerCase()] || 'Mahsulotlar';
+};
 
 const Navbar = () => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
@@ -26,6 +72,7 @@ const Navbar = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileSearchQuery, setMobileSearchQuery] = useState("");
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
+  const [categories, setCategories] = useState<any[]>([]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -76,6 +123,30 @@ const Navbar = () => {
       document.body.style.overflow = "";
     };
   }, [isMenuOpen]);
+
+  // Load root categories only for navbar
+  useEffect(() => {
+    const loadCategories = async () => {
+      try {
+        const categoriesData = await getRootCategories();
+        setCategories(categoriesData || []);
+        console.log('🏷️ Root categories loaded:', categoriesData);
+      } catch (error) {
+        console.error("Error loading root categories:", error);
+        // Fallback to static categories (only main categories)
+        setCategories([
+          { id: 1, name: 'Kiyim-kechak', slug: 'clothing', parent_id: null },
+          { id: 2, name: "O'yinchoqlar", slug: 'toys', parent_id: null },
+          { id: 3, name: 'Kitoblar', slug: 'books', parent_id: null },
+          { id: 4, name: 'Sport anjomlar', slug: 'sports', parent_id: null },
+          { id: 5, name: 'Maktab buyumlari', slug: 'school', parent_id: null },
+          { id: 6, name: 'Chaqaloq buyumlari', slug: 'baby', parent_id: null },
+        ]);
+      }
+    };
+
+    loadCategories();
+  }, []);
 
   // Load cart count
   useEffect(() => {
@@ -146,62 +217,20 @@ const Navbar = () => {
             {isCategoriesOpen && (
               <div className={style.categoriesDropdown}>
                 <div className={style.categoriesList}>
-                  <Link href="/category/clothing" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>👕</span>
-                    <div>
-                      <strong>Kiyim-kechak</strong>
-                      <small>Bolalar kiyimlari</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/toys" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>🧸</span>
-                    <div>
-                      <strong>Oyinchoqlar</strong>
-                      <small>O'yin va o'qish</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/books" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>📚</span>
-                    <div>
-                      <strong>Kitoblar</strong>
-                      <small>Ta'limiy materiallar</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/sports" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>⚽</span>
-                    <div>
-                      <strong>Sport</strong>
-                      <small>Sport anjomlari</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/school" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>🎒</span>
-                    <div>
-                      <strong>Maktab</strong>
-                      <small>Maktab buyumlari</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/baby" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>🍼</span>
-                    <div>
-                      <strong>Chaqaloq</strong>
-                    <small>Chaqaloq buyumlari</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/electronics" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>📱</span>
-                    <div>
-                      <strong>Elektronika</strong>
-                      <small>Texnologiya</small>
-                    </div>
-                  </Link>
-                  <Link href="/category/health" className={style.categoryItem} onClick={() => setIsCategoriesOpen(false)}>
-                    <span>🏥</span>
-                    <div>
-                      <strong>Sog'lik</strong>
-                      <small>Salomatlik</small>
-                    </div>
-                  </Link>
+                  {categories.map((category) => (
+                    <Link 
+                      key={category.id} 
+                      href={`/products?category=${category.id}`} 
+                      className={style.categoryItem} 
+                      onClick={() => setIsCategoriesOpen(false)}
+                    >
+                      <span>{getCategoryIcon(category.slug || category.name)}</span>
+                      <div>
+                        <strong>{category.name}</strong>
+                        <small>{getCategoryDescription(category.slug || category.name)}</small>
+                      </div>
+                    </Link>
+                  ))}
                 </div>
               </div>
             )}
@@ -295,30 +324,16 @@ const Navbar = () => {
 
               <div className={style.mobileCategories}>
                 <h4>Kategoriyalar</h4>
-                <Link href="/category/clothing" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  👕 Kiyim-kechak
-                </Link>
-                <Link href="/category/toys" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  🧸 Oyinchoqlar
-                </Link>
-                <Link href="/category/books" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  📚 Kitoblar
-                </Link>
-                <Link href="/category/sports" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  ⚽ Sport
-                </Link>
-                <Link href="/category/school" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  🎒 Maktab
-                </Link>
-                <Link href="/category/baby" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  🍼 Chaqaloq
-                </Link>
-                <Link href="/category/electronics" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  📱 Elektronika
-                </Link>
-                <Link href="/category/health" className={style.mobileCategoryLink} onClick={closeMenu}>
-                  🏥 Sog'lik
-                </Link>
+                {categories.map((category) => (
+                  <Link 
+                    key={category.id} 
+                    href={`/products?category=${category.id}`} 
+                    className={style.mobileCategoryLink} 
+                    onClick={closeMenu}
+                  >
+                    {getCategoryIcon(category.slug || category.name)} {category.name}
+                  </Link>
+                ))}
               </div>
 
               <div className={style.mobileActions}>
