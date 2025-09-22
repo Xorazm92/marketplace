@@ -18,45 +18,65 @@ interface SearchFiltersType {
 }
 
 const categoryData: Record<string, { name: string; description: string; icon: string }> = {
+  'kiyim-kechak': {
+    name: 'Kiyim-kechak',
+    description: 'Bolalar uchun zamonaviy va qulay kiyim-kechaklar',
+    icon: '👕'
+  },
   'clothing': {
     name: 'Kiyim-kechak',
     description: 'Bolalar uchun zamonaviy va qulay kiyim-kechaklar',
     icon: '👕'
+  },
+  'oyinchoqlar': {
+    name: "O'yinchoqlar",
+    description: 'Bolalarning rivojlanishi uchun foydali o\'yinchoqlar',
+    icon: '🧸'
   },
   'toys': {
     name: "O'yinchoqlar",
     description: 'Bolalarning rivojlanishi uchun foydali o\'yinchoqlar',
     icon: '🧸'
   },
+  'kitoblar': {
+    name: 'Kitoblar',
+    description: 'Ta\'lim va o\'yin uchun bolalar kitoblari',
+    icon: '📚'
+  },
   'books': {
     name: 'Kitoblar',
     description: 'Ta\'lim va o\'yin uchun bolalar kitoblari',
     icon: '📚'
+  },
+  'sport': {
+    name: 'Sport anjomlar',
+    description: 'Bolalar uchun sport va faollik anjomlar',
+    icon: '⚽'
   },
   'sports': {
     name: 'Sport anjomlar',
     description: 'Bolalar uchun sport va faollik anjomlar',
     icon: '⚽'
   },
+  'maktab': {
+    name: 'Maktab buyumlari',
+    description: 'Maktab va ta\'lim uchun zarur buyumlar',
+    icon: '🎒'
+  },
   'school': {
     name: 'Maktab buyumlari',
     description: 'Maktab va ta\'lim uchun zarur buyumlar',
     icon: '🎒'
   },
-  'baby': {
+  'chaqaloq': {
     name: 'Chaqaloq buyumlari',
     description: 'Chaqaloqlar uchun zarur mahsulotlar',
     icon: '🍼'
   },
-  'electronics': {
-    name: 'Elektronika',
-    description: 'Bolalar uchun xavfsiz elektronika',
-    icon: '📱'
-  },
-  'health': {
-    name: "Sog'liq",
-    description: 'Bolalar sog\'lig\'i uchun mahsulotlar',
-    icon: '🏥'
+  'baby': {
+    name: 'Chaqaloq buyumlari',
+    description: 'Chaqaloqlar uchun zarur mahsulotlar',
+    icon: '🍼'
   }
 };
 
@@ -98,16 +118,20 @@ const CategoryPage: React.FC = () => {
           }
 
           // Try to get category ID and load subcategories
-          // For now, use static mapping - in production, you'd get this from API
+          // Map slugs to backend category IDs
           const categoryIdMap: Record<string, number> = {
+            'kiyim-kechak': 1,
             'clothing': 1,
-            'toys': 2,
-            'books': 3,
-            'sports': 4,
-            'school': 5,
-            'baby': 6,
-            'electronics': 7,
-            'health': 8
+            'oyinchoqlar': 4,
+            'toys': 4,
+            'kitoblar': 7,
+            'books': 7,
+            'sport': 10,
+            'sports': 10,
+            'maktab': 11,
+            'school': 11,
+            'chaqaloq': 12,
+            'baby': 12
           };
 
           const categoryId = categoryIdMap[slug as string];
@@ -239,7 +263,7 @@ const CategoryPage: React.FC = () => {
                 {subcategories.map((subcat) => (
                   <Link 
                     key={subcat.id} 
-                    href={`/products?category=${subcat.id}`}
+                    href={`/category/${subcat.slug || subcat.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
                     className={styles.subcategoryCard}
                   >
                     <div className={styles.subcategoryIcon}>
@@ -322,6 +346,7 @@ const CategoryPage: React.FC = () => {
                 filters={filters}
                 sortBy={sortBy}
                 isLoading={isLoading}
+                categorySlug={slug as string}
               />
             </div>
           </div>

@@ -33,6 +33,7 @@ interface SearchResultsProps {
   filters: SearchFilters;
   sortBy: string;
   isLoading: boolean;
+  categorySlug?: string;
 }
 
 // Mock data - real loyihada API dan keladi
@@ -117,16 +118,17 @@ const mockProducts: Product[] = [
     reviews: 134,
     slug: 'school-backpack',
     inStock: true,
-    brand: 'adidas',
+    brand: 'INBOLA',
     category: 'school'
   }
 ];
 
-const SearchResults: React.FC<SearchResultsProps> = ({
-  searchQuery,
-  filters,
-  sortBy,
-  isLoading
+const SearchResults: React.FC<SearchResultsProps> = ({ 
+  searchQuery, 
+  filters, 
+  sortBy, 
+  isLoading,
+  categorySlug
 }) => {
   const [filteredProducts, setFilteredProducts] = useState<any[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
@@ -150,7 +152,33 @@ const SearchResults: React.FC<SearchResultsProps> = ({
             );
           }
 
-          // Category filter
+          // Category filter by slug
+          if (categorySlug) {
+            if (process.env.NODE_ENV === "development") console.log('Category slug filter:', categorySlug);
+            results = results.filter((product: any) => {
+              let productCategorySlug = '';
+              
+              // Handle different category formats
+              if (product.category && typeof product.category === 'object') {
+                productCategorySlug = product.category.slug || '';
+              }
+              
+              // Map category names to slugs for compatibility
+              const categorySlugMap: Record<string, string> = {
+                'kiyim-kechak': 'clothing',
+                'oyinchoqlar': 'toys',
+                'kitoblar': 'books',
+                'sport-anjomlar': 'sports',
+                'maktab-buyumlari': 'school',
+                'chaqaloq-buyumlari': 'baby'
+              };
+              
+              const normalizedSlug = categorySlugMap[categorySlug] || categorySlug;
+              return productCategorySlug === normalizedSlug || productCategorySlug === categorySlug;
+            });
+          }
+
+          // Additional category filter from filters
           if (filters.category && filters.category.length > 0) {
             if (process.env.NODE_ENV === "development") console.log('Category filter:', filters.category);
             if (process.env.NODE_ENV === "development") console.log('Products before category filter:', results.length);
