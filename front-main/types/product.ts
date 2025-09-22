@@ -102,6 +102,8 @@ export interface Product {
   currency?: {
     id?: number;
     name?: string;
+    code?: string;
+    symbol?: string;
   };
   
   // ✅ Category ma'lumotlari (optional)

@@ -30,12 +30,12 @@ const TrendingProducts: React.FC = () => {
   const loadTrendingProducts = async () => {
     try {
       setLoading(true);
-      console.log('🔥 Trending mahsulotlar yuklanmoqda...');
+      if (process.env.NODE_ENV === 'development') console.log('🔥 Trending mahsulotlar yuklanmoqda...');
       
       const response = await getProducts();
       
       if (response && Array.isArray(response) && response.length > 0) {
-        console.log(`✅ ${response.length} ta mahsulot topildi`);
+        if (process.env.NODE_ENV === 'development') console.log(`✅ ${response.length} ta mahsulot topildi`);
         
         // ✅ Har bir mahsulotni tekshirish
         const validProducts: Product[] = [];
@@ -79,7 +79,7 @@ const TrendingProducts: React.FC = () => {
         }
 
         setProducts(filteredProducts.slice(0, 8));
-        console.log(`✅ ${filteredProducts.length} ta trending mahsulot yuklandi`);
+        if (process.env.NODE_ENV === 'development') console.log(`✅ ${filteredProducts.length} ta trending mahsulot yuklandi`);
         
       } else {
         console.warn('⚠️ API dan trending mahsulotlar kelmadi, demo ishlatiladi');
@@ -97,7 +97,7 @@ const TrendingProducts: React.FC = () => {
   };
 
   const addToWishlist = (productId: number) => {
-    console.log('Adding to wishlist:', productId);
+    if (process.env.NODE_ENV === 'development') console.log('Adding to wishlist:', productId);
     // Implement wishlist logic
   };
 

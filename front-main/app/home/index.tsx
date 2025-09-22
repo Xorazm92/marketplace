@@ -8,7 +8,7 @@ import TestimonialsSection from '../../components/marketplace/TestimonialsSectio
 import WhyChooseUs from '../../components/marketplace/WhyChooseUs';
 import { RootState } from '../../store/store';
 import { setProducts, setLoading } from '../../store/features/productSlice';
-import { getAllProducts } from '../../endpoints/product';
+import { getProducts } from '../../endpoints/product';
 import styles from './home.module.scss';
 
 const HomePage: React.FC = () => {
@@ -29,7 +29,7 @@ const HomePage: React.FC = () => {
           // Try to load from API
           try {
             if (process.env.NODE_ENV === "development") console.log('Loading products from API...');
-            const response = await getAllProducts();
+            const response = await getProducts();
             if (process.env.NODE_ENV === "development") console.log('API Response:', response);
 
             if (response && response.length > 0) {

@@ -297,7 +297,7 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
             {/* Price */}
             <div className={styles.priceSection}>
               <div className={styles.currentPrice}>
-                <span className={styles.currency}>UZS</span>
+                <span className={styles.currency}>{product.currency?.symbol || 'UZS'}</span>
                 <span className={styles.price}>{formattedPrice}</span>
               </div>
               {product.negotiable && (
@@ -347,6 +347,36 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
                   <div className={styles.detailItem}>
                     <span className={styles.label}>O'lcham:</span>
                     <span className={styles.value}>{product.size}</span>
+                  </div>
+                )}
+                {product.category?.name && (
+                  <div className={styles.detailItem}>
+                    <span className={styles.label}>Kategoriya:</span>
+                    <span className={styles.value}>{product.category.name}</span>
+                  </div>
+                )}
+                {product.weight && (
+                  <div className={styles.detailItem}>
+                    <span className={styles.label}>Og'irlik:</span>
+                    <span className={styles.value}>{product.weight} kg</span>
+                  </div>
+                )}
+                {product.safety_info && (
+                  <div className={styles.detailItem}>
+                    <span className={styles.label}>Xavfsizlik:</span>
+                    <span className={styles.value}>{product.safety_info}</span>
+                  </div>
+                )}
+                {product.createdAt && (
+                  <div className={styles.detailItem}>
+                    <span className={styles.label}>E'lon sanasi:</span>
+                    <span className={styles.value}>
+                      {new Date(product.createdAt).toLocaleDateString('uz-UZ', {
+                        year: 'numeric',
+                        month: 'long',
+                        day: 'numeric'
+                      })}
+                    </span>
                   </div>
                 )}
               </div>

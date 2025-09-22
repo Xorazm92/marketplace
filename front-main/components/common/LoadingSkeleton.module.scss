@@ -1,0 +1,154 @@
+// Base skeleton styles
+.skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  display: block;
+  
+  &.pulse {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  &.wave {
+    animation: wave 1.5s linear infinite;
+  }
+  
+  &.none {
+    background: #f0f0f0;
+  }
+}
+
+// Skeleton variants
+.rectangular {
+  // Default rectangular skeleton
+}
+
+.circular {
+  border-radius: 50% !important;
+}
+
+.text {
+  border-radius: 4px;
+}
+
+// Text container
+.textContainer {
+  .skeleton:last-child {
+    margin-bottom: 0;
+  }
+}
+
+// Product Card Skeleton
+.productCardSkeleton {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  
+  .productInfo {
+    padding: 16px;
+    
+    .skeleton {
+      margin-bottom: 8px;
+      
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+// Product Grid Skeleton
+.productGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+// Category List Skeleton
+.categoryList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  
+  .categoryItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Table Skeleton
+.tableSkeleton {
+  width: 100%;
+  
+  .tableRow {
+    display: grid;
+    grid-template-columns: repeat(var(--columns, 4), 1fr);
+    gap: 16px;
+    padding: 12px 0;
+    border-bottom: 1px solid #f0f0f0;
+    
+    &:first-child {
+      padding-top: 0;
+    }
+    
+    &:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+  }
+}
+
+// Animations
+@keyframes pulse {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes wave {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .productGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  
+  .categoryList {
+    gap: 12px;
+    
+    .categoryItem {
+      padding: 12px;
+    }
+  }
+  
+  .tableSkeleton {
+    .tableRow {
+      gap: 12px;
+      padding: 8px 0;
+    }
+  }
+}

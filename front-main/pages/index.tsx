@@ -44,24 +44,32 @@ export default function Home() {
             <TrendingProducts />
           </div>
 
-          {/* Call to Action - View All Products */}
-          <div className="py-16 bg-white">
-            <div className="max-w-4xl mx-auto text-center px-4">
-              <h2 className="text-3xl font-bold text-gray-900 mb-4">
-                Barcha Mahsulotlarni Ko'ring
+          {/* Call to Action - Optimized */}
+          <div className="py-12 bg-gradient-to-r from-blue-50 to-indigo-50">
+            <div className="max-w-6xl mx-auto text-center px-4">
+              <h2 className="text-2xl font-bold text-gray-900 mb-3">
+                Ko'proq Mahsulotlar
               </h2>
-              <p className="text-xl text-gray-600 mb-8">
-                Bolalar uchun minglab xavfsiz va sifatli mahsulotlar
+              <p className="text-lg text-gray-600 mb-6">
+                Bolalar uchun xavfsiz va sifatli mahsulotlar
               </p>
-              <a
-                href="/products"
-                className="inline-flex items-center px-8 py-4 bg-orange-500 hover:bg-orange-600 text-white font-semibold rounded-lg transition-colors duration-200 text-lg"
-              >
-                Barcha Mahsulotlar
-                <svg className="ml-2 w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </a>
+              <div className="flex flex-wrap justify-center gap-4">
+                <a
+                  href="/products"
+                  className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
+                >
+                  Barcha Mahsulotlar
+                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </a>
+                <a
+                  href="/categories"
+                  className="inline-flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-200 transition-colors duration-200"
+                >
+                  Kategoriyalar
+                </a>
+              </div>
             </div>
           </div>
         </main>

@@ -167,6 +167,7 @@ export class ProductService {
           product_image: true,
           brand: true,
           category: true,
+          currency: true,
           reviews: {
             select: {
               rating: true
@@ -196,6 +197,7 @@ export class ProductService {
           product_image: true,
           brand: true,
           category: true,
+          currency: true,
           product_colors: {
             include: {
               color: true

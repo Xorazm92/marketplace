@@ -1,4 +1,5 @@
 import './globals.css';
+import Providers from './Providers';
 
 // Export metadata directly
 const metadata = {
@@ -22,9 +23,11 @@ export default function RootLayout({
         />
       </head>
       <body className="app">
-        <div className="container">
-          {children}
-        </div>
+        <Providers>
+          <div className="container">
+            {children}
+          </div>
+        </Providers>
       </body>
     </html>
   );

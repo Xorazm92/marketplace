@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'react-hot-toast';
 import styles from './ProductManagement.module.css';
 import SafeImage from '../common/SafeImage';
+import CreateProductModal from './CreateProductModal';
+import { useToast } from '../common/Toast';
+import { FaPlus } from 'react-icons/fa';
 import { MdOutlineCameraAlt } from 'react-icons/md';
 import { RootState } from '../../store/store';
 import { setProducts, addProduct, updateProduct, deleteProduct, setLoading } from '../../store/features/productSlice';
@@ -49,6 +52,7 @@ interface Subcategory {
 const ProductManagement: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
+  const { addToast } = useToast();
   
   // Redux state
   const { products: realProducts, loading } = useSelector((state: RootState) => state.products);
@@ -57,6 +61,7 @@ const ProductManagement: React.FC = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const [subcategories, setSubcategories] = useState<Subcategory[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
+  const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingProduct, setEditingProduct] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [apiStatus, setApiStatus] = useState<'checking' | 'connected' | 'disconnected'>('disconnected');
@@ -528,6 +533,26 @@ const ProductManagement: React.FC = () => {
     setEditingProduct(null);
   };
 
+  // Handle successful product creation from modal
+  const handleProductCreated = async (product: any) => {
+    try {
+      // Add to Redux store
+      dispatch(addProduct(product));
+      
+      // Show success message
+      addToast({
+        type: 'success',
+        title: 'Mahsulot yaratildi!',
+        message: `"${product.title}" muvaffaqiyatli qo'shildi`
+      });
+
+      // Reload products to get fresh data
+      await loadProducts();
+    } catch (error) {
+      console.error('Error handling product creation:', error);
+    }
+  };
+
   return (
     <div className={styles.productManagement}>
       <div className={styles.header}>
@@ -542,6 +567,13 @@ const ProductManagement: React.FC = () => {
           </div>
         </div>
         <div className={styles.headerActions}>
+          <button
+            className={styles.addButton}
+            onClick={() => setShowCreateModal(true)}
+          >
+            <FaPlus />
+            Yangi Mahsulot
+          </button>
           <button
             className={styles.testButton}
             onClick={async () => {
@@ -653,8 +685,8 @@ const ProductManagement: React.FC = () => {
                     src={product?.product_image?.[0]?.url || (product as any)?.images?.[0]}
                     alt={product?.title || 'Mahsulot rasmi'}
                     className={styles.productImage}
-                    width="100%"
-                    height="150px"
+                    width={300}
+                    height={150}
                     objectFit="cover"
                     fallbackSrc="/images/placeholder-product.jpg"
                   />
@@ -1074,6 +1106,13 @@ const ProductManagement: React.FC = () => {
           </button>
         </div>
       )}
+
+      {/* Create Product Modal */}
+      <CreateProductModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onSuccess={handleProductCreated}
+      />
     </div>
   );
 };

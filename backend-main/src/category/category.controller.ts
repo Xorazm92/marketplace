@@ -45,6 +45,12 @@ export class CategoryController {
     return this.categoryService.findChildren(+id);
   }
 
+  @Get('subcategories/:id')
+  @ApiOperation({ summary: 'Get subcategories by parent ID (alias for children)' })
+  getSubcategories(@Param('id') id: string) {
+    return this.categoryService.findChildren(+id);
+  }
+
   @Get(':id/path')
   @ApiOperation({ summary: 'Get category path (breadcrumb)' })
   getCategoryPath(@Param('id') id: string) {

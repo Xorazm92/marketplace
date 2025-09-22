@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { FiStar, FiHeart, FiShoppingCart, FiArrowRight } from 'react-icons/fi';
-import { getAllProducts } from '../../endpoints/product';
+import { getProducts } from '../../endpoints/product';
 import styles from './ModernProductSection.module.scss';
 
 interface Product {
@@ -22,17 +22,17 @@ interface Product {
 interface ModernProductSectionProps {
   title: string;
   subtitle?: string;
-  viewAllLink: string;
+  viewAllLink?: string;
   categoryFilter?: string;
   maxProducts?: number;
   showBadges?: boolean;
-  layout?: 'grid' | 'slider';
+  layout?: 'grid' | 'list';
 }
 
 const ModernProductSection: React.FC<ModernProductSectionProps> = ({
   title,
   subtitle,
-  viewAllLink,
+  viewAllLink = '/products',
   categoryFilter,
   maxProducts = 8,
   showBadges = true,
@@ -50,15 +50,14 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
     try {
       setLoading(true);
       setError(null);
-      
-      const response = await getAllProducts();
+      const response = await getProducts();
       
       if (response && Array.isArray(response)) {
         let filteredProducts = response;
         
         // Filter by category if specified
         if (categoryFilter) {
-          filteredProducts = response.filter(product => 
+          filteredProducts = response.filter((product: any) => 
             product.category?.slug === categoryFilter
           );
         }
@@ -67,149 +66,70 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
         const mappedProducts = filteredProducts.map(mapProduct).slice(0, maxProducts);
         setProducts(mappedProducts);
       } else {
-        // Fallback to sample data
-        setProducts(getSampleProducts(categoryFilter).slice(0, maxProducts));
+        // Fallback to sample products
+        setProducts(getSampleProducts(categoryFilter, maxProducts));
       }
     } catch (error) {
       console.error('Error loading products:', error);
       setError('Mahsulotlarni yuklashda xatolik yuz berdi');
-      setProducts(getSampleProducts(categoryFilter).slice(0, maxProducts));
+      setProducts(getSampleProducts(categoryFilter, maxProducts));
     } finally {
       setLoading(false);
     }
   };
 
-  const mapProduct = (product: any): Product => {
-    // Use sample images based on category for better visual experience
-    const getSampleImageByCategory = (categorySlug: string) => {
-      const imageMap: Record<string, string> = {
-        'toys': 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-        'books': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
-        'clothing': 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=300&fit=crop',
-        'sports': 'https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400&h=300&fit=crop',
-        'school': 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop'
-      };
-      return imageMap[categorySlug] || '/img/placeholder-product.jpg';
-    };
+  const mapProduct = (product: any): Product => ({
+    id: product.id,
+    title: product.title || 'Mahsulot',
+    price: typeof product.price === 'string' ? parseFloat(product.price) : product.price || 0,
+    originalPrice: product.original_price,
+    image: product.product_image?.[0]?.url || product.images?.[0] || '/images/placeholder-product.png',
+    rating: product.rating || 4.5,
+    reviews: product.reviews?.length || 0,
+    discount: product.discount_percentage,
+    badge: product.is_featured ? 'Featured' : product.is_bestseller ? 'Bestseller' : undefined,
+    slug: product.slug || `product-${product.id}`,
+    brand: product.brand?.name,
+    category: product.category?.name
+  });
 
-    return {
-      id: product.id,
-      title: product.title || 'Mahsulot',
-      price: Number(product.price) || 0,
-      originalPrice: product.original_price ? Number(product.original_price) : undefined,
-      image: getSampleImageByCategory(product.category?.slug || 'default'),
-      rating: 4.5,
-      reviews: Math.floor(Math.random() * 100) + 10,
-      slug: product.slug || `product-${product.id}`,
-      brand: product.brand?.name || 'INBOLA',
-      category: product.category?.name || 'Mahsulot'
-    };
-  };
+  const getSampleProducts = (category?: string, count: number = 8): Product[] => {
+    const sampleProducts: Product[] = [
+      {
+        id: 1,
+        title: "Bolalar uchun rangli ko'ylak",
+        price: 150000,
+        originalPrice: 200000,
+        image: "/images/placeholder-product.png",
+        rating: 4.8,
+        reviews: 24,
+        discount: 25,
+        badge: "Bestseller",
+        slug: "bolalar-rangli-koylak",
+        brand: "INBOLA",
+        category: "Kiyim-kechak"
+      },
+      // Add more sample products as needed
+    ];
 
-  const getSampleProducts = (category?: string): Product[] => {
-    const sampleProducts: Record<string, Product[]> = {
-      toys: [
-        {
-          id: 1,
-          title: 'LEGO Konstruktor',
-          price: 120000,
-          originalPrice: 150000,
-          image: 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=300&fit=crop',
-          rating: 4.8,
-          reviews: 245,
-          discount: 20,
-          slug: 'lego-konstruktor',
-          brand: 'LEGO',
-          category: "O'yinchoqlar"
-        },
-        {
-          id: 2,
-          title: 'Yumshoq ayiq',
-          price: 45000,
-          originalPrice: 60000,
-          image: 'https://images.unsplash.com/photo-1551698618-1dfe5d97d256?w=400&h=300&fit=crop',
-          rating: 4.6,
-          reviews: 189,
-          discount: 25,
-          slug: 'yumshoq-ayiq',
-          brand: 'TeddyBear',
-          category: "O'yinchoqlar"
-        }
-      ],
-      books: [
-        {
-          id: 3,
-          title: 'Bolalar ertaklari',
-          price: 35000,
-          originalPrice: 45000,
-          image: 'https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=400&h=300&fit=crop',
-          rating: 4.7,
-          reviews: 156,
-          discount: 22,
-          slug: 'bolalar-ertaklari',
-          brand: 'Nashr',
-          category: 'Kitoblar'
-        },
-        {
-          id: 4,
-          title: 'Matematik kitob',
-          price: 25000,
-          image: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=400&h=300&fit=crop',
-          rating: 4.4,
-          reviews: 98,
-          slug: 'matematik-kitob',
-          brand: 'Ta\'lim',
-          category: 'Kitoblar'
-        }
-      ],
-      clothing: [
-        {
-          id: 5,
-          title: 'Bolalar ko\'ylagi',
-          price: 45000,
-          originalPrice: 60000,
-          image: 'https://images.unsplash.com/photo-1519689680058-324335c77eba?w=400&h=300&fit=crop',
-          rating: 4.5,
-          reviews: 134,
-          discount: 25,
-          slug: 'bolalar-koylagi',
-          brand: 'KidsWear',
-          category: 'Kiyim-kechak'
-        }
-      ]
-    };
-
-    return category ? (sampleProducts[category] || []) : Object.values(sampleProducts).flat();
-  };
-
-  const formatPrice = (price: number): string => {
-    return `${price.toLocaleString()} UZS`;
-  };
-
-  const renderStars = (rating: number) => {
-    return Array.from({ length: 5 }, (_, index) => (
-      <FiStar
-        key={index}
-        className={index < Math.floor(rating) ? styles.starFilled : styles.starEmpty}
-      />
-    ));
+    return sampleProducts.slice(0, count);
   };
 
   if (loading) {
     return (
-      <section className={styles.productSection}>
+      <section className={styles.modernSection}>
         <div className={styles.container}>
-          <div className={styles.header}>
-            <h2>{title}</h2>
-            {subtitle && <p>{subtitle}</p>}
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{title}</h2>
+            {subtitle && <p className={styles.sectionSubtitle}>{subtitle}</p>}
           </div>
           <div className={styles.loadingGrid}>
-            {Array.from({ length: 4 }, (_, i) => (
-              <div key={i} className={styles.loadingCard}>
-                <div className={styles.loadingImage}></div>
-                <div className={styles.loadingContent}>
-                  <div className={styles.loadingTitle}></div>
-                  <div className={styles.loadingPrice}></div>
+            {Array.from({ length: maxProducts }).map((_, index) => (
+              <div key={index} className={styles.productCardSkeleton}>
+                <div className={styles.skeletonImage}></div>
+                <div className={styles.skeletonContent}>
+                  <div className={styles.skeletonTitle}></div>
+                  <div className={styles.skeletonPrice}></div>
                 </div>
               </div>
             ))}
@@ -221,12 +141,16 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
 
   if (error) {
     return (
-      <section className={styles.productSection}>
+      <section className={styles.modernSection}>
         <div className={styles.container}>
-          <div className={styles.error}>
+          <div className={styles.sectionHeader}>
+            <h2 className={styles.sectionTitle}>{title}</h2>
+            {subtitle && <p className={styles.sectionSubtitle}>{subtitle}</p>}
+          </div>
+          <div className={styles.errorMessage}>
             <p>{error}</p>
-            <button onClick={loadProducts} className={styles.retryBtn}>
-              Qayta urinish
+            <button onClick={loadProducts} className={styles.retryButton}>
+              Qaytadan urinish
             </button>
           </div>
         </div>
@@ -235,73 +159,90 @@ const ModernProductSection: React.FC<ModernProductSectionProps> = ({
   }
 
   return (
-    <section className={styles.productSection}>
+    <section className={styles.modernSection}>
       <div className={styles.container}>
-        <div className={styles.header}>
+        <div className={styles.sectionHeader}>
           <div className={styles.headerContent}>
-            <h2 className={styles.title}>{title}</h2>
-            {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+            <h2 className={styles.sectionTitle}>{title}</h2>
+            {subtitle && <p className={styles.sectionSubtitle}>{subtitle}</p>}
           </div>
-          <Link href={viewAllLink} className={styles.viewAllBtn}>
-            Barchasini ko'rish
-            <FiArrowRight className={styles.arrowIcon} />
-          </Link>
+          {viewAllLink && (
+            <Link href={viewAllLink} className={styles.viewAllLink}>
+              Barchasini ko'rish
+              <FiArrowRight />
+            </Link>
+          )}
         </div>
 
         <div className={`${styles.productsGrid} ${styles[layout]}`}>
           {products.map((product) => (
-            <Link
-              key={product.id}
-              href={`/productdetails/${product.id}`}
-              className={styles.productCard}
-            >
-              <div className={styles.imageContainer}>
+            <div key={product.id} className={styles.productCard}>
+              <div className={styles.productImageContainer}>
                 <img
                   src={product.image}
                   alt={product.title}
                   className={styles.productImage}
-                  loading="lazy"
                 />
-                
-                {/* Discount Badge */}
-                {showBadges && product.discount && (
-                  <div className={styles.discountBadge}>
-                    -{product.discount}%
-                  </div>
+                {showBadges && product.badge && (
+                  <span className={`${styles.productBadge} ${styles[product.badge.toLowerCase()]}`}>
+                    {product.badge}
+                  </span>
                 )}
-                
-                {/* Wishlist Button */}
-                <button className={styles.wishlistBtn} onClick={(e) => e.preventDefault()}>
-                  <FiHeart />
-                </button>
-                
-                {/* Quick Actions */}
-                <div className={styles.quickActions}>
-                  <button className={styles.quickBtn} onClick={(e) => e.preventDefault()}>
+                {product.discount && (
+                  <span className={styles.discountBadge}>
+                    -{product.discount}%
+                  </span>
+                )}
+                <div className={styles.productActions}>
+                  <button className={styles.actionButton}>
+                    <FiHeart />
+                  </button>
+                  <button className={styles.actionButton}>
                     <FiShoppingCart />
                   </button>
                 </div>
               </div>
 
               <div className={styles.productInfo}>
-                <div className={styles.brandName}>{product.brand}</div>
-                <h3 className={styles.productTitle}>{product.title}</h3>
-                
-                <div className={styles.rating}>
+                <div className={styles.productMeta}>
+                  {product.brand && (
+                    <span className={styles.productBrand}>{product.brand}</span>
+                  )}
+                  {product.category && (
+                    <span className={styles.productCategory}>{product.category}</span>
+                  )}
+                </div>
+
+                <h3 className={styles.productTitle}>
+                  <Link href={`/product/${product.slug}`}>
+                    {product.title}
+                  </Link>
+                </h3>
+
+                <div className={styles.productRating}>
                   <div className={styles.stars}>
-                    {renderStars(product.rating || 4.5)}
+                    {Array.from({ length: 5 }).map((_, index) => (
+                      <FiStar
+                        key={index}
+                        className={index < Math.floor(product.rating || 0) ? styles.starFilled : styles.starEmpty}
+                      />
+                    ))}
                   </div>
                   <span className={styles.reviewCount}>({product.reviews})</span>
                 </div>
 
-                <div className={styles.priceContainer}>
-                  <span className={styles.currentPrice}>{formatPrice(product.price)}</span>
+                <div className={styles.productPricing}>
+                  <span className={styles.currentPrice}>
+                    {product.price.toLocaleString()} so'm
+                  </span>
                   {product.originalPrice && (
-                    <span className={styles.originalPrice}>{formatPrice(product.originalPrice)}</span>
+                    <span className={styles.originalPrice}>
+                      {product.originalPrice.toLocaleString()} so'm
+                    </span>
                   )}
                 </div>
               </div>
-            </Link>
+            </div>
           ))}
         </div>
       </div>

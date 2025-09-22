@@ -420,7 +420,7 @@ model Product {
   view_count            Int            @default(0)
   like_count            Int            @default(0)
   share_count           Int            @default(0)
-  category_id           Int?
+  category_id           Int
   subcategory_id        Int?
   sku                   String?        @unique
   barcode               String?        @unique
@@ -480,7 +480,7 @@ model Product {
   order_items             OrderItem[]
   address                 Address?                  @relation(fields: [address_id], references: [id])
   brand                   Brand                     @relation(fields: [brand_id], references: [id])
-  category                Category?                 @relation(fields: [category_id], references: [id])
+  category                Category                  @relation(fields: [category_id], references: [id])
   currency                Currency                  @relation(fields: [currency_id], references: [id])
   user                    User?                     @relation(fields: [user_id], references: [id])
   product_image           ProductImage[]
