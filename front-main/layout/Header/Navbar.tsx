@@ -127,6 +127,7 @@ const Navbar = () => {
         <div className={style.container}>
           {/* Left Side - Logo */}
           <Link href="/" className={style.logo}>
+            <img src="/logo.png" alt="INBOLA" className={style.logoImage} />
             <h1 className={style.logoText}>INBOLA</h1>
           </Link>
 

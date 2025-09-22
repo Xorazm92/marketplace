@@ -44,34 +44,6 @@ export default function Home() {
             <TrendingProducts />
           </div>
 
-          {/* Call to Action - Optimized */}
-          <div className="py-12 bg-gradient-to-r from-blue-50 to-indigo-50">
-            <div className="max-w-6xl mx-auto text-center px-4">
-              <h2 className="text-2xl font-bold text-gray-900 mb-3">
-                Ko'proq Mahsulotlar
-              </h2>
-              <p className="text-lg text-gray-600 mb-6">
-                Bolalar uchun xavfsiz va sifatli mahsulotlar
-              </p>
-              <div className="flex flex-wrap justify-center gap-4">
-                <a
-                  href="/products"
-                  className="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors duration-200"
-                >
-                  Barcha Mahsulotlar
-                  <svg className="ml-2 w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </a>
-                <a
-                  href="/categories"
-                  className="inline-flex items-center px-6 py-3 bg-white hover:bg-gray-50 text-gray-700 font-medium rounded-lg border border-gray-200 transition-colors duration-200"
-                >
-                  Kategoriyalar
-                </a>
-              </div>
-            </div>
-          </div>
         </main>
       </div>
     </>

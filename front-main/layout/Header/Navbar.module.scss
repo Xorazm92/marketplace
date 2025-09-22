@@ -12,7 +12,7 @@
 }
 
 .container {
-  max-width: 1400px;
+  max-width: 1240px;
   width: 100%;
   margin: 0 auto;
   padding: 0 24px;
@@ -28,6 +28,14 @@
   display: flex;
   align-items: center;
   min-width: 120px;
+  gap: 8px;
+  
+  .logoImage {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    border-radius: 6px;
+  }
   
   .logoText {
     color: #f16521;

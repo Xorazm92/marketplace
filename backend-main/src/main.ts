@@ -18,7 +18,7 @@ async function bootstrap(): Promise<void> {
     // NestJS app yaratish
     const app = await NestFactory.create(AppModule, {
       logger: ['error', 'warn', 'log', 'debug', 'verbose'],
-      cors: true,
+      cors: false, // We'll configure CORS manually below
     });
 
     // Security middleware
@@ -47,29 +47,55 @@ async function bootstrap(): Promise<void> {
       defaultVersion: '1',
     });
 
-    // CORS konfiguratsiyasi
+    // CORS konfiguratsiyasi - Fixed for credentials mode
+    const allowedOrigins = [
+      'http://localhost:3000',
+      'http://localhost:3002',
+      'http://localhost:3003',
+      'http://0.0.0.0:3000',
+      'http://0.0.0.0:3002',
+      'http://0.0.0.0:3003',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:3002',
+      'http://127.0.0.1:3003',
+      // Browser preview URLs
+      'http://127.0.0.1:33581',
+      'http://localhost:33581',
+      'http://127.0.0.1:43779',
+      'http://localhost:43779',
+      process.env.FRONTEND_URL || 'http://localhost:3003',
+      // Production URLs
+      'https://inbola.uz',
+      'https://www.inbola.uz',
+      'https://api.inbola.uz'
+    ];
+
     app.enableCors({
-      origin: [
-        'http://localhost:3000',
-        'http://localhost:3002',
-        'http://localhost:3003',
-        'http://0.0.0.0:3000',
-        'http://0.0.0.0:3002',
-        'http://0.0.0.0:3003',
-        'http://127.0.0.1:3000',
-        'http://127.0.0.1:3002',
-        'http://127.0.0.1:3003',
-        // Browser preview URLs
-        'http://127.0.0.1:33581',
-        'http://localhost:33581',
-        /^http:\/\/127\.0\.0\.1:\d+$/,
-        /^http:\/\/localhost:\d+$/,
-        process.env.FRONTEND_URL || 'http://localhost:3003',
-        // Production URLs
-        'https://inbola.uz',
-        'https://www.inbola.uz',
-        'https://api.inbola.uz'
-      ],
+      origin: (origin, callback) => {
+        // Allow requests with no origin (like mobile apps or curl)
+        if (!origin) return callback(null, true);
+        
+        // Check if origin is in allowed list
+        if (allowedOrigins.includes(origin)) {
+          return callback(null, true);
+        }
+        
+        // Check regex patterns for dynamic ports
+        const dynamicPatterns = [
+          /^http:\/\/127\.0\.0\.1:\d+$/,
+          /^http:\/\/localhost:\d+$/
+        ];
+        
+        for (const pattern of dynamicPatterns) {
+          if (pattern.test(origin)) {
+            return callback(null, true);
+          }
+        }
+        
+        // Reject origin
+        const msg = `The CORS policy for this site does not allow access from the specified Origin: ${origin}`;
+        return callback(new Error(msg), false);
+      },
       credentials: true,
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
       allowedHeaders: [
@@ -78,9 +104,6 @@ async function bootstrap(): Promise<void> {
         'Accept', 
         'Origin', 
         'X-Requested-With',
-        'Access-Control-Allow-Headers',
-        'Access-Control-Allow-Origin',
-        'Access-Control-Allow-Methods',
         'X-API-Key',
         'X-Client-Version'
       ],

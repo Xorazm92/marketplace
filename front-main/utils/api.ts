@@ -7,6 +7,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 export const apiClient = axios.create({
   baseURL: `${API_BASE_URL}/api/v1`,
   timeout: 10000,
+  withCredentials: true, // Enable credentials for CORS
   headers: {
     'Content-Type': 'application/json',
   },
