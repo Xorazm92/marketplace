@@ -1,7 +1,7 @@
 import { FC, useState, useEffect } from 'react';
 import Image from 'next/image';
 
-interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>, 'src'> {
+interface SafeImageProps {
   src?: string | string[] | null;
   alt: string;
   width?: number | string;
@@ -12,6 +12,11 @@ interface SafeImageProps extends Omit<React.ImgHTMLAttributes<HTMLImageElement>,
   style?: React.CSSProperties;
   loading?: 'eager' | 'lazy';
   priority?: boolean;
+  fill?: boolean;
+  quality?: number;
+  sizes?: string;
+  placeholder?: 'blur' | 'empty';
+  blurDataURL?: string;
 }
 
 // API base URL for backend images
@@ -28,6 +33,11 @@ const SafeImage: FC<SafeImageProps> = ({
   style,
   loading = 'lazy',
   priority = false,
+  fill = false,
+  quality = 75,
+  sizes,
+  placeholder,
+  blurDataURL,
   ...rest
 }) => {
   const [imgSrc, setImgSrc] = useState<string>('');
@@ -40,11 +50,15 @@ const SafeImage: FC<SafeImageProps> = ({
         console.log('🖼️ Processing image source:', src);
       }
       
-      if (!src) {
+      // ✅ Handle undefined, null, empty string, or empty array
+      if (!src || src === 'undefined' || 
+          (Array.isArray(src) && src.length === 0) ||
+          (typeof src === 'string' && src.trim() === '')) {
         if (process.env.NODE_ENV === 'development') {
-          console.log('❌ No src provided, using fallback:', fallbackSrc);
+          console.log('❌ No valid src provided, using fallback:', fallbackSrc);
         }
         setImgSrc(fallbackSrc);
+        setIsLoading(false);
         return;
       }
 
@@ -85,6 +99,7 @@ const SafeImage: FC<SafeImageProps> = ({
       
       // For uploaded files, always use backend URL
       if (cleanPath.startsWith('uploads/') || cleanPath.includes('products/')) {
+        // Ensure proper slash between base URL and path
         const fullUrl = `${API_BASE_URL}/${cleanPath}`;
         if (process.env.NODE_ENV === 'development') {
           console.log('🔄 Converting to backend URL:', fullUrl);
@@ -152,40 +167,91 @@ const SafeImage: FC<SafeImageProps> = ({
             position: 'absolute',
             top: 0,
             left: 0,
-            width: '100%',
-            height: '100%',
-            backgroundColor: '#f5f5f5',
+            right: 0,
+            bottom: 0,
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            zIndex: 1
+            backgroundColor: '#f5f5f5',
+            color: '#999',
+            fontSize: '14px'
           }}
         >
-          <div style={{ color: '#999', fontSize: '14px' }}>Loading...</div>
+          Loading...
         </div>
       )}
       
       <Image
-        src={imgSrc || fallbackSrc}
+        src={imgSrc}
         alt={alt}
-        onError={handleError}
-        onLoad={handleLoad}
-        fill
-        priority={priority}
-        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+        fill={fill}
+        width={!fill ? (typeof width === 'string' ? parseInt(width) : width) : undefined}
+        height={!fill ? (typeof height === 'string' ? parseInt(height) : height) : undefined}
         style={imageStyle}
+        onLoad={handleLoad}
+        onError={handleError}
+        priority={priority}
+        quality={quality}
+        sizes={sizes}
+        placeholder={placeholder}
+        blurDataURL={blurDataURL}
+        unoptimized={hasError} // Disable optimization for fallback images
         {...rest}
       />
     </div>
   );
 };
 
+interface ProductImageProps extends Omit<SafeImageProps, 'src'> {
+  product?: any;
+  src?: string | string[] | null;
+}
+
 // A specialized version of SafeImage specifically for product images
-export const ProductImage: React.FC<SafeImageProps> = ({
+export const ProductImage: React.FC<ProductImageProps> = ({
+  product,
+  src,
   style,
   className = '',
   ...props
 }) => {
+  // ✅ Extract image source from product or use provided src
+  const getImageSrc = (): string | string[] | null => {
+    if (src) return src;
+    
+    if (!product) return null;
+    
+    // Try product_image array first
+    if (product.product_image && Array.isArray(product.product_image) && product.product_image.length > 0) {
+      const firstImage = product.product_image[0];
+      if (firstImage?.url) {
+        // Ensure proper URL format
+        const imageUrl = firstImage.url;
+        if (imageUrl.startsWith('http')) {
+          return imageUrl;
+        }
+        // Add leading slash if missing and construct full URL
+        const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+        return `http://localhost:4000${cleanUrl}`;
+      }
+    }
+    
+    // Try images array
+    if (product.images && Array.isArray(product.images) && product.images.length > 0) {
+      const imageUrl = product.images[0];
+      if (imageUrl.startsWith('http')) {
+        return imageUrl;
+      }
+      // Add leading slash if missing and construct full URL
+      const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+      return `http://localhost:4000${cleanUrl}`;
+    }
+    
+    return null;
+  };
+
+  const imageSrc = getImageSrc();
+
   return (
     <div 
       style={{ 
@@ -199,6 +265,7 @@ export const ProductImage: React.FC<SafeImageProps> = ({
       className={`product-image-container ${className}`}
     >
       <SafeImage
+        src={imageSrc}
         width="100%"
         height="100%"
         objectFit="cover"
@@ -214,4 +281,5 @@ export const ProductImage: React.FC<SafeImageProps> = ({
   );
 };
 
+export { SafeImage };
 export default SafeImage;

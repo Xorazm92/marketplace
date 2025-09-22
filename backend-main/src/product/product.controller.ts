@@ -87,7 +87,7 @@ export class ProductController {
       console.log('Received files:', files);
       console.log('Files count:', files?.images?.length || 0);
 
-      return await this.productService.create(createProductDto, createProductDto.user_id);
+      return await this.productService.create(createProductDto, createProductDto.user_id, files?.images);
     } catch (error) {
       console.error('=== PRODUCT CREATION ERROR ===');
       console.error('Error details:', error);

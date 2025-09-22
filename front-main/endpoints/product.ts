@@ -82,7 +82,7 @@ export const createProduct = async ({
 export const getProducts = async (
   page = 1,
   filters: Record<string, string> = {},
-): Promise<any[]> => {
+): Promise<any> => {
   try {
     console.log('🔍 Fetching all products...');
     
@@ -94,21 +94,32 @@ export const getProducts = async (
         hasData: !!res.data,
         dataType: typeof res.data,
         isArray: Array.isArray(res.data),
-        dataKeys: Object.keys(res.data || {}),
+        dataKeys: Array.isArray(res.data) ? 'Array' : Object.keys(res.data || {}),
         dataLength: res.data?.length || 'N/A'
       });
 
-      // Transform API response to match frontend expectations
-      // Backend returns: { success: true, data: [...], count: number }
-      const productsData = res.data?.data || res.data || [];
-      const products = (productsData || []).map((product: any) => ({
-        ...product,
-        // Ensure consistent image format
-        images: product.images || product.product_image?.map((img: any) => img.url) || []
-      }));
+      // Backend to'g'ridan-to'g'ri array qaytaryapti
+      if (Array.isArray(res.data)) {
+        const products = res.data.map((product: any) => ({
+          ...product,
+          // Ensure consistent image format
+          images: product.images || product.product_image?.map((img: any) => img.url) || []
+        }));
 
-      console.log(`✅ Processed ${products.length} products`);
-      return products;
+        console.log(`✅ Processed ${products.length} products directly from array`);
+        return products;
+      } else {
+        // Agar object bo'lsa, data property ichida array bo'lishi mumkin
+        const productsData = res.data?.data || res.data || [];
+        const products = (productsData || []).map((product: any) => ({
+          ...product,
+          // Ensure consistent image format
+          images: product.images || product.product_image?.map((img: any) => img.url) || []
+        }));
+
+        console.log(`✅ Processed ${products.length} products from object`);
+        return products;
+      }
     }
     
     console.warn('⚠️ No data in response');
@@ -139,11 +150,12 @@ export const getProductById = async (id: number): Promise<{ success: boolean; da
     const res = await instance.get(`/product/${id}`);
     console.log('✅ Product API Response received:', res.status);
     
-    if (res.data?.success && res.data?.data) {
+    // Backend returns product directly, not wrapped in {success, data}
+    if (res.data && res.data.id) {
       const product = {
-        ...res.data.data,
+        ...res.data,
         // Ensure consistent image format
-        images: res.data.data.images || res.data.data.product_image?.map((img: any) => img.url) || []
+        images: res.data.images || res.data.product_image?.map((img: any) => img.url) || []
       };
       
       console.log(`✅ Product fetched: ${product.title || product.name}`);

@@ -16,13 +16,14 @@ export class ProductService {
     private uploadService: UploadService
   ) {}
 
-  async create(createProductDto: CreateProductDto, userId?: number) {
+  async create(createProductDto: CreateProductDto, userId?: number, files?: Express.Multer.File[]) {
     const { images, user_id, ...productData } = createProductDto;
 
     console.log('=== PRODUCT SERVICE CREATE DEBUG ===');
     console.log('Received productData:', productData);
     console.log('userId:', userId);
     console.log('user_id from DTO:', user_id);
+    console.log('Received files:', files?.length || 0);
 
     const product = await this.prisma.product.create({
       data: {
@@ -46,8 +47,8 @@ export class ProductService {
         weight: productData.weight,
         dimensions: productData.dimensions,
         user_id: userId || user_id || 1,
-        is_checked: 'PENDING',
-        is_active: false,
+        is_checked: 'APPROVED', // ✅ Darhol tasdiqlash (admin panel orqali o'zgartirilishi mumkin)
+        is_active: true, // ✅ Darhol faollashtirish
         is_deleted: false,
         view_count: 0
       },
@@ -66,6 +67,43 @@ export class ProductService {
       }
     });
 
+    // ✅ Image'larni saqlash
+    if (files && files.length > 0) {
+      console.log('💾 Saving product images...');
+      
+      for (const file of files) {
+        await this.prisma.productImage.create({
+          data: {
+            product_id: product.id,
+            url: `uploads/${file.filename}` // ✅ To'g'ri URL format
+          }
+        });
+        console.log(`✅ Image saved: uploads/${file.filename}`);
+      }
+      
+      // ✅ Updated product with images qaytarish
+      const updatedProduct = await this.prisma.product.findUnique({
+        where: { id: product.id },
+        include: {
+          product_image: true,
+          brand: true,
+          category: true,
+          user: {
+            select: {
+              id: true,
+              first_name: true,
+              last_name: true,
+              profile_img: true
+            }
+          }
+        }
+      });
+      
+      console.log('🎉 Product created with images:', updatedProduct?.product_image?.length || 0);
+      return updatedProduct;
+    }
+
+    console.log('🎉 Product created without images');
     return product;
   }
 

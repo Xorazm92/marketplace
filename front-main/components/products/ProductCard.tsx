@@ -38,10 +38,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   };
 
   const getMainImage = () => {
-    if (product.product_image && product.product_image.length > 0) {
-      return `http://localhost:4000${product.product_image[0].url}`;
+    // Debug rasm URL'ni tekshirish
+    if (process.env.NODE_ENV === 'development') {
+      console.log('🖼️ ProductCard - product.product_image:', product.product_image);
     }
-    return '/images/placeholder-product.jpg';
+    
+    if (product.product_image && product.product_image.length > 0) {
+      const imageUrl = product.product_image[0].url;
+      
+      // Agar URL allaqachon to'liq bo'lsa (http bilan boshlansa)
+      if (imageUrl.startsWith('http')) {
+        return imageUrl;
+      }
+      
+      // Agar relative path bo'lsa, backend URL qo'shish
+      const fullUrl = `http://localhost:4000/${imageUrl}`;
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log('🔗 ProductCard - Image URL:', fullUrl);
+      }
+      
+      return fullUrl;
+    }
+    
+    return '/images/placeholder-product.png';
   };
 
   return (

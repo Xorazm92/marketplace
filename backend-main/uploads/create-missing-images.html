@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Missing Images</title>
+</head>
+<body>
+    <canvas id="canvas" width="400" height="300"></canvas>
+    <script>
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Create a simple image
+        ctx.fillStyle = '#f0f0f0';
+        ctx.fillRect(0, 0, 400, 300);
+        
+        ctx.fillStyle = '#333';
+        ctx.font = '20px Arial';
+        ctx.textAlign = 'center';
+        ctx.fillText('Test Mahsulot Rasmi', 200, 150);
+        
+        // Convert to blob and download
+        canvas.toBlob(function(blob) {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'nm3xpyok9r.jpg';
+            a.click();
+            
+            // Create second image
+            setTimeout(() => {
+                a.download = 'fh9bvvl9rf.jpg';
+                a.click();
+            }, 1000);
+        }, 'image/jpeg', 0.8);
+    </script>
+</body>
+</html>

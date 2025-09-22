@@ -221,6 +221,59 @@ const CategoryManagement: React.FC = () => {
   // Get main categories (no parent)
   const mainCategories = categories.filter(cat => !cat.parent_id);
 
+  // Recursive function to render categories with children
+  const renderCategories = (parentId: number | null = null, level = 0) => {
+    return categories
+      .filter(cat => cat.parent_id === parentId)
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .map(category => ({
+        ...category,
+        children: categories.filter(c => c.parent_id === category.id)
+      }))
+      .map(category => (
+        <div key={category.id} className={styles.categoryItem} style={{ marginLeft: `${level * 20}px` }}>
+          <div className={styles.categoryHeader}>
+            <div className={styles.categoryInfo}>
+              <span className={styles.categoryName}>
+                {category.name}
+                {!category.is_active && <span className={styles.inactiveBadge}>Yashirin</span>}
+              </span>
+              <span className={styles.categorySlug}>/{category.slug}</span>
+            </div>
+            <div className={styles.categoryActions}>
+              <button
+                onClick={() => toggleActive(category)}
+                className={`${styles.actionButton} ${category.is_active ? styles.active : styles.inactive}`}
+                title={category.is_active ? 'Yashirish' : 'Ko\'rsatish'}
+              >
+                {category.is_active ? <FaEyeSlash /> : <FaEye />}
+              </button>
+              <button
+                onClick={() => handleEdit(category)}
+                className={`${styles.actionButton} ${styles.edit}`}
+                title="Tahrirlash"
+              >
+                <FaEdit />
+              </button>
+              <button
+                onClick={() => handleDelete(category.id)}
+                className={`${styles.actionButton} ${styles.delete}`}
+                title="O'chirish"
+                disabled={loading}
+              >
+                <FaTrash />
+              </button>
+            </div>
+          </div>
+          {category.children && category.children.length > 0 && (
+            <div className={styles.subCategories}>
+              {renderCategories(category.id, level + 1)}
+            </div>
+          )}
+        </div>
+      ));
+  };
+
   return (
     <div className={styles.categoryManagement}>
       <div className={styles.header}>
@@ -350,81 +403,30 @@ const CategoryManagement: React.FC = () => {
         </div>
       )}
 
-      {/* Categories Table */}
-      <div className={styles.tableContainer}>
-        <table className={styles.table}>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Nom</th>
-              <th>Slug</th>
-              <th>Asosiy kategoriya</th>
-              <th>Status</th>
-              <th>Tartib</th>
-              <th>Yaratilgan</th>
-              <th>Amallar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td colSpan={8} className={styles.loading}>Yuklanmoqda...</td>
-              </tr>
-            ) : categories.length === 0 ? (
-              <tr>
-                <td colSpan={8} className={styles.empty}>Kategoriyalar topilmadi</td>
-              </tr>
-            ) : (
-              categories.map(category => (
-                <tr key={category.id}>
-                  <td>{category.id}</td>
-                  <td>
-                    <div className={styles.categoryName}>
-                      {category.image_url && (
-                        <img src={category.image_url} alt={category.name} className={styles.categoryImage} />
-                      )}
-                      {category.name}
-                    </div>
-                  </td>
-                  <td><code>{category.slug}</code></td>
-                  <td>{category.parent?.name || '-'}</td>
-                  <td>
-                    <span className={`${styles.status} ${category.is_active ? styles.active : styles.inactive}`}>
-                      {category.is_active ? 'Faol' : 'Nofaol'}
-                    </span>
-                  </td>
-                  <td>{category.sort_order}</td>
-                  <td>{new Date(category.createdAt).toLocaleDateString('uz-UZ')}</td>
-                  <td>
-                    <div className={styles.actions}>
-                      <button
-                        onClick={() => handleEdit(category)}
-                        className={styles.editButton}
-                        title="Tahrirlash"
-                      >
-                        <FaEdit />
-                      </button>
-                      <button
-                        onClick={() => toggleActive(category)}
-                        className={styles.toggleButton}
-                        title={category.is_active ? 'O\'chirish' : 'Faollashtirish'}
-                      >
-                        {category.is_active ? <FaEyeSlash /> : <FaEye />}
-                      </button>
-                      <button
-                        onClick={() => handleDelete(category.id)}
-                        className={styles.deleteButton}
-                        title="O'chirish"
-                      >
-                        <FaTrash />
-                      </button>
-                    </div>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
+      {/* Categories List */}
+      <div className={styles.categoriesList}>
+        {loading && categories.length === 0 ? (
+          <div className={styles.loading}>Yuklanmoqda...</div>
+        ) : categories.length === 0 ? (
+          <div className={styles.emptyState}>
+            <p>Hali kategoriyalar mavjud emas</p>
+            <button
+              onClick={() => setShowAddForm(true)}
+              className={styles.addButton}
+              disabled={loading}
+            >
+              <FaPlus /> Kategoriya qo'shish
+            </button>
+          </div>
+        ) : (
+          <div className={styles.categoriesContainer}>
+            <div className={styles.listHeader}>
+              <span>Kategoriyalar ro'yxati</span>
+              <span>Jami: {categories.length} ta</span>
+            </div>
+            {renderCategories(null)}
+          </div>
+        )}
       </div>
     </div>
   );

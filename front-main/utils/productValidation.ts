@@ -29,8 +29,9 @@ export const validateProduct = (product: any): ProductValidation => {
     warnings.push('Mahsulot nomi juda qisqa (3 ta belgidan kam)');
   }
 
-  // ✅ Narx tekshiruvi
-  if (!product.price || typeof product.price !== 'number' || product.price <= 0) {
+  // ✅ Narx tekshiruvi (string yoki number qabul qilish)
+  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+  if (!product.price || isNaN(price) || price <= 0) {
     errors.push('Mahsulot narxi noto\'g\'ri yoki mavjud emas');
   }
 
@@ -39,10 +40,10 @@ export const validateProduct = (product: any): ProductValidation => {
     warnings.push('Mahsulot slug mavjud emas');
   }
 
-  // ✅ Rasm tekshiruvi
+  // ✅ Rasm tekshiruvi (warning sifatida, error emas)
   const hasImages = checkProductImages(product);
   if (!hasImages) {
-    warnings.push('Mahsulot rasmlari topilmadi');
+    warnings.push('Mahsulot rasmlari topilmadi, placeholder ishlatiladi');
   }
 
   // ✅ Brand tekshiruvi
@@ -79,7 +80,7 @@ export const checkProductImages = (product: any): boolean => {
 
 // ✅ Mahsulot rasmini olish (xavfsiz)
 export const getProductImage = (product: any, index: number = 0): string => {
-  const defaultImage = '/img/placeholder-product.jpg';
+  const defaultImage = '/images/placeholder-product.png';
   
   if (!product) return defaultImage;
   
@@ -92,7 +93,8 @@ export const getProductImage = (product: any, index: number = 0): string => {
         return imageUrl;
       }
       // Agar nisbiy URL bo'lsa, server URL qo'shish
-      return `http://localhost:4000${imageUrl.replace('/uploads//uploads/', '/uploads/')}`;
+      const cleanUrl = imageUrl.startsWith('/') ? imageUrl : `/${imageUrl}`;
+      return `http://localhost:4000${cleanUrl.replace('/uploads//uploads/', '/uploads/')}`;
     }
   }
   
@@ -103,7 +105,8 @@ export const getProductImage = (product: any, index: number = 0): string => {
       if (imageObj.url.startsWith('http')) {
         return imageObj.url;
       }
-      return `http://localhost:4000${imageObj.url.replace('/uploads//uploads/', '/uploads/')}`;
+      const cleanUrl = imageObj.url.startsWith('/') ? imageObj.url : `/${imageObj.url}`;
+      return `http://localhost:4000${cleanUrl.replace('/uploads//uploads/', '/uploads/')}`;
     }
   }
   
@@ -135,11 +138,16 @@ export const getBrandName = (product: any): string => {
 
 // ✅ Mahsulot narxini formatlash
 export const formatProductPrice = (product: any): string => {
-  if (!product || !product.price || typeof product.price !== 'number') {
+  if (!product || !product.price) {
     return '0';
   }
   
-  return product.price.toLocaleString();
+  const price = typeof product.price === 'string' ? parseFloat(product.price) : product.price;
+  if (isNaN(price)) {
+    return '0';
+  }
+  
+  return price.toLocaleString();
 };
 
 // ✅ Reytingni hisoblash (xavfsiz)

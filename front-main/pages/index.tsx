@@ -29,7 +29,7 @@ export default function Home() {
           <EtsyStyleHero />
 
           {/* Featured Products */}
-          <div className="py-8 bg-gray-50">
+          <div className="py-4 bg-gray-50">
             <FeaturedProducts />
           </div>
 

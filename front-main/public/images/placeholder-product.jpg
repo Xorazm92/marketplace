@@ -1,0 +1,8 @@
+<svg width="400" height="300" viewBox="0 0 400 300" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="400" height="300" fill="#F8F9FA"/>
+  <rect x="150" y="100" width="100" height="100" rx="8" fill="#E9ECEF"/>
+  <circle cx="175" cy="125" r="8" fill="#DEE2E6"/>
+  <path d="M160 160L175 145L190 160L205 145L220 160V180H160V160Z" fill="#DEE2E6"/>
+  <text x="200" y="220" font-family="Arial, sans-serif" font-size="14" fill="#6C757D" text-anchor="middle">Rasm yuklanmadi</text>
+  <text x="200" y="240" font-family="Arial, sans-serif" font-size="12" fill="#ADB5BD" text-anchor="middle">Placeholder image</text>
+</svg>

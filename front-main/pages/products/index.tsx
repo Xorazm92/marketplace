@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { getProducts } from '../../endpoints/product';
 import { getAllCategories } from '../../endpoints/category';
 import ProductCard from '../../components/products/ProductCard';
-import CategoryFilter from '../../components/filters/CategoryFilter';
+// import CategoryFilter from '../../components/filters/CategoryFilter'; // Component mavjud emas
 import LoadingSpinner from '../../components/common/LoadingSpinner';
 import styles from '../../styles/Products.module.scss';
 
@@ -49,17 +49,45 @@ const ProductsPage: React.FC = () => {
   const loadProducts = async () => {
     try {
       setLoading(true);
-      const response = await getProducts();
+      console.log('🔍 Loading products...');
       
-      if (response && response.products) {
+      const response = await getProducts();
+      console.log('📊 API Response:', response);
+      
+      // Backend qaytargan ma'lumotlarni to'g'ri format qilish
+      let productsArray = [];
+      
+      if (Array.isArray(response)) {
+        // Agar response to'g'ridan-to'g'ri array bo'lsa
+        productsArray = response;
+      } else if (response && response.products) {
+        // Agar response object bo'lib, products property bor bo'lsa
+        productsArray = response.products;
+      } else if (response && response.data) {
+        // Agar response object bo'lib, data property bor bo'lsa
+        productsArray = response.data;
+      }
+      
+      console.log('📦 Products array:', productsArray);
+      console.log('📊 Products count:', productsArray.length);
+      
+      if (productsArray && productsArray.length > 0) {
         // Faqat tasdiqlangan va faol mahsulotlarni ko'rsatamiz
-        const approvedProducts = response.products.filter(
+        const approvedProducts = productsArray.filter(
           (product: Product) => product.is_checked === 'APPROVED' && product.is_active
         );
+        
+        console.log('✅ Approved products:', approvedProducts.length);
+        console.log('🔍 First product:', approvedProducts[0]);
+        
         setProducts(approvedProducts);
+      } else {
+        console.warn('⚠️ No products found in response');
+        setProducts([]);
       }
     } catch (error) {
-      console.error('Error loading products:', error);
+      console.error('❌ Error loading products:', error);
+      setProducts([]);
     } finally {
       setLoading(false);
     }
