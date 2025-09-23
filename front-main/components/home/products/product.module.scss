@@ -1,8 +1,18 @@
 .products_grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(276px, 1fr));
-  gap: 30px;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 24px;
   justify-content: center;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
+  }
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
 }
 
 .product_card_wrapper {

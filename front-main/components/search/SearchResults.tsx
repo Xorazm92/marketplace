@@ -166,12 +166,22 @@ const SearchResults: React.FC<SearchResultsProps> = ({
               // Map category names to slugs for compatibility
               const categorySlugMap: Record<string, string> = {
                 'kiyim-kechak': 'clothing',
-                'oyinchoqlar': 'toys',
+                'oyinchoqlar': 'sports',  // ✅ Temporarily map toys to sports for existing products
                 'kitoblar': 'books',
+                'sport': 'sports',
                 'sport-anjomlar': 'sports',
+                'Sport anjomlar': 'sports',  // ✅ Fix for existing products
+                'O\'yinchoqlar': 'sports',   // ✅ Temporary mapping for mislabeled products
                 'maktab-buyumlari': 'school',
-                'chaqaloq-buyumlari': 'baby'
               };
+              
+              // Also check category name for mislabeled products
+              if (product.category && typeof product.category === 'object') {
+                const categoryName = product.category.name || '';
+                if (categoryName === 'Sport anjomlar' || categoryName === "O'yinchoqlar") {
+                  return true; // Show these products in sports category
+                }
+              }
               
               const normalizedSlug = categorySlugMap[categorySlug] || categorySlug;
               return productCategorySlug === normalizedSlug || productCategorySlug === categorySlug;

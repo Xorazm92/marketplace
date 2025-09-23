@@ -1,13 +1,8 @@
-
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
-import { RedisService } from '../microservices/redis/redis.service';
-import { ChildSafetyService } from '../child-safety/child-safety.service';
 import { UploadService } from '../upload/upload.service';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
 
 @Injectable()
 export class ProductService {
@@ -47,7 +42,7 @@ export class ProductService {
         weight: productData.weight,
         dimensions: productData.dimensions,
         user_id: userId || user_id || 1,
-        is_checked: 'APPROVED', // ✅ Darhol tasdiqlash (admin panel orqali o'zgartirilishi mumkin)
+        is_checked: 'APPROVED', // ✅ Darhol tasdiqlash
         is_active: true, // ✅ Darhol faollashtirish
         is_deleted: false,
         view_count: 0
@@ -70,7 +65,7 @@ export class ProductService {
     // ✅ Image'larni saqlash
     if (files && files.length > 0) {
       console.log('💾 Saving product images...');
-      
+
       for (const file of files) {
         await this.prisma.productImage.create({
           data: {
@@ -80,7 +75,7 @@ export class ProductService {
         });
         console.log(`✅ Image saved: uploads/${file.filename}`);
       }
-      
+
       // ✅ Updated product with images qaytarish
       const updatedProduct = await this.prisma.product.findUnique({
         where: { id: product.id },
@@ -98,7 +93,7 @@ export class ProductService {
           }
         }
       });
-      
+
       console.log('🎉 Product created with images:', updatedProduct?.product_image?.length || 0);
       return updatedProduct;
     }
@@ -119,7 +114,7 @@ export class ProductService {
     sortOrder?: 'asc' | 'desc'
   ) {
     const skip = (page - 1) * limit;
-    
+
     const where: any = {
       is_active: true,
       is_checked: 'APPROVED'
@@ -193,39 +188,39 @@ export class ProductService {
   async findOne(id: number) {
     const product = await this.prisma.product.findUnique({
       where: { id },
-              include: {
-          product_image: true,
-          brand: true,
-          category: true,
-          currency: true,
-          product_colors: {
-            include: {
-              color: true
-            }
-          },
-          user: {
-            select: {
-              id: true,
-              first_name: true,
-              last_name: true,
-              profile_img: true,
-              phone_number: true
-            }
-          },
-          reviews: {
-            include: {
-              user: {
-                select: {
-                  id: true,
-                  first_name: true,
-                  last_name: true,
-                  profile_img: true
-                }
-              },
-              images: true
-            }
+      include: {
+        product_image: true,
+        brand: true,
+        category: true,
+        currency: true,
+        product_colors: {
+          include: {
+            color: true
+          }
+        },
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            profile_img: true,
+            phone_number: true
+          }
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                profile_img: true
+              }
+            },
+            images: true
           }
         }
+      }
     });
 
     if (product) {
@@ -251,105 +246,65 @@ export class ProductService {
     return product;
   }
 
-  async getRecommendations(productId: number, limit: number = 8) {
-    const currentProduct = await this.prisma.product.findUnique({
-      where: { id: productId },
-      select: { category_id: true, brand_id: true }
-    });
-
-    if (!currentProduct) return [];
-
-    return this.prisma.product.findMany({
-      where: {
-        id: { not: productId },
-        is_active: true,
-        is_checked: 'APPROVED',
-        OR: [
-          { category_id: currentProduct.category_id },
-          { brand_id: currentProduct.brand_id }
-        ]
-      },
-      take: limit,
+  async findBySlug(slug: string) {
+    const product = await this.prisma.product.findFirst({
+      where: { slug },
       include: {
         product_image: true,
         brand: true,
         category: true,
-        reviews: {
-          select: {
-            rating: true
-          }
-        }
-      },
-      orderBy: { view_count: 'desc' }
-    });
-  }
-
-  async getFeaturedProducts(limit: number = 12) {
-    return this.prisma.product.findMany({
-      where: {
-        is_active: true,
-        is_checked: 'APPROVED',
-        is_top: true
-      },
-      take: limit,
-      include: {
-        product_image: true,
-        brand: true,
-        category: true,
-        reviews: {
-          select: {
-            rating: true
-          }
-        }
-      },
-      orderBy: { view_count: 'desc' }
-    });
-  }
-
-  async searchProducts(query: string, page: number = 1, limit: number = 20) {
-    const skip = (page - 1) * limit;
-    
-    const where = {
-      is_active: true,
-      is_checked: 'APPROVED' as const,
-      OR: [
-        { title: { contains: query } },
-        { description: { contains: query } },
-        { tags: { contains: query } },
-        { brand: { name: { contains: query } } },
-        { category: { name: { contains: query } } }
-      ]
-    };
-
-    const [products, total] = await Promise.all([
-      this.prisma.product.findMany({
-        skip,
-        take: limit,
-        where,
-        include: {
-          product_image: true,
-          brand: true,
-          category: true,
-          reviews: {
-            select: {
-              rating: true
-            }
+        currency: true,
+        product_colors: {
+          include: {
+            color: true
           }
         },
-        orderBy: { view_count: 'desc' }
-      }),
-      this.prisma.product.count({ where })
-    ]);
-
-    return {
-      products,
-      pagination: {
-        page,
-        limit,
-        total,
-        totalPages: Math.ceil(total / limit)
+        user: {
+          select: {
+            id: true,
+            first_name: true,
+            last_name: true,
+            profile_img: true,
+            phone_number: true
+          }
+        },
+        reviews: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                first_name: true,
+                last_name: true,
+                profile_img: true
+              }
+            },
+            images: true
+          }
+        }
       }
-    };
+    });
+
+    if (product) {
+      // Increment view count
+      await this.prisma.product.update({
+        where: { id: product.id },
+        data: { view_count: { increment: 1 } }
+      });
+
+      // Transform colors data
+      const colors = product.product_colors?.map(pc => ({
+        id: pc.color.id,
+        name: pc.color.name,
+        hex: pc.color.hex || this.getColorHex(pc.color.name)
+      })) || [];
+
+      return {
+        ...product,
+        colors
+      };
+    }
+
+    return product;
   }
 
   async update(id: number, updateProductDto: UpdateProductDto, images?: Express.Multer.File[]) {
@@ -430,6 +385,10 @@ export class ProductService {
           product_image: true,
         }
       });
+    }
+
+    console.log('🎉 Product updated successfully');
+    return updatedProduct;
   }
 
   async remove(id: number) {
@@ -439,7 +398,6 @@ export class ProductService {
     });
   }
 
-  // Additional methods needed by controller
   async createProductImage(productId: number, image: any) {
     return this.prisma.productImage.create({
       data: {
@@ -450,12 +408,12 @@ export class ProductService {
   }
 
   async getAllProduct(category?: string) {
-    const where: any = { 
-      is_deleted: false, 
+    const where: any = {
+      is_deleted: false,
       is_active: true,
       is_checked: 'APPROVED'
     };
-    
+
     if (category) {
       where.category = { slug: category };
     }
@@ -477,7 +435,7 @@ export class ProductService {
     return products.map(product => {
       const price = parseFloat(product.price.toString()) || 0;
       const originalPrice = parseFloat((product.original_price?.toString() || '0')) || price * 1.2;
-      
+
       return {
         ...product,
         images: product.product_image?.map(img => img.url) || [],
@@ -485,7 +443,7 @@ export class ProductService {
         review_count: Math.floor(Math.random() * 100) + 1,
         seller_name: product.user?.first_name || 'INBOLA',
         original_price: originalPrice,
-        discount_percentage: originalPrice > price ? 
+        discount_percentage: originalPrice > price ?
           Math.round(((originalPrice - price) / originalPrice) * 100) : 0,
         is_bestseller: Math.random() > 0.7,
         is_featured: Math.random() > 0.8,

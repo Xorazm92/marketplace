@@ -84,30 +84,31 @@
 .cartItems {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .cartItem {
   display: grid;
-  grid-template-columns: 100px 1fr auto auto auto;
-  gap: 1rem;
+  grid-template-columns: 80px 1fr auto auto;
+  gap: 16px;
   align-items: center;
-  padding: 1.5rem;
+  padding: 16px;
   background: white;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  border: 1px solid #f0f0f0;
+  border: 1px solid #e2e8f0;
+  transition: all 0.3s ease;
 
-  @media (max-width: 768px) {
-    grid-template-columns: 80px 1fr;
-    gap: 0.5rem;
+  &:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transform: translateY(-2px);
   }
 
-  .productImage {
-    img {
-      border-radius: 8px;
-      object-fit: cover;
-    }
+  @media (max-width: 768px) {
+    grid-template-columns: 60px 1fr auto;
+    gap: 12px;
+    padding: 12px;
   }
 
   .productInfo {

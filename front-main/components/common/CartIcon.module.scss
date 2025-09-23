@@ -1,0 +1,137 @@
+/* CartIcon Component Styles */
+.cartIcon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+
+  &:hover {
+    background: rgba(255, 107, 107, 0.1);
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
+
+  .icon {
+    transition: transform 0.2s ease;
+  }
+
+  &:hover .icon {
+    transform: scale(1.1);
+  }
+
+  .count {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    background: #ff6b6b;
+    color: white;
+    font-size: 0.75rem;
+    font-weight: 700;
+    min-width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 4px;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    z-index: 1;
+
+    &.loading {
+      background: #cbd5e0;
+    }
+  }
+
+  .loadingOverlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    border-radius: 50%;
+    background: rgba(255, 107, 107, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+
+    .spinner {
+      width: 16px;
+      height: 16px;
+      border: 2px solid #cbd5e0;
+      border-top: 2px solid #ff6b6b;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+  }
+
+  /* Sizes */
+  &.small {
+    padding: 6px;
+
+    .count {
+      font-size: 0.7rem;
+      min-width: 18px;
+      height: 18px;
+    }
+  }
+
+  &.medium {
+    padding: 8px;
+
+    .count {
+      font-size: 0.75rem;
+      min-width: 20px;
+      height: 20px;
+    }
+  }
+
+  &.large {
+    padding: 12px;
+
+    .count {
+      font-size: 0.875rem;
+      min-width: 24px;
+      height: 24px;
+    }
+  }
+
+  /* Animations */
+  &:hover .count {
+    transform: scale(1.1);
+    box-shadow: 0 4px 8px rgba(255, 107, 107, 0.3);
+  }
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .cartIcon {
+    padding: 6px;
+
+    .count {
+      font-size: 0.7rem;
+      min-width: 16px;
+      height: 16px;
+    }
+  }
+}

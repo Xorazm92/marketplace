@@ -94,12 +94,13 @@
   margin-bottom: 40px;
 
   @media (max-width: 768px) {
-    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-    gap: 16px;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 20px;
   }
 
   @media (max-width: 480px) {
     grid-template-columns: 1fr;
+    gap: 16px;
   }
 }
 

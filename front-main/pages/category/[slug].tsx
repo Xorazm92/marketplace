@@ -153,6 +153,7 @@ const CategoryPage: React.FC = () => {
             'books': 7,
             'sport': 10,
             'sports': 10,
+            'sport-anjomlar': 10,
             'maktab': 11,
             'school': 11,
             'chaqaloq': 12,

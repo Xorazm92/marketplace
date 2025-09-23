@@ -1,0 +1,146 @@
+/* AddToCartButton Component Styles */
+.addToCartBtn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 24px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+
+  .cartIcon {
+    font-size: 1.1em;
+    transition: transform 0.2s ease;
+  }
+
+  .loadingIcon {
+    font-size: 1.1em;
+    animation: spin 1s linear infinite;
+  }
+
+  .loadingText {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s ease;
+  }
+
+  &:hover:not(.disabled) .cartIcon {
+    transform: scale(1.1);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.3);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  /* Variants */
+  &.primary {
+    background: linear-gradient(45deg, #ff6b6b, #ff8e53);
+    color: white;
+    border-color: #ff6b6b;
+
+    &:hover:not(.disabled) {
+      background: linear-gradient(45deg, #ff5252, #ff6b6b);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.3);
+    }
+
+    &:active:not(.disabled) {
+      transform: translateY(0);
+    }
+  }
+
+  &.secondary {
+    background: #f7fafc;
+    color: #2d3748;
+    border-color: #e2e8f0;
+
+    &:hover:not(.disabled) {
+      background: #edf2f7;
+      border-color: #cbd5e0;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+    }
+  }
+
+  &.outline {
+    background: transparent;
+    color: #ff6b6b;
+    border-color: #ff6b6b;
+
+    &:hover:not(.disabled) {
+      background: #fff5f5;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(255, 107, 107, 0.1);
+    }
+  }
+
+  /* Sizes */
+  &.small {
+    padding: 8px 16px;
+    font-size: 0.875rem;
+
+    .cartIcon {
+      font-size: 1em;
+    }
+  }
+
+  &.medium {
+    padding: 12px 24px;
+    font-size: 1rem;
+  }
+
+  &.large {
+    padding: 16px 32px;
+    font-size: 1.125rem;
+    min-height: 56px;
+
+    .cartIcon {
+      font-size: 1.2em;
+    }
+  }
+
+  /* Loading State */
+  &.disabled {
+    .loadingText {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/* Animations */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .addToCartBtn {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+
+    &.large {
+      padding: 14px 24px;
+      font-size: 1rem;
+    }
+  }
+}
