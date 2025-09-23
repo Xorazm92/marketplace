@@ -21,7 +21,7 @@ import {
 import { MdFavoriteBorder, MdFavorite } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import SafeImage, { ProductImage } from '../../components/common/SafeImage';
-import { getProductById } from '../../endpoints/product';
+import { getProductById, getProductBySlug } from '../../endpoints/product';
 import { Product } from '../../types/product';
 import {
   validateProduct,
@@ -57,25 +57,26 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
   const loadProduct = async () => {
     try {
       setLoading(true);
-      const productId = parseInt(id as string);
+      console.log(`🔍 Client: Loading product with identifier: ${id}`);
       
-      if (isNaN(productId)) {
-        toast.error('Noto\'g\'ri mahsulot ID');
-        router.push('/products');
-        return;
+      let response: { success: boolean; data: any | null } = { success: false, data: null };
+      
+      // Try to get product by slug first
+      if (typeof id === 'string' && isNaN(parseInt(id))) {
+        console.log(`📝 Client: Treating "${id}" as slug`);
+        response = await getProductBySlug(id as string);
+      } else {
+        // Try to get product by ID
+        const productId = parseInt(id as string);
+        if (!isNaN(productId)) {
+          console.log(`🔢 Client: Treating "${id}" as ID`);
+          response = await getProductById(productId);
+        }
       }
-
-      const response = await getProductById(productId);
       
       if (response.success && response.data) {
-        const validation = validateProduct(response.data);
-        if (validation.isValid) {
-          setProduct(response.data);
-        } else {
-          console.warn('Product validation failed:', validation.errors);
-          toast.error('Mahsulot ma\'lumotlari noto\'g\'ri');
-          router.push('/products');
-        }
+        console.log(`✅ Client: Product found: ${response.data.title}`);
+        setProduct(response.data);
       } else {
         toast.error('Mahsulot topilmadi');
         router.push('/products');
@@ -445,20 +446,28 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
   const { id } = context.params!;
   
   try {
-    const productId = parseInt(id as string);
+    console.log(`🔍 SSR: Fetching product with identifier: ${id}`);
     
-    if (isNaN(productId)) {
-      return {
-        notFound: true,
-      };
+    let response: { success: boolean; data: any | null } = { success: false, data: null };
+    
+    // Try to get product by slug first
+    if (typeof id === 'string' && isNaN(parseInt(id))) {
+      console.log(`📝 SSR: Treating "${id}" as slug`);
+      response = await getProductBySlug(id);
+    } else {
+      // Try to get product by ID
+      const productId = parseInt(id as string);
+      if (!isNaN(productId)) {
+        console.log(`🔢 SSR: Treating "${id}" as ID`);
+        response = await getProductById(productId);
+      }
     }
-
-    const response = await getProductById(productId);
     
     if (response.success && response.data) {
-      const validation = validateProduct(response.data);
+      console.log(`✅ SSR: Product found: ${response.data.title}`);
       
-      if (validation.isValid) {
+      // Simple validation - just check if product has required fields
+      if (response.data.id && response.data.title) {
         return {
           props: {
             product: response.data,
@@ -467,11 +476,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
       }
     }
     
+    console.log(`❌ SSR: Product not found for identifier: ${id}`);
     return {
       notFound: true,
     };
   } catch (error) {
-    console.error('Error in getServerSideProps:', error);
+    console.error('❌ SSR Error:', error);
     return {
       props: {
         product: null,

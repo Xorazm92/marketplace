@@ -8,6 +8,31 @@ import SearchSorting from '../../components/search/SearchSorting';
 import { getSubcategoriesByParent, getCategoryById } from '../../endpoints/category';
 import styles from '../../styles/Category.module.scss';
 
+// Helper function for category icons
+const getCategoryIcon = (slug: string): string => {
+  const icons: Record<string, string> = {
+    'clothing': '👕',
+    'kiyim-kechak': '👕',
+    'ichki-kiyim': '👙',
+    'tashqi-kiyim': '🧥',
+    'toys': '🧸',
+    'oyinchoqlar': '🧸',
+    'konstruktor': '🧩',
+    'yumshoq-oyinchoqlar': '🐻',
+    'books': '📚',
+    'kitoblar': '📚',
+    'talim-kitoblari': '📖',
+    'ertaklar': '📜',
+    'sports': '⚽',
+    'sport': '⚽',
+    'school': '🎒',
+    'maktab': '🎒',
+    'baby': '🍼',
+    'chaqaloq': '🍼',
+  };
+  return icons[slug.toLowerCase()] || '📦';
+};
+
 interface SearchFiltersType {
   category: string[];
   priceRange: [number, number];
@@ -245,102 +270,75 @@ const CategoryPage: React.FC = () => {
       
       <main className={styles.categoryPage}>
         <div className={styles.container}>
-          <div className={styles.categoryHeader}>
-            <div className={styles.categoryInfo}>
-              <span className={styles.categoryIcon}>{category.icon}</span>
-              <div>
-                <h1 className={styles.title}>{category.name}</h1>
-                <p className={styles.description}>{category.description}</p>
-              </div>
-            </div>
+          {/* Etsy-style Category Header */}
+          <div className={styles.etsyHeader}>
+            <h1 className={styles.etsyTitle}>{category.name}</h1>
+            <p className={styles.etsySubtitle}>{category.description}</p>
           </div>
 
-          {/* Subcategories */}
+          {/* Etsy-style Subcategories Grid */}
           {subcategories.length > 0 && (
-            <div className={styles.subcategoriesSection}>
-              <h3 className={styles.subcategoriesTitle}>Subkategoriyalar</h3>
-              <div className={styles.subcategoriesGrid}>
+            <div className={styles.etsySubcategoriesSection}>
+              <div className={styles.etsySubcategoriesGrid}>
                 {subcategories.map((subcat) => (
                   <Link 
                     key={subcat.id} 
                     href={`/category/${subcat.slug || subcat.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
-                    className={styles.subcategoryCard}
+                    className={styles.etsySubcategoryCard}
                   >
-                    <div className={styles.subcategoryIcon}>
+                    <div className={styles.etsySubcategoryImage}>
                       {subcat.image_url ? (
                         <img src={subcat.image_url} alt={subcat.name} />
                       ) : (
-                        <span>📦</span>
+                        <div className={styles.etsyPlaceholderImage}>
+                          <span>{getCategoryIcon(subcat.slug || subcat.name)}</span>
+                        </div>
                       )}
                     </div>
-                    <div className={styles.subcategoryInfo}>
-                      <h4>{subcat.name}</h4>
-                      {subcat.description && (
-                        <p>{subcat.description}</p>
-                      )}
-                    </div>
+                    <h3 className={styles.etsySubcategoryTitle}>{subcat.name}</h3>
                   </Link>
                 ))}
               </div>
+              
+              {subcategories.length > 6 && (
+                <div className={styles.etsyShowMore}>
+                  <button className={styles.etsyShowMoreButton}>
+                    Yana ko'rsatish ({subcategories.length - 6})
+                  </button>
+                </div>
+              )}
             </div>
           )}
 
-          <div className={styles.filterBar}>
-            <div className={styles.filterControls}>
-              <button 
-                className={styles.filterToggle}
-                onClick={() => setShowFilters(!showFilters)}
-              >
-                Filtrlar {showFilters ? 'Yashirish' : 'Ko\'rsatish'}
-              </button>
-
-              {/* Category Filter Dropdown */}
-              <div className={styles.categoryFilterDropdown}>
-                <label htmlFor="categoryFilter">Saralash:</label>
-                <select 
-                  id="categoryFilter"
-                  className={styles.categoryFilterSelect}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === 'price-asc') setSortBy('price-asc');
-                    else if (value === 'price-desc') setSortBy('price-desc');
-                    else if (value === 'name-asc') setSortBy('name-asc');
-                    else if (value === 'name-desc') setSortBy('name-desc');
-                    else if (value === 'newest') setSortBy('newest');
-                    else if (value === 'oldest') setSortBy('oldest');
-                    else setSortBy('relevance');
-                  }}
-                  value={sortBy}
-                >
-                  <option value="relevance">Mos kelishi bo'yicha</option>
-                  <option value="price-asc">Narx: Arzondan qimmmatiga</option>
-                  <option value="price-desc">Narx: Qimmatdan arzonga</option>
-                  <option value="name-asc">Reyting: Yuqoridan pastga</option>
-                  <option value="newest">Yangi mahsulotlar</option>
-                  <option value="oldest">Mashhur mahsulotlar</option>
-                  <option value="name-desc">Eng katta chegirmalar</option>
-                </select>
+          {/* Etsy-style "Shop the look" section */}
+          <div className={styles.etsyShopSection}>
+            <div className={styles.etsyShopHeader}>
+              <h2 className={styles.etsyShopTitle}>Barcha Mahsulotlar</h2>
+              <div className={styles.etsyFilters}>
+                <button className={styles.etsyFilterButton}>
+                  <span>🎯</span> Filtrlar ko'rsatish
+                </button>
+                <div className={styles.etsySortBy}>
+                  <span>1,000+ mahsulot mavjud</span>
+                  <select 
+                    className={styles.etsySortSelect}
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                  >
+                    <option value="relevance">Saralash: Mos kelishi bo'yicha</option>
+                    <option value="price-asc">Narx: Arzondan qimmatiga</option>
+                    <option value="price-desc">Narx: Qimmatdan arzonga</option>
+                    <option value="newest">Reyting: Yuqoridan pastga</option>
+                    <option value="oldest">Yangi mahsulotlar</option>
+                    <option value="name-desc">Mashhur mahsulotlar</option>
+                    <option value="name-asc">Eng katta chegirmalar</option>
+                  </select>
+                </div>
               </div>
             </div>
-            
-            <SearchSorting 
-              sortBy={sortBy}
-              onSortChange={handleSortChange}
-            />
-          </div>
 
-          <div className={styles.categoryContent}>
-            {showFilters && (
-              <div className={styles.filtersSection}>
-                <SearchFilters 
-                  filters={filters}
-                  onFilterChange={handleFilterChange}
-                  onClearFilters={clearFilters}
-                />
-              </div>
-            )}
-            
-            <div className={styles.resultsSection}>
+            {/* Etsy-style Products Grid */}
+            <div className={styles.etsyProductsGrid}>
               <SearchResults 
                 searchQuery=""
                 filters={filters}

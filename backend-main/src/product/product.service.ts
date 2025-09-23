@@ -417,7 +417,6 @@ export class ProductService {
       return this.prisma.product.findUnique({
         where: { id },
         include: {
-          product_image: true,
           brand: true,
           category: true,
           user: {
@@ -425,14 +424,12 @@ export class ProductService {
               id: true,
               first_name: true,
               last_name: true,
-              profile_img: true
+              phone_number: true,
             }
-          }
+          },
+          product_image: true,
         }
       });
-    }
-
-    return updatedProduct;
   }
 
   async remove(id: number) {

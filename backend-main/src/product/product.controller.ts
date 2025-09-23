@@ -174,6 +174,12 @@ export class ProductController {
     return this.productService.getProductByUserId(+id);
   }
 
+  @ApiOperation({ summary: "Get product by slug" })
+  @Get("slug/:slug")
+  getProductBySlug(@Param("slug") slug: string) {
+    return this.productService.findBySlug(slug);
+  }
+
   @ApiOperation({ summary: "Get pending products" })
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)

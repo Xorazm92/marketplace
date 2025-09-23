@@ -244,6 +244,8 @@ async function main() {
           }
         });
 
+        console.log(`✅ Product created: ${product.title} (ID: ${product.id}, Slug: ${product.slug})`);
+
         // Ranglarni qo'shish
         if (productData.colors && productData.colors.length > 0) {
           for (const colorName of productData.colors) {
@@ -266,10 +268,44 @@ async function main() {
       }
     }
 
-    console.log('🎉 Seeding completed successfully!');
-    console.log('📱 Test user: +998901234567 / password: 123456');
-    console.log('👨‍💼 Admin user: +998909876543 / password: 123456');
-  } catch (error) {
+    // Mavjud mahsulotlar uchun slug yaratish
+  console.log('🔄 Updating existing products with slugs...');
+  const productsWithoutSlug = await prisma.product.findMany({
+    where: {
+      OR: [
+        { slug: null },
+        { slug: '' }
+      ]
+    }
+  });
+
+  for (const product of productsWithoutSlug) {
+    const baseSlug = product.title
+      .toLowerCase()
+      .replace(/[^a-z0-9\s-]/g, '')
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim();
+
+    let uniqueSlug = baseSlug;
+    let counter = 1;
+
+    // Unique slug yaratish
+    while (await prisma.product.findUnique({ where: { slug: uniqueSlug } })) {
+      uniqueSlug = `${baseSlug}-${counter}`;
+      counter++;
+    }
+
+    await prisma.product.update({
+      where: { id: product.id },
+      data: { slug: uniqueSlug }
+    });
+
+    console.log(`✅ Updated product "${product.title}" with slug: ${uniqueSlug}`);
+  }
+
+  console.log('🌱 Seeding completed successfully!');
+} catch (error) {
     console.error('❌ Error:', error);
   }
 }

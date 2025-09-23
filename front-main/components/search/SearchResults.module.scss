@@ -5,57 +5,69 @@
     margin-bottom: 20px;
 
     .resultsCount {
-      font-size: 1.1rem;
-      color: #2c3e50;
-      font-weight: 500;
+      font-size: 1rem;
+      color: #5d5d5d;
+      font-weight: 400;
       margin: 0;
     }
   }
 
+  // Etsy-style products grid
   .productsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 18px;
     margin-bottom: 40px;
 
+    @media (max-width: 1200px) {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
     @media (max-width: 768px) {
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 20px;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+
+    @media (max-width: 480px) {
+      grid-template-columns: repeat(1, 1fr);
+      gap: 12px;
     }
   }
 
+  // Etsy-style product card
   .productCard {
     background: white;
-    border-radius: 12px;
+    border-radius: 8px;
     overflow: hidden;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     text-decoration: none;
     color: inherit;
     position: relative;
+    border: 1px solid transparent;
 
     &:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+      border-color: #e1e3df;
     }
 
     .imageContainer {
       position: relative;
-      height: 220px;
+      aspect-ratio: 1;
       overflow: hidden;
+      background: #f5f5f5;
 
       .imagePlaceholder {
         width: 100%;
         height: 100%;
-        background: linear-gradient(45deg, #f8f9fa 0%, #e9ecef 100%);
+        background: #f5f5f5;
         display: flex;
         align-items: center;
         justify-content: center;
-        transition: transform 0.3s ease;
-
+        
         .productIcon {
-          font-size: 3rem;
-          color: #6c757d;
+          font-size: 2.5rem;
+          color: #999;
           opacity: 0.7;
         }
       }
@@ -114,68 +126,68 @@
     }
 
     .content {
-      padding: 15px;
+      padding: 12px 8px;
 
       .productTitle {
-        font-size: 1.1rem;
-        font-weight: 600;
-        color: #2c3e50;
-        margin-bottom: 10px;
-        line-height: 1.4;
+        font-size: 0.9rem;
+        font-weight: 400;
+        color: #222;
+        margin-bottom: 4px;
+        line-height: 1.3;
         display: -webkit-box;
         -webkit-line-clamp: 2;
+        line-clamp: 2;
         -webkit-box-orient: vertical;
-        overflow: hidden;
       }
 
       .rating {
         display: flex;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
+        gap: 4px;
+        margin-bottom: 6px;
 
         .stars {
           display: flex;
-          gap: 2px;
-
+          gap: 1px;
+          
           .star {
-            color: #f39c12;
-            font-size: 0.9rem;
+            color: #ff8a00;
+            font-size: 0.8rem;
           }
-
+          
           .halfStar {
-            color: #f39c12;
-            font-size: 0.9rem;
+            color: #ff8a00;
+            font-size: 0.8rem;
             opacity: 0.5;
           }
         }
 
         .reviewCount {
-          color: #7f8c8d;
-          font-size: 0.85rem;
+          font-size: 0.75rem;
+          color: #5d5d5d;
         }
       }
 
-      .priceContainer {
+      .priceSection {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+        margin-bottom: 4px;
 
         .currentPrice {
-          font-size: 1.2rem;
-          font-weight: 700;
-          color: #e74c3c;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #222;
         }
 
         .originalPrice {
           font-size: 0.9rem;
-          color: #7f8c8d;
+          color: #999;
           text-decoration: line-through;
         }
       }
     }
   }
-
   .pagination {
     display: flex;
     justify-content: center;

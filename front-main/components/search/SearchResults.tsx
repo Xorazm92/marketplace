@@ -316,7 +316,7 @@ const SearchResults: React.FC<SearchResultsProps> = ({
       <div className={styles.productsGrid}>
         {currentProducts.map((product) => (
           <Link 
-            href={`/product/${product.slug}`} 
+            href={`/product/${product.slug || product.id}`} 
             key={product.id}
             className={styles.productCard}
           >

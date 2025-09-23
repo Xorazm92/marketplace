@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { FaHeart, FaEye, FaShoppingCart } from 'react-icons/fa';
 import SafeImage from '../common/SafeImage';
 import styles from './ProductCard.module.scss';
@@ -13,7 +14,8 @@ interface Product {
   brand_id: number;
   is_active: boolean;
   is_checked: string;
-  product_image: Array<{
+  slug?: string;
+  product_image?: Array<{
     id: number;
     url: string;
   }>;
@@ -65,34 +67,35 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   };
 
   return (
-    <div className={styles.productCard} onClick={onClick}>
-      <div className={styles.imageContainer}>
-        <SafeImage
-          src={getMainImage()}
-          alt={product.title}
-          width={280}
-          height={200}
-          className={styles.productImage}
-        />
-        
-        <div className={styles.overlay}>
-          <button className={styles.actionButton}>
-            <FaEye />
-          </button>
-          <button className={styles.actionButton}>
-            <FaHeart />
-          </button>
-          <button className={styles.actionButton}>
-            <FaShoppingCart />
-          </button>
-        </div>
-
-        {product.brand && (
-          <div className={styles.brandBadge}>
-            {product.brand.name}
+    <Link href={`/product/${product.slug || product.id}`} className={styles.productCardLink}>
+      <div className={styles.productCard} onClick={onClick}>
+        <div className={styles.imageContainer}>
+          <SafeImage
+            src={getMainImage()}
+            alt={product.title}
+            width={280}
+            height={200}
+            className={styles.productImage}
+          />
+          
+          <div className={styles.overlay}>
+            <button className={styles.actionButton} onClick={(e) => e.preventDefault()}>
+              <FaEye />
+            </button>
+            <button className={styles.actionButton} onClick={(e) => e.preventDefault()}>
+              <FaHeart />
+            </button>
+            <button className={styles.actionButton} onClick={(e) => e.preventDefault()}>
+              <FaShoppingCart />
+            </button>
           </div>
-        )}
-      </div>
+
+          {product.brand && (
+            <div className={styles.brandBadge}>
+              {product.brand.name}
+            </div>
+          )}
+        </div>
 
       <div className={styles.productInfo}>
         <h3 className={styles.productTitle}>{product.title}</h3>
@@ -112,12 +115,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
 
         <div className={styles.priceSection}>
           <span className={styles.price}>{formatPrice(product.price)}</span>
-          <button className={styles.addToCart}>
+          <button className={styles.addToCart} onClick={(e) => e.preventDefault()}>
             Savatga qo'shish
           </button>
         </div>
       </div>
-    </div>
+      </div>
+    </Link>
   );
 };
 
