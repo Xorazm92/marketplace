@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { toast } from 'react-toastify';
 import { getCart, updateCartItem, removeFromCart, clearCart } from '../endpoints/cart';
 import { createOrder } from '../endpoints/order';
+import { CartItemGallery, CartImage } from '../components/gallery';
 import styles from '../styles/Cart.module.scss';
 
 interface CartItem {
@@ -157,19 +158,28 @@ export default function CartPage() {
 
       <div className={styles.cartContent}>
         <div className={styles.cartItems}>
-          {cart.items.map((item) => (
-            <div key={item.id} className={styles.cartItem}>
-              <div className={styles.productImage}>
-                <Image
-                  src={item.product.product_image?.[0]?.url 
-                    ? `${process.env.NEXT_PUBLIC_BASE_URL}/${item.product.product_image[0].url}`
-                    : '/placeholder.svg'
-                  }
-                  alt={item.product.title}
-                  width={100}
-                  height={100}
-                />
-              </div>
+          {cart.items.map((item) => {
+            // Prepare cart images
+            const cartImages: CartImage[] = item.product.product_image?.map((img, index) => ({
+              id: `${item.id}-${index}`,
+              url: img.url?.startsWith('http') 
+                ? img.url 
+                : `${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:4000'}/${img.url}`,
+              alt: `${item.product.title} - rasm ${index + 1}`
+            })) || [];
+
+            return (
+              <div key={item.id} className={styles.cartItem}>
+                <div className={styles.productImage}>
+                  <CartItemGallery
+                    images={cartImages}
+                    productTitle={item.product.title}
+                    size="medium"
+                    showIndicators={cartImages.length > 1}
+                    autoSlide={false}
+                    className={styles.cartItemGallery}
+                  />
+                </div>
               
               <div className={styles.productInfo}>
                 <h3>{item.product.title}</h3>
@@ -205,7 +215,8 @@ export default function CartPage() {
                 ✕
               </button>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className={styles.cartSummary}>

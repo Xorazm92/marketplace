@@ -21,6 +21,8 @@ import {
 import { MdFavoriteBorder, MdFavorite } from 'react-icons/md';
 import { toast } from 'react-toastify';
 import SafeImage, { ProductImage } from '../../components/common/SafeImage';
+import { ProductImageGallery, MobileGallery, GalleryImage } from '../../components/gallery';
+import { useImageGallery } from '../../hooks/useImageGallery';
 import { getProductById, getProductBySlug } from '../../endpoints/product';
 import { Product } from '../../types/product';
 import {
@@ -46,6 +48,34 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [isMobileGalleryOpen, setIsMobileGalleryOpen] = useState(false);
+
+  // Prepare gallery images
+  const galleryImages: GalleryImage[] = product?.product_image?.map((img: any, index: number) => ({
+    id: img.id?.toString() || index.toString(),
+    url: img.url || img.image_url || '/images/placeholder-product.png',
+    alt: `${getProductName(product)} - rasm ${index + 1}`,
+    width: img.width,
+    height: img.height,
+    is360: img.is360 || false
+  })) || [];
+
+  // Use image gallery hook
+  const {
+    currentIndex,
+    currentImage,
+    isLoading: imageLoading,
+    setCurrentIndex,
+    nextImage,
+    previousImage,
+    getOptimizedUrl
+  } = useImageGallery({
+    images: galleryImages,
+    initialIndex: selectedImageIndex,
+    enablePreloading: true,
+    enableLazyLoading: true,
+    preloadAdjacent: 2
+  });
 
   // Client-side fallback if SSR fails
   useEffect(() => {
@@ -223,56 +253,57 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
         </button>
 
         <div className={styles.productDetail}>
-          {/* Product Images */}
+          {/* Professional Product Gallery */}
           <div className={styles.imageSection}>
-            <div className={styles.mainImage}>
-              <ProductImage
-                product={product}
-                alt={productName}
-                width={500}
-                height={500}
-                className={styles.productImage}
-                priority
+            {galleryImages.length > 0 ? (
+              <ProductImageGallery
+                images={galleryImages}
+                productTitle={productName}
+                enableZoom={true}
+                enable360={galleryImages.some(img => img.is360)}
+                enableLightbox={true}
+                showThumbnails={true}
+                className={styles.productGallery}
               />
-              
-              {/* Image Actions */}
-              <div className={styles.imageActions}>
-                <button 
-                  onClick={toggleFavoriteStatus}
-                  className={`${styles.actionBtn} ${isFavorite ? styles.favorited : ''}`}
-                  aria-label="Sevimlilar"
-                >
-                  {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
-                </button>
-                <button 
-                  onClick={shareProduct}
-                  className={styles.actionBtn}
-                  aria-label="Ulashish"
-                >
-                  <FiShare2 />
-                </button>
-              </div>
-            </div>
-
-            {/* Thumbnail Images */}
-            {productImages.length > 1 && (
-              <div className={styles.thumbnails}>
-                {productImages.map((image, index) => (
-                  <button
-                    key={index}
-                    onClick={() => setSelectedImageIndex(index)}
-                    className={`${styles.thumbnail} ${index === selectedImageIndex ? styles.active : ''}`}
-                  >
-                    <SafeImage
-                      src={image}
-                      alt={`${productName} ${index + 1}`}
-                      width={80}
-                      height={80}
-                    />
-                  </button>
-                ))}
+            ) : (
+              <div className={styles.placeholderGallery}>
+                <SafeImage
+                  src="/images/placeholder-product.png"
+                  alt={productName}
+                  width={500}
+                  height={500}
+                  className={styles.placeholderImage}
+                />
               </div>
             )}
+            
+            {/* Mobile Gallery Trigger */}
+            <button 
+              className={styles.mobileGalleryTrigger}
+              onClick={() => setIsMobileGalleryOpen(true)}
+              aria-label="Rasmlarni to'liq ekranda ko'rish"
+            >
+              <FiEye />
+              Barcha rasmlar ({galleryImages.length})
+            </button>
+
+            {/* Image Actions */}
+            <div className={styles.imageActions}>
+              <button 
+                onClick={toggleFavoriteStatus}
+                className={`${styles.actionBtn} ${isFavorite ? styles.favorited : ''}`}
+                aria-label="Sevimlilar"
+              >
+                {isFavorite ? <MdFavorite /> : <MdFavoriteBorder />}
+              </button>
+              <button 
+                onClick={shareProduct}
+                className={styles.actionBtn}
+                aria-label="Ulashish"
+              >
+                <FiShare2 />
+              </button>
+            </div>
           </div>
 
           {/* Product Info */}
@@ -437,6 +468,19 @@ const ProductDetailPage: NextPage<ProductDetailPageProps> = ({ product: initialP
           </div>
         </div>
       </div>
+
+      {/* Mobile Gallery Modal */}
+      {isMobileGalleryOpen && galleryImages.length > 0 && (
+        <MobileGallery
+          images={galleryImages}
+          initialIndex={currentIndex}
+          isOpen={isMobileGalleryOpen}
+          onClose={() => setIsMobileGalleryOpen(false)}
+          productTitle={productName}
+          enablePinchZoom={true}
+          enableFullscreen={true}
+        />
+      )}
     </>
   );
 };

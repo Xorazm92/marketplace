@@ -220,7 +220,7 @@ const Navbar = () => {
                   {categories.map((category) => (
                     <Link 
                       key={category.id} 
-                      href={`/category/${category.slug || category.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`} 
+                      href={`/category/${category.slug || category.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || ''}`} 
                       className={style.categoryItem} 
                       onClick={() => setIsCategoriesOpen(false)}
                     >
@@ -327,7 +327,7 @@ const Navbar = () => {
                 {categories.map((category) => (
                   <Link 
                     key={category.id} 
-                    href={`/category/${category.slug || category.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`} 
+                    href={`/category/${category.slug || category.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || ''}`} 
                     className={style.mobileCategoryLink} 
                     onClick={closeMenu}
                   >

@@ -39,12 +39,12 @@ export class AdminController {
   @Put('products/:id/approve')
   @ApiOperation({ summary: 'Approve product' })
   async approveProduct(@Param('id') id: string) {
-    return this.adminService.approveProduct(+id);
+    return this.adminService.approveProduct(id.toString());
   }
 
   @Put('products/:id/reject')
   @ApiOperation({ summary: 'Reject product' })
   async rejectProduct(@Param('id') id: string, @Body() body: { reason?: string }) {
-    return this.adminService.rejectProduct(+id, body.reason);
+    return this.adminService.rejectProduct(id.toString(), body.reason);
   }
 }

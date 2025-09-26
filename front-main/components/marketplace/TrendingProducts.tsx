@@ -197,7 +197,7 @@ const TrendingProducts: React.FC = () => {
               const reviewCount = product.reviews?.length || 0;
 
               return (
-                <Link key={product.id} href={`/product/${product.slug || product.id}`} className={styles.productCard}>
+                <Link key={product.id} href={`/product/${product.slug || product.id || ''}`} className={styles.productCard}>
                   <div className={styles.productImageContainer}>
                     {index < 3 && (
                       <div className={styles.rankBadge}>

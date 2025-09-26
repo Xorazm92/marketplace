@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, ValidateNested, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Field, InputType, Int, Float } from '@nestjs/graphql';
 
 @InputType()
 export class OrderItemInput {
-  @Field(() => Int)
-  @IsNumber()
+  @Field()
+  @IsUUID()
   @IsNotEmpty()
-  product_id: number;
+  product_id: string;
 
   @Field(() => Int)
   @IsNumber()

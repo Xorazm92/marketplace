@@ -132,7 +132,7 @@ const PaymentSuccessPage: React.FC = () => {
               <div className={styles.actions}>
                 {isSuccess ? (
                   <>
-                    <Link href={`/orders/${order?.id}`} className={styles.primaryButton}>
+                    <Link href={`/orders/${order?.id || ''}`} className={styles.primaryButton}>
                       Buyurtmani ko'rish
                     </Link>
                     <Link href="/orders" className={styles.secondaryButton}>

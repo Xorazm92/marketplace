@@ -7,6 +7,7 @@ import { MdChildCare, MdFavorite } from 'react-icons/md';
 import styles from './Header.module.scss';
 import { getAllCategories } from '../../endpoints/category';
 import { getCart } from '../../endpoints/cart';
+import { useEcommerce } from '../ecommerce/EcommerceProvider';
 
 const Header: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -16,6 +17,9 @@ const Header: React.FC = () => {
   const [cartItemsCount, setCartItemsCount] = useState(0);
   const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const router = useRouter();
+  
+  // E-commerce context
+  const { wishlistCount, cartCount, refreshCounts } = useEcommerce();
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -228,13 +232,16 @@ const Header: React.FC = () => {
               <Link href="/wishlist" className={styles.iconLink} title="Sevimlilar">
                 <FiHeart className={styles.icon} />
                 <span className={styles.iconLabel}>Sevimlilar</span>
+                {wishlistCount > 0 && (
+                  <span className={styles.wishlistBadge}>{wishlistCount}</span>
+                )}
               </Link>
 
               <Link href="/cart" className={styles.iconLink} title="Savatcha">
                 <FiShoppingCart className={styles.icon} />
                 <span className={styles.iconLabel}>Savatcha</span>
-                {cartItemsCount > 0 && (
-                  <span className={styles.cartBadge}>{cartItemsCount}</span>
+                {(cartCount || cartItemsCount) > 0 && (
+                  <span className={styles.cartBadge}>{cartCount || cartItemsCount}</span>
                 )}
               </Link>
             </div>

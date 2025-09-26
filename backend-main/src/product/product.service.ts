@@ -11,7 +11,7 @@ export class ProductService {
     private uploadService: UploadService
   ) {}
 
-  async create(createProductDto: CreateProductDto, userId?: number, files?: Express.Multer.File[]) {
+  async create(createProductDto: CreateProductDto, userId?: string, files?: Express.Multer.File[]) {
     const { images, user_id, ...productData } = createProductDto;
 
     console.log('=== PRODUCT SERVICE CREATE DEBUG ===');
@@ -31,8 +31,8 @@ export class ProductService {
         condition: productData.condition,
         phone_number: productData.phone_number,
         address_id: productData.address_id ? +productData.address_id : null,
-        category_id: productData.category_id,
-        subcategory_id: productData.subcategory_id,
+        category_id: productData.category_id?.toString(),
+        subcategory_id: productData.subcategory_id?.toString(),
         age_range: productData.age_range,
         material: productData.material,
         color: productData.color,
@@ -41,7 +41,7 @@ export class ProductService {
         safety_info: productData.safety_info,
         weight: productData.weight,
         dimensions: productData.dimensions,
-        user_id: userId || user_id || 1,
+        user_id: Number(userId || user_id || 1),
         is_checked: 'APPROVED', // ✅ Darhol tasdiqlash
         is_active: true, // ✅ Darhol faollashtirish
         is_deleted: false,
@@ -185,7 +185,7 @@ export class ProductService {
     };
   }
 
-  async findOne(id: number) {
+  async findOne(id: string) {
     const product = await this.prisma.product.findUnique({
       where: { id },
       include: {
@@ -307,7 +307,7 @@ export class ProductService {
     return product;
   }
 
-  async update(id: number, updateProductDto: UpdateProductDto, images?: Express.Multer.File[]) {
+  async update(id: string, updateProductDto: UpdateProductDto, images?: Express.Multer.File[]) {
     const { user_id, ...productData } = updateProductDto;
 
     // Only include fields that exist in the Product model
@@ -391,14 +391,14 @@ export class ProductService {
     return updatedProduct;
   }
 
-  async remove(id: number) {
+  async remove(id: string) {
     return this.prisma.product.update({
       where: { id },
       data: { is_deleted: true, is_active: false }
     });
   }
 
-  async createProductImage(productId: number, image: any) {
+  async createProductImage(productId: string, image: any) {
     return this.prisma.productImage.create({
       data: {
         product_id: productId,
@@ -509,7 +509,7 @@ export class ProductService {
     });
   }
 
-  async approvProduct(productId: number) {
+  async approvProduct(productId: string) {
     return this.prisma.product.update({
       where: { id: productId },
       data: {
@@ -519,7 +519,7 @@ export class ProductService {
     });
   }
 
-  async rejectProduct(productId: number) {
+  async rejectProduct(productId: string) {
     return this.prisma.product.update({
       where: { id: productId },
       data: {
@@ -529,7 +529,7 @@ export class ProductService {
     });
   }
 
-  async deleteProductImage(imageId: number) {
+  async deleteProductImage(imageId: string) {
     return this.prisma.productImage.delete({
       where: { id: imageId }
     });

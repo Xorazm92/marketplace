@@ -1,0 +1,208 @@
+// RBAC Schema Extensions
+
+model Role {
+  id          String    @id @default(cuid())
+  name        RoleName  @unique
+  description String
+  level       Int       @default(0)
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  permissions Permission[]
+  users       User[]
+  userRoles   UserRole[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String
+  resource    String
+  action      String
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  roles Role[]
+
+  @@map("permissions")
+}
+
+model UserRole {
+  id          String   @id @default(cuid())
+  userId      String
+  roleId      String
+  assignedAt  DateTime @default(now())
+  assignedBy  String
+  expiresAt   DateTime?
+  isActive    Boolean  @default(true)
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role Role @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, roleId])
+  @@map("user_roles")
+}
+
+model KycVerification {
+  id                    String           @id @default(cuid())
+  userId                String
+  type                  KycType
+  status                KycStatus        @default(pending)
+  passportNumber        String?
+  firstName             String?
+  lastName              String?
+  dateOfBirth           DateTime?
+  taxId                 String?
+  businessLicense       String?
+  companyName           String?
+  companyAddress        String?
+  passportPhoto         String?
+  selfieWithPassport    String?
+  businessLicensePhoto  String?
+  taxCertificatePhoto   String?
+  rejectionReason       String?
+  verifiedAt            DateTime?
+  verifiedBy            String?
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  expiresAt             DateTime         @default(dbgenerated("now() + interval '1 year'"))
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("kyc_verifications")
+}
+
+model AuditLog {
+  id           String   @id @default(cuid())
+  userId       String
+  action       String
+  resource     String
+  resourceId   String?
+  oldValue     String?
+  newValue     String?
+  ipAddress    String
+  userAgent    String
+  timestamp    DateTime @default(now())
+  success      Boolean  @default(true)
+  errorMessage String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([action])
+  @@index([resource])
+  @@index([timestamp])
+  @@map("audit_logs")
+}
+
+model Session {
+  id             String   @id @default(cuid())
+  userId         String
+  token          String   @unique
+  refreshToken   String   @unique
+  deviceInfo     String?
+  ipAddress      String
+  userAgent      String
+  location       String?
+  isActive       Boolean  @default(true)
+  expiresAt      DateTime
+  lastActivityAt DateTime @default(now())
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([token])
+  @@index([refreshToken])
+  @@index([expiresAt])
+  @@map("sessions")
+}
+
+model PasswordPolicy {
+  id                  String   @id @default("default")
+  minLength           Int      @default(8)
+  requireUppercase    Boolean  @default(true)
+  requireLowercase    Boolean  @default(true)
+  requireNumbers      Boolean  @default(true)
+  requireSpecialChars Boolean  @default(true)
+  maxAge              Int      @default(90) // days
+  lockoutAttempts     Int      @default(5)
+  lockoutDuration     Int      @default(30) // minutes
+  passwordHistory     Int      @default(5)
+  isActive            Boolean  @default(true)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@map("password_policies")
+}
+
+model AccountLockout {
+  id            String    @id @default(cuid())
+  userId        String
+  attempts      Int       @default(0)
+  lockedUntil   DateTime?
+  lastAttemptAt DateTime?
+  ipAddress     String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, ipAddress])
+  @@index([userId])
+  @@index([ipAddress])
+  @@map("account_lockouts")
+}
+
+// Update User model
+model User {
+  // ... existing fields ...
+  
+  // RBAC fields
+  roleId          String?
+  role            Role?             @relation(fields: [roleId], references: [id])
+  userRoles       UserRole[]
+  kycVerifications KycVerification[]
+  auditLogs       AuditLog[]
+  sessions        Session[]
+  accountLockouts AccountLockout[]
+  
+  // KYC fields
+  kycVerified     Boolean           @default(false)
+  kycStatus       KycStatus         @default(pending)
+  
+  // Security fields
+  lastLoginAt     DateTime?
+  lastLoginIp     String?
+  loginAttempts   Int               @default(0)
+  lockedUntil     DateTime?
+  
+  @@index([roleId])
+  @@index([kycStatus])
+}
+
+// Enums
+enum RoleName {
+  GUEST
+  CUSTOMER
+  SELLER
+  MODERATOR
+  ADMIN
+}
+
+enum KycType {
+  PERSONAL
+  BUSINESS
+}
+
+enum KycStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}

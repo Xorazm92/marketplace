@@ -1,20 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { toast } from 'react-toastify';
 import styles from './WishlistPage.module.scss';
+import wishlistService, { WishlistItem } from '../../services/wishlistService';
 
-interface WishlistItem {
-  id: number;
-  productId: number;
-  title: string;
-  price: number;
+interface ExtendedWishlistItem extends WishlistItem {
   originalPrice?: number;
-  image: string;
-  rating: number;
-  reviews: number;
+  rating?: number;
+  reviews?: number;
   discount?: number;
-  inStock: boolean;
-  slug: string;
-  addedDate: string;
+  inStock?: boolean;
 }
 
 interface WishlistPageProps {

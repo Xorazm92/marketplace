@@ -284,7 +284,7 @@ const CategoryPage: React.FC = () => {
                 {subcategories.map((subcat) => (
                   <Link 
                     key={subcat.id} 
-                    href={`/category/${subcat.slug || subcat.name.toLowerCase().replace(/[^a-z0-9]/g, '-')}`}
+                    href={`/category/${subcat.slug || subcat.name?.toLowerCase().replace(/[^a-z0-9]/g, '-') || ''}`}
                     className={styles.etsySubcategoryCard}
                   >
                     <div className={styles.etsySubcategoryImage}>

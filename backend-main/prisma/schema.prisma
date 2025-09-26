@@ -121,7 +121,7 @@ model SafetyCertification {
 // Mahsulot xavfsizlik sertifikatlari
 model ProductSafetyCertification {
   id                    Int                @id @default(autoincrement())
-  product_id            Int
+  product_id            String             @db.Uuid
   certification_id      Int
   certificate_number    String?
   issued_date           DateTime?
@@ -396,7 +396,7 @@ model Payment {
 }
 
 model Product {
-  id                    Int            @id @default(autoincrement())
+  id                    String         @id @default(uuid()) @db.Uuid
   title                 String
   user_id               Int?
   brand_id              Int
@@ -420,8 +420,8 @@ model Product {
   view_count            Int            @default(0)
   like_count            Int            @default(0)
   share_count           Int            @default(0)
-  category_id           Int
-  subcategory_id        Int?
+  category_id           String         @db.Uuid
+  subcategory_id        String?        @db.Uuid
   sku                   String?        @unique
   barcode               String?        @unique
   weight                Decimal?
@@ -500,14 +500,15 @@ model Product {
   educational_category   EducationalCategory?      @relation(fields: [educational_category_id], references: [id])
   event_type             EventType?                @relation(fields: [event_type_id], references: [id])
   safety_certifications  ProductSafetyCertification[]
+  product_categories     ProductCategory[]
 
   @@map("product")
 }
 
 model ProductImage {
-  id         Int      @id @default(autoincrement())
+  id         String   @id @default(uuid()) @db.Uuid
   url        String
-  product_id Int
+  product_id String   @db.Uuid
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   product    Product  @relation(fields: [product_id], references: [id])
@@ -562,21 +563,47 @@ model ChatroomUsers {
 }
 
 model Category {
-  id          Int        @id @default(autoincrement())
-  name        String
-  slug        String     @unique
-  description String?
-  image_url   String?
-  parent_id   Int?
-  is_active   Boolean    @default(true)
-  sort_order  Int        @default(0)
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  parent      Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id])
-  children    Category[] @relation("CategoryHierarchy")
-  products    Product[]
+  id               String     @id @default(uuid()) @db.Uuid
+  name             String
+  slug             String     @unique
+  parent_id        String?    @db.Uuid
+  icon             String?    // FontAwesome icon name or SVG path
+  color            String?    // Hex color code
+  description      String?
+  meta_title       String?
+  meta_description String?
+  sort_order       Int        @default(0)
+  is_active        Boolean    @default(true)
+  created_at       DateTime   @default(now())
+  updated_at       DateTime   @updatedAt
+  
+  // Relations
+  parent           Category?  @relation("CategoryHierarchy", fields: [parent_id], references: [id], onDelete: SetNull)
+  children         Category[] @relation("CategoryHierarchy")
+  products         Product[]
+  product_categories ProductCategory[]
 
-  @@map("category")
+  @@index([parent_id])
+  @@index([slug])
+  @@index([is_active])
+  @@index([sort_order])
+  @@map("categories")
+}
+
+model ProductCategory {
+  id          String   @id @default(uuid()) @db.Uuid
+  product_id  String   @db.Uuid
+  category_id String   @db.Uuid
+  created_at  DateTime @default(now())
+  
+  // Relations
+  product     Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+  
+  @@unique([product_id, category_id])
+  @@index([product_id])
+  @@index([category_id])
+  @@map("product_categories")
 }
 
 model Cart {
@@ -593,7 +620,7 @@ model Cart {
 model CartItem {
   id              Int             @id @default(autoincrement())
   cart_id         Int
-  product_id      Int
+  product_id      String         @db.Uuid
   variant_id      Int?
   quantity        Int             @default(1)
   unit_price      Decimal
@@ -624,7 +651,7 @@ model Wishlist {
 model WishlistItem {
   id          Int      @id @default(autoincrement())
   wishlist_id Int
-  product_id  Int
+  product_id  String   @db.Uuid
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   product     Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
@@ -666,7 +693,7 @@ model Order {
 model OrderItem {
   id          Int      @id @default(autoincrement())
   order_id    Int
-  product_id  Int
+  product_id  String   @db.Uuid
   quantity    Int
   unit_price  Decimal
   total_price Decimal
@@ -707,7 +734,7 @@ model OrderTracking {
 
 model Review {
   id            Int           @id @default(autoincrement())
-  product_id    Int
+  product_id    String        @db.Uuid
   user_id       Int
   rating        Int
   title         String?
@@ -759,7 +786,7 @@ model Coupon {
 
 model Inventory {
   id                  Int                 @id @default(autoincrement())
-  product_id          Int                 @unique
+  product_id          String              @unique @db.Uuid
   stock_quantity      Int                 @default(0)
   reserved_quantity   Int                 @default(0)
   low_stock_threshold Int                 @default(10)
@@ -789,7 +816,7 @@ model InventoryMovement {
 
 model ProductVariant {
   id                Int         @id @default(autoincrement())
-  product_id        Int
+  product_id        String         @db.Uuid
   name              String      // Color, Size, etc.
   value             String      // Red, Large, etc.
   price_adjustment  Decimal     @default(0)
@@ -827,7 +854,7 @@ model ProductCollection {
 model ProductCollectionItem {
   id            Int               @id @default(autoincrement())
   collection_id Int
-  product_id    Int
+  product_id    String            @db.Uuid
   sort_order    Int               @default(0)
   createdAt     DateTime          @default(now())
 
@@ -856,7 +883,7 @@ model ProductAttribute {
 
 model ProductAttributeValue {
   id           Int              @id @default(autoincrement())
-  product_id   Int
+  product_id   String         @db.Uuid
   attribute_id Int
   value        String
   createdAt    DateTime         @default(now())
@@ -871,7 +898,7 @@ model ProductAttributeValue {
 
 model ProductColor {
   id         Int      @id @default(autoincrement())
-  product_id Int
+  product_id String   @db.Uuid
   color_id   Int
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -885,8 +912,8 @@ model ProductColor {
 
 model ProductRecommendation {
   id                    Int      @id @default(autoincrement())
-  product_id            Int
-  recommended_product_id Int
+  product_id            String   @db.Uuid
+  recommended_product_id String         @db.Uuid
   type                  String   // related, similar, frequently_bought_together, upsell, cross_sell
   score                 Decimal  @default(0)
   is_active             Boolean  @default(true)
@@ -902,7 +929,7 @@ model ProductRecommendation {
 
 model ProductView {
   id         Int      @id @default(autoincrement())
-  product_id Int
+  product_id String   @db.Uuid
   user_id    Int?
   ip_address String?
   user_agent String?
@@ -920,7 +947,7 @@ model SearchQuery {
   query        String
   user_id      Int?
   results_count Int     @default(0)
-  clicked_product_id Int?
+  clicked_product_id String?        @db.Uuid
   ip_address   String?
   searched_at  DateTime @default(now())
 

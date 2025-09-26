@@ -20,7 +20,7 @@ export class UserProductGuard implements CanActivate {
         console.log(req.params);
         
         const product = await this.prismaService.product.findUnique({
-            where: { id: Number(req.params.id) },
+            where: { id: req.params.id },
             include: { user: true }
         });
         console.log(product);
@@ -29,12 +29,12 @@ export class UserProductGuard implements CanActivate {
             throw new NotFoundException('Product not found');
         }
         
-        if (!product.user) {
+        if (!product.user_id) {
             throw new ForbiddenException('Product owner information is missing');
         }
         console.log(req.user);
         
-        if (product.user.id !== req.user.id) {
+        if (product.user_id !== req.user.id) {
             throw new ForbiddenException('You do not have permission to access this resource');
         }
         

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { FaTimes, FaUpload, FaTrash, FaImage } from 'react-icons/fa';
 import { useToast } from '../common/Toast';
+import { ImageUploader, UploadedImage } from '../gallery';
 import styles from './CreateProductModal.module.scss';
 
 interface Category {
@@ -61,6 +62,7 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [imagePreview, setImagePreview] = useState<string[]>([]);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState<UploadedImage[]>([]);
 
   const {
     register,
@@ -613,44 +615,35 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                 </div>
               </div>
 
-              {/* Image Upload */}
+              {/* Professional Image Upload */}
               <div className={styles.section}>
                 <h3>Rasmlar</h3>
+                <p className={styles.sectionDescription}>
+                  Mahsulot rasmlarini yuklang. Birinchi rasm asosiy rasm bo'ladi.
+                </p>
                 
-                <div className={styles.imageUploadSection}>
-                  <div className={styles.uploadArea}>
-                    <input
-                      type="file"
-                      id="images"
-                      multiple
-                      accept="image/jpeg,image/jpg,image/png,image/webp"
-                      onChange={handleImageUpload}
-                      className={styles.fileInput}
-                    />
-                    <label htmlFor="images" className={styles.uploadLabel}>
-                      <FaUpload />
-                      <span>Rasmlarni yuklang</span>
-                      <small>JPEG, PNG, WebP (maksimal 5MB)</small>
-                    </label>
-                  </div>
-
-                  {imagePreview.length > 0 && (
-                    <div className={styles.imagePreview}>
-                      {imagePreview.map((url, index) => (
-                        <div key={index} className={styles.previewItem}>
-                          <img src={url} alt={`Preview ${index + 1}`} />
-                          <button
-                            type="button"
-                            className={styles.removeImageBtn}
-                            onClick={() => removeImage(index)}
-                          >
-                            <FaTrash />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <ImageUploader
+                  maxFiles={10}
+                  maxFileSize={5}
+                  acceptedFormats={['image/jpeg', 'image/png', 'image/webp']}
+                  onImagesChange={(images) => {
+                    setUploadedImages(images);
+                    // Convert to File array for form submission
+                    const files = images.map(img => img.file);
+                    setValue('images', files);
+                  }}
+                  enableCropping={true}
+                  enableWatermark={true}
+                  autoResize={true}
+                  compressionQuality={0.8}
+                  className={styles.imageUploader}
+                />
+                
+                {errors.images && (
+                  <span className={styles.error}>
+                    {errors.images.message}
+                  </span>
+                )}
               </div>
             </div>
 

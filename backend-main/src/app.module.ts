@@ -11,8 +11,10 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AdminModule } from './admin/admin.module';
 import { UserModule } from './user/user.module';
 import { UserAuthModule } from './user-auth/user-auth.module';
+import { RbacModule } from './rbac/rbac.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
+import { HierarchicalCategoryModule } from './category/hierarchical-category.module';
 import { BrandModule } from './brand/brand.module';
 import { CartModule } from './cart/cart.module';
 import { OrderModule } from './order/order.module';
@@ -74,8 +76,10 @@ import { HealthModule } from './health/health.module';
     AdminModule,
     UserModule,
     UserAuthModule,
+    RbacModule,
     ProductModule,
     CategoryModule,
+    HierarchicalCategoryModule,
     BrandModule,
     CartModule,
     OrderModule,

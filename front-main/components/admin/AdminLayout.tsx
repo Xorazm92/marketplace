@@ -98,7 +98,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({
     onTabChange(tab);
     // URL'ni yangilash (agar kerak bo'lsa)
     if (router.pathname === '/admin') {
-      router.push(`/admin?tab=${tab}`, undefined, { shallow: true });
+      router.push(`/admin?tab=${tab}`, `/admin?tab=${tab}`, { shallow: true });
     }
   };
 

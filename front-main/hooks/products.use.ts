@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from "@tanstack/react-query";
-import { addProductImage, deleteProductImage, getAllProducts, getProductById, getProducts, updateProduct } from "../endpoints";
+import { addProductImage, deleteProductImage, getProductById, getProducts, updateProduct } from "../endpoints";
 import type { CreateProductProps, UpdateProductProps } from "../types";
 import { AddressData } from "../types/userData";
 
@@ -28,7 +28,7 @@ export const useProductById = (id?: number) => {
 export const useAllProducts = () => {
   return useQuery({
     queryKey: ["products"],
-    queryFn: () => getAllProducts(),
+    queryFn: () => getProducts(1, {}),
   });
 };
 

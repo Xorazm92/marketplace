@@ -164,14 +164,14 @@ export class AdminService {
     };
   }
 
-  async approveProduct(productId: number) {
+  async approveProduct(productId: string) {
     return this.prisma.product.update({
       where: { id: productId },
       data: { is_checked: 'APPROVED' }
     });
   }
 
-  async rejectProduct(productId: number, reason?: string) {
+  async rejectProduct(productId: string, reason?: string) {
     return this.prisma.product.update({
       where: { id: productId },
       data: {

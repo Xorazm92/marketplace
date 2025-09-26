@@ -157,7 +157,7 @@ export class OrderService {
       })),
       total_items: order.items.reduce((sum, item) => sum + item.quantity, 0),
       items_total: order.items.reduce((sum, item) => sum + Number(item.total_price), 0),
-    }) as Order);
+    }) as unknown as Order);
 
     return {
       orders: ordersWithComputedFields,

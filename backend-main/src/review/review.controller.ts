@@ -31,13 +31,13 @@ export class ReviewController {
     @Query('page') page: string = '1',
     @Query('limit') limit: string = '10'
   ) {
-    return this.reviewService.findByProduct(+id, +page, +limit);
+    return this.reviewService.findByProduct(id, +page, +limit);
   }
 
   @Get('product/:id/stats')
   @ApiOperation({ summary: 'Get rating statistics for a product' })
   getProductRatingStats(@Param('id') id: string) {
-    return this.reviewService.getProductRatingStats(+id);
+    return this.reviewService.getProductRatingStats(id);
   }
 
   @Post(':id/helpful')

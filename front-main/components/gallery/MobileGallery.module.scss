@@ -1,0 +1,433 @@
+.mobileGallery {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: #000;
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  touch-action: none;
+  user-select: none;
+
+  &.fullscreen {
+    .container {
+      height: 100vh;
+    }
+
+    .header {
+      background: rgba(0, 0, 0, 0.8);
+    }
+
+    .controls,
+    .thumbnailStrip {
+      background: rgba(0, 0, 0, 0.8);
+    }
+  }
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  z-index: 10;
+  min-height: 56px;
+}
+
+.closeButton,
+.fullscreenButton {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 24px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 50%;
+  transition: background-color 0.2s ease;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  &:active {
+    background: rgba(255, 255, 255, 0.2);
+  }
+}
+
+.imageCounter {
+  font-size: 16px;
+  font-weight: 500;
+  color: white;
+  text-align: center;
+}
+
+.imageContainer {
+  flex: 1;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: #000;
+}
+
+.loadingOverlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+}
+
+.spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-top: 3px solid white;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.imageWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  transform-origin: center;
+}
+
+.mainImage {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.9);
+  color: white;
+  z-index: 10;
+}
+
+.controlButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+  }
+
+  &:active:not(:disabled) {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    transform: none;
+  }
+}
+
+.resetButton {
+  background: rgba(255, 255, 255, 0.1);
+  border: none;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s ease;
+
+  &:hover:not(:disabled) {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+
+.zoomLevel {
+  font-size: 14px;
+  font-weight: 500;
+  color: white;
+  min-width: 50px;
+  text-align: center;
+}
+
+.thumbnailStrip {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.9);
+  overflow-x: auto;
+  scrollbar-width: none;
+  z-index: 10;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+.thumbnail {
+  flex-shrink: 0;
+  width: 60px;
+  height: 60px;
+  border: 2px solid transparent;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #333;
+
+  &:hover {
+    border-color: rgba(255, 255, 255, 0.5);
+  }
+
+  &.active {
+    border-color: white;
+    box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.3);
+  }
+}
+
+.thumbnailImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.swipeIndicators {
+  position: absolute;
+  bottom: 120px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 8;
+}
+
+.swipeHint {
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 12px;
+  text-align: center;
+  opacity: 0.8;
+  animation: fadeInOut 3s ease-in-out;
+}
+
+.zoomHint {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 12px 20px;
+  border-radius: 20px;
+  font-size: 14px;
+  text-align: center;
+  opacity: 0.8;
+  animation: fadeInOut 4s ease-in-out;
+  z-index: 8;
+  max-width: 80%;
+}
+
+@keyframes fadeInOut {
+  0%, 100% { opacity: 0; }
+  20%, 80% { opacity: 0.8; }
+}
+
+// Landscape orientation
+@media (orientation: landscape) {
+  .header {
+    padding: 8px 16px;
+    min-height: 48px;
+  }
+
+  .imageCounter {
+    font-size: 14px;
+  }
+
+  .controls {
+    padding: 8px 16px;
+  }
+
+  .thumbnailStrip {
+    padding: 8px 16px;
+  }
+
+  .thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+}
+
+// Small screens
+@media (max-width: 480px) {
+  .header {
+    padding: 8px 12px;
+  }
+
+  .closeButton,
+  .fullscreenButton {
+    font-size: 20px;
+    padding: 6px;
+  }
+
+  .imageCounter {
+    font-size: 14px;
+  }
+
+  .controls {
+    padding: 8px 12px;
+    gap: 12px;
+  }
+
+  .controlButton {
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+  }
+
+  .resetButton {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .zoomLevel {
+    font-size: 12px;
+    min-width: 40px;
+  }
+
+  .thumbnailStrip {
+    padding: 8px 12px;
+    gap: 6px;
+  }
+
+  .thumbnail {
+    width: 50px;
+    height: 50px;
+  }
+
+  .swipeHint {
+    font-size: 11px;
+    padding: 6px 12px;
+  }
+
+  .zoomHint {
+    font-size: 12px;
+    padding: 8px 16px;
+    max-width: 90%;
+  }
+}
+
+// Very small screens
+@media (max-width: 360px) {
+  .controls {
+    gap: 8px;
+  }
+
+  .controlButton {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+
+  .thumbnailStrip {
+    gap: 4px;
+  }
+
+  .thumbnail {
+    width: 45px;
+    height: 45px;
+  }
+}
+
+// High DPI displays
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .mainImage,
+  .thumbnailImage {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .imageWrapper,
+  .controlButton,
+  .thumbnail,
+  .resetButton {
+    transition: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+
+  .swipeHint,
+  .zoomHint {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .mobileGallery {
+    background: #000;
+  }
+}
+
+// Safe area support for notched devices
+@supports (padding: max(0px)) {
+  .header {
+    padding-top: max(12px, env(safe-area-inset-top));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+
+  .controls,
+  .thumbnailStrip {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+    padding-left: max(16px, env(safe-area-inset-left));
+    padding-right: max(16px, env(safe-area-inset-right));
+  }
+}

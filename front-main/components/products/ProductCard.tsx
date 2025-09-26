@@ -67,7 +67,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   };
 
   return (
-    <Link href={`/product/${product.slug || product.id}`} className={styles.productCardLink}>
+    <Link href={`/product/${product.slug || product.id || ''}`} className={styles.productCardLink}>
       <div className={styles.productCard} onClick={onClick}>
         <div className={styles.imageContainer}>
           <SafeImage

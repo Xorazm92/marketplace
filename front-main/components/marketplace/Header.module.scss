@@ -343,6 +343,22 @@
   font-weight: 600;
 }
 
+.wishlistBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: #e91e63;
+  color: white;
+  border-radius: 50%;
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+}
+
 .mobileMenuButton {
   display: none;
   background: none;

@@ -1,18 +1,16 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsPositive } from 'class-validator';
+import { IsInt, IsPositive, IsUUID } from 'class-validator';
 
 @InputType()
 export class AddToWishlistDto {
-  @Field(() => Int)
-  @IsInt()
-  @IsPositive()
-  product_id: number;
+  @Field()
+  @IsUUID()
+  product_id: string;
 }
 
 @InputType()
 export class RemoveFromWishlistDto {
-  @Field(() => Int)
-  @IsInt()
-  @IsPositive()
-  product_id: number;
+  @Field()
+  @IsUUID()
+  product_id: string;
 }

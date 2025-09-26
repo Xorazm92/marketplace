@@ -66,7 +66,7 @@ export class WishlistResolver {
   @UseGuards(GraphqlAuthGuard)
   @Query(() => Boolean)
   async isInWishlist(
-    @Args('product_id') productId: number,
+    @Args('product_id') productId: string,
     @Context() context: { req: AuthenticatedRequest }
   ) {
     const userId = context.req.user?.id;

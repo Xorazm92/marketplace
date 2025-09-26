@@ -103,7 +103,7 @@ export class NotificationService {
     await this.mailService.sendPasswordReset(email, resetToken);
   }
 
-  async sendProductApprovalNotification(productId: number, approved: boolean) {
+  async sendProductApprovalNotification(productId: string, approved: boolean) {
     const product = await this.prisma.product.findUnique({
       where: { id: productId },
       include: {
@@ -116,10 +116,21 @@ export class NotificationService {
       }
     });
 
-    if (!product || !product.user) return;
+    if (!product || !product.user_id) return;
 
-    const userEmail = product.user.email.find(e => e.is_main)?.email;
-    const userPhone = product.user.phone_number.find(p => p.is_main)?.phone_number;
+    // Get user separately since we have user_id
+    const user = await this.prisma.user.findUnique({
+      where: { id: product.user_id },
+      include: {
+        email: true,
+        phone_number: true
+      }
+    });
+
+    if (!user) return;
+
+    const userEmail = user.email.find(e => e.is_main)?.email;
+    const userPhone = user.phone_number.find(p => p.is_main)?.phone_number;
 
     const message = approved 
       ? `Your product "${product.title}" has been approved and is now live!`

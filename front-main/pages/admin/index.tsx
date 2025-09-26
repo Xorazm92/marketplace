@@ -139,7 +139,7 @@ const AdminPage: React.FC = () => {
   // Tab o'zgarganda URL'ni yangilash
   const handleTabChange = (tab: AdminTab) => {
     setActiveTab(tab);
-    router.push(`/admin?tab=${tab}`, undefined, { shallow: true });
+    router.push(`/admin?tab=${tab}`, `/admin?tab=${tab}`, { shallow: true });
   };
 
   const renderTabContent = () => {

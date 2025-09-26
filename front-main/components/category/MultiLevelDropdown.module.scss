@@ -1,0 +1,286 @@
+.multiLevelDropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: white;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-width: 140px;
+  justify-content: space-between;
+
+  &:hover,
+  &.active {
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+
+  &.active .triggerIcon {
+    transform: rotate(180deg);
+  }
+}
+
+.triggerIcon {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.dropdownContainer {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  z-index: 1000;
+  margin-top: 4px;
+}
+
+.dropdownLevel {
+  position: absolute;
+  top: 0;
+  width: 280px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  overflow: hidden;
+  
+  &.level0 {
+    position: relative;
+    left: 0 !important;
+  }
+  
+  &.level1,
+  &.level2 {
+    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+}
+
+.categoryList {
+  max-height: 400px;
+  overflow-y: auto;
+  
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: #f1f5f9;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 3px;
+    
+    &:hover {
+      background: #94a3b8;
+    }
+  }
+}
+
+.categoryItem {
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &.hovered {
+    background-color: #f8fafc;
+    
+    .categoryLink {
+      color: #3b82f6;
+    }
+    
+    .chevronIcon {
+      color: #3b82f6;
+    }
+  }
+}
+
+.categoryLink {
+  display: block;
+  text-decoration: none;
+  color: inherit;
+  transition: color 0.2s ease;
+  
+  &:hover {
+    color: #3b82f6;
+  }
+}
+
+.categoryContent {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  gap: 12px;
+}
+
+.categoryIcon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.categoryName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.productCount {
+  font-size: 12px;
+  color: #9ca3af;
+  background-color: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.chevronIcon {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  flex-shrink: 0;
+  transition: color 0.2s ease;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .dropdownLevel {
+    width: 100vw;
+    left: 0 !important;
+    right: 0;
+    position: fixed !important;
+    top: auto !important;
+    bottom: 0;
+    border-radius: 16px 16px 0 0;
+    max-height: 70vh;
+    
+    &.level1,
+    &.level2 {
+      display: none; // Hide nested levels on mobile
+    }
+  }
+  
+  .categoryList {
+    max-height: calc(70vh - 40px);
+  }
+  
+  .categoryContent {
+    padding: 16px 20px;
+  }
+  
+  .categoryName {
+    font-size: 16px;
+  }
+}
+
+// Animation for dropdown appearance
+@keyframes dropdownFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dropdownLevel {
+  animation: dropdownFadeIn 0.15s ease-out;
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .trigger {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f3f4f6;
+    
+    &:hover,
+    &.active {
+      border-color: #60a5fa;
+      box-shadow: 0 0 0 3px rgba(96, 165, 250, 0.1);
+    }
+  }
+  
+  .triggerIcon {
+    color: #9ca3af;
+  }
+  
+  .dropdownLevel {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .categoryItem {
+    border-bottom-color: #374151;
+    
+    &.hovered {
+      background-color: #374151;
+      
+      .categoryLink {
+        color: #93c5fd;
+      }
+      
+      .chevronIcon {
+        color: #93c5fd;
+      }
+    }
+  }
+  
+  .categoryLink {
+    color: #f3f4f6;
+    
+    &:hover {
+      color: #93c5fd;
+    }
+  }
+  
+  .categoryName {
+    color: #f3f4f6;
+  }
+  
+  .productCount {
+    color: #6b7280;
+    background-color: #374151;
+  }
+  
+  .chevronIcon {
+    color: #6b7280;
+  }
+  
+  .categoryList {
+    &::-webkit-scrollbar-track {
+      background: #374151;
+    }
+    
+    &::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      
+      &:hover {
+        background: #6b7280;
+      }
+    }
+  }
+}

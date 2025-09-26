@@ -1,0 +1,385 @@
+.dashboard {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 400px;
+  gap: 16px;
+
+  .spinner {
+    width: 40px;
+    height: 40px;
+    border: 3px solid #f3f3f3;
+    border-top: 3px solid #4e46b4;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+
+  p {
+    color: #718096;
+    font-size: 14px;
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.welcomeSection {
+  background: linear-gradient(135deg, #4e46b4 0%, #6366f1 100%);
+  color: white;
+  padding: 32px;
+  border-radius: 16px;
+  margin-bottom: 32px;
+
+  h1 {
+    margin: 0 0 8px 0;
+    font-size: 28px;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    font-size: 16px;
+    opacity: 0.9;
+  }
+
+  @media (max-width: 768px) {
+    padding: 24px;
+
+    h1 {
+      font-size: 24px;
+    }
+
+    p {
+      font-size: 14px;
+    }
+  }
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+  }
+}
+
+.statCard {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.statIcon {
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(135deg, #4e46b4 0%, #6366f1 100%);
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.statContent {
+  h3 {
+    margin: 0 0 4px 0;
+    font-size: 24px;
+    font-weight: 700;
+    color: #2d3748;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #718096;
+  }
+}
+
+.chartsSection {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chartCard {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+}
+
+.chartContainer {
+  height: 300px;
+  position: relative;
+}
+
+.recentOrdersSection {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  margin-bottom: 32px;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+
+  h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+}
+
+.viewAllLink {
+  color: #4e46b4;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.ordersTable {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.orderRow {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+  }
+
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    text-align: center;
+  }
+}
+
+.orderInfo {
+  .orderNumber {
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 4px;
+  }
+
+  .orderDate {
+    font-size: 14px;
+    color: #718096;
+  }
+}
+
+.orderDetails {
+  text-align: center;
+
+  .orderItems {
+    font-size: 14px;
+    color: #718096;
+    margin-bottom: 4px;
+  }
+
+  .orderTotal {
+    font-weight: 600;
+    color: #2d3748;
+  }
+
+  @media (max-width: 768px) {
+    text-align: center;
+  }
+}
+
+.orderStatus {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 500;
+
+  @media (max-width: 768px) {
+    justify-content: center;
+  }
+}
+
+.statusIconPending {
+  color: #ed8936;
+}
+
+.statusIconProcessing {
+  color: #3182ce;
+}
+
+.statusIconShipped {
+  color: #805ad5;
+}
+
+.statusIconDelivered {
+  color: #38a169;
+}
+
+.quickActions {
+  background: white;
+  padding: 24px;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  h3 {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #2d3748;
+  }
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+
+  @media (max-width: 768px) {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.actionCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  text-decoration: none;
+  color: #4a5568;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: #f7fafc;
+    border-color: #4e46b4;
+    color: #4e46b4;
+    transform: translateY(-2px);
+  }
+
+  svg {
+    font-size: 24px;
+  }
+
+  span {
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .dashboard {
+    .statCard,
+    .chartCard,
+    .recentOrdersSection,
+    .quickActions {
+      background: #2d3748;
+      color: #f7fafc;
+    }
+
+    .statContent h3,
+    .sectionHeader h3,
+    .chartCard h3,
+    .quickActions h3 {
+      color: #f7fafc;
+    }
+
+    .orderRow {
+      border-color: #4a5568;
+      background: #2d3748;
+
+      &:hover {
+        background: #4a5568;
+        border-color: #718096;
+      }
+    }
+
+    .actionCard {
+      background: #2d3748;
+      border-color: #4a5568;
+      color: #a0aec0;
+
+      &:hover {
+        background: #4a5568;
+        border-color: #6366f1;
+        color: #6366f1;
+      }
+    }
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .statCard,
+  .orderRow,
+  .actionCard {
+    transition: none;
+  }
+
+  .statCard:hover,
+  .actionCard:hover {
+    transform: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+}

@@ -50,7 +50,7 @@ export class ReviewService {
     return review;
   }
 
-  async findByProduct(productId: number, page: number = 1, limit: number = 10) {
+  async findByProduct(productId: string, page: number = 1, limit: number = 10) {
     const skip = (page - 1) * limit;
     
     const [reviews, total] = await Promise.all([
@@ -88,7 +88,7 @@ export class ReviewService {
     };
   }
 
-  async getProductRatingStats(productId: number) {
+  async getProductRatingStats(productId: string) {
     const stats = await this.prisma.review.groupBy({
       by: ['rating'],
       where: { product_id: productId },
@@ -176,7 +176,7 @@ export class ReviewService {
     return { message: 'Review deleted successfully' };
   }
 
-  private async updateProductRating(productId: number) {
+  private async updateProductRating(productId: string) {
     const stats = await this.prisma.review.aggregate({
       where: { product_id: productId },
       _avg: { rating: true },

@@ -53,7 +53,7 @@ export class ProductController {
   ) {
     console.log("testing");
     
-    return this.productService.createProductImage(+id, image);
+    return this.productService.createProductImage(id.toString(), image);
   }
 
   
@@ -87,7 +87,7 @@ export class ProductController {
       console.log('Received files:', files);
       console.log('Files count:', files?.images?.length || 0);
 
-      return await this.productService.create(createProductDto, createProductDto.user_id, files?.images);
+      return await this.productService.create(createProductDto, createProductDto.user_id?.toString(), files?.images);
     } catch (error) {
       console.error('=== PRODUCT CREATION ERROR ===');
       console.error('Error details:', error);
@@ -161,8 +161,8 @@ export class ProductController {
 
   @ApiOperation({ summary: "Get product by id" })
   @Get(":id")
-  findOne(@Param("id") id: number) {
-    return this.productService.findOne(+id);
+  findOne(@Param("id") id: string) {
+    return this.productService.findOne(id);
   }
 
   @ApiOperation({ summary: "Get user's products" })
@@ -192,16 +192,16 @@ export class ProductController {
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)
   @Get("approved/:id")
-  approveProduct(@Param("id") id: number) {
-    return this.productService.approvProduct(+id);
+  approveProduct(@Param("id") id: string) {
+    return this.productService.approvProduct(id);
   }
 
   @ApiOperation({ summary: "Reject product" })
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)
   @Get("rejected/:id")
-  rejectProduct(@Param("id") id: number) {
-    return this.productService.rejectProduct(+id);
+  rejectProduct(@Param("id") id: string) {
+    return this.productService.rejectProduct(id);
   }
 
  
@@ -213,11 +213,11 @@ export class ProductController {
   @Put(":id")
   @UseInterceptors(FilesInterceptor('images', 10, multerOptions))
   update(
-    @Param("id") id: number, 
+    @Param("id") id: string, 
     @Body() updateProductDto: UpdateProductDto,
     @UploadedFiles() images?: Express.Multer.File[]
   ) {
-    return this.productService.update(+id, updateProductDto, images);
+    return this.productService.update(id, updateProductDto, images);
   }
   
 
@@ -225,9 +225,9 @@ export class ProductController {
   @ApiBearerAuth("inbola")
   @UseGuards(UserGuard,UserProductGuard)
   @Delete("/:id/image/:imageId")
-  deleteProductImage(@Param("imageId") id: number) {
+  deleteProductImage(@Param("imageId") id: string) {
     console.log();
-    return this.productService.deleteProductImage(+id);
+    return this.productService.deleteProductImage(id);
   }
 
   @ApiBearerAuth("inbola")
@@ -235,7 +235,7 @@ export class ProductController {
   @UseGuards(UserGuard)
   @ApiOperation({ summary: " Delete product" })
   @Delete(":id")
-  remove(@Param("id") id: number) {
-    return this.productService.remove(+id);
+  remove(@Param("id") id: string) {
+    return this.productService.remove(id);
   }
 }

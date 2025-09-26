@@ -134,7 +134,7 @@ export class WishlistService {
     return this.getOrCreateWishlist(userId);
   }
 
-  async isInWishlist(userId: number, productId: number): Promise<boolean> {
+  async isInWishlist(userId: number, productId: string): Promise<boolean> {
     const wishlist = await this.prisma.wishlist.findUnique({
       where: { user_id: userId },
     });

@@ -12,6 +12,7 @@ import GoogleAnalytics from "@/components/common/GoogleAnalytics";
 import PerformanceMonitor from "@/components/common/PerformanceMonitor";
 import SEOMonitor from "@/components/common/SEOMonitor";
 import { ToastProvider } from "@/components/common/Toast";
+import { EcommerceProvider } from "@/components/ecommerce/EcommerceProvider";
 
 export default function App({ Component, pageProps }: AppProps) {
   const [queryClient] = useState(() => new QueryClient({
@@ -58,29 +59,31 @@ export default function App({ Component, pageProps }: AppProps) {
     <QueryClientProvider client={queryClient}>
       <ApolloProvider client={client}>
         <ReduxProvider>
-          <ToastProvider maxToasts={5}>
-            <GoogleAnalytics />
-            <PerformanceMonitor />
-            <SEOMonitor />
-            {shouldShowLayout ? (
-              <MainLayout>
+          <EcommerceProvider>
+            <ToastProvider maxToasts={5}>
+              <GoogleAnalytics />
+              <PerformanceMonitor />
+              <SEOMonitor />
+              {shouldShowLayout ? (
+                <MainLayout>
+                  <Component {...pageProps} />
+                </MainLayout>
+              ) : (
                 <Component {...pageProps} />
-              </MainLayout>
-            ) : (
-              <Component {...pageProps} />
-            )}
-            <ToastContainer 
-              position="top-right"
-              autoClose={5000}
-              hideProgressBar={false}
-              newestOnTop={false}
-              closeOnClick
-              rtl={false}
-              pauseOnFocusLoss
-              draggable
-              pauseOnHover
-            />
-          </ToastProvider>
+              )}
+              <ToastContainer 
+                position="top-right"
+                autoClose={5000}
+                hideProgressBar={false}
+                newestOnTop={false}
+                closeOnClick
+                rtl={false}
+                pauseOnFocusLoss
+                draggable
+                pauseOnHover
+              />
+            </ToastProvider>
+          </EcommerceProvider>
         </ReduxProvider>
       </ApolloProvider>
     </QueryClientProvider>

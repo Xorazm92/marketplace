@@ -194,7 +194,7 @@ export default function OrdersPage() {
                   </div>
                   
                   <Link 
-                    href={`/orders/${order.id}`}
+                    href={`/orders/${order.id || ''}`}
                     className={styles.viewOrderBtn}
                   >
                     Batafsil ko'rish

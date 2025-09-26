@@ -1,0 +1,148 @@
+.breadcrumbs {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  margin-bottom: 16px;
+}
+
+.breadcrumbList {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.breadcrumbItem {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.separatorWrapper {
+  display: flex;
+  align-items: center;
+  margin: 0 4px;
+}
+
+.separator {
+  width: 16px;
+  height: 16px;
+  color: #9ca3af;
+  flex-shrink: 0;
+}
+
+.breadcrumbLink {
+  color: #3b82f6;
+  text-decoration: none;
+  transition: color 0.2s ease;
+  padding: 4px 8px;
+  border-radius: 4px;
+  
+  &:hover {
+    color: #2563eb;
+    background-color: #f3f4f6;
+  }
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+  }
+}
+
+.homeItem {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.homeIcon {
+  width: 16px;
+  height: 16px;
+  color: currentColor;
+}
+
+.homeText {
+  @media (max-width: 640px) {
+    display: none;
+  }
+}
+
+.currentItem {
+  color: #374151;
+  font-weight: 500;
+  padding: 4px 8px;
+  background-color: #f9fafb;
+  border-radius: 4px;
+}
+
+.ellipsis {
+  color: #6b7280;
+  padding: 4px 8px;
+  user-select: none;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .breadcrumbList {
+    font-size: 13px;
+  }
+  
+  .breadcrumbLink,
+  .currentItem {
+    padding: 3px 6px;
+  }
+  
+  .separator {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .breadcrumbList {
+    font-size: 12px;
+  }
+  
+  .separatorWrapper {
+    margin: 0 2px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .breadcrumbLink {
+    color: #60a5fa;
+    
+    &:hover {
+      color: #93c5fd;
+      background-color: #374151;
+    }
+    
+    &:focus {
+      box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.5);
+    }
+  }
+  
+  .currentItem {
+    color: #f3f4f6;
+    background-color: #374151;
+  }
+  
+  .separator {
+    color: #6b7280;
+  }
+  
+  .ellipsis {
+    color: #9ca3af;
+  }
+}
+
+// Print styles
+@media print {
+  .breadcrumbs {
+    display: none;
+  }
+}

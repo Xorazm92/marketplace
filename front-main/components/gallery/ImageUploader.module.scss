@@ -1,0 +1,439 @@
+.uploader {
+  width: 100%;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.dropzone {
+  border: 2px dashed #d1d5db;
+  border-radius: 12px;
+  padding: 40px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: #fafafa;
+  position: relative;
+  margin-bottom: 24px;
+
+  &:hover {
+    border-color: #4e46b4;
+    background: #f8f9ff;
+  }
+
+  &.active {
+    border-color: #4e46b4;
+    background: #f0f4ff;
+    transform: scale(1.02);
+  }
+
+  &.uploading {
+    pointer-events: none;
+    opacity: 0.7;
+  }
+}
+
+.dropzoneContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+
+  h3 {
+    margin: 0;
+    color: #374151;
+    font-size: 18px;
+    font-weight: 600;
+  }
+
+  p {
+    margin: 0;
+    color: #6b7280;
+    font-size: 14px;
+  }
+}
+
+.uploadIcon {
+  font-size: 48px;
+  color: #9ca3af;
+  margin-bottom: 8px;
+}
+
+.uploadInfo {
+  display: flex;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+
+  span {
+    font-size: 12px;
+    color: #9ca3af;
+    background: white;
+    padding: 4px 8px;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+  }
+}
+
+.uploadingOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  border-radius: 12px;
+
+  span {
+    color: #4e46b4;
+    font-weight: 500;
+  }
+}
+
+.spinner {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #f3f3f3;
+  border-top: 3px solid #4e46b4;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.imageGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.imageItem {
+  position: relative;
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  cursor: grab;
+
+  &:hover {
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+
+  &:active {
+    cursor: grabbing;
+  }
+
+  &.mainImage {
+    border: 2px solid #4e46b4;
+    box-shadow: 0 4px 20px rgba(78, 70, 180, 0.2);
+  }
+}
+
+.dragHandle {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  border-radius: 4px;
+  padding: 4px;
+  cursor: grab;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+
+  .imageItem:hover & {
+    opacity: 1;
+  }
+}
+
+.mainBadge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: #4e46b4;
+  color: white;
+  border-radius: 12px;
+  padding: 4px 8px;
+  font-size: 12px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  z-index: 3;
+}
+
+.imagePreview {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+}
+
+.previewImage {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+
+  .imageItem:hover & {
+    transform: scale(1.05);
+  }
+}
+
+.imageControls {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+  z-index: 3;
+
+  .imageItem:hover & {
+    opacity: 1;
+  }
+}
+
+.controlButton {
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  color: white;
+  width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  transition: all 0.2s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.9);
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  &.deleteButton {
+    background: rgba(239, 68, 68, 0.8);
+    margin-left: auto;
+
+    &:hover {
+      background: rgba(239, 68, 68, 1);
+    }
+  }
+}
+
+.imageInfo {
+  padding: 12px;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.fileName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  word-break: break-word;
+}
+
+.fileSize {
+  font-size: 12px;
+  color: #6b7280;
+}
+
+.dimensions {
+  font-size: 12px;
+  color: #9ca3af;
+}
+
+.uploadSummary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: #f9fafb;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #6b7280;
+  border: 1px solid #e5e7eb;
+}
+
+// Mobile Responsive
+@media (max-width: 768px) {
+  .dropzone {
+    padding: 24px 16px;
+
+    h3 {
+      font-size: 16px;
+    }
+
+    p {
+      font-size: 13px;
+    }
+  }
+
+  .uploadIcon {
+    font-size: 36px;
+  }
+
+  .uploadInfo {
+    gap: 8px;
+
+    span {
+      font-size: 11px;
+      padding: 3px 6px;
+    }
+  }
+
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 12px;
+  }
+
+  .imageItem {
+    .imagePreview {
+      height: 150px;
+    }
+  }
+
+  .controlButton {
+    width: 28px;
+    height: 28px;
+    font-size: 12px;
+  }
+
+  .imageInfo {
+    padding: 8px;
+
+    .fileName {
+      font-size: 13px;
+    }
+
+    .fileSize,
+    .dimensions {
+      font-size: 11px;
+    }
+  }
+
+  .uploadSummary {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+    font-size: 13px;
+  }
+}
+
+// Small mobile
+@media (max-width: 480px) {
+  .imageGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 8px;
+  }
+
+  .imageItem {
+    .imagePreview {
+      height: 120px;
+    }
+  }
+
+  .controlButton {
+    width: 24px;
+    height: 24px;
+    font-size: 10px;
+  }
+
+  .dragHandle {
+    top: 4px;
+    left: 4px;
+    padding: 2px;
+  }
+
+  .mainBadge {
+    top: 4px;
+    right: 4px;
+    padding: 2px 6px;
+    font-size: 10px;
+  }
+
+  .imageControls {
+    bottom: 4px;
+    left: 4px;
+    right: 4px;
+    gap: 2px;
+  }
+}
+
+// Touch devices
+@media (hover: none) and (pointer: coarse) {
+  .imageItem {
+    .dragHandle,
+    .imageControls {
+      opacity: 1;
+    }
+
+    .previewImage {
+      transform: none !important;
+    }
+
+    &:hover {
+      transform: none;
+    }
+  }
+
+  .controlButton:hover {
+    transform: none;
+  }
+}
+
+// High DPI displays
+@media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+  .previewImage {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+  }
+}
+
+// Reduced motion
+@media (prefers-reduced-motion: reduce) {
+  .dropzone,
+  .imageItem,
+  .previewImage,
+  .controlButton,
+  .uploadingOverlay {
+    transition: none;
+  }
+
+  .spinner {
+    animation: none;
+  }
+
+  .dropzone.active {
+    transform: none;
+  }
+
+  .imageItem:hover {
+    transform: none;
+  }
+}

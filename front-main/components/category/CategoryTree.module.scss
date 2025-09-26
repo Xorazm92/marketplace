@@ -1,0 +1,218 @@
+.categoryTree {
+  width: 100%;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: #ffffff;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  overflow: hidden;
+}
+
+.treeNode {
+  border-bottom: 1px solid #f3f4f6;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.nodeContent {
+  display: flex;
+  align-items: center;
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 48px;
+  
+  &:hover {
+    background-color: #f9fafb;
+  }
+  
+  &.selected {
+    background-color: #eff6ff;
+    border-left: 3px solid #3b82f6;
+    color: #1d4ed8;
+    font-weight: 500;
+  }
+}
+
+.expandButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  margin-right: 8px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background-color 0.2s ease;
+  
+  &:hover {
+    background-color: #e5e7eb;
+  }
+}
+
+.expandIcon {
+  width: 16px;
+  height: 16px;
+  color: #6b7280;
+  transition: transform 0.2s ease;
+}
+
+.expandSpacer {
+  width: 28px;
+  height: 20px;
+  margin-right: 8px;
+}
+
+.categoryIcon {
+  width: 20px;
+  height: 20px;
+  margin-right: 12px;
+  color: #6b7280;
+  flex-shrink: 0;
+}
+
+.categoryName {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 400;
+  color: #374151;
+  line-height: 1.5;
+  
+  .selected & {
+    color: #1d4ed8;
+    font-weight: 500;
+  }
+}
+
+.productCount {
+  font-size: 12px;
+  color: #9ca3af;
+  background-color: #f3f4f6;
+  padding: 2px 8px;
+  border-radius: 12px;
+  margin-left: 8px;
+  font-weight: 500;
+  
+  .selected & {
+    background-color: #dbeafe;
+    color: #3b82f6;
+  }
+}
+
+.children {
+  background-color: #fafafa;
+}
+
+// Responsive design
+@media (max-width: 768px) {
+  .nodeContent {
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+  
+  .categoryName {
+    font-size: 13px;
+  }
+  
+  .productCount {
+    font-size: 11px;
+    padding: 1px 6px;
+  }
+}
+
+// Dark mode support
+@media (prefers-color-scheme: dark) {
+  .categoryTree {
+    background: #1f2937;
+    border-color: #374151;
+  }
+  
+  .treeNode {
+    border-bottom-color: #374151;
+  }
+  
+  .nodeContent {
+    &:hover {
+      background-color: #374151;
+    }
+    
+    &.selected {
+      background-color: #1e3a8a;
+      border-left-color: #60a5fa;
+      color: #93c5fd;
+    }
+  }
+  
+  .expandButton:hover {
+    background-color: #4b5563;
+  }
+  
+  .expandIcon {
+    color: #9ca3af;
+  }
+  
+  .categoryIcon {
+    color: #9ca3af;
+  }
+  
+  .categoryName {
+    color: #f3f4f6;
+    
+    .selected & {
+      color: #93c5fd;
+    }
+  }
+  
+  .productCount {
+    color: #6b7280;
+    background-color: #374151;
+    
+    .selected & {
+      background-color: #1e40af;
+      color: #93c5fd;
+    }
+  }
+  
+  .children {
+    background-color: #111827;
+  }
+}
+
+// Loading state
+.loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
+}
+
+// Empty state
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+  
+  .emptyIcon {
+    width: 48px;
+    height: 48px;
+    margin-bottom: 16px;
+    color: #d1d5db;
+  }
+}
+
+// Search highlight
+.searchHighlight {
+  background-color: #fef3c7;
+  padding: 1px 2px;
+  border-radius: 2px;
+}

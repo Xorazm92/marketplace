@@ -1,12 +1,11 @@
 import { Field, InputType, Int } from '@nestjs/graphql';
-import { IsInt, IsPositive, Min } from 'class-validator';
+import { IsInt, IsPositive, Min, IsUUID } from 'class-validator';
 
 @InputType()
 export class AddToCartDto {
-  @Field(() => Int)
-  @IsInt()
-  @IsPositive()
-  product_id: number;
+  @Field()
+  @IsUUID()
+  product_id: string;
 
   @Field(() => Int, { defaultValue: 1 })
   @IsInt()

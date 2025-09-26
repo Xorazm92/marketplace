@@ -15,7 +15,7 @@ import { useFavorites } from "../../hooks/useFavorites";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import Link from "next/link";
 import ProductCard from "@/components/home/product-card";
-import { getAllProducts } from "@/endpoints";
+import { getProducts } from "@/endpoints";
 import { addToCart } from "../../endpoints/cart";
 import { toast } from "react-toastify";
 import { useMutation } from "@apollo/client";
@@ -100,20 +100,18 @@ const ProductDetails = () => {
       const mapped = mapBackendToProductData(productData2);
       setProductData(mapped);
       setCurrentImageIndex(0);
-      setchatroomData(productData2)
-      setPhoneNumber(productData2.phone_number);
     }
   }, [productData2]);
 
   useEffect(() => {
-    getAllProducts()
-      .then((products) => {
-        if (products) {
-          setProductsList(products);
+    getProducts(1, {})
+      .then((products: any) => {
+        if (products?.data?.products) {
+          setProductsList(products.data.products);
         }
       })
-      .catch((error) => {
-        toast.error("Failed to fetch products");
+      .catch((error: any) => {
+        console.error("Error fetching products:", error);
       });
   }, []);
 
