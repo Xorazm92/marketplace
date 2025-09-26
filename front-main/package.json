@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "NODE_OPTIONS='--max-old-space-size=4096' WATCHPACK_POLLING=true next dev",
+    "dev": "NODE_OPTIONS='--max-old-space-size=8192' WATCHPACK_POLLING=true next dev --port 3000",
+    "dev:clean": "rm -rf .next && npm run dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint",
-    "dev:clean": "rm -rf .next && npm run dev"
+    "lint": "next lint"
   },
   "dependencies": {
     "@apollo/client": "^3.8.0",

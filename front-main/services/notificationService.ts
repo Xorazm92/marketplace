@@ -77,4 +77,27 @@ class NotificationService {
 }
 
 export const notificationService = new NotificationService();
+
+// Notification service functions
+export const requestPermission = async (): Promise<void> => {
+  try {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      const permission = await Notification.requestPermission();
+      console.log('Notification permission:', permission);
+    }
+  } catch (error) {
+    console.error('Error requesting notification permission:', error);
+  }
+};
+
+export const getNotificationCount = async (): Promise<number> => {
+  try {
+    // Mock implementation
+    return 0;
+  } catch (error) {
+    console.error('Error getting notification count:', error);
+    return 0;
+  }
+};
+
 export default notificationService;

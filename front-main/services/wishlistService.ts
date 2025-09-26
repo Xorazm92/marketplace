@@ -127,4 +127,21 @@ class WishlistService {
 }
 
 export const wishlistService = new WishlistService();
+
+// Wishlist service functions
+export const getWishlistCount = async (): Promise<number> => {
+  try {
+    // Mock implementation - real API bilan almashtiriladi
+    return 0;
+  } catch (error) {
+    console.error('Error getting wishlist count:', error);
+    return 0;
+  }
+};
+
+export const requestPermission = async (): Promise<void> => {
+  // Mock implementation - notification permission
+  console.log('Notification permission requested');
+};
+
 export default wishlistService;
