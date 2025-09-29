@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryDto, BulkReorderDto, CategoryResponseDto } from './dto/category.dto';
+import { CreateHierarchicalCategoryDto, UpdateHierarchicalCategoryDto, CategoryQueryDto, BulkReorderDto, CategoryResponseDto } from './dto/category.dto';
 
 @Injectable()
 export class HierarchicalCategoryService {
@@ -66,7 +66,7 @@ export class HierarchicalCategoryService {
     return { data, total, page, limit };
   }
 
-  async createCategory(dto: CreateCategoryDto): Promise<CategoryResponseDto> {
+  async createCategory(dto: CreateHierarchicalCategoryDto): Promise<CategoryResponseDto> {
     const slug = await this.generateSlug(dto.name);
     
     const category = await this.prisma.category.create({
@@ -93,7 +93,7 @@ export class HierarchicalCategoryService {
     };
   }
 
-  async updateCategory(id: string, dto: UpdateCategoryDto): Promise<CategoryResponseDto> {
+  async updateCategory(id: string, dto: UpdateHierarchicalCategoryDto): Promise<CategoryResponseDto> {
     const existing = await this.prisma.category.findUnique({ where: { id } });
     if (!existing) throw new NotFoundException(`Category with ID ${id} not found`);
 

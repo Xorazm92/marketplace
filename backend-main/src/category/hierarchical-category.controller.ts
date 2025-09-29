@@ -1,7 +1,7 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, HttpCode, HttpStatus } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiQuery } from '@nestjs/swagger';
 import { HierarchicalCategoryService } from './hierarchical-category.service';
-import { CreateCategoryDto, UpdateCategoryDto, CategoryQueryDto, BulkReorderDto, CategoryResponseDto, CategoryTreeResponseDto } from './dto/category.dto';
+import { CreateHierarchicalCategoryDto, UpdateHierarchicalCategoryDto, CategoryQueryDto, BulkReorderDto, CategoryResponseDto, CategoryTreeResponseDto } from './dto/category.dto';
 
 @ApiTags('Hierarchical Categories')
 @Controller('hierarchical-categories')
@@ -65,7 +65,7 @@ export class HierarchicalCategoryController {
   @ApiOperation({ summary: 'Create new category' })
   @ApiResponse({ status: 201, description: 'Category created successfully', type: CategoryResponseDto })
   @ApiResponse({ status: 400, description: 'Invalid input data' })
-  async createCategory(@Body() createCategoryDto: CreateCategoryDto): Promise<{ success: boolean; data: CategoryResponseDto }> {
+  async createCategory(@Body() createCategoryDto: CreateHierarchicalCategoryDto): Promise<{ success: boolean; data: CategoryResponseDto }> {
     const category = await this.categoryService.createCategory(createCategoryDto);
     return {
       success: true,
@@ -78,10 +78,7 @@ export class HierarchicalCategoryController {
   @ApiParam({ name: 'id', description: 'Category UUID' })
   @ApiResponse({ status: 200, description: 'Category updated successfully', type: CategoryResponseDto })
   @ApiResponse({ status: 404, description: 'Category not found' })
-  async updateCategory(
-    @Param('id') id: string,
-    @Body() updateCategoryDto: UpdateCategoryDto
-  ): Promise<{ success: boolean; data: CategoryResponseDto }> {
+  async updateCategory(@Param('id') id: string, @Body() updateCategoryDto: UpdateHierarchicalCategoryDto): Promise<{ success: boolean; data: CategoryResponseDto }> {
     const category = await this.categoryService.updateCategory(id, updateCategoryDto);
     return {
       success: true,

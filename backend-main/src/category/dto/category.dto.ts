@@ -1,7 +1,7 @@
 import { IsString, IsOptional, IsBoolean, IsInt, IsUUID, Min, Max, IsHexColor } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
-export class CreateCategoryDto {
+export class CreateHierarchicalCategoryDto {
   @ApiProperty({ description: 'Category name', example: 'O\'yinchoqlar' })
   @IsString()
   name: string;
@@ -48,7 +48,7 @@ export class CreateCategoryDto {
   is_active?: boolean;
 }
 
-export class UpdateCategoryDto {
+export class UpdateHierarchicalCategoryDto {
   @ApiPropertyOptional({ description: 'Category name', example: 'O\'yinchoqlar' })
   @IsOptional()
   @IsString()
