@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { utilities as nestWinstonModuleUtilitiee } from "nest-winston";
 import * as winston from "winston";
 

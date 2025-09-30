@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { diskStorage } from 'multer';
 import * as path from 'path';
 

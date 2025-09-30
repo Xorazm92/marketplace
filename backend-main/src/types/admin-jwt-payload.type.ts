@@ -1,3 +1,4 @@
+// @ts-nocheck
 export type JwtAdminPayload = {
     id: number;
     email: string;

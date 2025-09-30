@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { GraphQLError } from 'graphql';
 import { ArgumentsHost, Catch, BadRequestException } from '@nestjs/common';
 

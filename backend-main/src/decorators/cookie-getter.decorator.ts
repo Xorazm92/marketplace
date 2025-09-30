@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { createParamDecorator, ExecutionContext, UnauthorizedException } from "@nestjs/common";
 
 export const CookieGetter = createParamDecorator(

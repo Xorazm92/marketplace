@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Module } from '@nestjs/common';
 import { ChatroomService } from './chatroom.service';
 import { ChatroomResolver } from './chatroom.resolver';

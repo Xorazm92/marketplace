@@ -28,7 +28,7 @@ interface ProductFormData {
   currency_id: number;
   category_id: number;
   subcategory_id?: number;
-  brand_id?: number;
+  brand_id: number;
   condition: string;
   negotiable: boolean;
   phone_number: string;
@@ -239,8 +239,11 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       allowedFields.forEach(key => {
         const value = (data as any)[key];
         if (value !== undefined && value !== null && value !== '') {
-          if (key === 'currency_id' || key === 'category_id' || key === 'subcategory_id' || key === 'brand_id' || key === 'price' || key === 'weight') {
-            // Convert to number
+          if (key === 'currency_id' || key === 'brand_id' || key === 'price' || key === 'weight') {
+            // Convert to number for numeric fields
+            formData.append(key, Number(value).toString());
+          } else if (key === 'category_id' || key === 'subcategory_id') {
+            // Convert to number for integer format
             formData.append(key, Number(value).toString());
           } else if (key === 'negotiable') {
             // Convert to boolean string
@@ -271,9 +274,9 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
       // Debug: Log FormData contents
       if (process.env.NODE_ENV === 'development') {
         console.log('=== FORMDATA CONTENTS ===');
-        for (let [key, value] of formData.entries()) {
+        Array.from(formData.entries()).forEach(([key, value]) => {
           console.log(`${key}:`, value);
-        }
+        });
       }
 
       const response = await fetch('http://localhost:4000/api/v1/product/create', {
@@ -471,28 +474,31 @@ const CreateProductModal: React.FC<CreateProductModalProps> = ({
                       </select>
                     </div>
                   )}
-                </div>
 
-                <div className={styles.formGroup}>
-                  <label htmlFor="brand_id">Brend</label>
-                  <select id="brand_id" {...register('brand_id')}>
-                    <option value="">Brend tanlang</option>
-                    {brands.map(brand => (
-                      <option key={brand.id} value={brand.id}>
-                        {brand.name}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              {/* Product Details */}
-              <div className={styles.section}>
-                <h3>Qo'shimcha Ma'lumotlar</h3>
-                
-                <div className={styles.formRow}>
                   <div className={styles.formGroup}>
-                    <label htmlFor="condition">Holati *</label>
+                    <label htmlFor="brand_id">Brend *</label>
+                    <select
+                      id="brand_id"
+                      {...register('brand_id', {
+                        required: 'Brend tanlash majburiy',
+                        valueAsNumber: true
+                      })}
+                      className={errors.brand_id ? styles.error : ''}
+                    >
+                      <option value="">Brend tanlang</option>
+                      {brands.map(brand => (
+                        <option key={brand.id} value={brand.id}>
+                          {brand.name}
+                        </option>
+                      ))}
+                    </select>
+                    {errors.brand_id && (
+                      <span className={styles.errorMessage}>{errors.brand_id.message}</span>
+                    )}
+                  </div>
+
+                  <div className={styles.formGroup}>
+                    <label htmlFor="condition">Holat *</label>
                     <select
                       id="condition"
                       {...register('condition', {

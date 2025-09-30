@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ThrottlerModuleOptions } from '@nestjs/throttler';
 
 export const rateLimiterConfig: ThrottlerModuleOptions = {

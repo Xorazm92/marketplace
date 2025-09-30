@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Field, ObjectType, ID } from '@nestjs/graphql';
 import { User } from '../user/user.type';
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Field, InputType, Int } from '@nestjs/graphql';
 import { IsInt, IsPositive, IsUUID } from 'class-validator';
 

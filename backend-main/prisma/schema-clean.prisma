@@ -1,0 +1,80 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  first_name  String
+  last_name   String
+  email       String?  @unique
+  password    String
+  profile_img String?
+  is_active   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  products    Product[]
+  @@map("user")
+}
+
+model Category {
+  id         Int      @id @default(autoincrement())
+  name       String
+  slug       String   @unique
+  parent_id  Int?
+  is_active  Boolean  @default(true)
+  created_at DateTime @default(now())
+  updated_at DateTime @updatedAt
+  products   Product[]
+  @@map("categories")
+}
+
+model Brand {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  logo      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+  @@map("brand")
+}
+
+model Currency {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  code      String   @unique
+  symbol    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products  Product[]
+  @@map("currency")
+}
+
+model Product {
+  id           Int      @id @default(autoincrement())
+  title        String
+  user_id      Int?
+  brand_id     Int
+  price        Decimal
+  currency_id  Int
+  description  String
+  phone_number String
+  category_id  Int
+  subcategory_id Int?
+  negotiable   Boolean  @default(false)
+  condition    String   @default("new")
+  is_active    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  
+  brand     Brand     @relation(fields: [brand_id], references: [id])
+  category  Category  @relation(fields: [category_id], references: [id])
+  currency  Currency  @relation(fields: [currency_id], references: [id])
+  user      User?     @relation(fields: [user_id], references: [id])
+  
+  @@map("product")
+}

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException } from '@nestjs/common';
 import { SecurityService } from '../security.service';

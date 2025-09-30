@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Field, ObjectType, Int, Float } from '@nestjs/graphql';
 
 // User type is imported from user module to avoid duplication

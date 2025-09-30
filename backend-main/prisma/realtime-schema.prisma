@@ -1,0 +1,64 @@
+// Add these models to your existing schema
+
+model ChatMessage {
+  id              String   @id @default(uuid())
+  conversation_id String
+  sender_id       Int
+  receiver_id     Int
+  message         String
+  is_read         Boolean  @default(false)
+  created_at      DateTime @default(now())
+  updated_at      DateTime @updatedAt
+
+  conversation    Conversation @relation(fields: [conversation_id], references: [id])
+  sender          User         @relation("SentMessages", fields: [sender_id], references: [id])
+  receiver        User         @relation("ReceivedMessages", fields: [receiver_id], references: [id])
+
+  @@index([conversation_id])
+  @@index([receiver_id])
+  @@index([created_at])
+}
+
+model Conversation {
+  id          String   @id @default(uuid())
+  type        String   // 'direct', 'group', 'order'
+  title       String?
+  participants Int[]
+  last_message String?
+  created_at  DateTime @default(now())
+  updated_at  DateTime @updatedAt
+
+  messages    ChatMessage[]
+  participants_rel User[] @relation("Conversations")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  user_id     Int
+  type        String   // 'order', 'message', 'product', 'system'
+  title       String
+  message     String
+  data        Json?
+  is_read     Boolean  @default(false)
+  created_at  DateTime @default(now())
+
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([created_at])
+}
+
+model UserActivity {
+  id          String   @id @default(uuid())
+  user_id     Int
+  activity    String
+  data        Json?
+  ip_address  String?
+  user_agent  String?
+  created_at  DateTime @default(now())
+
+  user        User     @relation(fields: [user_id], references: [id])
+
+  @@index([user_id])
+  @@index([created_at])
+}

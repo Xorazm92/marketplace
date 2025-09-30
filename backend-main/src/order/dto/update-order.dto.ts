@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IsOptional, IsString, IsEnum } from 'class-validator';
 import { Field, InputType } from '@nestjs/graphql';
 

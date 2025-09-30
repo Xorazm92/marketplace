@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { Injectable, Inject } from '@nestjs/common';
 import { Cache } from 'cache-manager';

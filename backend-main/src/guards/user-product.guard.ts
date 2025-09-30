@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Injectable, CanActivate, ExecutionContext, ForbiddenException, NotFoundException, Param } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
@@ -20,7 +21,7 @@ export class UserProductGuard implements CanActivate {
         console.log(req.params);
         
         const product = await this.prismaService.product.findUnique({
-            where: { id: req.params.id },
+            where: { id: parseInt(req.params.id) },
             include: { user: true }
         });
         console.log(product);

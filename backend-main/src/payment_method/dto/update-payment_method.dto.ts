@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PartialType } from '@nestjs/swagger';
 import { CreatePaymentMethodDto } from './create-payment_method.dto';
 

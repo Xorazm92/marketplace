@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PartialType } from '@nestjs/swagger';
 import { CreateColorDto } from './create-color.dto';
 

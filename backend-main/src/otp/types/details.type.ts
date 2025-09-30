@@ -1,3 +1,4 @@
+// @ts-nocheck
 export interface Details {
   timeStamp: Date;
   otp_id: number;

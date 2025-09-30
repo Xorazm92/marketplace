@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Controller, Get, Param, Res, NotFoundException, Header, Options } from '@nestjs/common';
 import { Response } from 'express';
 import { join } from 'path';

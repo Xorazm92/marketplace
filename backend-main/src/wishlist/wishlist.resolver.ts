@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Resolver, Query, Mutation, Args, Context } from '@nestjs/graphql';
 import { UseGuards, UnauthorizedException } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';

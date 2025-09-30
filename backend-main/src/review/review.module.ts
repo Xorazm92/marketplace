@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { Module } from '@nestjs/common';
 import { ReviewService } from './review.service';

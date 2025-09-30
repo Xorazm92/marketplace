@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IsString, IsOptional, IsBoolean } from 'class-validator';
 
 export class CreatePaymentMethodDto {

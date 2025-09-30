@@ -37,6 +37,7 @@ interface ImageUploaderProps {
   maxFiles?: number;
   maxFileSize?: number; // in MB
   acceptedFormats?: string[];
+  accept?: Record<string, string[]>;
   onImagesChange?: (images: UploadedImage[]) => void;
   enableCropping?: boolean;
   enableWatermark?: boolean;
@@ -48,7 +49,9 @@ interface ImageUploaderProps {
 const ImageUploader: React.FC<ImageUploaderProps> = ({
   maxFiles = 10,
   maxFileSize = 5,
-  acceptedFormats = ['image/jpeg', 'image/png', 'image/webp'],
+  accept = {
+    'image/*': ['.jpeg', '.jpg', '.png', '.webp', '.gif', '.bmp']
+  },
   onImagesChange,
   enableCropping = true,
   enableWatermark = false,
@@ -67,10 +70,16 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = async (e) => {
+        const preview = e.target?.result as string;
+        if (!preview) {
+          reject(new Error('Failed to read file'));
+          return;
+        }
+
         const img = new window.Image();
         img.onload = async () => {
           let processedFile = file;
-          let preview = e.target?.result as string;
+          let finalPreview = preview;
 
           // Auto-resize if enabled
           if (autoResize && (img.width > 1200 || img.height > 1200)) {
@@ -91,13 +100,13 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
                   type: file.type,
                   lastModified: Date.now()
                 });
-                preview = canvas.toDataURL(file.type, compressionQuality);
+                finalPreview = canvas.toDataURL(file.type, compressionQuality);
               }
               
               resolve({
                 id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
                 file: processedFile,
-                preview,
+                preview: finalPreview,
                 metadata: {
                   size: processedFile.size,
                   dimensions: { width: canvas.width, height: canvas.height },
@@ -109,7 +118,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             resolve({
               id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
               file: processedFile,
-              preview,
+              preview: finalPreview,
               metadata: {
                 size: file.size,
                 dimensions: { width: img.width, height: img.height },
@@ -118,6 +127,7 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
             });
           }
         };
+        img.onerror = () => reject(new Error('Failed to load image'));
         img.src = preview;
       };
       reader.onerror = reject;
@@ -157,12 +167,10 @@ const ImageUploader: React.FC<ImageUploaderProps> = ({
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'image/*': acceptedFormats
-    },
+    accept: accept,
     maxSize: maxFileSize * 1024 * 1024,
     multiple: true,
-    disabled: isUploading || images.length >= maxFiles
+    maxFiles: maxFiles,
   });
 
   const removeImage = (id: string) => {

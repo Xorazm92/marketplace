@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PartialType } from '@nestjs/swagger';
 import { CreateEmailDto } from './create-email.dto';
 

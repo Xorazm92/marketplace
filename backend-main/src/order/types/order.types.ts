@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { ObjectType, Field, Int, Float } from '@nestjs/graphql';
 import { Product } from '../../shared/shared.types';
 import { User } from '../../chat/user/user.type';

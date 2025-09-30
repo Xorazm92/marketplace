@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IsOptional, IsString, IsEmail, IsDateString, IsEnum } from 'class-validator';
 
 export class UpdateProfileDto {

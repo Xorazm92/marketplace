@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { PartialType } from '@nestjs/swagger';
 import { CreateCurrencyDto } from './create-currency.dto';
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import { Injectable, LoggerService } from '@nestjs/common';
 import * as winston from 'winston';

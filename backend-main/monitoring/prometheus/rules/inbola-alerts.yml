@@ -1,0 +1,223 @@
+groups:
+  - name: inbola-marketplace-alerts
+    rules:
+      # Application Health Alerts
+      - alert: ApplicationDown
+        expr: up{job="inbola-marketplace"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: inbola-marketplace
+        annotations:
+          summary: "INBOLA Marketplace is down"
+          description: "The INBOLA Marketplace application has been down for more than 1 minute."
+
+      - alert: HighErrorRate
+        expr: rate(http_requests_total{status_code=~"5.."}[5m]) / rate(http_requests_total[5m]) * 100 > 5
+        for: 2m
+        labels:
+          severity: warning
+          service: inbola-marketplace
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value }}% for the last 5 minutes."
+
+      - alert: HighResponseTime
+        expr: histogram_quantile(0.95, rate(http_request_duration_seconds_bucket[5m])) > 1
+        for: 2m
+        labels:
+          severity: warning
+          service: inbola-marketplace
+        annotations:
+          summary: "High response time detected"
+          description: "95th percentile response time is {{ $value }}s."
+
+      # Business Intelligence Alerts
+      - alert: LowOrderVolume
+        expr: increase(orders_total[1h]) < 5
+        for: 1h
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Low order volume detected"
+          description: "Only {{ $value }} orders in the last hour."
+
+      - alert: HighOrderFailureRate
+        expr: rate(orders_total{status="failed"}[10m]) / rate(orders_total[10m]) * 100 > 10
+        for: 5m
+        labels:
+          severity: critical
+          service: business
+        annotations:
+          summary: "High order failure rate"
+          description: "Order failure rate is {{ $value }}% in the last 10 minutes."
+
+      - alert: PaymentGatewayDown
+        expr: rate(orders_total{payment_method=~"click|payme|uzum"}[5m]) == 0
+        for: 3m
+        labels:
+          severity: critical
+          service: payment
+        annotations:
+          summary: "Payment gateway appears to be down"
+          description: "No successful payments in the last 5 minutes."
+
+      # Performance Alerts
+      - alert: HighCPUUsage
+        expr: 100 - (avg by(instance) (irate(node_cpu_seconds_total{mode="idle"}[5m])) * 100) > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value }}% on {{ $labels.instance }}."
+
+      - alert: HighMemoryUsage
+        expr: (1 - (node_memory_MemAvailable_bytes / node_memory_MemTotal_bytes)) * 100 > 85
+        for: 2m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value }}% on {{ $labels.instance }}."
+
+      - alert: LowDiskSpace
+        expr: (1 - (node_filesystem_avail_bytes / node_filesystem_size_bytes)) * 100 > 90
+        for: 1m
+        labels:
+          severity: critical
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Disk usage is {{ $value }}% on {{ $labels.instance }}."
+
+      # Database Alerts
+      - alert: DatabaseDown
+        expr: up{job="postgres-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "PostgreSQL database is down"
+          description: "PostgreSQL database has been down for more than 1 minute."
+
+      - alert: HighDatabaseConnections
+        expr: pg_stat_activity_count > 80
+        for: 2m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "High database connections"
+          description: "Database has {{ $value }} active connections."
+
+      - alert: SlowDatabaseQueries
+        expr: rate(pg_stat_statements_mean_time_ms[5m]) > 1000
+        for: 3m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "Slow database queries detected"
+          description: "Average query time is {{ $value }}ms."
+
+      # Cache Alerts
+      - alert: RedisDown
+        expr: up{job="redis-exporter"} == 0
+        for: 1m
+        labels:
+          severity: critical
+          service: cache
+        annotations:
+          summary: "Redis cache is down"
+          description: "Redis cache has been down for more than 1 minute."
+
+      - alert: LowCacheHitRate
+        expr: cache_hit_rate < 80
+        for: 5m
+        labels:
+          severity: warning
+          service: cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value }}% for {{ $labels.cache_layer }}."
+
+      - alert: HighRedisMemoryUsage
+        expr: redis_memory_used_bytes / redis_memory_max_bytes * 100 > 90
+        for: 2m
+        labels:
+          severity: warning
+          service: cache
+        annotations:
+          summary: "High Redis memory usage"
+          description: "Redis memory usage is {{ $value }}%."
+
+      # Security Alerts
+      - alert: HighAuthenticationFailures
+        expr: rate(authentication_attempts_total{status="failed"}[5m]) > 10
+        for: 2m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "High authentication failure rate"
+          description: "{{ $value }} authentication failures per second in the last 5 minutes."
+
+      - alert: SuspiciousActivity
+        expr: rate(suspicious_activity_total[5m]) > 5
+        for: 1m
+        labels:
+          severity: critical
+          service: security
+        annotations:
+          summary: "Suspicious activity detected"
+          description: "{{ $value }} suspicious activities per second detected."
+
+      - alert: UnusualTrafficPattern
+        expr: rate(http_requests_total[5m]) > 100
+        for: 3m
+        labels:
+          severity: warning
+          service: security
+        annotations:
+          summary: "Unusual traffic pattern detected"
+          description: "Request rate is {{ $value }} requests/second, which is unusually high."
+
+  - name: inbola-business-alerts
+    rules:
+      # Revenue Alerts
+      - alert: RevenueDropAlert
+        expr: (increase(revenue_total[1h]) < increase(revenue_total[1h] offset 24h) * 0.5)
+        for: 1h
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Significant revenue drop detected"
+          description: "Revenue in the last hour is 50% lower than the same time yesterday."
+
+      # User Activity Alerts
+      - alert: LowUserActivity
+        expr: users_active{time_window="5m"} < 10
+        for: 10m
+        labels:
+          severity: warning
+          service: business
+        annotations:
+          summary: "Low user activity"
+          description: "Only {{ $value }} active users in the last 5 minutes."
+
+      # Product Alerts
+      - alert: ProductOutOfStock
+        expr: products_total{status="out_of_stock"} > products_total * 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: inventory
+        annotations:
+          summary: "High number of out-of-stock products"
+          description: "{{ $value }} products are out of stock."

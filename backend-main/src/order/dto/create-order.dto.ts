@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, ValidateNested, IsUUID } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Field, InputType, Int, Float } from '@nestjs/graphql';

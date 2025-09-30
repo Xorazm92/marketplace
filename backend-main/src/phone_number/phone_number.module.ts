@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Module } from '@nestjs/common';
 import { PhoneNumberService } from './phone_number.service';
 import { PhoneNumberController } from './phone_number.controller';

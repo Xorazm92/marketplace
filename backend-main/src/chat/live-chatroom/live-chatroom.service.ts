@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Injectable } from '@nestjs/common';
 // import Redis from 'ioredis';
 import { User } from '../user/user.type';

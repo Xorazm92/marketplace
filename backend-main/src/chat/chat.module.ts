@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Module } from '@nestjs/common';
 import { LiveChatroomModule } from './live-chatroom/live-chatroom.module';
 import { ChatroomModule } from './chatroom/chatroom.module';

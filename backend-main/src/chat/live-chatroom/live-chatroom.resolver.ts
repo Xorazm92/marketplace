@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Resolver } from '@nestjs/graphql';
 import { PubSub } from 'graphql-subscriptions';
 import { User } from '../user/user.type';

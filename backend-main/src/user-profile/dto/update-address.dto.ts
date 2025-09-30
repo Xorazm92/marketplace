@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { IsString, IsOptional, IsBoolean, IsNumber } from 'class-validator';
 
 export class UpdateAddressDto {

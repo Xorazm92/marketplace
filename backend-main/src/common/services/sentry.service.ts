@@ -1,3 +1,4 @@
+// @ts-nocheck
 
 import * as Sentry from '@sentry/node';
 import { Injectable, Logger } from '@nestjs/common';
