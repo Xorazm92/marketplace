@@ -39,11 +39,13 @@ import { InventoryModule } from './inventory/inventory.module';
 import { TerminusModule } from '@nestjs/terminus';
 import { SellerModule } from './seller/seller.module';
 import { ChildSafetyModule } from './child-safety/child-safety.module';
+import { validationSchema } from './config/environment.config';
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema,
     }),
     ThrottlerModule.forRoot([
       {

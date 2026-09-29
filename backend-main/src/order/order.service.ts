@@ -9,9 +9,8 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async createOrder(createOrderDto: CreateOrderDto | CreateOrderInput): Promise<Order> {
-    const { user_id, items, currency_id, shipping_address_id, billing_address_id, payment_method, notes, discount_amount = 0, tax_amount = 0, shipping_amount = 0 } = createOrderDto;
+    const { user_id, items, currency_id, shipping_address_id, billing_address_id, payment_method, notes } = createOrderDto;
 
-    // Validate user exists
     const user = await this.prisma.user.findUnique({
       where: { id: user_id },
     });
@@ -20,40 +19,72 @@ export class OrderService {
       throw new NotFoundException('User not found');
     }
 
-    // Validate products and calculate totals
-    let total_amount = 0;
-    const validatedItems = [];
-
+    // Bir mahsulot ikki qatorda kelsa zaxira va min/max chegarasi yig'indiga qo'llanadi.
+    const quantities = new Map<number, number>();
     for (const item of items) {
-      const product = await this.prisma.product.findUnique({
-        where: { id: item.product_id },
-      });
-
-      if (!product) {
-        throw new NotFoundException(`Product with ID ${item.product_id} not found`);
-      }
-
-      if (!product.is_active) {
-        throw new BadRequestException(`Product ${product.title} is not active`);
-      }
-
-      const itemTotal = item.unit_price * item.quantity;
-      total_amount += itemTotal;
-
-      validatedItems.push({
-        ...item,
-        total_price: itemTotal,
-      });
+      quantities.set(item.product_id, (quantities.get(item.product_id) ?? 0) + item.quantity);
     }
 
-    const final_amount = total_amount + tax_amount + shipping_amount - discount_amount;
-
-    // Generate order number
     const order_number = `ORD-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
 
-    // Create order with items in transaction
     const order = await this.prisma.$transaction(async (prisma) => {
-      // Create order
+      let total_amount = 0;
+      const lines = [];
+
+      for (const [product_id, quantity] of quantities) {
+        const product = await prisma.product.findUnique({
+          where: { id: product_id },
+          include: { inventory: true },
+        });
+
+        if (!product) {
+          throw new NotFoundException(`Product with ID ${product_id} not found`);
+        }
+        if (!product.is_active) {
+          throw new BadRequestException(`Product ${product.title} is not active`);
+        }
+        if (quantity < product.min_order_quantity ||
+            (product.max_order_quantity != null && quantity > product.max_order_quantity)) {
+          throw new BadRequestException(`Invalid quantity for product ${product.title}`);
+        }
+
+        if (product.inventory) {
+          // Shartli kamaytirish: tekshirish va yozish bitta SQL'da, shuning uchun
+          // parallel ikki buyurtma oxirgi donani ikki marta sota olmaydi.
+          const { count } = await prisma.inventory.updateMany({
+            where: { product_id, stock_quantity: { gte: quantity } },
+            data: { stock_quantity: { decrement: quantity } },
+          });
+          if (count === 0) {
+            throw new BadRequestException(`Not enough stock for product ${product.title}`);
+          }
+          await prisma.inventoryMovement.create({
+            data: {
+              inventory_id: product.inventory.id,
+              type: 'OUT',
+              quantity,
+              reason: 'order',
+              reference_id: order_number,
+            },
+          });
+        } else if (product.availability_status === 'out_of_stock') {
+          throw new BadRequestException(`Product ${product.title} is out of stock`);
+        }
+
+        // Narx faqat bazadan: mijoz yuborgan narxga ishonilsa, 1 so'mga sotib olish mumkin edi.
+        const unit_price = Number(product.price);
+        const total_price = unit_price * quantity;
+        total_amount += total_price;
+        lines.push({ product_id, quantity, unit_price, total_price });
+      }
+
+      // Kupon, soliq va yetkazish qoidalari hali yo'q (docs/plan/MVP_ROADMAP.md, Faza 1);
+      // ular qo'shilguncha nolga teng, mijozdan esa hech qachon olinmaydi.
+      const discount_amount = 0;
+      const tax_amount = 0;
+      const shipping_amount = 0;
+      const final_amount = total_amount + tax_amount + shipping_amount - discount_amount;
+
       const newOrder = await prisma.order.create({
         data: {
           order_number,
@@ -73,15 +104,8 @@ export class OrderService {
         },
       });
 
-      // Create order items
       await prisma.orderItem.createMany({
-        data: validatedItems.map(item => ({
-          order_id: newOrder.id,
-          product_id: item.product_id,
-          quantity: item.quantity,
-          unit_price: item.unit_price,
-          total_price: item.total_price,
-        })),
+        data: lines.map(line => ({ order_id: newOrder.id, ...line })),
       });
 
       return newOrder;

@@ -115,7 +115,7 @@ export class UnifiedAuthController {
 
     try {
       const payload = this.authService['jwtService'].verify(refreshToken, {
-        secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-refresh-secret'),
+        secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
       });
 
       return await this.authService.refreshTokens(

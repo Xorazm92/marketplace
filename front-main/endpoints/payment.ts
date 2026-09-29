@@ -29,25 +29,6 @@ export const createClickPayment = async (paymentData: {
   }
 };
 
-export const verifyClickPayment = async (paymentId: string, status: string) => {
-  try {
-    const res = await instance.get(`/payment/click/verify?payment_id=${paymentId}&status=${status}`);
-    return res.data;
-  } catch (error: any) {
-    console.error("Error verifying Click payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Click to'lovni tekshirishda xatolik yuz berdi");
-      throw new Error("Click to'lovni tekshirishda xatolik yuz berdi");
-    }
-  }
-};
-
 // Payme Payment
 export const createPaymePayment = async (paymentData: {
   order_id: number;
@@ -70,25 +51,6 @@ export const createPaymePayment = async (paymentData: {
     } else {
       toast.error("Payme to'lov yaratishda xatolik yuz berdi");
       throw new Error("Payme to'lov yaratishda xatolik yuz berdi");
-    }
-  }
-};
-
-export const verifyPaymePayment = async (paymentId: string, status: string) => {
-  try {
-    const res = await instance.get(`/payment/payme/verify?payment_id=${paymentId}&status=${status}`);
-    return res.data;
-  } catch (error: any) {
-    console.error("Error verifying Payme payment:", error);
-    if (error.response?.data?.message) {
-      toast.error(error.response.data.message);
-      throw new Error(error.response.data.message);
-    } else if (error.message) {
-      toast.error(error.message);
-      throw new Error(error.message);
-    } else {
-      toast.error("Payme to'lovni tekshirishda xatolik yuz berdi");
-      throw new Error("Payme to'lovni tekshirishda xatolik yuz berdi");
     }
   }
 };
@@ -167,9 +129,7 @@ export const processPayment = async (
 
 export default {
   createClickPayment,
-  verifyClickPayment,
   createPaymePayment,
-  verifyPaymePayment,
   getPaymentMethods,
   getPaymentHistory,
   processPayment,

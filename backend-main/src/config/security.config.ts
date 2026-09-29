@@ -198,7 +198,7 @@ export class SecurityConfig {
   // Session Security
   getSessionConfig() {
     return {
-      secret: this.configService.get('SESSION_SECRET', 'inbola-session-secret'),
+      secret: this.configService.getOrThrow('SESSION_SECRET'),
       resave: false,
       saveUninitialized: false,
       cookie: {

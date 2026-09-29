@@ -31,7 +31,7 @@ export class SmsAuthService {
     return this.jwtService.sign(
       { phoneNumber, otp },
       {
-        secret: this.configService.get<string>('JWT_OTP_SECRET', 'your-otp-secret'),
+        secret: this.configService.getOrThrow<string>('JWT_OTP_SECRET'),
         expiresIn: this.otpExpiry,
       },
     );
@@ -41,7 +41,7 @@ export class SmsAuthService {
   private verifyOtpToken(token: string): { phoneNumber: string; otp: string } | null {
     try {
       return this.jwtService.verify(token, {
-        secret: this.configService.get<string>('JWT_OTP_SECRET', 'your-otp-secret'),
+        secret: this.configService.getOrThrow<string>('JWT_OTP_SECRET'),
       });
     } catch (error) {
       this.logger.error('Invalid OTP token', error);

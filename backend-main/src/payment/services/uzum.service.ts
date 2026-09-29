@@ -2,11 +2,12 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as crypto from 'crypto';
+import { safeEqual } from './signature.util';
 import axios from 'axios';
 
 export interface UzumPaymentRequest {
   order_id: number;
-  amount: number;
+  user_id: number;
   return_url?: string;
   cancel_url?: string;
   description?: string;
@@ -43,15 +44,15 @@ export class UzumService {
     private readonly prisma: PrismaService,
   ) {
     this.merchantId = this.configService.get<string>('UZUM_MERCHANT_ID') || 'test_uzum_merchant';
-    this.secretKey = this.configService.get<string>('UZUM_SECRET_KEY') || 'test_uzum_secret';
-    this.apiKey = this.configService.get<string>('UZUM_API_KEY') || 'test_uzum_api_key';
+    this.secretKey = this.configService.get<string>('UZUM_SECRET_KEY');
+    this.apiKey = this.configService.get<string>('UZUM_API_KEY');
     this.baseUrl = this.configService.get<string>('UZUM_BASE_URL') || 'https://api.uzum.uz/v1';
     this.webhookUrl = this.configService.get<string>('UZUM_WEBHOOK_URL') || 'https://api.yourapp.com/api/payment/uzum/callback';
   }
 
   async createPayment(request: UzumPaymentRequest): Promise<UzumPaymentResponse> {
     try {
-      const { order_id, amount, return_url, cancel_url, description } = request;
+      const { order_id, user_id, return_url, cancel_url, description } = request;
 
       // Validate order
       const order = await this.prisma.order.findUnique({
@@ -59,13 +60,18 @@ export class UzumService {
         include: { user: true }
       });
 
-      if (!order) {
+      // Summa mijozdan olinmaydi: aks holda birovning buyurtmasiga 1 so'mlik
+      // to'lov ochib, uni haqiqatan to'lash orqali buyurtmani yopish mumkin edi.
+      if (!order || order.user_id !== user_id) {
         throw new BadRequestException('Order not found');
       }
+
+      const amount = Number(order.final_amount);
 
       if (amount <= 0) {
         throw new BadRequestException('Amount must be greater than 0');
       }
+
 
       // Generate unique payment ID
       const paymentId = `uzum_${Date.now()}_${order_id}`;
@@ -339,8 +345,9 @@ export class UzumService {
   }
 
   private verifySignature(data: UzumCallbackData): boolean {
+    if (!this.secretKey) return false;
     const expectedSignature = this.generateSignature(data);
-    return data.signature === expectedSignature;
+    return safeEqual(data.signature, expectedSignature);
   }
 
   private buildPaymentUrl(paymentData: any): string {

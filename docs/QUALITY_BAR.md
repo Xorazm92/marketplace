@@ -11,22 +11,22 @@ Bazaviy holat — 2026-09-29 review.
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| S1 | To'lov holatini faqat imzolangan callback o'zgartiradi (C1) | ❌ `payment/*/verify` guardsiz | 0 |
-| S2 | Payme callback Basic-auth tekshiradi (C2) | ❌ `ACCESS_DENIED` e'lon qilingan, ishlatilmagan | 0 |
-| S3 | Narx/chegirma/yetkazish serverda hisoblanadi (C3) | ❌ `unit_price` DTO'da | 0 |
-| S4 | Har yozuv endpoint'ida guard (C4) | ❌ `category`, `color` ochiq | 0 |
-| S5 | Secret'lar uchun fallback yo'q, env Joi bilan tekshiriladi (C5) | ❌ `'your-access-secret'` | 0 |
+| S1 | To'lov holatini faqat imzolangan callback o'zgartiradi (C1, C6) | ✅ verify/webhooks dublikatlari va CARD mock olib tashlandi; `route-guards.spec.ts` | 0 |
+| S2 | Payme callback Basic-auth tekshiradi (C2) | ✅ `timingSafeEqual`, fail-closed; `payment-security.spec.ts` | 0 |
+| S3 | Narx/chegirma/yetkazish serverda hisoblanadi (C3, C8) | ✅ buyurtma va to'lov summasi bazadan; `order-pricing.spec.ts` | 0 |
+| S4 | Katalog/admin yozuv endpoint'larida guard (C4, C7, C10) | ✅ statik skan: qolgan ochiq POST'lar — auth, callback va H2 nomzodlari | 0 |
+| S5 | Secret'lar uchun fallback yo'q, env Joi bilan tekshiriladi (C5, C9) | ✅ secret'siz server ishga tushmaydi (qo'lda tekshirildi); prodda to'lov secret'lari majburiy | 0 |
 | S6 | Bitta auth modul, bitta JWT env nomi (H1) | ❌ 6+ controller, 2 env nomi | 1 |
 | S7 | IDOR: egalik servisda tekshiriladi (H2) | ❌ | 1 |
 | S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ❌ 1000/daq, OTP cheklanmagan | 1 |
-| S9 | `npm audit --omit=dev` = 0 high/critical | ❔ | 0 |
+| S9 | `npm audit --omit=dev` = 0 high/critical | ❌ backend 66 high + 2 critical (handlebars, liquidjs — mailer zanjiri); frontend 13 high + 1 critical (`next` 14 → 16 kerak). Alohida `deps/security-upgrade` PR | 0→1 |
 
 ## 2. Ma'lumot yaxlitligi
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| D1 | `OrderItem.unit_price` = `Product.price` (test bilan) | ❌ | 0 |
-| D2 | Parallel buyurtmada manfiy zaxira yo'q | ❌ zaxira tekshirilmaydi | 0 |
+| D1 | `OrderItem.unit_price` = `Product.price` (test bilan) | ✅ unit test (mock Prisma) | 0 |
+| D2 | Parallel buyurtmada manfiy zaxira yo'q | ⚠️ shartli `updateMany` (stock >= qty); haqiqiy Postgres'da parallel test — Faza 3 | 0 |
 | D3 | Takroriy callback holatni ikki marta o'zgartirmaydi | ❔ | 1 |
 | D4 | Sxema = migratsiyalar (drift yo'q), bitta sxema fayli | ❌ 50 model / 2 migratsiya, `schema_continuation.prisma` | 1 |
 
@@ -43,9 +43,9 @@ Bazaviy holat — 2026-09-29 review.
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| T1 | Backend `tsc --noEmit` toza | ❔ node_modules yo'q | 0 |
-| T2 | Frontend `npm run build` o'tadi | ❌ `next-auth` package.json da yo'q | 2 |
-| T3 | Har Critical tuzatishga regressiya testi | ❌ | 0 |
+| T1 | Backend build va `tsc -p tsconfig.build.json` toza | ✅ (test fayllaridagi 300 xato — Faza 3) | 0 |
+| T2 | Frontend `npm run build` o'tadi | ❌ `tsc` 505 xato; `next-auth` e'lon qilinmagan | 2 |
+| T3 | Har Critical tuzatishga regressiya testi | ✅ 44 test, bazasiz; eski 14 yiqilish o'zgarishsiz | 0 |
 | T4 | Playwright happy-path | ❌ | 3 |
 | T5 | CI har PR'da (tsc + test + build) | ❌ `.github/` yo'q | 3 |
 
@@ -53,7 +53,7 @@ Bazaviy holat — 2026-09-29 review.
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| O1 | Bitta bootstrap, prodda helmet (H6) | ❌ `start:prod` → `simple-main` | 0 |
+| O1 | Bitta bootstrap, prodda helmet (H6) | ✅ `start`/`start:prod` → `dist/main`; `CORS_ORIGIN` env'dan | 0 |
 | O2 | `docker-compose.prod.yml` + nginx + HTTPS | ❌ | 4 |
 | O3 | `deploy.sh` (backup → migrate deploy → build → preflight → reload) | ❌ | 4 |
 | O4 | Backup (DB + uploads), tiklash bir marta sinovdan o'tgan | ❌ | 4 |

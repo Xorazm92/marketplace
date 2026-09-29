@@ -1,6 +1,6 @@
-import { IsNotEmpty, IsNumber, IsOptional, IsString, IsArray, ValidateNested } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsInt, Min, IsOptional, IsString, IsArray, ArrayNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Field, InputType, Int, Float } from '@nestjs/graphql';
+import { Field, InputType, Int } from '@nestjs/graphql';
 
 @InputType()
 export class OrderItemInput {
@@ -10,14 +10,9 @@ export class OrderItemInput {
   product_id: number;
 
   @Field(() => Int)
-  @IsNumber()
-  @IsNotEmpty()
+  @IsInt()
+  @Min(1)
   quantity: number;
-
-  @Field(() => Float)
-  @IsNumber()
-  @IsNotEmpty()
-  unit_price: number;
 }
 
 @InputType()
@@ -29,6 +24,7 @@ export class CreateOrderInput {
 
   @Field(() => [OrderItemInput])
   @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
   items: OrderItemInput[];
@@ -58,20 +54,8 @@ export class CreateOrderInput {
   @IsNotEmpty()
   currency_id: number;
 
-  @Field(() => Float, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  discount_amount?: number;
 
-  @Field(() => Float, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  tax_amount?: number;
 
-  @Field(() => Float, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  shipping_amount?: number;
 }
 
 export class CreateOrderDto {
@@ -80,6 +64,7 @@ export class CreateOrderDto {
   user_id: number;
 
   @IsArray()
+  @ArrayNotEmpty()
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
   items: OrderItemInput[];
@@ -104,15 +89,6 @@ export class CreateOrderDto {
   @IsNotEmpty()
   currency_id: number;
 
-  @IsOptional()
-  @IsNumber()
-  discount_amount?: number;
 
-  @IsOptional()
-  @IsNumber()
-  tax_amount?: number;
 
-  @IsOptional()
-  @IsNumber()
-  shipping_amount?: number;
 }

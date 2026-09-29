@@ -16,17 +16,10 @@ export interface PaymentProcessResult {
 }
 
 export interface ProcessPaymentRequest {
-  method: 'CARD' | 'CLICK' | 'PAYME' | 'UZUM' | 'CASH_ON_DELIVERY';
+  method: 'CLICK' | 'PAYME' | 'UZUM' | 'CASH_ON_DELIVERY';
   returnUrl?: string;
   cancelUrl?: string;
   description?: string;
-  cardDetails?: {
-    cardNumber?: string;
-    expiryMonth?: string;
-    expiryYear?: string;
-    cvv?: string;
-    cardHolderName?: string;
-  };
 }
 
 @Injectable()
@@ -57,7 +50,7 @@ export class PaymentService {
     }
   }
 
-  async processPayment(orderId: number, paymentData: ProcessPaymentRequest): Promise<PaymentProcessResult> {
+  async processPayment(orderId: number, userId: number, paymentData: ProcessPaymentRequest): Promise<PaymentProcessResult> {
     const order = await this.prisma.order.findUnique({
       where: { id: orderId },
       include: {
@@ -70,7 +63,7 @@ export class PaymentService {
       }
     });
 
-    if (!order) {
+    if (!order || order.user_id !== userId) {
       throw new NotFoundException('Order not found');
     }
 
@@ -82,9 +75,6 @@ export class PaymentService {
       let paymentResult: PaymentProcessResult;
       
       switch (paymentData.method) {
-        case 'CARD':
-          paymentResult = await this.processCardPayment(order, paymentData);
-          break;
         case 'CLICK':
           paymentResult = await this.processClickPayment(order, paymentData);
           break;
@@ -152,47 +142,11 @@ export class PaymentService {
     }
   }
 
-  private async processCardPayment(order: any, paymentData: ProcessPaymentRequest): Promise<PaymentProcessResult> {
-    try {
-      // Enhanced card payment processing with proper validation
-      if (!paymentData.cardDetails) {
-        throw new BadRequestException('Card details are required for card payment');
-      }
-
-      const { cardNumber, expiryMonth, expiryYear, cvv, cardHolderName } = paymentData.cardDetails;
-      
-      // Basic validation
-      if (!cardNumber || !expiryMonth || !expiryYear || !cvv || !cardHolderName) {
-        throw new BadRequestException('All card details are required');
-      }
-
-      // Simulate card processing (replace with actual payment processor)
-      const transactionId = `card_${Date.now()}_${order.id}`;
-      
-      // Mock response - replace with actual card processing
-      const success = Math.random() > 0.1; // 90% success rate for testing
-      
-      return {
-        transactionId,
-        status: success ? 'PAID' : 'FAILED',
-        response: {
-          success,
-          message: success ? 'Card payment successful' : 'Card payment failed',
-          cardLast4: cardNumber.slice(-4),
-          authCode: success ? `AUTH_${Math.random().toString(36).substring(7)}` : null
-        }
-      };
-    } catch (error) {
-      this.logger.error('Card payment processing error:', error);
-      throw new BadRequestException('Card payment processing failed');
-    }
-  }
-
   private async processClickPayment(order: any, paymentData: ProcessPaymentRequest): Promise<PaymentProcessResult> {
     try {
       const clickPayment = await this.clickService.createPayment({
         order_id: order.id,
-        amount: order.final_amount,
+        user_id: order.user_id,
         return_url: paymentData.returnUrl,
         description: paymentData.description || `Payment for order #${order.order_number}`
       });
@@ -217,7 +171,7 @@ export class PaymentService {
     try {
       const paymePayment = await this.paymeService.createPayment({
         order_id: order.id,
-        amount: order.final_amount,
+        user_id: order.user_id,
         return_url: paymentData.returnUrl,
         description: paymentData.description || `Payment for order #${order.order_number}`
       });
@@ -242,7 +196,7 @@ export class PaymentService {
     try {
       const uzumPayment = await this.uzumService.createPayment({
         order_id: order.id,
-        amount: order.final_amount,
+        user_id: order.user_id,
         return_url: paymentData.returnUrl,
         cancel_url: paymentData.cancelUrl,
         description: paymentData.description || `Payment for order #${order.order_number}`
@@ -416,32 +370,8 @@ export class PaymentService {
   }
 
   // Webhook handlers for different payment gateways
-  async handleClickWebhook(webhookData: any): Promise<any> {
-    try {
-      return await this.clickService.handleCallback(webhookData);
-    } catch (error) {
-      this.logger.error('Click webhook error:', error);
-      throw new BadRequestException('Click webhook processing failed');
-    }
-  }
 
-  async handlePaymeWebhook(webhookData: any): Promise<any> {
-    try {
-      return await this.paymeService.handleCallback(webhookData);
-    } catch (error) {
-      this.logger.error('Payme webhook error:', error);
-      throw new BadRequestException('Payme webhook processing failed');
-    }
-  }
 
-  async handleUzumWebhook(webhookData: any): Promise<any> {
-    try {
-      return await this.uzumService.handleCallback(webhookData);
-    } catch (error) {
-      this.logger.error('Uzum webhook error:', error);
-      throw new BadRequestException('Uzum webhook processing failed');
-    }
-  }
 
   // CRUD methods needed by controller
   async create(createPaymentDto: CreatePaymentDto) {

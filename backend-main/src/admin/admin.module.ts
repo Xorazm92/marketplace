@@ -13,7 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
     OtpModule,
     forwardRef(() => AuthModule),
     JwtModule.register({
-      secret: process.env.ACCESS_TOKEN_KEY || 'default-secret',
+      secret: process.env.ACCESS_TOKEN_KEY,
       signOptions: { expiresIn: '15m' }
     })
   ],

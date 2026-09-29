@@ -290,7 +290,7 @@ export class UserAuthService {
   verifyRefreshToken(token: string): { sub: number } {
     try {
       return this.jwtService.verify(token, {
-        secret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret',
+        secret: process.env.JWT_REFRESH_SECRET,
       });
     } catch (e) {
       throw new UnauthorizedException('Invalid or expired refresh token');
@@ -306,7 +306,7 @@ export class UserAuthService {
           email,
         },
         {
-          secret: process.env.JWT_ACCESS_SECRET || 'your-access-secret',
+          secret: process.env.JWT_ACCESS_SECRET,
           expiresIn: '15m',
         },
       ),
@@ -316,7 +316,7 @@ export class UserAuthService {
           email,
         },
         {
-          secret: process.env.JWT_REFRESH_SECRET || 'your-refresh-secret',
+          secret: process.env.JWT_REFRESH_SECRET,
           expiresIn: '7d',
         },
       ),

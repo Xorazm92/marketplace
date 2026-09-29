@@ -36,7 +36,7 @@ export class UnifiedAuthService {
           provider: payload.authProvider,
         },
         {
-          secret: this.configService.get<string>('JWT_ACCESS_SECRET', 'your-access-secret'),
+          secret: this.configService.getOrThrow<string>('JWT_ACCESS_SECRET'),
           expiresIn: '15m', // 15 minutes
         },
       ),
@@ -49,7 +49,7 @@ export class UnifiedAuthService {
           provider: payload.authProvider,
         },
         {
-          secret: this.configService.get<string>('JWT_REFRESH_SECRET', 'your-refresh-secret'),
+          secret: this.configService.getOrThrow<string>('JWT_REFRESH_SECRET'),
           expiresIn: '7d', // 7 days
         },
       ),

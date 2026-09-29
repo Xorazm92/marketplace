@@ -72,11 +72,21 @@ cart/wishlist class-level `UserGuard` bilan himoyalangan; order yaratish `$trans
 - Ta'sir: env o'rnatilmasa, har kim istalgan user tokenini soxtalashtiradi.
 - Yechim: fallback'lar olib tashlanadi; `ConfigModule` da Joi validatsiya (`joi` allaqachon dependency) — secret yo'q/qisqa bo'lsa server ishga tushmaydi.
 
+### Faza 0 davomida topilgan qo'shimcha Critical'lar (2026-09-29)
+
+- **[C6] Soxta karta to'lovi:** `POST /payment/process/:orderId` `method: "CARD"` + istalgan karta ma'lumoti bilan `Math.random() > 0.1` — 90% holatda buyurtma `PAID`; egalik tekshirilmasdi. → CARD tarmog'i olib tashlandi, egalik tekshiriladi.
+- **[C7] Ochiq admin ro'yxati:** `POST /admin/auth/phone-signup` ochiq edi, `role` DTO'dan, `is_active: true` — har kim o'zini SUPER_ADMIN qila olardi. → `AdminGuard + SuperAdminGuard`. `SuperAdminGuard` o'zi ham buzuq edi (`is_creator` payload'da yo'q → hammani rad etardi) — rol bo'yicha tuzatildi.
+- **[C8] To'lov summasi va egaligi mijozdan:** `*/create` `amount` ni mijozdan olardi va buyurtma egasini tekshirmasdi; Click callback shu summani solishtirgani uchun 1 so'm to'lab buyurtmani yopish mumkin edi. → summa `order.final_amount`, egalik tekshiriladi.
+- **[C9] To'lov secret fallback'lari:** `'test_secret'` (Click/Payme), `'test_uzum_secret'` — env bo'lmasa ma'lum kalit bilan imzo yasash mumkin edi. → olib tashlandi, secret yo'q bo'lsa imzo rad etiladi; prodda Joi talab qiladi.
+- **[C10] Ochiq katalog yozuvi:** `product/create` (guard "vaqtincha" izohda), `brand/seed`, `currency/seed`, `payment-methods` POST. → `AdminGuard`.
+- **`.env` yuklanish tartibi:** `JwtModule.register({ secret: process.env... })` import paytida baholanadi, `.env` esa faqat `utils/otp-crypto/crypto.ts` tasodifan import qilinganda yuklanardi — fallback secret'lar amalda ishlatilgan bo'lishi mumkin. → `main.ts` ning birinchi qatori `import 'dotenv/config'`.
+- **O'lik route:** `@Post('payme/callback') @Post('payme')` — ikkinchisi hech qachon ishlamagan (test topdi).
+
 ### High
 
 - **[H1] Auth hayvonot bog'i:** `auth/` da 6 controller (`auth`, `unified-auth` — ikkalasi `@Controller('auth')`, `phone-auth`, `sms-auth`, `user-auth`, `telegram-auth`, `google-auth`) + alohida `user-auth/` moduli. Tokenlar `JWT_ACCESS_SECRET` bilan imzolanadi, guard'lar `ACCESS_TOKEN_KEY` bilan tekshiradi (`guards/user.guard.ts:31`, `guards/admin.guard.ts:37`) — ishlashi `@nestjs/jwt` default'iga tasodifan bog'liq. → Bitta `AuthModule`: telefon+OTP (asosiy), Google (ixtiyoriy); bitta env nomi.
 - **[H2] Buzilgan endpoint:** `payment.controller.ts:405` — `UserSelfGuard` `UserGuard` siz, `req.user` undefined → 500; guard `params.id` ni tekshiradi, route `:userId`. IDOR xavfi ham shu naqshda.
-- **[H3] Frontend build yiqiladi:** `app/api/auth/[...nextauth]/route.ts` `next-auth` import qiladi, `front-main/package.json` da yo'q.
+- **[H3] `next-auth` e'lon qilinmagan:** `app/api/auth/[...nextauth]/route.ts` import qiladi; paket faqat devDependency `@next-auth/prisma-adapter` orqali tranzitiv o'rnatiladi — `npm ci --omit=dev` da buziladi. Frontend `tsc` da 505 xato (`docs/audit/BASELINE_2026-09.md`).
 - **[H4] Frontend noto'g'ri backendga ulanadi:** `front-main/next.config.js:8` default `:3001`, backend `:4000` da tinglaydi.
 - **[H5] Xarid oqimi yopilmagan:** `app/_orders.disabled/`, `app/payment/_success.disabled/` o'chirilgan; `components/checkout/EnhancedCheckoutFlow.tsx` hech qayerda ishlatilmaydi; foydalanuvchi login/ro'yxat sahifasi yo'q (faqat `admin/login`).
 - **[H6] Prod boshqa bootstrap ishlatadi:** `npm start` → `dist/simple-main` (helmet, swagger, kengaytirilgan CORS yo'q); dev → `main.ts`. Prodda xavfsizlik sarlavhalari yo'q.
@@ -117,9 +127,17 @@ Har faza oxirida `docs/QUALITY_BAR.md` jadvali yangilanadi. Har faza — alohida
 6. **H6** bitta bootstrap: `main.ts` qoladi, `simple-main.ts` va `test-server.ts` o'chadi; `start:prod` → `dist/main`.
 7. Har tuzatish uchun e2e test (supertest): "verify endpoint 404", "callback noto'g'ri auth → -32504", "mijoz `unit_price: 1` yuborsa ham DB narxi yoziladi", "user tokeni bilan `DELETE /category/1` → 401/403".
 
+### Faza 0.5 · Bog'liqliklar xavfsizligi — 1-2 kun (alohida PR)
+- `npm audit --omit=dev`: backend 2 critical + 66 high, frontend 1 critical + 13 high (`docs/audit/BASELINE_2026-09.md`).
+- Backend: `@nestjs-modules/mailer` (handlebars/liquidjs/mjml zanjiri) — MVP'da email kerak bo'lmasa modul uziladi, aks holda yangilanadi; NestJS/express/multer/axios minor-patch.
+- Frontend: `next` 14.2.17 → 16.x major — Faza 2 frontend ishlari bilan birga (App Router, `next.config.js` o'zgaradi).
+- Qabul: 0 critical; qolgan high'lar asoslangan istisno bilan `QUALITY_BAR.md` S9 da.
+
 ### Faza 1 · Backend konsolidatsiya — 4-5 kun
 - **H1** Auth birlashtirish: telefon + OTP (asosiy) + Google; bitta `JwtAuthGuard` + `RolesGuard` (`user`/`admin`/`super_admin`); `ACCESS_TOKEN_KEY` → `JWT_ACCESS_SECRET`. Refresh token rotatsiyasi `hashed_refresh_token` orqali (sxemada bor). Qolgan auth controllerlari o'chiriladi; frontend chaqiradigan route'lar avval `grep` bilan xaritalanadi.
-- **H2** IDOR audit: har `:id`/`:userId` endpoint egalikni `req.user.sub` bilan tekshiradi; `UserSelfGuard` o'rniga servisda `where: { id, user_id }`.
+- **H2** IDOR audit: har `:id`/`:userId` endpoint egalikni `req.user.sub` bilan tekshiradi; `UserSelfGuard` o'rniga servisda `where: { id, user_id }`. Aniq nomzodlar: `POST /phone-number`, `POST /email`, `POST /email/byUser/:id` (DTO'dagi istalgan `user_id` ga yozadi), `GET /payment/history/:userId`.
+- Payme holat mashinasi: `PerformTransaction` `CANCELLED` to'lovni ham bajaradi; Click callback `findFirst({ order_id, CLICK })` eski to'lov qatorini olishi mumkin; `processPayment` provayder servisi bilan birga ikkinchi `OrderPayment` qatorini yaratadi.
+- `prisma/seed.ts` joriy sxemaga moslanadi (`hashed_password`, `Inventory`).
 - **H7** Throttler prodda: global 100/daqiqa, OTP send 3/10 daqiqa/telefon (Redis storage).
 - Buyurtma holat mashinasi: `PENDING → CONFIRMED → SHIPPED → DELIVERED`, `CANCELLED` (zaxira qaytariladi); naqd to'lov uchun `payment_method = CASH`, admin "yetkazildi+to'landi" deb yopadi.
 - To'lov idempotentligi: `OrderPayment.transaction_id` `@unique`; callback qayta kelganda ikkinchi marta `PAID` yozmaydi; summa `order.final_amount` bilan solishtiriladi.
@@ -134,6 +152,9 @@ Har faza oxirida `docs/QUALITY_BAR.md` jadvali yangilanadi. Har faza — alohida
 - Har sahifada loading / error / empty holatlari; mobil (375px) tekshiruvi.
 - **M4** Holat: React Query (server holati) + Zustand (savat/UI); Redux, redux-persist, Apollo olib tashlanadi. Bitta toast kutubxonasi.
 - Ahlat fayllar (`*.bak`, `next.config.backup.ts`, `fix-nextjs.sh`, `_*.disabled`) o'chiriladi.
+- `components/Payment/MultiCurrencyPaymentGateway.tsx` karta raqami/CVV yig'adi — backend endi CARD'ni qabul qilmaydi; komponent olib tashlanadi (karta ma'lumoti serverimizga tushmasligi kerak).
+- `endpoints/color.ts` `PUT` yuboradi, backend `PATCH` kutadi; `endpoints/payment.ts` `amount` yuboradi (backend e'tiborsiz qoldiradi) — tozalanadi.
+- `Dockerfile` healthcheck `:3001` ga qaraydi (backend `:4000`).
 
 ### Faza 3 · Test + CI — 2-3 kun (Faza 0-2 bilan parallel o'sadi)
 - Backend e2e (supertest + alohida test Postgres, `TEST_DATABASE_URL` tekshiruvi — prod URL bo'lsa test to'xtaydi): auth, order narx, zaxira poygasi (2 parallel buyurtma, 1 dona zaxira), 3 provider callback (to'g'ri/noto'g'ri imzo, takroriy callback), IDOR.

@@ -1,6 +1,7 @@
 
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagger';
+import { AdminGuard } from '../guards/admin.guard';
 import { ColorsService } from '../colors/colors.service';
 import { CreateColorDto } from '../colors/dto/create-color.dto';
 import { UpdateColorDto } from '../colors/dto/update-color.dto';
@@ -11,6 +12,8 @@ export class ColorController {
   constructor(private readonly colorsService: ColorsService) {}
 
   @Post()
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Create new color' })
   create(@Body() createColorDto: CreateColorDto) {
     return this.colorsService.create(createColorDto);
@@ -29,12 +32,16 @@ export class ColorController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update color' })
   update(@Param('id') id: string, @Body() updateColorDto: UpdateColorDto) {
     return this.colorsService.update(+id, updateColorDto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete color' })
   remove(@Param('id') id: string) {
     return this.colorsService.remove(+id);

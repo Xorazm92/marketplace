@@ -30,6 +30,8 @@ export class CurrencyController {
   }
   
   @Post('seed')
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Seed default currencies' })
   @ApiResponse({ status: 201, description: 'Currencies seeded successfully' })
   async seed() {

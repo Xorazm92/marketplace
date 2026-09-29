@@ -1,5 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { AdminGuard } from '../guards/admin.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
@@ -10,6 +11,8 @@ export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @Post()
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Create a new category' })
   create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
@@ -28,8 +31,14 @@ export class CategoryController {
   }
 
   @Post('seed')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Seed default categories' })
   seedCategories() {
+    // Demo kategoriyalar prod katalogiga aralashmasligi uchun.
+    if (process.env.NODE_ENV === 'production') {
+      throw new NotFoundException();
+    }
     return this.categoryService.seedCategories();
   }
 
@@ -40,12 +49,16 @@ export class CategoryController {
   }
 
   @Patch(':id')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update category' })
   update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
     return this.categoryService.update(+id, updateCategoryDto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete category' })
   remove(@Param('id') id: string) {
     return this.categoryService.remove(+id);

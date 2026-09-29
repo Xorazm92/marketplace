@@ -104,15 +104,16 @@ cd marketplace
 - **pgAdmin:** http://localhost:8080 (admin@inbola.com / admin123)
 - **Redis Commander:** http://localhost:8081 (admin / admin123)
 
-## 👥 Test Foydalanuvchilar
+## 👥 Boshlang'ich admin
 
-Setup skripti quyidagi test foydalanuvchilarni yaratadi:
+Ma'lum parolli test hisoblari yo'q. Birinchi super admin qo'lda yaratiladi:
 
+```bash
+cd backend-main
+ADMIN_PHONE=+998... ADMIN_PASSWORD='<kamida 12 belgi>' node create-admin.js
 ```
-📱 Test User: +998901234567 / password: 123456
-👨‍💼 Admin User: +998909876543 / password: 123456
-🔑 Super Admin: +998901070125 / password: 123456
-```
+
+Qolgan adminlarni super admin `POST /api/v1/admin/auth/phone-signup` orqali qo'shadi.
 
 ## 📁 Loyiha Strukturasi
 

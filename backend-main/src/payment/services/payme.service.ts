@@ -3,11 +3,12 @@ import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import { PaymentStatus } from '@prisma/client';
 import * as crypto from 'crypto';
+import { safeEqual } from './signature.util';
 import axios from 'axios';
 
 export interface PaymePaymentRequest {
   order_id: number;
-  amount: number;
+  user_id: number;
   return_url?: string;
   description?: string;
 }
@@ -60,19 +61,15 @@ export class PaymeService {
     private readonly prisma: PrismaService,
   ) {
     this.merchantId = this.configService.get<string>('PAYME_MERCHANT_ID') || 'test_merchant';
-    this.secretKey = this.configService.get<string>('PAYME_SECRET_KEY') || 'test_secret';
+    this.secretKey = this.configService.get<string>('PAYME_SECRET_KEY');
     this.baseUrl = this.configService.get<string>('PAYME_BASE_URL') || 'https://checkout.paycom.uz';
     this.testMode = this.configService.get<string>('NODE_ENV') !== 'production';
   }
 
   async createPayment(request: PaymePaymentRequest): Promise<PaymePaymentResponse> {
     try {
-      const { order_id, amount, return_url, description } = request;
+      const { order_id, user_id, return_url, description } = request;
 
-      // Validate input
-      if (amount <= 0) {
-        throw new BadRequestException('Amount must be greater than 0');
-      }
 
       // Validate order
       const order = await this.prisma.order.findUnique({
@@ -80,8 +77,16 @@ export class PaymeService {
         include: { user: true }
       });
 
-      if (!order) {
+      // Summa mijozdan olinmaydi: aks holda birovning buyurtmasiga 1 so'mlik
+      // to'lov ochib, uni haqiqatan to'lash orqali buyurtmani yopish mumkin edi.
+      if (!order || order.user_id !== user_id) {
         throw new BadRequestException('Order not found');
+      }
+
+      const amount = Number(order.final_amount);
+
+      if (amount <= 0) {
+        throw new BadRequestException('Amount must be greater than 0');
       }
 
       if (order.payment_status === 'PAID') {
@@ -94,7 +99,7 @@ export class PaymeService {
       // Prepare Payme payment data
       const paymentData = {
         merchant: this.merchantId,
-        amount: amount * 100, // Payme works with tiyin (UZS * 100)
+        amount: this.toTiyin(amount),
         account: {
           order_id: order_id.toString(),
         },
@@ -184,11 +189,30 @@ export class PaymeService {
     }
   }
 
-  async handleCallback(callbackData: PaymeCallbackData): Promise<any> {
+  async handleCallback(callbackData: PaymeCallbackData, authorization?: string): Promise<any> {
+    // Payme har javobda so'rovning `id` sini kutadi.
+    const response = await this.dispatchCallback(callbackData, authorization);
+    return { ...response, id: callbackData?.id ?? null };
+  }
+
+  // Payme merchant API: `Authorization: Basic base64("Paycom:" + secret)`.
+  // Busiz har kim PerformTransaction yuborib buyurtmani to'langan qila olardi.
+  private isAuthorized(authorization?: string): boolean {
+    if (!this.secretKey) return false;
+    const expected = 'Basic ' + Buffer.from(`Paycom:${this.secretKey}`).toString('base64');
+    return safeEqual(authorization, expected);
+  }
+
+  private async dispatchCallback(callbackData: PaymeCallbackData, authorization?: string): Promise<any> {
+    if (!this.isAuthorized(authorization)) {
+      this.logger.warn('Payme callback rejected: invalid Authorization');
+      return this.createErrorResponse(this.PAYME_ERRORS.ACCESS_DENIED, 'Access denied');
+    }
+
     try {
       this.logger.log('Payme callback received:', JSON.stringify(callbackData));
 
-      const { id, method, params } = callbackData;
+      const { method, params } = callbackData;
       
       // Validate required fields
       if (!method || !params) {
@@ -247,7 +271,7 @@ export class PaymeService {
       }
 
       // Check if amount matches
-      if (amount !== Number(order.total_amount) * 100) { // Convert to tiyin for comparison
+      if (amount !== this.toTiyin(order.final_amount)) {
         return this.createErrorResponse(this.PAYME_ERRORS.INVALID_AMOUNT, 'Invalid amount');
       }
 
@@ -259,7 +283,7 @@ export class PaymeService {
             items: [
               {
                 title: `Order #${order.order_number}`,
-                price: Number(order.total_amount) * 100,
+                price: this.toTiyin(order.final_amount),
                 count: 1,
                 code: 'order',
                 package_code: 'order',
@@ -319,6 +343,10 @@ export class PaymeService {
       const paidPayment = order.payments.find(p => p.status === 'PAID');
       if (paidPayment) {
         return this.createErrorResponse(this.PAYME_ERRORS.CANNOT_PERFORM, 'Order already paid');
+      }
+
+      if (amount !== this.toTiyin(order.final_amount)) {
+        return this.createErrorResponse(this.PAYME_ERRORS.INVALID_AMOUNT, 'Invalid amount');
       }
 
       // Create payment record
@@ -690,6 +718,11 @@ export class PaymeService {
       this.logger.error('Error processing refund:', error);
       throw error;
     }
+  }
+
+  // Suzuvchi nuqta xatosi (0.1 * 100) summani tiyinda 1 ga surib yubormasligi uchun yaxlitlanadi.
+  private toTiyin(amount: unknown): number {
+    return Math.round(Number(amount) * 100);
   }
 
   private createErrorResponse(code: number, message: string, data: any = null): any {

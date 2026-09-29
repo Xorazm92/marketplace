@@ -4,6 +4,7 @@ import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth } from '@nestjs/swagg
 import { AdminService } from './admin.service';
 import { AdminPhoneAuthService } from './admin-phone-auth.service';
 import { AdminGuard } from '../guards/admin.guard';
+import { SuperAdminGuard } from '../guards/superAdmin.guard';
 import { AdminPermissionGuard, Permissions } from '../auth/guards/admin-permission.guard';
 import { Permission } from '../auth/rbac/permissions.enum';
 import { AdminPhoneSignUpDto, AdminPhoneSignInDto, AdminOtpLoginDto } from './dto';
@@ -26,8 +27,12 @@ export class AdminController {
     return this.adminPhoneAuthService.sendAdminOtp(body.phone_number, body.purpose);
   }
 
+  // Ochiq bo'lsa har kim o'zini istalgan rol bilan faol admin qilib ro'yxatdan o'tkazardi.
+  // Birinchi super admin `create-admin.js` bilan yaratiladi.
   @Post('auth/phone-signup')
-  @ApiOperation({ summary: 'Admin registration via phone number' })
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard, SuperAdminGuard)
+  @ApiOperation({ summary: 'Admin registration via phone number (super admin only)' })
   @ApiResponse({ status: 201, description: 'Admin registered successfully' })
   async adminPhoneSignUp(@Body() dto: AdminPhoneSignUpDto, @Res({ passthrough: true }) res: Response) {
     const result = await this.adminPhoneAuthService.adminPhoneSignUp(dto);

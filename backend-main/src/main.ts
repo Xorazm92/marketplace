@@ -1,4 +1,7 @@
-
+// Modullar `JwtModule.register({ secret: process.env... })` ni import paytida
+// baholaydi — ConfigModule .env ni esa undan keyin yuklaydi. Shuning uchun .env
+// eng birinchi yuklanadi, aks holda secret'lar undefined bo'lib qoladi.
+import 'dotenv/config';
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe, Logger, VersioningType } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
@@ -35,7 +38,7 @@ async function bootstrap(): Promise<void> {
     
     // Session middleware for OAuth
     app.use(session({
-      secret: process.env.JWT_ACCESS_SECRET || 'your-session-secret',
+      secret: process.env.SESSION_SECRET,
       resave: false,
       saveUninitialized: false,
       cookie: {
@@ -101,7 +104,8 @@ async function bootstrap(): Promise<void> {
           'http://127.0.0.1:3001',
           'http://127.0.0.1:5000',
           'http://localhost',
-          'http://127.0.0.1'
+          'http://127.0.0.1',
+          ...(process.env.CORS_ORIGIN || '').split(',').map(o => o.trim()).filter(Boolean),
         ];
         
         if (allowedOrigins.indexOf(origin) !== -1 || !origin) {

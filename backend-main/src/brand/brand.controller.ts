@@ -61,6 +61,8 @@ export class BrandController {
   }
 
   @Post('seed')
+  @ApiBearerAuth("inbola")
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Seed default brands' })
   @ApiResponse({ status: 201, description: 'Brands seeded successfully' })
   async seed() {

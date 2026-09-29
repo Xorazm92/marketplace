@@ -13,7 +13,10 @@ import {
   HttpCode,
   BadRequestException,
   NotFoundException,
+  Headers,
+  Logger,
 } from '@nestjs/common';
+import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 import { PaymentService } from './payment.service';
 import { CreatePaymentDto } from './dto/create-payment.dto';
 import { UpdatePaymentDto } from './dto/update-payment.dto';
@@ -29,6 +32,8 @@ import { UzumService } from './services/uzum.service';
 @ApiTags('💳 Payments')
 @Controller('payment')
 export class PaymentController {
+  private readonly logger = new Logger(PaymentController.name);
+
   constructor(
     private readonly paymentService: PaymentService,
     private readonly clickService: ClickService,
@@ -112,21 +117,15 @@ export class PaymentController {
   @ApiResponse({ status: 404, description: 'Order not found' })
   async processPayment(
     @Param('orderId', ParseIntPipe) orderId: number,
+    @GetCurrentUserId() userId: number,
     @Body() paymentData: {
-      method: 'CARD' | 'CLICK' | 'PAYME' | 'UZUM' | 'CASH_ON_DELIVERY';
+      method: 'CLICK' | 'PAYME' | 'UZUM' | 'CASH_ON_DELIVERY';
       returnUrl?: string;
       cancelUrl?: string;
       description?: string;
-      cardDetails?: {
-        cardNumber?: string;
-        expiryMonth?: string;
-        expiryYear?: string;
-        cvv?: string;
-        cardHolderName?: string;
-      };
     },
   ) {
-    return this.paymentService.processPayment(orderId, paymentData);
+    return this.paymentService.processPayment(orderId, userId, paymentData);
   }
 
   // Get payment status for order
@@ -186,14 +185,15 @@ export class PaymentController {
   @ApiResponse({ status: 200, description: 'Click payment created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  async createClickPayment(@Body() paymentData: {
+  async createClickPayment(
+    @GetCurrentUserId() userId: number,
+    @Body() paymentData: {
     order_id: number;
-    amount: number;
     return_url?: string;
     description?: string;
   }) {
     try {
-      return await this.clickService.createPayment(paymentData);
+      return await this.clickService.createPayment({ ...paymentData, user_id: userId });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -212,20 +212,6 @@ export class PaymentController {
     }
   }
 
-  @Get('click/verify')
-  @ApiOperation({ summary: 'Verify Click payment', description: 'Manually verify Click payment status' })
-  @ApiQuery({ name: 'payment_id', description: 'Payment ID' })
-  @ApiQuery({ name: 'status', description: 'Payment status' })
-  @ApiResponse({ status: 200, description: 'Payment verification completed' })
-  async verifyClickPayment(
-    @Query('payment_id') paymentId: string,
-    @Query('status') status: string,
-  ) {
-    if (!paymentId || !status) {
-      throw new BadRequestException('payment_id and status are required');
-    }
-    return await this.clickService.verifyPayment(paymentId, status);
-  }
 
   @Post('click/refund')
   @UseGuards(AdminGuard)
@@ -250,27 +236,30 @@ export class PaymentController {
   @ApiResponse({ status: 200, description: 'Payme payment created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  async createPaymePayment(@Body() paymentData: {
+  async createPaymePayment(
+    @GetCurrentUserId() userId: number,
+    @Body() paymentData: {
     order_id: number;
-    amount: number;
     return_url?: string;
     description?: string;
   }) {
     try {
-      return await this.paymeService.createPayment(paymentData);
+      return await this.paymeService.createPayment({ ...paymentData, user_id: userId });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
   }
 
   @Post('payme/callback')
-  @Post('payme') // Alternative endpoint for Payme
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Payme payment callback', description: 'Handle Payme JSON-RPC webhook' })
   @ApiResponse({ status: 200, description: 'Callback processed successfully' })
-  async paymeCallback(@Body() callbackData: any) {
+  async paymeCallback(
+    @Body() callbackData: any,
+    @Headers('authorization') authorization?: string,
+  ) {
     try {
-      return await this.paymeService.handleCallback(callbackData);
+      return await this.paymeService.handleCallback(callbackData, authorization);
     } catch (error) {
       this.logger.error('Payme callback error:', error);
       return {
@@ -282,20 +271,6 @@ export class PaymentController {
     }
   }
 
-  @Get('payme/verify')
-  @ApiOperation({ summary: 'Verify Payme payment', description: 'Manually verify Payme payment status' })
-  @ApiQuery({ name: 'payment_id', description: 'Payment ID' })
-  @ApiQuery({ name: 'status', description: 'Payment status' })
-  @ApiResponse({ status: 200, description: 'Payment verification completed' })
-  async verifyPaymePayment(
-    @Query('payment_id') paymentId: string,
-    @Query('status') status: string,
-  ) {
-    if (!paymentId || !status) {
-      throw new BadRequestException('payment_id and status are required');
-    }
-    return await this.paymeService.verifyPayment(paymentId, status);
-  }
 
   @Get('payme/status/:paymentId')
   @UseGuards(UserGuard)
@@ -330,15 +305,16 @@ export class PaymentController {
   @ApiResponse({ status: 200, description: 'Uzum payment created successfully' })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @ApiResponse({ status: 404, description: 'Order not found' })
-  async createUzumPayment(@Body() paymentData: {
+  async createUzumPayment(
+    @GetCurrentUserId() userId: number,
+    @Body() paymentData: {
     order_id: number;
-    amount: number;
     return_url?: string;
     cancel_url?: string;
     description?: string;
   }) {
     try {
-      return await this.uzumService.createPayment(paymentData);
+      return await this.uzumService.createPayment({ ...paymentData, user_id: userId });
     } catch (error) {
       throw new BadRequestException(error.message);
     }
@@ -361,20 +337,6 @@ export class PaymentController {
     }
   }
 
-  @Get('uzum/verify')
-  @ApiOperation({ summary: 'Verify Uzum payment', description: 'Manually verify Uzum payment status' })
-  @ApiQuery({ name: 'payment_id', description: 'Payment ID' })
-  @ApiQuery({ name: 'status', description: 'Payment status' })
-  @ApiResponse({ status: 200, description: 'Payment verification completed' })
-  async verifyUzumPayment(
-    @Query('payment_id') paymentId: string,
-    @Query('status') status: string,
-  ) {
-    if (!paymentId || !status) {
-      throw new BadRequestException('payment_id and status are required');
-    }
-    return await this.uzumService.verifyPayment(paymentId, status);
-  }
 
   @Get('uzum/status/:paymentId')
   @UseGuards(UserGuard)
@@ -420,31 +382,5 @@ export class PaymentController {
     return this.paymentService.getPaymentHistory(userId, pageNum, limitNum);
   }
 
-  // =============================================================================
-  // WEBHOOK ENDPOINTS (Public - no auth required)
-  // =============================================================================
 
-  @Post('webhooks/click')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Click webhook endpoint' })
-  async clickWebhook(@Body() webhookData: any) {
-    return await this.paymentService.handleClickWebhook(webhookData);
-  }
-
-  @Post('webhooks/payme')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Payme webhook endpoint' })
-  async paymeWebhook(@Body() webhookData: any) {
-    return await this.paymentService.handlePaymeWebhook(webhookData);
-  }
-
-  @Post('webhooks/uzum')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Uzum webhook endpoint' })
-  async uzumWebhook(@Body() webhookData: any) {
-    return await this.paymentService.handleUzumWebhook(webhookData);
-  }
-
-  // Add logger property
-  private readonly logger = new (require('@nestjs/common').Logger)(PaymentController.name);
 }

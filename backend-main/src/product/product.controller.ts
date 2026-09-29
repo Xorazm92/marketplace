@@ -135,7 +135,7 @@ export class ProductController {
   
   @ApiOperation({ summary: "Create new product" })
   @ApiBearerAuth("inbola")
-  // @UseGuards(UserGuard) // Temporarily disabled for admin testing
+  @UseGuards(AdminGuard)
   @Post("create")
   @ApiConsumes("multipart/form-data")
   @UseInterceptors(

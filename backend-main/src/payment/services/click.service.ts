@@ -2,11 +2,12 @@ import { Injectable, Logger, BadRequestException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../prisma/prisma.service';
 import * as crypto from 'crypto';
+import { safeEqual } from './signature.util';
 import axios from 'axios';
 
 export interface ClickPaymentRequest {
   order_id: number;
-  amount: number;
+  user_id: number;
   return_url?: string;
   description?: string;
 }
@@ -44,7 +45,7 @@ export class ClickService {
     private readonly prisma: PrismaService,
   ) {
     this.merchantId = this.configService.get<string>('CLICK_MERCHANT_ID') || 'test_merchant';
-    this.secretKey = this.configService.get<string>('CLICK_SECRET_KEY') || 'test_secret';
+    this.secretKey = this.configService.get<string>('CLICK_SECRET_KEY');
     this.serviceId = this.configService.get<string>('CLICK_SERVICE_ID') || 'test_service';
     this.merchantUserId = this.configService.get<string>('CLICK_MERCHANT_USER_ID') || 'test_user';
     this.baseUrl = this.configService.get<string>('CLICK_BASE_URL') || 'https://api.click.uz/v2';
@@ -52,12 +53,8 @@ export class ClickService {
 
   async createPayment(request: ClickPaymentRequest): Promise<ClickPaymentResponse> {
     try {
-      const { order_id, amount, return_url, description } = request;
+      const { order_id, user_id, return_url, description } = request;
 
-      // Validate input
-      if (amount <= 0) {
-        throw new BadRequestException('Amount must be greater than 0');
-      }
 
       // Validate order
       const order = await this.prisma.order.findUnique({
@@ -65,8 +62,16 @@ export class ClickService {
         include: { user: true }
       });
 
-      if (!order) {
+      // Summa mijozdan olinmaydi: aks holda birovning buyurtmasiga 1 so'mlik
+      // to'lov ochib, uni haqiqatan to'lash orqali buyurtmani yopish mumkin edi.
+      if (!order || order.user_id !== user_id) {
         throw new BadRequestException('Order not found');
+      }
+
+      const amount = Number(order.final_amount);
+
+      if (amount <= 0) {
+        throw new BadRequestException('Amount must be greater than 0');
       }
 
       if (order.payment_status === 'PAID') {
@@ -329,10 +334,11 @@ export class ClickService {
   }
 
   private verifyCallbackSignature(data: ClickCallbackData): boolean {
+    if (!this.secretKey) return false;
     // Click callback signature verification
     const signString = `${data.click_trans_id}${data.service_id}${this.secretKey}${data.merchant_trans_id}${data.amount}${data.action}${data.sign_time}`;
     const expectedSignature = crypto.createHash('md5').update(signString).digest('hex');
-    return data.sign_string === expectedSignature;
+    return safeEqual(data.sign_string, expectedSignature);
   }
 
   private buildPaymentUrl(data: any): string {

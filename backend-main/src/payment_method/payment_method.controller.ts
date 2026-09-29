@@ -24,6 +24,8 @@ export class PaymentMethodController {
   constructor(private readonly service: PaymentMethodService) {}
 
   @Post()
+  @ApiBearerAuth('inbola')
+  @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Yangi to‘lov usuli yaratish' })
   @ApiResponse({ status: 201, description: 'To‘lov usuli yaratildi' })
   @ApiResponse({ status: 400, description: 'Xato so‘rov maʼlumotlari' })
