@@ -68,7 +68,7 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin
 |---|---|---|---|
 | C1 | Repoda ishlatilmaydigan kod yo'q | ✅ 1 000+ fayl olib tashlandi (`front-main`, eski backend modullari, generatsiya qilingan Prisma, ikkilik fayllar) — `docs/ICEBOX.md` | 5 |
 | C3 | Sxemada ishlatilmaydigan jadval yo'q | ✅ 32 jadval DROP (tasdiqlangan), 22 model qoldi, drift 0 | 5 |
-| C2 | Bitta faol shox | ⚠️ mahalliy — ha; remote'dagi 5 eski shox egasi tasdig'ini kutmoqda | 5 |
+| C2 | Bitta faol shox | ✅ mahalliy va GitHub'da faqat `main`; 5 ta eski remote shox o'chirildi (tasdiqlangan). Ularda commit qilingan DB/Redis parollari va eski JWT kalitlari almashtirilishi kerak | 5 |
 
 ## 7. Agent infratuzilmasi
 
