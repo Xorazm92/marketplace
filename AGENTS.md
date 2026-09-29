@@ -16,7 +16,8 @@ O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 - **Buyurtma + zaxira + to'lov yozuvlari bitta `$transaction` da.** Callback
   takror kelsa holat ikkinchi marta o'zgarmaydi (idempotent).
 - **Har yozuv endpoint'ida guard bor.** Egalik servisda `where: { id, user_id }`
-  bilan tekshiriladi; UI hech qachon yagona to'siq emas.
+  bilan tekshiriladi; UI hech qachon yagona to'siq emas. Foydalanuvchi — `UserGuard`,
+  admin — `AdminGuard` (+ `SuperAdminGuard`); token turlari bir-birining o'rnida o'tmaydi.
 - **Secret'lar uchun koddagi fallback yo'q.** Env yetishmasa server ishga tushmasligi kerak.
 
 ## Buyruqlar
@@ -24,44 +25,50 @@ O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 ```bash
 # backend-main/
 npm ci
-npm run start:dev                    # :4000, prefiks /api
-npx tsc --noEmit                     # tiplar
-npm run test                         # jest
-npm run test:e2e
-npx prisma generate
-npx prisma migrate dev --name <nom>  # faqat lokal
+npm run start:dev                    # :4000, API /api/v1/..., Swagger /api/docs
+npx tsc --noEmit -p tsconfig.build.json
+npm test                             # unit (bazasiz)
+TEST_DATABASE_URL=postgresql://USER@HOST:PORT/NOMI_test npm run test:e2e   # haqiqiy Postgres
+npx prisma migrate dev --name <nom>  # faqat lokal, yangi migratsiya
 npx prisma migrate deploy            # server
+npm run seed                         # hududlar, toifalar, UZS (SEED_DEMO=true — demo mahsulotlar)
+ADMIN_PHONE=+998... ADMIN_PASSWORD=... node create-admin.js   # birinchi super admin
 
 # front-main/
 npm ci
 npm run dev                          # :5000
 npm run build
-npm run type-check
 
 # ildiz
-docker compose up -d postgres redis
-bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh   # qo'riqchi sinovi
+bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
 ```
+
+## Modullar (MVP)
+
+`identity/` (auth, OTP, SMS, token) · `catalog/` (mahsulotlar) · `order/` · `payments/`
+(Payme, Click) · `account/` (manzillar) · `backoffice/` (admin dashboard, userlar) ·
+`cart/` · `wishlist/` · `category/` · `brand/` · `region/` · `district/` · `review/` · `health/`.
+Qolgan papkalar ulanmagan — `docs/ICEBOX.md`. Ularni `app.module.ts` ga
+qayta ulashdan oldin o'sha ro'yxatdagi shartlarni o'qing.
 
 ## Tuzoqlar
 
 Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 
-- **Ildizdagi eski hisobotlar ishonchsiz.** `docs/archive/` dagi
-  "PRODUCTION READY" hisobotlari kodga zid; holat uchun `docs/QUALITY_BAR.md` ga qarang.
-- **Ikkita bootstrap bor:** `npm run start:dev` → `src/main.ts`, `npm start` →
-  `src/simple-main.ts` (helmet/swagger yo'q). O'zgarish ikkalasiga ta'sir qiladimi — tekshiring
-  (Faza 0 da bittaga birlashtiriladi).
-- **JWT env nomlari ikki xil:** tokenlar `JWT_ACCESS_SECRET` bilan imzolanadi,
-  `guards/*.guard.ts` esa `ACCESS_TOKEN_KEY` bilan tekshiradi — ishlashi `@nestjs/jwt`
-  default secret'iga bog'liq (Faza 1 da birlashtiriladi).
-- **Auth 6+ controllerga sochilgan** (`auth/`, `user-auth/`). `auth.controller` va
-  `unified-auth.controller` ikkalasi `@Controller('auth')` — route to'qnashuvini tekshiring.
-- **`prisma/schema_continuation.prisma` eskirgan nusxa** — manba faqat `schema.prisma`.
-- **Frontend default backend porti `:3001`** (`front-main/next.config.js`), backend `:4000` da.
-  `NEXT_PUBLIC_BACKEND_URL` ni o'rnating.
-- **`dev.db`, `dump.rdb`, `.env.test` repoda** — yangilarini qo'shmang (qo'riqchi to'sadi).
+- **Uzilgan modullar kodda turibdi.** `auth/`, `admin/`, `payment/`, `product/`,
+  `address/` va boshqalar `src/` da, lekin `app.module.ts` ga ulanmagan. Yangi kodni
+  ularga emas, `identity/`, `catalog/`, `payments/`, `account/` ga yozing.
+- **E2E testlar bazani TRUNCATE qiladi.** `test/mvp/harness.ts` faqat nomi `_test`
+  bilan tugaydigan bazada ishlaydi. Bu tekshiruvni olib tashlamang.
+- **Click summasi so'mda, Payme summasi tiyinda.** `payments/order-payment-state.ts`
+  dagi `tiyin()` dan foydalaning; eski kod Click'ni `* 100` bilan solishtirardi.
+- **To'lov callback'lari takror keladi.** Holat o'zgarishi shartli `updateMany`
+  (`where: { provider_state: 1 }`) bilan yoziladi — oddiy `update` ikki marta ishlaydi.
+- **`OrderService.cancel()` zaxirani qaytaradi** va takroriy chaqiruvda hech narsa qilmaydi.
+  Buyurtmani bekor qilishning boshqa yo'lini yozmang.
+- **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
+- **`dev.db`, `dump.rdb`, `.env.test` repoda** (tarixiy) — yangilarini qo'shmang.
 
 ## Agent sozlamalari
 

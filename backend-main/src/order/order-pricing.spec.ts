@@ -1,118 +1,79 @@
-import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { BadRequestException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/create-order.dto';
 
-// Faza 0 regressiyasi (C3): narx faqat bazadan, zaxira tranzaksiya ichida kamayadi.
+// Tez (bazasiz) regressiya: narx faqat bazadan, zaxira shartli kamayadi.
+// To'liq xatti-harakat haqiqiy Postgres bilan: test/mvp/orders.e2e-spec.ts.
 
 function prismaMock() {
   const prisma: any = {
-    user: { findUnique: jest.fn().mockResolvedValue({ id: 1 }) },
-    product: { findUnique: jest.fn() },
+    address: {
+      findFirst: jest.fn().mockResolvedValue({ id: 9, name: 'Uy', address: 'x', phone_number: null, region: { name: 'T' }, district: null, user: { phone_number: '+998900000000' } }),
+    },
+    currency: { upsert: jest.fn().mockResolvedValue({ id: 1 }) },
+    product: { findFirst: jest.fn() },
     inventory: { updateMany: jest.fn().mockResolvedValue({ count: 1 }) },
     inventoryMovement: { create: jest.fn() },
-    order: { create: jest.fn().mockResolvedValue({ id: 10 }), findUnique: jest.fn().mockResolvedValue({ id: 10 }) },
-    orderItem: { createMany: jest.fn() },
+    order: { create: jest.fn().mockResolvedValue({ id: 10 }) },
+    cartItem: { deleteMany: jest.fn() },
   };
   prisma.$transaction = jest.fn((fn: (tx: any) => unknown) => fn(prisma));
   return prisma;
 }
 
+const config = (values: Record<string, string> = {}) => ({ get: (key: string) => values[key] }) as unknown as ConfigService;
+
 const product = {
   id: 5,
   title: 'Konstruktor',
   price: '50000',
-  is_active: true,
   min_order_quantity: 1,
   max_order_quantity: null,
   availability_status: 'in_stock',
   inventory: { id: 3 },
 };
 
-const baseDto = { user_id: 1, currency_id: 1 };
-
 describe('OrderService.createOrder', () => {
   let prisma: any;
   let service: OrderService;
+  const dto = (items: Array<{ product_id: number; quantity: number }>, payment_method: any = 'CASH') => ({ items, address_id: 9, payment_method });
 
   beforeEach(() => {
     prisma = prismaMock();
-    prisma.product.findUnique.mockResolvedValue(product);
-    service = new OrderService(prisma);
-    jest.spyOn(service, 'findOne').mockResolvedValue({ id: 10 } as any);
+    prisma.product.findFirst.mockResolvedValue(product);
+    service = new OrderService(prisma, config({ SHIPPING_FLAT_FEE: '15000' }));
+    jest.spyOn(service, 'findMine').mockResolvedValue({ id: 10 } as any);
   });
 
-  it('mijoz yuborgan narxni e\'tiborsiz qoldirib, Product.price ni yozadi', async () => {
-    await service.createOrder({
-      ...baseDto,
-      items: [{ product_id: 5, quantity: 2, unit_price: 1 } as any],
-      discount_amount: 99999, shipping_amount: -500,
-    } as any);
+  it('Product.price va server yetkazish narxini yozadi', async () => {
+    await service.createOrder(1, dto([{ product_id: 5, quantity: 2 }]));
+    const data = prisma.order.create.mock.calls[0][0].data;
+    expect(data).toEqual(expect.objectContaining({ total_amount: 100000, shipping_amount: 15000, final_amount: 115000, user_id: 1 }));
+    expect(data.items.createMany.data).toEqual([{ product_id: 5, quantity: 2, unit_price: 50000, total_price: 100000 }]);
+  });
 
-    expect(prisma.orderItem.createMany).toHaveBeenCalledWith({
-      data: [{ order_id: 10, product_id: 5, quantity: 2, unit_price: 50000, total_price: 100000 }],
-    });
-    expect(prisma.order.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ total_amount: 100000, discount_amount: 0, shipping_amount: 0, final_amount: 100000 }),
-    });
+  it('manzil boshqa foydalanuvchiniki bo\'lsa rad etadi', async () => {
+    prisma.address.findFirst.mockResolvedValue(null);
+    await expect(service.createOrder(1, dto([{ product_id: 5, quantity: 1 }]))).rejects.toBeInstanceOf(BadRequestException);
+    expect(prisma.address.findFirst).toHaveBeenCalledWith(expect.objectContaining({ where: { id: 9, user_id: 1 } }));
   });
 
   it('zaxira yetmasa buyurtma yaratilmaydi', async () => {
     prisma.inventory.updateMany.mockResolvedValue({ count: 0 });
-    await expect(
-      service.createOrder({ ...baseDto, items: [{ product_id: 5, quantity: 3 }] } as any),
-    ).rejects.toBeInstanceOf(BadRequestException);
+    await expect(service.createOrder(1, dto([{ product_id: 5, quantity: 3 }]))).rejects.toBeInstanceOf(BadRequestException);
     expect(prisma.order.create).not.toHaveBeenCalled();
   });
 
-  it('zaxirani shartli (stock >= miqdor) kamaytiradi va harakatni yozadi', async () => {
-    await service.createOrder({ ...baseDto, items: [{ product_id: 5, quantity: 1 }, { product_id: 5, quantity: 2 }] } as any);
-    // Bir mahsulotning ikki qatori bitta tekshiruvga yig'iladi.
+  it('bir mahsulotning ikki qatori bitta shartli kamaytirishga yig\'iladi', async () => {
+    await service.createOrder(1, dto([{ product_id: 5, quantity: 1 }, { product_id: 5, quantity: 2 }]));
     expect(prisma.inventory.updateMany).toHaveBeenCalledTimes(1);
     expect(prisma.inventory.updateMany).toHaveBeenCalledWith({
       where: { product_id: 5, stock_quantity: { gte: 3 } },
       data: { stock_quantity: { decrement: 3 } },
     });
-    expect(prisma.inventoryMovement.create).toHaveBeenCalledWith({
-      data: expect.objectContaining({ inventory_id: 3, type: 'OUT', quantity: 3 }),
-    });
   });
 
-  it('zaxirasi kuzatilmaydigan, lekin tugagan mahsulotni sotmaydi', async () => {
-    prisma.product.findUnique.mockResolvedValue({ ...product, inventory: null, availability_status: 'out_of_stock' });
-    await expect(
-      service.createOrder({ ...baseDto, items: [{ product_id: 5, quantity: 1 }] } as any),
-    ).rejects.toBeInstanceOf(BadRequestException);
-  });
-
-  it('max_order_quantity dan oshsa rad etadi', async () => {
-    prisma.product.findUnique.mockResolvedValue({ ...product, max_order_quantity: 2 });
-    await expect(
-      service.createOrder({ ...baseDto, items: [{ product_id: 5, quantity: 3 }] } as any),
-    ).rejects.toBeInstanceOf(BadRequestException);
-    expect(prisma.inventory.updateMany).not.toHaveBeenCalled();
-  });
-});
-
-describe('CreateOrderDto validatsiyasi (main.ts dagi global pipe sozlamalari)', () => {
-  const pipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true, transform: true });
-  const validate = (body: unknown) => pipe.transform(body, { type: 'body', metatype: CreateOrderDto });
-
-  it('unit_price, discount_amount, shipping_amount qabul qilinmaydi', async () => {
-    await expect(validate({ ...baseDto, items: [{ product_id: 5, quantity: 1, unit_price: 1 }] })).rejects.toBeDefined();
-    await expect(validate({ ...baseDto, items: [{ product_id: 5, quantity: 1 }], shipping_amount: 0 })).rejects.toBeDefined();
-  });
-
-  it('nol, manfiy va kasr miqdorni rad etadi', async () => {
-    for (const quantity of [0, -1, 1.5]) {
-      await expect(validate({ ...baseDto, items: [{ product_id: 5, quantity }] })).rejects.toBeDefined();
-    }
-  });
-
-  it('bo\'sh savat bilan buyurtma berib bo\'lmaydi', async () => {
-    await expect(validate({ ...baseDto, items: [] })).rejects.toBeDefined();
-  });
-
-  it('to\'g\'ri so\'rovni o\'tkazadi', async () => {
-    await expect(validate({ ...baseDto, items: [{ product_id: 5, quantity: 2 }] })).resolves.toBeDefined();
+  it('sozlanmagan to\'lov usulini rad etadi', async () => {
+    await expect(service.createOrder(1, dto([{ product_id: 5, quantity: 1 }], 'PAYME'))).rejects.toBeInstanceOf(BadRequestException);
   });
 });

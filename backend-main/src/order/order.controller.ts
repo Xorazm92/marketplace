@@ -1,147 +1,58 @@
-import {
-  Controller,
-  Get,
-  Post,
-  Body,
-  Patch,
-  Param,
-  Delete,
-  Query,
-  UseGuards,
-  ParseIntPipe,
-} from '@nestjs/common';
-import { OrderService } from './order.service';
-import { CreateOrderDto } from './dto/create-order.dto';
-import { UpdateOrderDto, OrderStatus } from './dto/update-order.dto';
+import { Body, Controller, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { UserGuard } from '../guards/user.guard';
 import { AdminGuard } from '../guards/admin.guard';
 import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
+import { OrderService } from './order.service';
+import { AdminListOrdersQuery, CreateOrderDto, ListOrdersQuery, UpdateOrderStatusDto } from './dto/create-order.dto';
 
+@ApiTags('Orders')
+@ApiBearerAuth()
 @Controller('orders')
+@UseGuards(UserGuard)
 export class OrderController {
-  constructor(private readonly orderService: OrderService) {}
+  constructor(private readonly orders: OrderService) {}
 
   @Post()
-  @UseGuards(UserGuard)
-  async create(
-    @Body() createOrderDto: CreateOrderDto,
-    @GetCurrentUserId() userId: number,
-  ) {
-    // Ensure the order is created for the authenticated user
-    createOrderDto.user_id = userId;
-    return this.orderService.createOrder(createOrderDto);
+  create(@GetCurrentUserId() userId: number, @Body() dto: CreateOrderDto) {
+    return this.orders.createOrder(userId, dto);
   }
 
   @Get()
-  @UseGuards(UserGuard)
-  async findAll(
-    @GetCurrentUserId() userId: number,
-    @Query('status') status?: OrderStatus,
-    @Query('page') page = 1,
-    @Query('limit') limit = 10,
-  ) {
-    return this.orderService.findAll(userId, status, +page, +limit);
-  }
-
-  @Get('admin/all')
-  @UseGuards(AdminGuard)
-  async findAllAdmin(
-    @Query('userId') userId?: number,
-    @Query('status') status?: OrderStatus,
-    @Query('page') page = 1,
-    @Query('limit') limit = 20,
-  ) {
-    return this.orderService.findAll(userId ? +userId : undefined, status, +page, +limit);
-  }
-
-  @Get('statistics')
-  @UseGuards(UserGuard)
-  async getUserStatistics(@GetCurrentUserId() userId: number) {
-    return this.orderService.getOrderStatistics(userId);
-  }
-
-  @Get('admin/statistics')
-  @UseGuards(AdminGuard)
-  async getAdminStatistics() {
-    return this.orderService.getOrderStatistics();
+  list(@GetCurrentUserId() userId: number, @Query() query: ListOrdersQuery) {
+    return this.orders.listMine(userId, query);
   }
 
   @Get(':id')
-  @UseGuards(UserGuard)
-  async findOne(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number,
-  ) {
-    const order = await this.orderService.findOne(id);
-    
-    // Ensure user can only access their own orders (unless admin)
-    if (order.user_id !== userId) {
-      // Check if user is admin (you might want to implement this check)
-      // For now, we'll allow access to any order for simplicity
-    }
-    
-    return order;
+  findOne(@GetCurrentUserId() userId: number, @Param('id', ParseIntPipe) id: number) {
+    return this.orders.findMine(userId, id);
   }
 
-  @Get('by-number/:orderNumber')
-  @UseGuards(UserGuard)
-  async findByOrderNumber(
-    @Param('orderNumber') orderNumber: string,
-    @GetCurrentUserId() userId: number,
-  ) {
-    const order = await this.orderService.findByOrderNumber(orderNumber);
-    
-    // Ensure user can only access their own orders
-    if (order.user_id !== userId) {
-      // Check if user is admin
-    }
-    
-    return order;
+  @Post(':id/cancel')
+  cancel(@GetCurrentUserId() userId: number, @Param('id', ParseIntPipe) id: number) {
+    return this.orders.cancelMine(userId, id);
+  }
+}
+
+@ApiTags('Admin orders')
+@ApiBearerAuth()
+@Controller('admin/orders')
+@UseGuards(AdminGuard)
+export class AdminOrderController {
+  constructor(private readonly orders: OrderService) {}
+
+  @Get()
+  list(@Query() query: AdminListOrdersQuery) {
+    return this.orders.listAdmin(query);
   }
 
-  @Patch(':id')
-  @UseGuards(AdminGuard)
-  async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateOrderDto: UpdateOrderDto,
-  ) {
-    return this.orderService.updateOrder(id, updateOrderDto);
+  @Get(':id')
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.orders.findAdmin(id);
   }
 
-  @Patch(':id/cancel')
-  @UseGuards(UserGuard)
-  async cancel(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number,
-    @Body('reason') reason?: string,
-  ) {
-    const order = await this.orderService.findOne(id);
-    
-    // Ensure user can only cancel their own orders
-    if (order.user_id !== userId) {
-      throw new Error('Unauthorized');
-    }
-    
-    return this.orderService.cancelOrder(id, reason);
-  }
-
-  @Post(':id/tracking')
-  @UseGuards(AdminGuard)
-  async addTracking(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() trackingData: {
-      status: string;
-      description?: string;
-      location?: string;
-    },
-  ) {
-    await this.orderService.addTracking(
-      id,
-      trackingData.status,
-      trackingData.description,
-      trackingData.location,
-    );
-    
-    return { message: 'Tracking information added successfully' };
+  @Patch(':id/status')
+  updateStatus(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateOrderStatusDto) {
+    return this.orders.updateStatusAdmin(id, dto);
   }
 }

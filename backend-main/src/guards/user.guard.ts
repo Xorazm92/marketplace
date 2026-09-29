@@ -1,46 +1,17 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Observable } from "rxjs";
+import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
+import { TokenService } from '../identity/token.service';
+import { bearerToken } from './bearer';
 
+// Faqat xaridor tokeni o'tadi; admin tokeni bu yerda 401 oladi.
 @Injectable()
 export class UserGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(private readonly tokens: TokenService) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  canActivate(context: ExecutionContext): boolean {
     const req = context.switchToHttp().getRequest();
-    const authHeader = req.headers.authorization;
-    if (!authHeader) {
-      throw new UnauthorizedException("Unauthorizard1 user");
-    }
-    const bearer = authHeader.split(" ")[0];
-    const token = authHeader.split(" ")[1];
-    
-    if (bearer != "Bearer" || !token) {
-      throw new UnauthorizedException("Unauthorizard2 user");
-    }
-    async function verify(token: string, jwtService: JwtService) {
-      let payload: any;
-      try {
-        payload = await jwtService.verify(token, {
-          secret: process.env.ACCESS_TOKEN_KEY,
-        });
-      } catch (error) {
-        console.log(error);
-        throw new UnauthorizedException("Unauthorizard3 user");
-      }
-      if (!payload) {
-        throw new UnauthorizedException("Unauthorizard4 user");
-      }
-      req.user = payload;      
-      return true;
-    }
-    return verify(token, this.jwtService);
+    const principal = this.tokens.verifyAccess(bearerToken(req), 'user');
+    // `id` — GetCurrentUserId dekoratori o'qiydigan maydon.
+    req.user = { id: principal.sub, ...principal };
+    return true;
   }
 }

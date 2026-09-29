@@ -48,8 +48,9 @@ export class CartService {
     const { product_id, quantity } = addToCartDto;
 
     // Check if product exists
-    const product = await this.prisma.product.findUnique({
-      where: { id: product_id },
+    // Katalogda ko'rinmaydigan mahsulot savatga ham tushmasin.
+    const product = await this.prisma.product.findFirst({
+      where: { id: product_id, is_active: true, is_deleted: false, is_checked: 'APPROVED' },
     });
 
     if (!product) {

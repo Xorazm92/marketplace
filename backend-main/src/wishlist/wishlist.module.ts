@@ -1,13 +1,10 @@
 import { Module } from '@nestjs/common';
 import { WishlistService } from './wishlist.service';
-import { WishlistResolver } from './wishlist.resolver';
-import { PrismaModule } from '../prisma/prisma.module';
-import { JwtModule } from '@nestjs/jwt';
-import { ConfigModule } from '@nestjs/config';
+import { WishlistController } from './wishlist.controller';
 
+// Controller ilgari ro'yxatdan o'tmagan edi — sevimlilar REST API umuman ishlamagan.
 @Module({
-  imports: [PrismaModule, JwtModule, ConfigModule],
-  providers: [WishlistService, WishlistResolver],
-  exports: [WishlistService],
+  controllers: [WishlistController],
+  providers: [WishlistService],
 })
 export class WishlistModule {}

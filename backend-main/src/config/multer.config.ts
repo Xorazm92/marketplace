@@ -1,17 +1,27 @@
+import { BadRequestException } from '@nestjs/common';
+import { randomUUID } from 'crypto';
 import { diskStorage } from 'multer';
-import * as path from 'path';
+
+// Kengaytma MIME turidan olinadi, foydalanuvchi bergan nomdan emas: ilgari
+// `.html` yuklab /uploads orqali backend domenida ochish mumkin edi (stored XSS).
+const IMAGE_TYPES: Record<string, string> = {
+  'image/jpeg': '.jpg',
+  'image/png': '.png',
+  'image/webp': '.webp',
+};
+
+export const UPLOADS_DIR = './public/uploads';
 
 export const multerOptions = {
   storage: diskStorage({
-    destination: './public/uploads',
-    filename: (req, file, callback) => {
-      const fileExtName = path.extname(file.originalname);
-      const randomName = Math.random().toString(36).substring(2, 15);
-      callback(null, `${randomName}${fileExtName}`);
-
-    },
+    destination: UPLOADS_DIR,
+    filename: (_req, file, callback) => callback(null, `${randomUUID()}${IMAGE_TYPES[file.mimetype]}`),
   }),
-  limits: {
-    fileSize: 50 * 1024 * 1024
-  }
+  fileFilter: (_req: unknown, file: Express.Multer.File, callback: (error: Error | null, accept: boolean) => void) => {
+    if (!IMAGE_TYPES[file.mimetype]) {
+      return callback(new BadRequestException('Faqat JPG, PNG yoki WEBP rasm yuklash mumkin'), false);
+    }
+    callback(null, true);
+  },
+  limits: { fileSize: 5 * 1024 * 1024, files: 10 },
 };

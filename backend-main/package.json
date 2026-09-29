@@ -19,7 +19,7 @@
     "test:watch": "jest --config jest.config.json --watch",
     "test:cov": "jest --config jest.config.json --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config jest.config.json --runInBand",
-    "test:e2e": "jest --config jest.config.json --testPathPattern=e2e",
+    "test:e2e": "jest -c test/mvp/jest.config.js --runInBand",
     "test:unit": "jest --config jest.config.json --testPathPattern=spec",
     "test:security": "jest --config jest.config.json --testPathPattern=security",
     "test:performance": "jest --config jest.config.json --testPathPattern=performance",

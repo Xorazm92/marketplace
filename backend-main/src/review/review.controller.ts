@@ -4,7 +4,7 @@ import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
 import { UserGuard } from '../guards/user.guard';
-import { OptionalUserGuard } from '../common/guards/optional-user.guard';
+import { OptionalUserGuard } from '../guards/optional-user.guard';
 import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 
 @ApiTags('⭐ Reviews')

@@ -1,94 +1,91 @@
-import { IsNotEmpty, IsNumber, IsInt, Min, IsOptional, IsString, IsArray, ArrayNotEmpty, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { Field, InputType, Int } from '@nestjs/graphql';
+import {
+  ArrayMaxSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsIn,
+  IsInt,
+  IsOptional,
+  IsString,
+  Max,
+  MaxLength,
+  Min,
+  ValidateNested,
+} from 'class-validator';
 
-@InputType()
+export const PAYMENT_METHODS = ['PAYME', 'CLICK', 'UZUM', 'CASH'] as const;
+export type PaymentMethod = (typeof PAYMENT_METHODS)[number];
+export const ONLINE_METHODS: readonly PaymentMethod[] = ['PAYME', 'CLICK', 'UZUM'];
+
+// Mijoz faqat nima va qancha olishini aytadi. Narx, chegirma, yetkazish va
+// valyuta serverda aniqlanadi (Faza 0, C3).
 export class OrderItemInput {
-  @Field(() => Int)
-  @IsNumber()
-  @IsNotEmpty()
-  product_id: number;
-
-  @Field(() => Int)
   @IsInt()
   @Min(1)
+  product_id: number;
+
+  @IsInt()
+  @Min(1)
+  @Max(999)
   quantity: number;
 }
 
-@InputType()
-export class CreateOrderInput {
-  @Field(() => Int)
-  @IsNumber()
-  @IsNotEmpty()
-  user_id: number;
-
-  @Field(() => [OrderItemInput])
+export class CreateOrderDto {
   @IsArray()
   @ArrayNotEmpty()
+  @ArrayMaxSize(50)
   @ValidateNested({ each: true })
   @Type(() => OrderItemInput)
   items: OrderItemInput[];
 
-  @Field(() => Int, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  shipping_address_id?: number;
+  @IsInt()
+  address_id: number;
 
-  @Field(() => Int, { nullable: true })
-  @IsOptional()
-  @IsNumber()
-  billing_address_id?: number;
+  @IsIn(PAYMENT_METHODS)
+  payment_method: PaymentMethod;
 
-  @Field(() => String, { nullable: true })
   @IsOptional()
   @IsString()
-  payment_method?: string;
-
-  @Field(() => String, { nullable: true })
-  @IsOptional()
-  @IsString()
+  @MaxLength(500)
   notes?: string;
-
-  @Field(() => Int)
-  @IsNumber()
-  @IsNotEmpty()
-  currency_id: number;
-
-
-
 }
 
-export class CreateOrderDto {
-  @IsNumber()
-  @IsNotEmpty()
-  user_id: number;
-
-  @IsArray()
-  @ArrayNotEmpty()
-  @ValidateNested({ each: true })
-  @Type(() => OrderItemInput)
-  items: OrderItemInput[];
+export class ListOrdersQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
 
   @IsOptional()
-  @IsNumber()
-  shipping_address_id?: number;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(100)
+  limit?: number;
+}
+
+export class AdminListOrdersQuery extends ListOrdersQuery {
+  @IsOptional()
+  @IsIn(['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'])
+  status?: string;
 
   @IsOptional()
-  @IsNumber()
-  billing_address_id?: number;
+  @IsIn(['PENDING', 'PAID', 'FAILED', 'CANCELLED', 'REFUNDED'])
+  payment_status?: string;
 
   @IsOptional()
   @IsString()
-  payment_method?: string;
+  @MaxLength(50)
+  q?: string;
+}
+
+export class UpdateOrderStatusDto {
+  @IsIn(['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'])
+  status: 'CONFIRMED' | 'PROCESSING' | 'SHIPPED' | 'DELIVERED' | 'CANCELLED';
 
   @IsOptional()
   @IsString()
-  notes?: string;
-
-  @IsNumber()
-  @IsNotEmpty()
-  currency_id: number;
-
-
-
+  @MaxLength(300)
+  note?: string;
 }

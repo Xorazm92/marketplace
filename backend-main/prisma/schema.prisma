@@ -32,52 +32,45 @@ enum AdminRole {
 }
 
 model User {
-  id                   Int             @id @default(autoincrement())
-  phone_number         String?         @unique
-  email                String?         @unique
-  telegram_id          String?         @unique
+  id                   Int      @id @default(autoincrement())
+  phone_number         String?  @unique
+  email                String?  @unique
+  telegram_id          String?  @unique
   first_name           String
   last_name            String
   password             String?
   profile_img          String?
-  is_active            Boolean         @default(true)
-  is_premium           Boolean         @default(false)
-  is_verified          Boolean         @default(false)
+  is_active            Boolean  @default(true)
+  is_premium           Boolean  @default(false)
+  is_verified          Boolean  @default(false)
   birth_date           String?
   hashed_refresh_token String?
-  last_online          DateTime        @default(now())
-  balance              Decimal         @default(0)
-  slug                 String?         @unique
-  activation_link      String?         @unique
-  createdAt            DateTime        @default(now())
-  updatedAt            DateTime        @updatedAt
+  last_online          DateTime @default(now())
+  balance              Decimal  @default(0)
+  slug                 String?  @unique
+  activation_link      String?  @unique
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   // Relations
-  ChatroomUsers        ChatroomUsers[]
-  messages             Message[]
-  address              Address[]
-  cart                 Cart?
-  emails               Email[]
-  orders               Order[]
-  payment              Payment[]
-  product              Product[]
-  reviews              Review[]
-  wishlist             Wishlist?
-  seller               Seller?
-  chatrooms            Chatroom[]      @relation("ChatroomUsers")
-  product_views        ProductView[]
-  search_queries       SearchQuery[]
-  child_profiles       ChildProfile[]
-  parental_controls    ParentalControl[]
-  recommendations      ProductRecommendationEngine[]
-
-  // Indexes for better query performance
-  @@index([email])
-  @@index([telegram_id])
-  @@index([phone_number])
-  @@index([is_active])
-  @@index([is_verified])
-  @@index([activation_link])
+  ChatroomUsers     ChatroomUsers[]
+  messages          Message[]
+  address           Address[]
+  cart              Cart?
+  emails            Email[]
+  orders            Order[]
+  payment           Payment[]
+  product           Product[]
+  reviews           Review[]
+  wishlist          Wishlist?
+  seller            Seller?
+  chatrooms         Chatroom[]                    @relation("ChatroomUsers")
+  product_views     ProductView[]
+  search_queries    SearchQuery[]
+  child_profiles    ChildProfile[]
+  parental_controls ParentalControl[]
+  recommendations   ProductRecommendationEngine[]
+  auth_methods      AuthMethod[]
 
   // Add this if you want to ensure either email or phone_number is provided
   // @@check("(email IS NOT NULL) OR (phone_number IS NOT NULL) OR (telegram_id IS NOT NULL)")
@@ -118,60 +111,67 @@ model User {
   // Add this if you want to ensure updated_at is not in the future and not before created_at
   // @@check("updatedAt <= NOW() AND updatedAt >= createdAt")
 
+  // Indexes for better query performance
+  @@index([email])
+  @@index([telegram_id])
+  @@index([phone_number])
+  @@index([is_active])
+  @@index([is_verified])
+  @@index([activation_link])
   @@map("user")
 }
 
 // Bolalar profillari
 model ChildProfile {
-  id           Int      @id @default(autoincrement())
-  parent_id    Int
-  name         String
-  birth_date   DateTime
-  gender       String?
-  interests    Json?    // qiziqishlari
-  allergies    Json?    // allergiyalar
-  avatar       String?
-  is_active    Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  parent_id  Int
+  name       String
+  birth_date DateTime
+  gender     String?
+  interests  Json? // qiziqishlari
+  allergies  Json? // allergiyalar
+  avatar     String?
+  is_active  Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 
-  parent       User     @relation(fields: [parent_id], references: [id], onDelete: Cascade)
+  parent            User                          @relation(fields: [parent_id], references: [id], onDelete: Cascade)
   parental_controls ParentalControl[]
-  recommendations    ProductRecommendationEngine[]
+  recommendations   ProductRecommendationEngine[]
 
   @@map("child_profile")
 }
 
 // Yosh kategoriyalari
 model AgeGroup {
-  id          Int       @id @default(autoincrement())
-  name        String    // "0-6 oy", "6-12 oy", "1-2 yosh"
-  min_age     Int       // oylar hisobida
-  max_age     Int?      // null = yuqori chegara yo'q
+  id          Int      @id @default(autoincrement())
+  name        String // "0-6 oy", "6-12 oy", "1-2 yosh"
+  min_age     Int // oylar hisobida
+  max_age     Int? // null = yuqori chegara yo'q
   description String?
   icon        String?
   color       String?
-  is_active   Boolean   @default(true)
-  sort_order  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  products    Product[]
+  products Product[]
 
   @@map("age_group")
 }
 
 // Xavfsizlik sertifikatlari
 model SafetyCertification {
-  id              Int      @id @default(autoincrement())
-  name            String   // "CE", "CPSIA", "ASTM"
-  code            String   @unique
-  description     String?
+  id               Int      @id @default(autoincrement())
+  name             String // "CE", "CPSIA", "ASTM"
+  code             String   @unique
+  description      String?
   required_for_age String? // qaysi yosh uchun majburiy
-  logo            String?
-  is_active       Boolean  @default(true)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  logo             String?
+  is_active        Boolean  @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   product_certifications ProductSafetyCertification[]
 
@@ -180,18 +180,18 @@ model SafetyCertification {
 
 // Mahsulot xavfsizlik sertifikatlari
 model ProductSafetyCertification {
-  id                    Int                @id @default(autoincrement())
-  product_id            Int
-  certification_id      Int
-  certificate_number    String?
-  issued_date           DateTime?
-  expiry_date           DateTime?
-  is_verified           Boolean            @default(false)
-  createdAt             DateTime           @default(now())
-  updatedAt             DateTime           @updatedAt
+  id                 Int       @id @default(autoincrement())
+  product_id         Int
+  certification_id   Int
+  certificate_number String?
+  issued_date        DateTime?
+  expiry_date        DateTime?
+  is_verified        Boolean   @default(false)
+  createdAt          DateTime  @default(now())
+  updatedAt          DateTime  @updatedAt
 
-  product               Product            @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  certification         SafetyCertification @relation(fields: [certification_id], references: [id], onDelete: Cascade)
+  product       Product             @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  certification SafetyCertification @relation(fields: [certification_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, certification_id])
   @@map("product_safety_certification")
@@ -199,20 +199,20 @@ model ProductSafetyCertification {
 
 // Ota-ona nazorati
 model ParentalControl {
-  id                  Int     @id @default(autoincrement())
-  user_id             Int
-  child_profile_id    Int
-  spending_limit      Decimal?
+  id                   Int      @id @default(autoincrement())
+  user_id              Int
+  child_profile_id     Int
+  spending_limit       Decimal?
   daily_spending_limit Decimal?
-  allowed_categories  Json?   // ruxsat etilgan kategoriyalar
-  blocked_categories  Json?   // bloklangan kategoriyalar
-  time_restrictions   Json?   // vaqt cheklovlari
-  is_active           Boolean @default(true)
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  allowed_categories   Json? // ruxsat etilgan kategoriyalar
+  blocked_categories   Json? // bloklangan kategoriyalar
+  time_restrictions    Json? // vaqt cheklovlari
+  is_active            Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  user                User        @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  child_profile       ChildProfile @relation(fields: [child_profile_id], references: [id], onDelete: Cascade)
+  user          User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  child_profile ChildProfile @relation(fields: [child_profile_id], references: [id], onDelete: Cascade)
 
   @@unique([user_id, child_profile_id])
   @@map("parental_control")
@@ -220,70 +220,70 @@ model ParentalControl {
 
 // To'y va tadbir mahsulotlari
 model EventType {
-  id          Int       @id @default(autoincrement())
-  name        String    // "Tug'ilgan kun", "Yangi yil"
+  id          Int      @id @default(autoincrement())
+  name        String // "Tug'ilgan kun", "Yangi yil"
   description String?
   icon        String?
   color       String?
-  is_active   Boolean   @default(true)
-  sort_order  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  products    Product[]
+  products Product[]
 
   @@map("event_type")
 }
 
 // Ta'lim kategoriyalari
 model EducationalCategory {
-  id          Int       @id @default(autoincrement())
-  name        String    // "STEM", "San'at", "Til o'rganish"
+  id          Int      @id @default(autoincrement())
+  name        String // "STEM", "San'at", "Til o'rganish"
   description String?
   icon        String?
   color       String?
-  is_active   Boolean   @default(true)
-  sort_order  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  products    Product[]
+  products Product[]
 
   @@map("educational_category")
 }
 
 // Sovg'a o'rash xizmatlari
 model GiftWrap {
-  id          Int       @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
   name        String
   description String?
   price       Decimal
   image_url   String?
-  for_age     String?   // qaysi yosh uchun mos
-  for_gender  String?   // qaysi jins uchun mos
-  is_active   Boolean   @default(true)
-  sort_order  Int       @default(0)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+  for_age     String? // qaysi yosh uchun mos
+  for_gender  String? // qaysi jins uchun mos
+  is_active   Boolean  @default(true)
+  sort_order  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   @@map("gift_wrap")
 }
 
 // Mahsulot tavsiya tizimi
 model ProductRecommendationEngine {
-  id                    Int      @id @default(autoincrement())
-  user_id               Int
-  child_profile_id      Int?
-  child_age             Int?     // oylar hisobida
-  preferences           Json     // qiziqishlar, o'yin turi
-  recommended_products  Json     // tavsiya etilgan mahsulotlar ID'lari
-  recommendation_score  Decimal  @default(0)
-  is_active             Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  id                   Int      @id @default(autoincrement())
+  user_id              Int
+  child_profile_id     Int?
+  child_age            Int? // oylar hisobida
+  preferences          Json // qiziqishlar, o'yin turi
+  recommended_products Json // tavsiya etilgan mahsulotlar ID'lari
+  recommendation_score Decimal  @default(0)
+  is_active            Boolean  @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
-  user                  User         @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  child_profile         ChildProfile? @relation(fields: [child_profile_id], references: [id], onDelete: SetNull)
+  user          User          @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  child_profile ChildProfile? @relation(fields: [child_profile_id], references: [id], onDelete: SetNull)
 
   @@map("product_recommendation_engine")
 }
@@ -363,7 +363,7 @@ model Color {
   id        Int      @id @default(autoincrement())
   name      String   @unique
   code      String?
-  hex       String?  // Hex color code
+  hex       String? // Hex color code
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -389,17 +389,18 @@ model Currency {
 // PhoneNumber model olib tashlandi - User'da to'g'ridan-to'g'ri phone_number field'i bor
 
 model OtpVerification {
-  id              Int       @id @default(autoincrement())
-  phone_number    String
-  otp_code        String
-  purpose         String    // 'registration', 'login', 'password_reset'
-  expires_at      DateTime
-  attempts        Int       @default(0)
-  is_verified     Boolean   @default(false)
-  user_id         Int?
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
+  id           Int      @id @default(autoincrement())
+  phone_number String
+  otp_code     String
+  purpose      String // 'registration', 'login', 'password_reset'
+  expires_at   DateTime
+  attempts     Int      @default(0)
+  is_verified  Boolean  @default(false)
+  user_id      Int?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
+  @@index([phone_number, purpose, createdAt])
   @@map("otp_verification")
 }
 
@@ -441,113 +442,112 @@ model Payment {
 }
 
 model Product {
-  id                    Int            @id @default(autoincrement())
-  title                 String
-  user_id               Int?
-  brand_id              Int
-  price                 Decimal
-  original_price        Decimal?
-  discount_percentage   Int?           @default(0)
-  currency_id           Int
-  description           String
-  short_description     String?
-  negotiable            Boolean        @default(false)
-  condition             String         @default("new") // new, used, refurbished
-  phone_number          String
-  address_id            Int?
-  slug                  String?        @unique
-  is_top                Boolean        @default(false)
-  is_featured           Boolean        @default(false)
-  is_bestseller         Boolean        @default(false)
-  is_checked            isChecked      @default(PENDING)
-  is_active             Boolean        @default(true)
-  is_deleted            Boolean        @default(false)
-  view_count            Int            @default(0)
-  like_count            Int            @default(0)
-  share_count           Int            @default(0)
-  category_id           Int?
-  subcategory_id        Int?
-  sku                   String?        @unique
-  barcode               String?        @unique
-  weight                Decimal?
-  dimensions            Json?          // {length, width, height}
-  age_range             String?
-  material              String?
-  color                 String?
-  size                  String?
-  manufacturer          String?
-  brand_name            String?
-  safety_info           String?
-  features              Json?          // Array of features
-  specifications        Json?          // Detailed specs
-  meta_title            String?
-  meta_description      String?
-  tags                  String?
-  search_keywords       String?
-  availability_status   String         @default("in_stock") // in_stock, out_of_stock, pre_order
-  min_order_quantity    Int            @default(1)
-  max_order_quantity    Int?
-  shipping_weight       Decimal?
-  shipping_dimensions   Json?
-  origin_country        String?
-  warranty_period       String?
-  return_policy         String?
-  care_instructions     String?
-  safety_warnings       String?
-  certifications        Json?          // Array of certifications
-  educational_value     String?
-  skill_development     Json?          // Array of skills
-  play_pattern          String?
-  assembly_required     Boolean        @default(false)
-  battery_required      Boolean        @default(false)
-  choking_hazard        Boolean        @default(false)
+  id                  Int       @id @default(autoincrement())
+  title               String
+  user_id             Int?
+  brand_id            Int?
+  price               Decimal
+  original_price      Decimal?
+  discount_percentage Int?      @default(0)
+  currency_id         Int
+  description         String
+  short_description   String?
+  negotiable          Boolean   @default(false)
+  condition           String    @default("new") // new, used, refurbished
+  phone_number        String?
+  address_id          Int?
+  slug                String?   @unique
+  is_top              Boolean   @default(false)
+  is_featured         Boolean   @default(false)
+  is_bestseller       Boolean   @default(false)
+  is_checked          isChecked @default(PENDING)
+  is_active           Boolean   @default(true)
+  is_deleted          Boolean   @default(false)
+  view_count          Int       @default(0)
+  like_count          Int       @default(0)
+  share_count         Int       @default(0)
+  category_id         Int?
+  subcategory_id      Int?
+  sku                 String?   @unique
+  barcode             String?   @unique
+  weight              Decimal?
+  dimensions          Json? // {length, width, height}
+  age_range           String?
+  material            String?
+  color               String?
+  size                String?
+  manufacturer        String?
+  brand_name          String?
+  safety_info         String?
+  features            Json? // Array of features
+  specifications      Json? // Detailed specs
+  meta_title          String?
+  meta_description    String?
+  tags                String?
+  search_keywords     String?
+  availability_status String    @default("in_stock") // in_stock, out_of_stock, pre_order
+  min_order_quantity  Int       @default(1)
+  max_order_quantity  Int?
+  shipping_weight     Decimal?
+  shipping_dimensions Json?
+  origin_country      String?
+  warranty_period     String?
+  return_policy       String?
+  care_instructions   String?
+  safety_warnings     String?
+  certifications      Json? // Array of certifications
+  educational_value   String?
+  skill_development   Json? // Array of skills
+  play_pattern        String?
+  assembly_required   Boolean   @default(false)
+  battery_required    Boolean   @default(false)
+  choking_hazard      Boolean   @default(false)
 
   // Bolalar uchun qo'shimcha maydonlar
-  age_group_id          Int?
+  age_group_id            Int?
   educational_category_id Int?
-  event_type_id         Int?
-  difficulty_level      String?       // "Oson", "O'rta", "Qiyin"
-  play_time            String?       // "15-30 daqiqa"
-  player_count         String?       // "1-4 kishi"
-  learning_objectives  Json?         // o'quv maqsadlari
-  developmental_skills Json?         // rivojlanish ko'nikmalari
-  parental_guidance    Boolean @default(false)
-  multilingual_support Json?         // qo'llab-quvvatlanadigan tillar
-  recommended_age_min  Int?          // tavsiya etilgan minimal yosh (oy)
-  recommended_age_max  Int?          // tavsiya etilgan maksimal yosh (oy)
-  gender_specific      String?       // "Erkak", "Ayol", "Umumiy"
+  event_type_id           Int?
+  difficulty_level        String? // "Oson", "O'rta", "Qiyin"
+  play_time               String? // "15-30 daqiqa"
+  player_count            String? // "1-4 kishi"
+  learning_objectives     Json? // o'quv maqsadlari
+  developmental_skills    Json? // rivojlanish ko'nikmalari
+  parental_guidance       Boolean @default(false)
+  multilingual_support    Json? // qo'llab-quvvatlanadigan tillar
+  recommended_age_min     Int? // tavsiya etilgan minimal yosh (oy)
+  recommended_age_max     Int? // tavsiya etilgan maksimal yosh (oy)
+  gender_specific         String? // "Erkak", "Ayol", "Umumiy"
 
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   cart_items       CartItem[]
-  inventory               Inventory?
-  order_items             OrderItem[]
-  address                 Address?                  @relation(fields: [address_id], references: [id])
-  brand                   Brand                     @relation(fields: [brand_id], references: [id])
-  category                Category?                 @relation(fields: [category_id], references: [id])
-  currency                Currency                  @relation(fields: [currency_id], references: [id])
-  user                    User?                     @relation(fields: [user_id], references: [id])
-  product_image           ProductImage[]
-  reviews                 Review[]
-  wishlist_items          WishlistItem[]
-  variants                ProductVariant[]
-  collection_items        ProductCollectionItem[]
-  attribute_values        ProductAttributeValue[]
-  product_colors          ProductColor[]
-  recommendations         ProductRecommendation[]   @relation("ProductRecommendations")
-  recommended_by          ProductRecommendation[]   @relation("RecommendedProducts")
-  views                   ProductView[]
-  search_clicks           SearchQuery[]
+  inventory        Inventory?
+  order_items      OrderItem[]
+  address          Address?                @relation(fields: [address_id], references: [id])
+  brand            Brand?                  @relation(fields: [brand_id], references: [id])
+  category         Category?               @relation(fields: [category_id], references: [id])
+  currency         Currency                @relation(fields: [currency_id], references: [id])
+  user             User?                   @relation(fields: [user_id], references: [id])
+  product_image    ProductImage[]
+  reviews          Review[]
+  wishlist_items   WishlistItem[]
+  variants         ProductVariant[]
+  collection_items ProductCollectionItem[]
+  attribute_values ProductAttributeValue[]
+  product_colors   ProductColor[]
+  recommendations  ProductRecommendation[] @relation("ProductRecommendations")
+  recommended_by   ProductRecommendation[] @relation("RecommendedProducts")
+  views            ProductView[]
+  search_clicks    SearchQuery[]
 
   // Yangi munosabatlar
-  age_group              AgeGroup?                 @relation(fields: [age_group_id], references: [id])
-  educational_category   EducationalCategory?      @relation(fields: [educational_category_id], references: [id])
-  event_type             EventType?                @relation(fields: [event_type_id], references: [id])
-  safety_certifications  ProductSafetyCertification[]
-  seller_id               Int?
-  seller                  Seller?                   @relation(fields: [seller_id], references: [id], onDelete: SetNull)
-
+  age_group             AgeGroup?                    @relation(fields: [age_group_id], references: [id])
+  educational_category  EducationalCategory?         @relation(fields: [educational_category_id], references: [id])
+  event_type            EventType?                   @relation(fields: [event_type_id], references: [id])
+  safety_certifications ProductSafetyCertification[]
+  seller_id             Int?
+  seller                Seller?                      @relation(fields: [seller_id], references: [id], onDelete: SetNull)
 
   @@map("product")
 }
@@ -641,59 +641,59 @@ model Cart {
 }
 
 model CartItem {
-  id              Int             @id @default(autoincrement())
-  cart_id         Int
-  product_id      Int
-  variant_id      Int?
-  quantity        Int             @default(1)
-  unit_price      Decimal
-  total_price     Decimal
-  notes           String?
-  createdAt       DateTime        @default(now())
-  updatedAt       DateTime        @updatedAt
+  id          Int      @id @default(autoincrement())
+  cart_id     Int
+  product_id  Int
+  variant_id  Int?
+  quantity    Int      @default(1)
+  unit_price  Decimal
+  total_price Decimal
+  notes       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  cart            Cart            @relation(fields: [cart_id], references: [id], onDelete: Cascade)
-  product         Product         @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  variant         ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
+  cart    Cart            @relation(fields: [cart_id], references: [id], onDelete: Cascade)
+  product Product         @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  variant ProductVariant? @relation(fields: [variant_id], references: [id], onDelete: SetNull)
 
   @@unique([cart_id, product_id, variant_id])
   @@map("cart_item")
 }
 
 model Wishlist {
-  id         Int            @id @default(autoincrement())
-  user_id    Int            @unique
-  createdAt  DateTime       @default(now())
-  updatedAt  DateTime       @updatedAt
+  id        Int      @id @default(autoincrement())
+  user_id   Int      @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  user       User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
-  items      WishlistItem[]
+  user  User           @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  items WishlistItem[]
 
   @@map("wishlist")
 }
 
 model Seller {
-  id              Int      @id @default(autoincrement())
-  user_id         Int      @unique
-  business_name   String
-  business_type   String   // individual, company, etc.
-  tax_id          String?
-  registration_number String?
-  phone           String
-  email           String
-  address         String
-  city            String
-  country         String
-  postal_code     String?
-  bank_account    String?
-  status          String   @default("pending") // pending, approved, rejected, suspended
+  id                     Int      @id @default(autoincrement())
+  user_id                Int      @unique
+  business_name          String
+  business_type          String // individual, company, etc.
+  tax_id                 String?
+  registration_number    String?
+  phone                  String
+  email                  String
+  address                String
+  city                   String
+  country                String
+  postal_code            String?
+  bank_account           String?
+  status                 String   @default("pending") // pending, approved, rejected, suspended
   verification_documents Json?
-  commission_rate Decimal  @default(5.0) @db.Decimal(5, 2)
-  total_sales     Decimal  @default(0) @db.Decimal(15, 2)
-  rating          Decimal? @db.Decimal(3, 2)
-  rating_count    Int      @default(0)
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  commission_rate        Decimal  @default(5.0) @db.Decimal(5, 2)
+  total_sales            Decimal  @default(0) @db.Decimal(15, 2)
+  rating                 Decimal? @db.Decimal(3, 2)
+  rating_count           Int      @default(0)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
   user     User      @relation(fields: [user_id], references: [id], onDelete: Cascade)
   products Product[]
@@ -730,6 +730,10 @@ model Order {
   shipping_address_id Int?
   billing_address_id  Int?
   paid_at             DateTime?
+  cancelled_at        DateTime?
+  cancel_reason       String?
+  // Buyurtma paytidagi manzil nusxasi: keyin Address tahrirlansa ham buyurtma o'zgarmaydi.
+  shipping_snapshot   Json?
   notes               String?
   createdAt           DateTime        @default(now())
   updatedAt           DateTime        @updatedAt
@@ -741,6 +745,8 @@ model Order {
   payments            OrderPayment[]
   tracking            OrderTracking[]
 
+  @@index([user_id])
+  @@index([status, payment_status])
   @@map("order")
 }
 
@@ -759,18 +765,28 @@ model OrderItem {
   @@map("order_item")
 }
 
+// Bitta qator = provayderdagi bitta tranzaksiya. (payment_method, transaction_id)
+// unikal: provayder callback'ni qayta yuborganda ikkinchi qator yaratilmaydi.
 model OrderPayment {
   id               Int           @id @default(autoincrement())
   order_id         Int
   amount           Decimal
-  payment_method   String
+  payment_method   String // PAYME | CLICK | UZUM | CASH
   transaction_id   String?
   status           PaymentStatus @default(PENDING)
+  provider_state   Int? // Payme: 1, 2, -1, -2; Click: 0 prepare, 1 complete, -1 cancel
+  provider_time    BigInt? // Payme CreateTransaction `time` (ms)
+  performed_at     DateTime?
+  cancelled_at     DateTime?
+  cancel_reason    Int?
   gateway_response Json?
   createdAt        DateTime      @default(now())
   updatedAt        DateTime      @updatedAt
   order            Order         @relation(fields: [order_id], references: [id], onDelete: Cascade)
 
+  @@unique([payment_method, transaction_id])
+  @@index([order_id])
+  @@index([createdAt])
   @@map("order_payment")
 }
 
@@ -869,82 +885,82 @@ model InventoryMovement {
 // Advanced E-commerce Models
 
 model ProductVariant {
-  id                Int         @id @default(autoincrement())
-  product_id        Int
-  name              String      // Color, Size, etc.
-  value             String      // Red, Large, etc.
-  price_adjustment  Decimal     @default(0)
-  sku               String?     @unique
-  stock_quantity    Int         @default(0)
-  is_active         Boolean     @default(true)
-  sort_order        Int         @default(0)
-  createdAt         DateTime    @default(now())
-  updatedAt         DateTime    @updatedAt
+  id               Int      @id @default(autoincrement())
+  product_id       Int
+  name             String // Color, Size, etc.
+  value            String // Red, Large, etc.
+  price_adjustment Decimal  @default(0)
+  sku              String?  @unique
+  stock_quantity   Int      @default(0)
+  is_active        Boolean  @default(true)
+  sort_order       Int      @default(0)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  product           Product     @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  cart_items        CartItem[]
+  product    Product    @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  cart_items CartItem[]
 
   @@map("product_variants")
 }
 
 model ProductCollection {
-  id                Int                      @id @default(autoincrement())
-  name              String
-  slug              String                   @unique
-  description       String?
-  image_url         String?
-  is_active         Boolean                  @default(true)
-  sort_order        Int                      @default(0)
-  meta_title        String?
-  meta_description  String?
-  createdAt         DateTime                 @default(now())
-  updatedAt         DateTime                 @updatedAt
+  id               Int      @id @default(autoincrement())
+  name             String
+  slug             String   @unique
+  description      String?
+  image_url        String?
+  is_active        Boolean  @default(true)
+  sort_order       Int      @default(0)
+  meta_title       String?
+  meta_description String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
-  products          ProductCollectionItem[]
+  products ProductCollectionItem[]
 
   @@map("product_collections")
 }
 
 model ProductCollectionItem {
-  id            Int               @id @default(autoincrement())
+  id            Int      @id @default(autoincrement())
   collection_id Int
   product_id    Int
-  sort_order    Int               @default(0)
-  createdAt     DateTime          @default(now())
+  sort_order    Int      @default(0)
+  createdAt     DateTime @default(now())
 
-  collection    ProductCollection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
-  product       Product           @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  collection ProductCollection @relation(fields: [collection_id], references: [id], onDelete: Cascade)
+  product    Product           @relation(fields: [product_id], references: [id], onDelete: Cascade)
 
   @@unique([collection_id, product_id])
   @@map("product_collection_items")
 }
 
 model ProductAttribute {
-  id          Int                     @id @default(autoincrement())
-  name        String                  @unique
-  type        String                  // text, number, boolean, select, multiselect
-  is_required Boolean                 @default(false)
-  is_filterable Boolean               @default(false)
-  sort_order  Int                     @default(0)
-  options     Json?                   // For select/multiselect types
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @updatedAt
+  id            Int      @id @default(autoincrement())
+  name          String   @unique
+  type          String // text, number, boolean, select, multiselect
+  is_required   Boolean  @default(false)
+  is_filterable Boolean  @default(false)
+  sort_order    Int      @default(0)
+  options       Json? // For select/multiselect types
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-  values      ProductAttributeValue[]
+  values ProductAttributeValue[]
 
   @@map("product_attributes")
 }
 
 model ProductAttributeValue {
-  id           Int              @id @default(autoincrement())
+  id           Int      @id @default(autoincrement())
   product_id   Int
   attribute_id Int
   value        String
-  createdAt    DateTime         @default(now())
-  updatedAt    DateTime         @updatedAt
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
-  product      Product          @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  attribute    ProductAttribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
+  product   Product          @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  attribute ProductAttribute @relation(fields: [attribute_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, attribute_id])
   @@map("product_attribute_values")
@@ -957,25 +973,25 @@ model ProductColor {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  color      Color    @relation(fields: [color_id], references: [id], onDelete: Cascade)
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  color   Color   @relation(fields: [color_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, color_id])
   @@map("product_colors")
 }
 
 model ProductRecommendation {
-  id                    Int      @id @default(autoincrement())
-  product_id            Int
+  id                     Int      @id @default(autoincrement())
+  product_id             Int
   recommended_product_id Int
-  type                  String   // related, similar, frequently_bought_together, upsell, cross_sell
-  score                 Decimal  @default(0)
-  is_active             Boolean  @default(true)
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  type                   String // related, similar, frequently_bought_together, upsell, cross_sell
+  score                  Decimal  @default(0)
+  is_active              Boolean  @default(true)
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
 
-  product               Product  @relation("ProductRecommendations", fields: [product_id], references: [id], onDelete: Cascade)
-  recommended_product   Product  @relation("RecommendedProducts", fields: [recommended_product_id], references: [id], onDelete: Cascade)
+  product             Product @relation("ProductRecommendations", fields: [product_id], references: [id], onDelete: Cascade)
+  recommended_product Product @relation("RecommendedProducts", fields: [recommended_product_id], references: [id], onDelete: Cascade)
 
   @@unique([product_id, recommended_product_id, type])
   @@map("product_recommendations")
@@ -990,22 +1006,22 @@ model ProductView {
   referrer   String?
   viewed_at  DateTime @default(now())
 
-  product    Product  @relation(fields: [product_id], references: [id], onDelete: Cascade)
-  user       User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  product Product @relation(fields: [product_id], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [user_id], references: [id], onDelete: SetNull)
 
   @@map("product_views")
 }
 
 model SearchQuery {
-  id           Int      @id @default(autoincrement())
-  query        String
-  user_id      Int?
-  results_count Int     @default(0)
+  id                 Int      @id @default(autoincrement())
+  query              String
+  user_id            Int?
+  results_count      Int      @default(0)
   clicked_product_id Int?
-  ip_address   String?
-  searched_at  DateTime @default(now())
+  ip_address         String?
+  searched_at        DateTime @default(now())
 
-  user         User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
+  user            User?    @relation(fields: [user_id], references: [id], onDelete: SetNull)
   clicked_product Product? @relation(fields: [clicked_product_id], references: [id], onDelete: SetNull)
 
   @@map("search_queries")
@@ -1056,4 +1072,26 @@ enum MovementType {
   ADJUSTMENT
   RESERVED
   RELEASED
+}
+
+// Eski `unified-auth` jadvali (ulanmagan, docs/ICEBOX.md). Sxemada saqlanadi, aks
+// holda migratsiya uni DROP qiladi va undagi ma'lumot yo'qoladi.
+model AuthMethod {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  provider     String
+  providerId   String?
+  passwordHash String?
+  refreshToken String?
+  isPrimary    Boolean  @default(false)
+  lastUsed     DateTime @default(now())
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@index([provider])
+  @@index([providerId])
+  @@map("auth_method")
 }

@@ -1,55 +1,28 @@
-import {
-  Injectable,
-  CanActivate,
-  ExecutionContext,
-  UnauthorizedException,
-} from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
-import { Observable } from "rxjs";
+import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from '@nestjs/common';
+import { TokenService } from '../identity/token.service';
+import { PrismaService } from '../prisma/prisma.service';
+import { bearerToken } from './bearer';
 
+// Admin amallari nozik, shuning uchun token muddatini kutmasdan o'chirilgan
+// admin darhol to'xtatiladi: har so'rovda holati bazadan tekshiriladi.
 @Injectable()
 export class AdminGuard implements CanActivate {
-  constructor(private readonly jwtService: JwtService) {}
+  constructor(
+    private readonly tokens: TokenService,
+    private readonly prisma: PrismaService,
+  ) {}
 
-  canActivate(
-    context: ExecutionContext
-  ): boolean | Promise<boolean> | Observable<boolean> {
+  async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = context.switchToHttp().getRequest();
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader) {
-      throw new UnauthorizedException("Unauthorizard admin");
+    const principal = this.tokens.verifyAccess(bearerToken(req), 'admin');
+    const admin = await this.prisma.admin.findUnique({
+      where: { id: principal.sub },
+      select: { id: true, role: true, is_active: true },
+    });
+    if (!admin?.is_active) {
+      throw new UnauthorizedException('Admin hisobi faol emas');
     }
-    const bearer = authHeader.split(" ")[0];
-    const token = authHeader.split(" ")[1];
-
-    if (bearer != "Bearer" || !token) {
-      throw new UnauthorizedException("Unauthorizard admin");
-    }
-
-    return this.verify(token, req);
-  }
-
-  private async verify(token: string, req: any): Promise<boolean> {
-    let payload: any;
-    try {
-      payload = await this.jwtService.verify(token, {
-        secret: process.env.ACCESS_TOKEN_KEY,
-      });
-    } catch (error) {
-      console.log(error);
-      throw new UnauthorizedException("Unauthorizard admin");
-    }
-    if (!payload) {
-      throw new UnauthorizedException("Unauthorizard admin");
-    }
-    // Check if this is an admin token (either old format or new format)
-    if (payload.role !== "admin" && payload.type !== "admin") {
-      throw new UnauthorizedException("Unauthorizard admin");
-    }
-
-    req.admin = payload;
-
+    req.admin = { id: admin.id, sub: admin.id, role: admin.role };
     return true;
   }
 }

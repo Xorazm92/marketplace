@@ -39,9 +39,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       
       switch (exception.code) {
         case 'P2002':
+          status = HttpStatus.CONFLICT;
           message = 'Bu ma\'lumot allaqachon mavjud';
           break;
         case 'P2025':
+          status = HttpStatus.NOT_FOUND;
           message = 'Ma\'lumot topilmadi';
           break;
         case 'P2003':

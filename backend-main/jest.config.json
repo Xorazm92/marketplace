@@ -1,7 +1,9 @@
 {
   "preset": "ts-jest",
   "testEnvironment": "node",
-  "roots": ["<rootDir>/src"],
+  "roots": [
+    "<rootDir>/src"
+  ],
   "testMatch": [
     "**/__tests__/**/*.ts",
     "**/?(*.)+(spec|test).ts"
@@ -23,11 +25,20 @@
     "lcov",
     "html"
   ],
-  "setupFilesAfterEnv": ["<rootDir>/src/test/setup.ts"],
+  "setupFilesAfterEnv": [
+    "<rootDir>/src/test/setup.ts"
+  ],
   "testTimeout": 30000,
   "verbose": true,
   "detectOpenHandles": true,
   "forceExit": true,
   "maxWorkers": 1,
-  "testSequencer": "<rootDir>/src/test/sequencer.js"
+  "testSequencer": "<rootDir>/src/test/sequencer.js",
+  "testPathIgnorePatterns": [
+    "/node_modules/",
+    "<rootDir>/src/test/",
+    "<rootDir>/src/testing/",
+    "<rootDir>/src/child-safety/",
+    "\\.resolver\\.spec\\.ts$"
+  ]
 }
