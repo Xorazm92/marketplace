@@ -57,8 +57,8 @@ o'sha ro'yxatdagi xavfsizlik sabablarini o'qing.
 
 Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 
-- **`schema.prisma` da eski modellar turibdi** (chat, seller, kupon...). Kodda
-  ishlatilmaydi; ularni olib tashlash `DROP TABLE` — egasining tasdig'isiz emas.
+- **Migratsiyalar faqat oldinga.** Destruktiv migratsiya (`DROP`) faqat egasining
+  aniq tasdig'i bilan yoziladi va izohida sababi turadi.
 - **E2E testlar bazani TRUNCATE qiladi.** `test/mvp/harness.ts` faqat nomi `_test`
   bilan tugaydigan bazada ishlaydi. Bu tekshiruvni olib tashlamang.
 - **Click summasi so'mda, Payme summasi tiyinda.** `payments/order-payment-state.ts`

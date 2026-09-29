@@ -67,6 +67,7 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
 | C1 | Repoda ishlatilmaydigan kod yo'q | ✅ 1 000+ fayl olib tashlandi (`front-main`, eski backend modullari, generatsiya qilingan Prisma, ikkilik fayllar) — `docs/ICEBOX.md` | 5 |
+| C3 | Sxemada ishlatilmaydigan jadval yo'q | ✅ 32 jadval DROP (tasdiqlangan), 22 model qoldi, drift 0 | 5 |
 | C2 | Bitta faol shox | ⚠️ mahalliy — ha; remote'dagi 5 eski shox egasi tasdig'ini kutmoqda | 5 |
 
 ## 7. Agent infratuzilmasi
@@ -87,4 +88,3 @@ Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmag
 3. VPS'da `docker compose build` va birinchi `deploy.sh` (O2, O3); staging'da **tiklash sinovi** (O4).
 4. Yetkazish narxi qoidasi (`SHIPPING_FLAT_FEE`, `FREE_SHIPPING_FROM`) — hozir 0.
 5. Uzum: hujjat va kalitlar (ICEBOX).
-6. Bazadagi eski jadvallarni (`schema.prisma` dagi ishlatilmaydigan modellar) olib tashlash qarori — `DROP TABLE`.

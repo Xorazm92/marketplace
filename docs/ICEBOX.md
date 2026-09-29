@@ -17,11 +17,11 @@ commit `70cc221` (`git show 70cc221:<yo'l>` yoki `git checkout 70cc221 -- <yo'l>
 | `generated/prisma`, `dev.db`, `dump.rdb`, `.env.test`, eski skriptlar | `node_modules/@prisma/client`, `test/mvp` | Generatsiya/ikkilik fayllar repoda turmaydi |
 | `setup.ps1`, `.replit`, eski `docker-compose.yml`, soxta hisobotlar | `docker-compose.yml` (faqat Postgres), `docs/` | Eski tuzilmaga qaratilgan, standart parollar |
 
-## Qolgan: bazadagi eski jadvallar
+## Bazadagi eski jadvallar
 
-`prisma/schema.prisma` da olib tashlangan funksiyalarning modellari (chat, ota-ona
-nazorati, sotuvchi, kupon, tavsiyalar va h.k.) hali turibdi. Ularni olib tashlash —
-`DROP TABLE` migratsiyasi, ya'ni destruktiv; egasining alohida tasdig'isiz qilinmaydi.
+32 ta ishlatilmaydigan jadval (chat, sotuvchi, ota-ona nazorati, kupon, tavsiyalar,
+eski auth/OTP/to'lov) migratsiya `20260929220000_drop_unused_legacy_tables` bilan
+olib tashlandi — egasi tasdiqlagan, prod baza hali yo'q edi.
 
 ## Qaytarish shartlari
 
