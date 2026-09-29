@@ -19,7 +19,8 @@ Bazaviy holat — 2026-09-29 review.
 | S6 | Bitta auth modul, bitta JWT env nomi (H1) | ✅ `identity/`: user OTP + admin parol; `kind` bo'yicha ajratilgan tokenlar; refresh rotatsiyasi (sha256) | 1 |
 | S7 | IDOR: egalik servisda tekshiriladi (H2) | ✅ buyurtma, manzil, checkout — e2e `orders.e2e-spec.ts` | 1 |
 | S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ⚠️ global 300/daq, auth 5/daq (IP); OTP: 60 s, 10/kun, 5 urinish. Xotirada — bitta jarayon uchun | 1 |
-| S9 | `npm audit --omit=dev` = 0 high/critical | ❌ backend 66 high + 2 critical (handlebars, liquidjs — mailer zanjiri); frontend 13 high + 1 critical (`next` 14 → 16 kerak). Alohida `deps/security-upgrade` PR | 0→1 |
+| S9 | `npm audit --omit=dev` = 0 high/critical | ⚠️ backend: **100 → 3** (0 critical). 45 ishlatilmaydigan paket olib tashlandi. Qolgan 3 high — S9a. Frontend — Faza 2 | 0.5 |
+| S9a | `deepmerge-ts <8` (`prisma` → `@prisma/config` 7.1.5 da qotirilgan) | ⚠️ **qabul qilingan**: faqat Prisma CLI konfiguratsiyasini birlashtirishda, runtime'da foydalanuvchi ma'lumoti yetmaydi. Tuzatish — Prisma 7 (major) | keyin |
 
 ## 2. Ma'lumot yaxlitligi
 

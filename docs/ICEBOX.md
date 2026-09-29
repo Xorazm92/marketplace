@@ -21,5 +21,10 @@ qayta ko'rib chiqilishi shart — ular o'sha holatda muzlatilgan.
 | `child-safety/`, `seller/`, `telegram/`, `microservices/`, `color(s)/`, `model/`, `currency/` controller | Ota-ona nazorati, ko'p sotuvchili bozor, Telegram bot — MVP qamrovidan tashqari | Mahsulot qarori |
 | `common/services/*` (winston, sentry, monitoring) | Hech qayerda ishlatilmaydi | Faza 4 monitoring bilan birga ko'rib chiqiladi |
 
+**Paketlar olib tashlangan.** Faza 0.5 da uzilgan kodgina ishlatgan 45 paket
+(`@nestjs-modules/mailer`, `@nestjs/apollo`, `twilio`, `passport*`, `sharp`, ...)
+`package.json` dan chiqarildi va bu papkalar `tsconfig*.json` da istisno qilingan.
+Modulni qayta ulashda kerakli paketni qaytadan qo'shing.
+
 **O'chirish qarori egasida.** Uzilgan kod xavfsizlik skanerlari va `tsc` uchun shovqin
 beradi; o'chirish taklif qilinadi, lekin bajarilmagan.
