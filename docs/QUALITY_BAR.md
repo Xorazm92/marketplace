@@ -5,7 +5,7 @@
 
 **Holat belgilari:** ✅ bajarilgan · ⚠️ qisman · ❌ yo'q · ❔ o'lchanmagan
 
-Bazaviy holat — 2026-09-29 review.
+Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin (o'sha kun).
 
 ## 1. Xavfsizlik
 
@@ -19,7 +19,7 @@ Bazaviy holat — 2026-09-29 review.
 | S6 | Bitta auth modul, bitta JWT env nomi (H1) | ✅ `identity/`: user OTP + admin parol; `kind` bo'yicha ajratilgan tokenlar; refresh rotatsiyasi (sha256) | 1 |
 | S7 | IDOR: egalik servisda tekshiriladi (H2) | ✅ buyurtma, manzil, checkout — e2e `orders.e2e-spec.ts` | 1 |
 | S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ⚠️ global 300/daq, auth 5/daq (IP); OTP: 60 s, 10/kun, 5 urinish. Xotirada — bitta jarayon uchun | 1 |
-| S9 | `npm audit --omit=dev` = 0 high/critical | ⚠️ backend: **100 → 3** (0 critical). 45 ishlatilmaydigan paket olib tashlandi. Qolgan 3 high — S9a. Frontend — Faza 2 | 0.5 |
+| S9 | `npm audit --omit=dev` = 0 high/critical | ⚠️ backend: **100 → 3** (0 critical), qolgani — S9a. Web: **0** (Next 16.3.6). CI critical'da yiqiladi | 0.5-2 |
 | S9a | `deepmerge-ts <8` (`prisma` → `@prisma/config` 7.1.5 da qotirilgan) | ⚠️ **qabul qilingan**: faqat Prisma CLI konfiguratsiyasini birlashtirishda, runtime'da foydalanuvchi ma'lumoti yetmaydi. Tuzatish — Prisma 7 (major) | keyin |
 
 ## 2. Ma'lumot yaxlitligi
@@ -35,30 +35,30 @@ Bazaviy holat — 2026-09-29 review.
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| F1 | Login (telefon+OTP) → savat → checkout → to'lov → buyurtmalarim | ❌ login/checkout/orders sahifalari yo'q yoki o'chirilgan | 2 |
+| F1 | Login (telefon+OTP) → savat → checkout → to'lov → buyurtmalarim | ✅ Playwright brauzerda (naqd); onlayn to'lov — checkout URL'gacha | 2 |
 | F2 | Payme, Click sandbox'da uchidan-uchiga | ⚠️ protokol e2e'da (imzo, summa, idempotentlik, taym-aut); haqiqiy sandbox kalitlari kerak. Uzum — ICEBOX | 4 |
 | F3 | Naqd (yetkazganda) to'lov | ✅ backend: "yetkazildi" = to'landi (e2e) | 1-2 |
-| F4 | Admin: mahsulot, buyurtma holati, kategoriya/brend | ⚠️ sahifalar bor, backend bilan tekshirilmagan | 2 |
+| F4 | Admin: mahsulot, buyurtma holati, bo'limlar, xaridorlar, adminlar | ✅ `web/app/admin`; buyurtma o'tishlari Playwright'da, mahsulot/rasm/zaxira backend e2e'da | 2 |
 
 ## 4. Build va test
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| T1 | Backend build va `tsc -p tsconfig.build.json` toza | ✅ (test fayllaridagi 300 xato — Faza 3) | 0 |
-| T2 | Frontend `npm run build` o'tadi | ❌ `tsc` 505 xato; `next-auth` e'lon qilinmagan | 2 |
-| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 24 (bazasiz) + e2e 33 (haqiqiy Postgres) | 0-1 |
-| T4 | Playwright happy-path | ❌ | 3 |
-| T5 | CI har PR'da (tsc + test + build) | ❌ `.github/` yo'q | 3 |
+| T1 | Backend build va `tsc` toza | ✅ ICEBOX papkalari istisno qilingan | 0-1 |
+| T2 | Frontend build, tip, lint | ✅ `web/`: tsc 0, eslint 0, build o'tadi | 2 |
+| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 24 (bazasiz) + e2e 35 (haqiqiy Postgres) | 0-1 |
+| T4 | Playwright happy-path | ✅ 2/2: xaridor → naqd buyurtma → admin "yetkazildi"; mehmon yo'naltirilishi | 3 |
+| T5 | CI har PR'da (tsc + test + build) | ⚠️ `.github/workflows/ci.yml` yozildi (backend, web, brauzer e2e, hook, audit, drift); GitHub'da hali ishga tushmagan | 3 |
 
 ## 5. Deploy va kuzatuv
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
 | O1 | Bitta bootstrap, prodda helmet (H6) | ✅ `start`/`start:prod` → `dist/main`; `CORS_ORIGIN` env'dan | 0 |
-| O2 | `docker-compose.prod.yml` + nginx + HTTPS | ❌ | 4 |
-| O3 | `deploy.sh` (backup → migrate deploy → build → preflight → reload) | ❌ | 4 |
-| O4 | Backup (DB + uploads), tiklash bir marta sinovdan o'tgan | ❌ | 4 |
-| O5 | Sentry + `/health` bazani tekshiradi | ⚠️ `/health` haqiqiy `SELECT 1` (503 agar yo'q); Sentry yo'q | 4 |
+| O2 | `docker-compose.prod.yml` + nginx + HTTPS | ⚠️ yozildi; image ichidagi qadamlar alohida sinalgan, `docker build` — yo'q (mashinada Docker yo'q) | 4 |
+| O3 | `deploy.sh` (backup → build → migrate deploy → up → health) | ⚠️ yozildi, `bash -n` toza; VPS'da ishga tushirilmagan | 4 |
+| O4 | Backup (DB + uploads), tiklash bir marta sinovdan o'tgan | ⚠️ `backup.sh`/`restore.sh` yozildi; tiklash sinovi staging'da qilinishi kerak | 4 |
+| O5 | Xato kuzatuvi + `/health` bazani tekshiradi | ⚠️ `/health` haqiqiy `SELECT 1` (503), Docker healthcheck, log aylanishi; Sentry yo'q | 4 |
 
 ## 6. Agent infratuzilmasi
 
@@ -68,3 +68,14 @@ Bazaviy holat — 2026-09-29 review.
 | A2 | `guard-bash.sh` + sinov (16/16) | ✅ | −1 |
 | A3 | `session-start.sh` | ✅ | −1 |
 | A4 | Ishonchsiz hisobotlar arxivda | ✅ `docs/archive/` | −1 |
+
+## 7. Ishga tushirishdan oldin qolgan ishlar
+
+Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmagan:
+
+1. Payme va Click **sandbox kalitlari** bilan uchidan-uchiga to'lov (F2).
+2. Eskiz hisobida **SMS shabloni** tasdiqlanishi (matn: `INBOLA: tasdiqlash kodi ...`).
+3. VPS'da `docker compose build` va birinchi `deploy.sh` (O2, O3); staging'da **tiklash sinovi** (O4).
+4. Yetkazish narxi qoidasi (`SHIPPING_FLAT_FEE`, `FREE_SHIPPING_FROM`) — hozir 0.
+5. Uzum: hujjat va kalitlar (ICEBOX).
+6. `front-main/` va ICEBOX papkalarini o'chirish qarori.

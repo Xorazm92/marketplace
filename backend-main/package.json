@@ -36,7 +36,9 @@
     "images:product": "node scripts/optimize-images.js product",
     "data:import": "node scripts/import-products.js import",
     "data:clear": "node scripts/import-products.js clear",
-    "data:reset": "node scripts/import-products.js reset"
+    "data:reset": "node scripts/import-products.js reset",
+    "build:seed": "tsc prisma/seed.ts --outDir dist/prisma --module commonjs --target ES2020 --esModuleInterop --skipLibCheck",
+    "seed:prod": "node dist/prisma/seed.js"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -58,7 +60,8 @@
     "multer": "^2.0.1",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "slugify": "^1.6.6"
+    "slugify": "^1.6.6",
+    "prisma": "^6.19.3"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.2.0",
@@ -81,7 +84,6 @@
     "globals": "^16.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
-    "prisma": "^6.19.3",
     "rimraf": "^6.0.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.0.0",

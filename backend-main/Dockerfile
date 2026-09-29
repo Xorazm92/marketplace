@@ -1,79 +1,28 @@
-# Multi-stage build for production optimization
-FROM node:18-alpine AS base
-
-# Install dependencies only when needed
-FROM base AS deps
-RUN apk add --no-cache libc6-compat
+# INBOLA API. Build: docker compose -f docker-compose.prod.yml build backend
+# bookworm-slim: bcrypt va Prisma engine'lari glibc uchun tayyor binary'lar bilan keladi.
+FROM node:22-bookworm-slim AS build
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-# Copy package files
-COPY package*.json ./
-COPY prisma ./prisma/
-
-# Install dependencies
-RUN npm ci --only=production && npm cache clean --force
-
-# Generate Prisma client
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY prisma ./prisma
 RUN npx prisma generate
+COPY tsconfig.json tsconfig.build.json nest-cli.json ./
+COPY src ./src
+RUN npm run build && npm run build:seed && npm prune --omit=dev
 
-# Development stage
-FROM base AS development
+FROM node:22-bookworm-slim
+RUN apt-get update && apt-get install -y --no-install-recommends openssl && rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-
-# Install all dependencies including dev dependencies
-COPY package*.json ./
-COPY prisma ./prisma/
-
-RUN npm ci && npm cache clean --force
-RUN npx prisma generate
-
-# Copy source code
-COPY . .
-
-# Create uploads directory
-RUN mkdir -p /app/public/uploads
-
-EXPOSE 3001
-
-CMD ["npm", "run", "start:dev"]
-
-# Build stage
-FROM base AS builder
-WORKDIR /app
-
-# Copy dependencies from deps stage
-COPY --from=deps /app/node_modules ./node_modules
-COPY . .
-
-# Build the application
-RUN npm run build
-
-# Production stage
-FROM base AS production
-WORKDIR /app
-
-# Create non-root user for security
-RUN addgroup --system --gid 1001 nodejs
-RUN adduser --system --uid 1001 nestjs
-
-# Install dumb-init for proper signal handling
-RUN apk add --no-cache dumb-init
-
-# Copy built application
-COPY --from=builder --chown=nestjs:nodejs /app/dist ./dist
-COPY --from=builder --chown=nestjs:nodejs /app/node_modules ./node_modules
-COPY --from=builder --chown=nestjs:nodejs /app/package*.json ./
-COPY --from=builder --chown=nestjs:nodejs /app/prisma ./prisma
-
-# Create uploads directory
-RUN mkdir -p /app/public/uploads && chown -R nestjs:nodejs /app/public
-
-USER nestjs
-
-EXPOSE 3001
-
-# Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:3001/health || exit 1
-
-CMD ["dumb-init", "node", "dist/main"]
+ENV NODE_ENV=production
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+COPY package.json create-admin.js ./
+# Yuklangan rasmlar volume'da (docker-compose.prod.yml: uploads) — konteyner almashsa ham qoladi.
+RUN mkdir -p public/uploads && chown -R node:node /app/public
+USER node
+EXPOSE 4000
+HEALTHCHECK --interval=30s --timeout=5s --retries=3 \
+  CMD node -e "fetch('http://127.0.0.1:4000/health').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"
+CMD ["node", "dist/main"]

@@ -20,6 +20,8 @@ qayta ko'rib chiqilishi shart — ular o'sha holatda muzlatilgan.
 | `chat/`, `notification/`, `mail/` | MVP'da real-time chat va email yo'q; mailer zanjirida critical zaifliklar | Email bildirishnoma kerak bo'lsa — mailer'siz nodemailer |
 | `child-safety/`, `seller/`, `telegram/`, `microservices/`, `color(s)/`, `model/`, `currency/` controller | Ota-ona nazorati, ko'p sotuvchili bozor, Telegram bot — MVP qamrovidan tashqari | Mahsulot qarori |
 | `common/services/*` (winston, sentry, monitoring) | Hech qayerda ishlatilmaydi | Faza 4 monitoring bilan birga ko'rib chiqiladi |
+| **`front-main/` (butun eski frontend)** | O'rniga `web/` (Next 16). Eskisi: Next 14 critical CVE, 505 tip xatosi, 3 holat menejeri, eski API manzillari, karta ma'lumotini yig'uvchi komponent | Qaytarilmaydi; o'chirish taklif qilinadi |
+| Eski `docker-compose.yml`, `setup.ps1`, `test-api-windows.ps1`, `.replit` | Dev uchun pgAdmin/redis-commander standart parollar bilan; Replit/Windows sozlamalari eski tuzilmaga qaratilgan | Prod: `docker-compose.prod.yml` |
 
 **Paketlar olib tashlangan.** Faza 0.5 da uzilgan kodgina ishlatgan 45 paket
 (`@nestjs-modules/mailer`, `@nestjs/apollo`, `twilio`, `passport*`, `sharp`, ...)

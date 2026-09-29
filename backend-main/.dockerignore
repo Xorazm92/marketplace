@@ -1,0 +1,11 @@
+node_modules
+dist
+coverage
+test
+test-results
+public
+*.db
+dump.rdb
+.env
+.env.*
+!.env.example

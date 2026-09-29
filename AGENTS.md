@@ -1,7 +1,8 @@
 # INBOLA — bolalar mahsulotlari marketplace'i
 
-NestJS 11 + Prisma 6 + PostgreSQL (`backend-main/`) va Next.js 14 App Router
-(`front-main/`). Birinchi reliz qamrovi va bosqichlari: `docs/plan/MVP_ROADMAP.md`.
+NestJS 11 + Prisma 6 + PostgreSQL (`backend-main/`) va Next.js 16 App Router
+(`web/`). `front-main/` — eski frontend, ishlatilmaydi (`docs/ICEBOX.md`).
+Deploy: `docs/DEPLOYMENT.md`. Birinchi reliz qamrovi va bosqichlari: `docs/plan/MVP_ROADMAP.md`.
 O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 
 ## Uy qoidalari
@@ -34,10 +35,11 @@ npx prisma migrate deploy            # server
 npm run seed                         # hududlar, toifalar, UZS (SEED_DEMO=true — demo mahsulotlar)
 ADMIN_PHONE=+998... ADMIN_PASSWORD=... node create-admin.js   # birinchi super admin
 
-# front-main/
+# web/
 npm ci
-npm run dev                          # :5000
-npm run build
+API_URL=http://localhost:4000 npm run dev   # :3000
+npm run typecheck && npm run lint && npm run build
+npx playwright test                  # backend va web build qilingan bo'lsin
 
 # ildiz
 bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
@@ -69,6 +71,13 @@ Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 - **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
 - **`dev.db`, `dump.rdb`, `.env.test` repoda** (tarixiy) — yangilarini qo'shmang.
+- **Next.js 16 — o'rgatilgan versiya emas.** `web/node_modules/next/dist/docs/` dagi
+  qo'llanmani o'qing: `params`/`searchParams` Promise, `middleware` → `proxy`.
+- **`next.config` rewrites build'ga qotib qoladi.** Shu sababli API `web/lib/proxy.ts`
+  (route handler) orqali uzatiladi va `API_URL` ishga tushishda o'qiladi.
+- **O'zbekcha apostrof:** interfeysda `oʻ`/`gʻ` (U+02BB) va tutuq `ʼ` (U+02BC).
+  ASCII `'` JSX matnida lint xatosi beradi.
+- **Narx va sana `web/lib/format.ts` orqali** — `Intl` server va brauzerda har xil chizadi.
 
 ## Agent sozlamalari
 

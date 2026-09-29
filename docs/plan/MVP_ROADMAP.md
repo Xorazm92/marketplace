@@ -1,6 +1,9 @@
 # INBOLA Marketplace — to'liq review va MVP'gacha yakunlash rejasi
 
-> **Holat:** REJA · 2026-09-29 · Shox: `main` (toza)
+> **Holat:** Faza −1…4 kod darajasida bajarildi (2026-09-29). O'lchangan holat va
+> ishga tushirishdan oldin qolgan ishlar: `docs/QUALITY_BAR.md` (§7).
+> Faza 0 da topilgan qo'shimcha muammolar pastda (C6–C10); Faza 1–2 da frontend
+> qayta qurildi (`web/`), eski `front-main/` ICEBOX'da.
 > **Metodologiya:** `mehnat-ai/.claude/agents/full-project-reviewer.md` fazalari +
 > `mehnat-ai/docs/QUALITY_BAR.md` uslubidagi o'lchanadigan mezonlar.
 > **Qaror qilingan qamrov:** Asosiy savdo MVP · to'lov: Payme + Click + Uzum + naqd · deploy: VPS + Docker/pm2.

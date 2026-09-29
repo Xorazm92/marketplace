@@ -1,0 +1,63 @@
+# Prod stek: postgres + backend + web + nginx. Yo'riqnoma: docs/DEPLOYMENT.md
+# Maxfiy qiymatlar .env.prod da (namuna: .env.prod.example), repoga tushmaydi.
+name: inbola
+
+x-logging: &logging
+  driver: json-file
+  options: { max-size: "20m", max-file: "5" }
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes: [pgdata:/var/lib/postgresql/data]
+    # Port tashqariga ochilmaydi: baza faqat ichki tarmoqda.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      retries: 5
+    logging: *logging
+
+  backend:
+    build: ./backend-main
+    restart: unless-stopped
+    env_file: .env.prod
+    environment:
+      NODE_ENV: production
+      PORT: "4000"
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      FRONTEND_URL: https://${DOMAIN}
+      CORS_ORIGIN: https://${DOMAIN}
+    volumes: [uploads:/app/public/uploads]
+    depends_on:
+      postgres: { condition: service_healthy }
+    logging: *logging
+
+  web:
+    build: ./web
+    restart: unless-stopped
+    environment:
+      API_URL: http://backend:4000
+    depends_on: [backend]
+    logging: *logging
+
+  nginx:
+    image: nginx:1.27-alpine
+    restart: unless-stopped
+    ports: ["80:80", "443:443"]
+    environment:
+      DOMAIN: ${DOMAIN}
+    volumes:
+      - ./deploy/nginx/default.conf.template:/etc/nginx/templates/default.conf.template:ro
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - /var/www/certbot:/var/www/certbot:ro
+    depends_on: [web, backend]
+    logging: *logging
+
+volumes:
+  pgdata:
+  uploads:
