@@ -1,7 +1,7 @@
 # INBOLA — bolalar mahsulotlari marketplace'i
 
 NestJS 11 + Prisma 6 + PostgreSQL (`backend-main/`) va Next.js 16 App Router
-(`web/`). `front-main/` — eski frontend, ishlatilmaydi (`docs/ICEBOX.md`).
+(`web/`). Olib tashlangan eski kod va uni qaytarish: `docs/ICEBOX.md`.
 Deploy: `docs/DEPLOYMENT.md`. Birinchi reliz qamrovi va bosqichlari: `docs/plan/MVP_ROADMAP.md`.
 O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 
@@ -28,7 +28,7 @@ O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 npm ci
 npm run start:dev                    # :4000, API /api/v1/..., Swagger /api/docs
 npx tsc --noEmit -p tsconfig.build.json
-npm test                             # unit (bazasiz)
+npm run lint && npm test             # lint + unit (bazasiz)
 TEST_DATABASE_URL=postgresql://USER@HOST:PORT/NOMI_test npm run test:e2e   # haqiqiy Postgres
 npx prisma migrate dev --name <nom>  # faqat lokal, yangi migratsiya
 npx prisma migrate deploy            # server
@@ -39,7 +39,7 @@ ADMIN_PHONE=+998... ADMIN_PASSWORD=... node create-admin.js   # birinchi super a
 npm ci
 API_URL=http://localhost:4000 npm run dev   # :3000
 npm run typecheck && npm run lint && npm run build
-npx playwright test                  # backend va web build qilingan bo'lsin
+npx playwright test                  # backend va web build qilingan bo'lsin; PW_CHANNEL=chrome — tizim Chrome'i bilan
 
 # ildiz
 bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
@@ -50,16 +50,15 @@ bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
 `identity/` (auth, OTP, SMS, token) · `catalog/` (mahsulotlar) · `order/` · `payments/`
 (Payme, Click) · `account/` (manzillar) · `backoffice/` (admin dashboard, userlar) ·
 `cart/` · `wishlist/` · `category/` · `brand/` · `region/` · `district/` · `review/` · `health/`.
-Qolgan papkalar ulanmagan — `docs/ICEBOX.md`. Ularni `app.module.ts` ga
-qayta ulashdan oldin o'sha ro'yxatdagi shartlarni o'qing.
+Eski modullar olib tashlangan (`docs/ICEBOX.md`); ularni git'dan qaytarishdan oldin
+o'sha ro'yxatdagi xavfsizlik sabablarini o'qing.
 
 ## Tuzoqlar
 
 Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 
-- **Uzilgan modullar kodda turibdi.** `auth/`, `admin/`, `payment/`, `product/`,
-  `address/` va boshqalar `src/` da, lekin `app.module.ts` ga ulanmagan. Yangi kodni
-  ularga emas, `identity/`, `catalog/`, `payments/`, `account/` ga yozing.
+- **`schema.prisma` da eski modellar turibdi** (chat, seller, kupon...). Kodda
+  ishlatilmaydi; ularni olib tashlash `DROP TABLE` — egasining tasdig'isiz emas.
 - **E2E testlar bazani TRUNCATE qiladi.** `test/mvp/harness.ts` faqat nomi `_test`
   bilan tugaydigan bazada ishlaydi. Bu tekshiruvni olib tashlamang.
 - **Click summasi so'mda, Payme summasi tiyinda.** `payments/order-payment-state.ts`
@@ -70,7 +69,7 @@ Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
   Buyurtmani bekor qilishning boshqa yo'lini yozmang.
 - **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
-- **`dev.db`, `dump.rdb`, `.env.test` repoda** (tarixiy) — yangilarini qo'shmang.
+- **`.env*`, `*.db`, `dump.rdb` repoga qo'shilmaydi** — qo'riqchi to'sadi.
 - **Next.js 16 — o'rgatilgan versiya emas.** `web/node_modules/next/dist/docs/` dagi
   qo'llanmani o'qing: `params`/`searchParams` Promise, `middleware` → `proxy`.
 - **`next.config` rewrites build'ga qotib qoladi.** Shu sababli API `web/lib/proxy.ts`

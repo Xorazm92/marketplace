@@ -12,12 +12,9 @@
     "^.+\\.(ts|tsx)$": "ts-jest"
   },
   "collectCoverageFrom": [
-    "src/**/*.{ts,tsx}",
-    "!src/**/*.d.ts",
+    "src/**/*.ts",
     "!src/main.ts",
-    "!src/test/**",
-    "!src/**/*.spec.ts",
-    "!src/**/*.test.ts"
+    "!src/**/*.spec.ts"
   ],
   "coverageDirectory": "coverage",
   "coverageReporters": [
@@ -31,10 +28,6 @@
   "forceExit": true,
   "maxWorkers": 1,
   "testPathIgnorePatterns": [
-    "/node_modules/",
-    "<rootDir>/src/test/",
-    "<rootDir>/src/testing/",
-    "<rootDir>/src/child-safety/",
-    "\\.resolver\\.spec\\.ts$"
+    "/node_modules/"
   ]
 }

@@ -33,6 +33,9 @@ export type AdminProduct = Product & {
   brand_id: number | null;
 };
 
+export type Review = { id: number; rating: number; title: string | null; comment: string | null; is_verified: boolean; createdAt: string; user: { first_name: string } };
+export type ReviewStats = { average: number | null; count: number; distribution: Record<string, number> };
+
 export type Page<T> = { items: T[]; total: number; page: number; limit: number; pages: number };
 
 export type Category = { id: number; name: string; slug: string; description: string | null; is_active: boolean; sort_order: number };

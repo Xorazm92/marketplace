@@ -9,6 +9,7 @@ API_URL=http://localhost:4000 npm run dev     # :3000
 npm run build && API_URL=http://localhost:4000 npx next start -p 5000
 npm run typecheck && npm run lint
 npm run test:e2e    # Playwright: backend + web'ni o'zi ko'taradi (backend oldin build qilingan bo'lsin)
+PW_CHANNEL=chrome npm run test:e2e   # Playwright brauzerini yuklab bo'lmasa, tizim Chrome'i bilan
 ```
 
 - `API_URL` — backend manzili, **ishga tushish paytida** o'qiladi (`lib/proxy.ts`).

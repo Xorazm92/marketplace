@@ -87,7 +87,7 @@ export class BrandController {
       }
 
       return { message: 'Brands seeded successfully' };
-    } catch (error) {
+    } catch {
       throw new BadRequestException('Failed to seed brands');
     }
   }

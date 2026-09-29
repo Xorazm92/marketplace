@@ -1,7 +1,7 @@
 {
   "name": "inbola_backend",
   "version": "0.0.1",
-  "description": "",
+  "description": "INBOLA API",
   "author": "",
   "private": true,
   "license": "UNLICENSED",
@@ -14,31 +14,17 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
-    "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
+    "lint": "eslint src test prisma",
     "test": "jest --config jest.config.json",
     "test:watch": "jest --config jest.config.json --watch",
     "test:cov": "jest --config jest.config.json --coverage",
-    "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --config jest.config.json --runInBand",
     "test:e2e": "jest -c test/mvp/jest.config.js --runInBand",
-    "test:unit": "jest --config jest.config.json --testPathPattern=spec",
-    "test:security": "jest --config jest.config.json --testPathPattern=security",
-    "test:performance": "jest --config jest.config.json --testPathPattern=performance",
-    "test:integration": "jest --config jest.config.json --testPathPattern=integration",
-    "test:monitoring": "jest --config jest.config.json --testPathPattern=monitoring",
-    "test:comprehensive": "jest --config jest.config.json --runInBand --verbose",
     "seed": "ts-node prisma/seed.ts",
     "db:generate": "npx prisma generate",
-    "db:migrate": "npx prisma migrate dev",
-    "db:push": "npx prisma db push",
     "db:studio": "npx prisma studio",
-    "images:optimize": "node scripts/optimize-images.js optimize",
-    "images:manifest": "node scripts/optimize-images.js manifest",
-    "images:product": "node scripts/optimize-images.js product",
-    "data:import": "node scripts/import-products.js import",
-    "data:clear": "node scripts/import-products.js clear",
-    "data:reset": "node scripts/import-products.js reset",
     "build:seed": "tsc prisma/seed.ts --outDir dist/prisma --module commonjs --target ES2020 --esModuleInterop --skipLibCheck",
-    "seed:prod": "node dist/prisma/seed.js"
+    "seed:prod": "node dist/prisma/seed.js",
+    "db:migrate": "npx prisma migrate deploy"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
@@ -93,22 +79,5 @@
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
-  },
-  "jest": {
-    "moduleFileExtensions": [
-      "js",
-      "json",
-      "ts"
-    ],
-    "rootDir": "src",
-    "testRegex": ".*\\.spec\\.ts$",
-    "transform": {
-      "^.+\\.(t|j)s$": "ts-jest"
-    },
-    "collectCoverageFrom": [
-      "**/*.(t|j)s"
-    ],
-    "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
   }
 }

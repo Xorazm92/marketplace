@@ -10,11 +10,10 @@ zaxira va buyurtmalar boshqariladi.
 | `web/` | Do'kon va admin panel: Next.js 16, React 19, Tailwind 4 |
 | `deploy/`, `scripts/`, `docker-compose.prod.yml` | VPS deploy, zaxira, tiklash |
 | `docs/` | Reja, sifat chegarasi, deploy, ICEBOX |
-| `front-main/` | Eski frontend — ishlatilmaydi (`docs/ICEBOX.md`) |
 
 ## Lokal ishga tushirish
 
-Talab: Node 22+, PostgreSQL 16.
+Talab: Node 22+, PostgreSQL 16 (yoki `docker compose up -d` — faqat Postgres).
 
 ```bash
 # Backend
@@ -50,5 +49,5 @@ CI: `.github/workflows/ci.yml`.
 - `docs/plan/MVP_ROADMAP.md` — review va bosqichlar
 - `docs/QUALITY_BAR.md` — o'lchanadigan tayyorlik holati
 - `docs/DEPLOYMENT.md` — prod deploy, to'lov kabinetlari, zaxira, rollback
-- `docs/ICEBOX.md` — ulanmagan kod va sabablari
+- `docs/ICEBOX.md` — olib tashlangan eski kod va uni qaytarish
 - `AGENTS.md` — kod yozish qoidalari va tuzoqlar

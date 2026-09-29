@@ -1,10 +1,9 @@
 
-import { Controller, Get, Post, Put, Delete, Body, UseGuards, Param, ParseIntPipe } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, UseGuards } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { CartService } from './cart.service';
 import { AddToCartDto, UpdateCartItemDto, RemoveFromCartDto } from './dto/cart.dto';
 import { UserGuard } from '../guards/user.guard';
-import { User } from '@prisma/client';
 import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 
 @ApiTags('🛒 Cart')

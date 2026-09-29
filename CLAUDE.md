@@ -41,7 +41,7 @@ log, xato matni, URL yoki API javobiga chiqmaydi.
 
 ## API
 
-O'zgartirishdan oldin chaqiruvchilarni (`front-main/` da grep), validatsiyani,
+O'zgartirishdan oldin chaqiruvchilarni (`web/` da grep), validatsiyani,
 guard'ni va javob shaklini ko'ring. Mavjud iste'molchini jimgina buzmang.
 
 ## Yakuniy javob

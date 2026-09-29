@@ -1,19 +1,19 @@
-
-import { IsOptional, IsString, IsNumber, Min, Max, IsArray } from 'class-validator';
+import { IsInt, IsOptional, IsString, Max, MaxLength, Min } from 'class-validator';
 
 export class UpdateReviewDto {
   @IsOptional()
-  @IsNumber()
+  @IsInt()
   @Min(1)
   @Max(5)
   rating?: number;
 
   @IsOptional()
   @IsString()
-  comment?: string;
+  @MaxLength(120)
+  title?: string;
 
   @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  images?: string[];
+  @IsString()
+  @MaxLength(2000)
+  comment?: string;
 }

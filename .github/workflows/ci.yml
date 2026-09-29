@@ -37,7 +37,8 @@ jobs:
           cache-dependency-path: backend-main/package-lock.json
       - run: npm ci
       - run: npx prisma generate
-      - run: npx tsc --noEmit -p tsconfig.build.json
+      - run: npx tsc --noEmit -p tsconfig.json
+      - run: npm run lint
       - run: npm test
       - run: npm run build
       - name: Sxema va migratsiyalar mos (drift yo'q)

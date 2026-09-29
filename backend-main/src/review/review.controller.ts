@@ -1,126 +1,68 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, UseGuards, ParseIntPipe } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, Max, Min } from 'class-validator';
+import { UserGuard } from '../guards/user.guard';
+import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 import { ReviewService } from './review.service';
 import { CreateReviewDto } from './dto/create-review.dto';
 import { UpdateReviewDto } from './dto/update-review.dto';
-import { UserGuard } from '../guards/user.guard';
-import { OptionalUserGuard } from '../guards/optional-user.guard';
-import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 
-@ApiTags('⭐ Reviews')
+class PageQuery {
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  page?: number;
+
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  @Max(50)
+  limit?: number;
+}
+
+@ApiTags('Reviews')
 @Controller('reviews')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(private readonly reviews: ReviewService) {}
 
   @Get('product/:productId')
-  @UseGuards(OptionalUserGuard)
-  @ApiOperation({ summary: 'Get reviews for a product' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiQuery({ name: 'rating', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'Reviews retrieved successfully' })
-  async getProductReviews(
-    @Param('productId', ParseIntPipe) productId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-    @Query('rating') rating?: number
-  ) {
-    return this.reviewService.getProductReviews(productId, { page, limit, rating });
+  list(@Param('productId', ParseIntPipe) productId: number, @Query() query: PageQuery) {
+    return this.reviews.listForProduct(productId, query.page, query.limit);
   }
 
   @Get('product/:productId/stats')
-  @ApiOperation({ summary: 'Get review statistics for a product' })
-  @ApiResponse({ status: 200, description: 'Review statistics retrieved successfully' })
-  async getProductReviewStats(@Param('productId', ParseIntPipe) productId: number) {
-    return this.reviewService.getProductRatingStats(productId);
+  stats(@Param('productId', ParseIntPipe) productId: number) {
+    return this.reviews.stats(productId);
+  }
+
+  @Get('mine')
+  @ApiBearerAuth()
+  @UseGuards(UserGuard)
+  mine(@GetCurrentUserId() userId: number) {
+    return this.reviews.mine(userId);
   }
 
   @Post()
+  @ApiBearerAuth()
   @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Create a new review' })
-  @ApiResponse({ status: 201, description: 'Review created successfully' })
-  async createReview(
-    @GetCurrentUserId() userId: number,
-    @Body() createReviewDto: CreateReviewDto
-  ) {
-    return this.reviewService.createReview(userId, createReviewDto);
+  create(@GetCurrentUserId() userId: number, @Body() dto: CreateReviewDto) {
+    return this.reviews.create(userId, dto);
   }
 
-  @Put(':id')
+  @Patch(':id')
+  @ApiBearerAuth()
   @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Update a review' })
-  @ApiResponse({ status: 200, description: 'Review updated successfully' })
-  async updateReview(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number,
-    @Body() updateReviewDto: UpdateReviewDto
-  ) {
-    return this.reviewService.updateReview(id, userId, updateReviewDto);
+  update(@GetCurrentUserId() userId: number, @Param('id', ParseIntPipe) id: number, @Body() dto: UpdateReviewDto) {
+    return this.reviews.update(userId, id, dto);
   }
 
   @Delete(':id')
+  @ApiBearerAuth()
   @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Delete a review' })
-  @ApiResponse({ status: 200, description: 'Review deleted successfully' })
-  async deleteReview(
-    @Param('id', ParseIntPipe) id: number,
-    @GetCurrentUserId() userId: number
-  ) {
-    return this.reviewService.deleteReview(id, userId);
-  }
-
-  @Get('user/my-reviews')
-  @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Get current user reviews' })
-  @ApiQuery({ name: 'page', required: false, type: Number })
-  @ApiQuery({ name: 'limit', required: false, type: Number })
-  @ApiResponse({ status: 200, description: 'User reviews retrieved successfully' })
-  async getUserReviews(
-    @GetCurrentUserId() userId: number,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10
-  ) {
-    return this.reviewService.getUserReviews(userId, { page, limit });
-  }
-
-  @Post(':id/helpful')
-  @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Mark review as helpful' })
-  @ApiResponse({ status: 200, description: 'Review marked as helpful' })
-  async markReviewHelpful(
-    @Param('id', ParseIntPipe) reviewId: number,
-    @GetCurrentUserId() userId: number
-  ) {
-    return this.reviewService.markReviewHelpful(reviewId, userId);
-  }
-
-  @Delete(':id/helpful')
-  @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Remove helpful mark from review' })
-  @ApiResponse({ status: 200, description: 'Helpful mark removed' })
-  async removeHelpfulMark(
-    @Param('id', ParseIntPipe) reviewId: number,
-    @GetCurrentUserId() userId: number
-  ) {
-    return this.reviewService.removeHelpfulMark(reviewId, userId);
-  }
-
-  @Post(':id/report')
-  @UseGuards(UserGuard)
-  @ApiBearerAuth('JWT-auth')
-  @ApiOperation({ summary: 'Report inappropriate review' })
-  @ApiResponse({ status: 200, description: 'Review reported successfully' })
-  async reportReview(
-    @Param('id', ParseIntPipe) reviewId: number,
-    @GetCurrentUserId() userId: number,
-    @Body('reason') reason: string
-  ) {
-    return this.reviewService.reportReview(reviewId, userId, reason);
+  remove(@GetCurrentUserId() userId: number, @Param('id', ParseIntPipe) id: number) {
+    return this.reviews.remove(userId, id);
   }
 }

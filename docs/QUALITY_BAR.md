@@ -38,16 +38,18 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin
 | F1 | Login (telefon+OTP) → savat → checkout → to'lov → buyurtmalarim | ✅ Playwright brauzerda (naqd); onlayn to'lov — checkout URL'gacha | 2 |
 | F2 | Payme, Click sandbox'da uchidan-uchiga | ⚠️ protokol e2e'da (imzo, summa, idempotentlik, taym-aut); haqiqiy sandbox kalitlari kerak. Uzum — ICEBOX | 4 |
 | F3 | Naqd (yetkazganda) to'lov | ✅ backend: "yetkazildi" = to'landi (e2e) | 1-2 |
+| F5 | Sharhlar: faqat yetkazilgan xarid, bittadan, egasi tahrirlaydi | ✅ backend e2e + Playwright | 5 |
 | F4 | Admin: mahsulot, buyurtma holati, bo'limlar, xaridorlar, adminlar | ✅ `web/app/admin`; buyurtma o'tishlari Playwright'da, mahsulot/rasm/zaxira backend e2e'da | 2 |
 
 ## 4. Build va test
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
-| T1 | Backend build va `tsc` toza | ✅ ICEBOX papkalari istisno qilingan | 0-1 |
+| T1 | Backend build va `tsc` toza | ✅ istisnosiz — eski kod olib tashlangan | 0-5 |
 | T2 | Frontend build, tip, lint | ✅ `web/`: tsc 0, eslint 0, build o'tadi | 2 |
-| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 24 (bazasiz) + e2e 35 (haqiqiy Postgres) | 0-1 |
-| T4 | Playwright happy-path | ✅ 2/2: xaridor → naqd buyurtma → admin "yetkazildi"; mehmon yo'naltirilishi | 3 |
+| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 24 (bazasiz) + e2e 37 (haqiqiy Postgres) | 0-5 |
+| T4 | Playwright happy-path | ✅ 3/3: xaridor → naqd buyurtma → admin "yetkazildi" → sharh; mehmon yo'naltirilishi; 375px'da 9 sahifa gorizontal scroll'siz | 3-5 |
+| T6 | Lint | ✅ backend (ESLint 9 flat) va web — 0 xato; CI'da | 5 |
 | T5 | CI har PR'da (tsc + test + build) | ⚠️ `.github/workflows/ci.yml` yozildi (backend, web, brauzer e2e, hook, audit, drift); GitHub'da hali ishga tushmagan | 3 |
 
 ## 5. Deploy va kuzatuv
@@ -60,7 +62,14 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin
 | O4 | Backup (DB + uploads), tiklash bir marta sinovdan o'tgan | ⚠️ `backup.sh`/`restore.sh` yozildi; tiklash sinovi staging'da qilinishi kerak | 4 |
 | O5 | Xato kuzatuvi + `/health` bazani tekshiradi | ⚠️ `/health` haqiqiy `SELECT 1` (503), Docker healthcheck, log aylanishi; Sentry yo'q | 4 |
 
-## 6. Agent infratuzilmasi
+## 6. Kod tozaligi
+
+| # | Chegara | Holat | Faza |
+|---|---|---|---|
+| C1 | Repoda ishlatilmaydigan kod yo'q | ✅ 1 000+ fayl olib tashlandi (`front-main`, eski backend modullari, generatsiya qilingan Prisma, ikkilik fayllar) — `docs/ICEBOX.md` | 5 |
+| C2 | Bitta faol shox | ⚠️ mahalliy — ha; remote'dagi 5 eski shox egasi tasdig'ini kutmoqda | 5 |
+
+## 7. Agent infratuzilmasi
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
@@ -69,7 +78,7 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — Faza 0…4 dan keyin
 | A3 | `session-start.sh` | ✅ | −1 |
 | A4 | Ishonchsiz hisobotlar arxivda | ✅ `docs/archive/` | −1 |
 
-## 7. Ishga tushirishdan oldin qolgan ishlar
+## 8. Ishga tushirishdan oldin qolgan ishlar
 
 Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmagan:
 
@@ -78,4 +87,4 @@ Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmag
 3. VPS'da `docker compose build` va birinchi `deploy.sh` (O2, O3); staging'da **tiklash sinovi** (O4).
 4. Yetkazish narxi qoidasi (`SHIPPING_FLAT_FEE`, `FREE_SHIPPING_FROM`) — hozir 0.
 5. Uzum: hujjat va kalitlar (ICEBOX).
-6. `front-main/` va ICEBOX papkalarini o'chirish qarori.
+6. Bazadagi eski jadvallarni (`schema.prisma` dagi ishlatilmaydigan modellar) olib tashlash qarori — `DROP TABLE`.

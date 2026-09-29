@@ -19,7 +19,8 @@ export default defineConfig({
   timeout: 60_000,
   use: { baseURL: `http://localhost:${WEB_PORT}`, trace: "retain-on-failure" },
   projects: [
-    { name: "desktop", use: { ...devices["Desktop Chrome"] } },
+    // PW_CHANNEL=chrome — Playwright brauzerini yuklab bo'lmasa, tizimdagi Chrome bilan.
+    { name: "desktop", use: { ...devices["Desktop Chrome"], channel: process.env.PW_CHANNEL || undefined } },
   ],
   webServer: [
     {

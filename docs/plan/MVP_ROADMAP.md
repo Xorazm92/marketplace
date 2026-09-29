@@ -1,7 +1,7 @@
 # INBOLA Marketplace — to'liq review va MVP'gacha yakunlash rejasi
 
 > **Holat:** Faza −1…4 kod darajasida bajarildi (2026-09-29). O'lchangan holat va
-> ishga tushirishdan oldin qolgan ishlar: `docs/QUALITY_BAR.md` (§7).
+> ishga tushirishdan oldin qolgan ishlar: `docs/QUALITY_BAR.md` (§8).
 > Faza 0 da topilgan qo'shimcha muammolar pastda (C6–C10); Faza 1–2 da frontend
 > qayta qurildi (`web/`), eski `front-main/` ICEBOX'da.
 > **Metodologiya:** `mehnat-ai/.claude/agents/full-project-reviewer.md` fazalari +

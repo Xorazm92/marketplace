@@ -1,19 +1,10 @@
-import {
-  createParamDecorator,
-  ExecutionContext,
-  ForbiddenException,
-  SetMetadata,
-} from "@nestjs/common";
-import { JwtPayload } from "../types";
+import { createParamDecorator, ExecutionContext, ForbiddenException } from '@nestjs/common';
 
-export const GetCurrentUserId = createParamDecorator(
-  (_: undefined, context: ExecutionContext): number => {
-    const request = context.switchToHttp().getRequest();
-    const user = request.user as JwtPayload;
-
-    if (!user) {
-      throw new ForbiddenException("Token noto'g'ri");
-    }
-    return user.id;
+// UserGuard bilan birga ishlatiladi: guard tokendan `req.user.id` ni yozadi.
+export const GetCurrentUserId = createParamDecorator((_: undefined, context: ExecutionContext): number => {
+  const user = context.switchToHttp().getRequest().user as { id?: number } | undefined;
+  if (!user?.id) {
+    throw new ForbiddenException("Token noto'g'ri");
   }
-);
+  return user.id;
+});

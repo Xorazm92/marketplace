@@ -112,7 +112,8 @@ export class AddressesService {
         throw new BadRequestException('Tuman topilmadi');
       }
     }
-    const { is_main, ...rest } = dto;
+    // is_main alohida boshqariladi (boshqa manzillardan olib tashlanadi).
+    const { is_main: _isMain, ...rest } = dto;
     return { ...rest, ...(dto.phone_number ? { phone_number: normalizeUzPhone(dto.phone_number) } : {}) };
   }
 }
