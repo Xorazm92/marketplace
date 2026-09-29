@@ -297,6 +297,14 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
     return expired;
   }
 
+  // Checkout sahifasi yakuniy summani to'lovdan oldin ko'rsatishi uchun.
+  shippingRules() {
+    return {
+      flat_fee: Number(this.config.get('SHIPPING_FLAT_FEE') ?? 0),
+      free_from: Number(this.config.get('FREE_SHIPPING_FROM') ?? 0),
+    };
+  }
+
   private shippingFee(itemsTotal: number): number {
     const fee = Number(this.config.get('SHIPPING_FLAT_FEE') ?? 0);
     const freeFrom = Number(this.config.get('FREE_SHIPPING_FROM') ?? 0);

@@ -34,6 +34,17 @@ export class OrderController {
   }
 }
 
+@ApiTags('Orders')
+@Controller('shipping')
+export class ShippingController {
+  constructor(private readonly orders: OrderService) {}
+
+  @Get()
+  rules() {
+    return this.orders.shippingRules();
+  }
+}
+
 @ApiTags('Admin orders')
 @ApiBearerAuth()
 @Controller('admin/orders')

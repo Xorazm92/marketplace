@@ -122,6 +122,25 @@ describe('auth va katalog (e2e)', () => {
       await t.http().post('/api/v1/cart/add').set('Authorization', `Bearer ${user.access_token}`).send({ product_id: product.id, quantity: 1 }).expect(404);
     });
 
+    it('GET /cart rasmlar va jami son/summa bilan qaytadi (savat sahifasi shunga tayanadi)', async () => {
+      const { product } = await seedCatalog(t, { price: 65000 });
+      const user = await loginUser(t);
+      const auth = { Authorization: `Bearer ${user.access_token}` };
+      await t.http().post('/api/v1/cart/add').set(auth).send({ product_id: product.id, quantity: 2 }).expect(201);
+      const cart = await t.http().get('/api/v1/cart').set(auth).expect(200);
+      expect(cart.body).toEqual(expect.objectContaining({ total_items: 2, total_amount: 130000 }));
+      expect(cart.body.items[0].product.product_image).toEqual([]);
+    });
+
+    it('noma\'lum baza xatosi 500, 400 emas', async () => {
+      const { GlobalExceptionFilter } = await import('../../src/common/filters/global-exception.filter');
+      const { Prisma } = await import('@prisma/client');
+      const res: any = { status: jest.fn().mockReturnThis(), json: jest.fn() };
+      const host: any = { switchToHttp: () => ({ getResponse: () => res, getRequest: () => ({ url: '/x', method: 'GET', get: () => '' }) }) };
+      new GlobalExceptionFilter().catch(new Prisma.PrismaClientKnownRequestError('table missing', { code: 'P2021', clientVersion: 'x' }), host);
+      expect(res.status).toHaveBeenCalledWith(500);
+    });
+
     it('rasm yuklash faqat rasm fayllarini qabul qiladi', async () => {
       const admin = await loginAdmin(t);
       const { product } = await seedCatalog(t);

@@ -53,6 +53,8 @@ export class GlobalExceptionFilter implements ExceptionFilter {
           message = 'Ma\'lumotlar o\'rtasida ziddiyat';
           break;
         default:
+          // Noma'lum baza xatosi mijozning emas, serverning aybi.
+          status = HttpStatus.INTERNAL_SERVER_ERROR;
           message = 'Ma\'lumotlar bazasida xatolik yuz berdi';
       }
     } else {

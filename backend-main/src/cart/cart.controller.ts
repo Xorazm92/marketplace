@@ -18,7 +18,8 @@ export class CartController {
   @ApiOperation({ summary: 'Get user cart' })
   @ApiResponse({ status: 200, description: 'Cart retrieved successfully' })
   async getUserCart(@GetCurrentUserId() userId: number) {
-    return this.cartService.getUserCart(userId);
+    // getOrCreateCart: rasmlar va jami summa/son bilan (getUserCart ularni qaytarmaydi).
+    return this.cartService.getOrCreateCart(userId);
   }
 
   @Post('add')

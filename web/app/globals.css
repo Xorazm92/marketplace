@@ -1,0 +1,50 @@
+@import "tailwindcss";
+
+/* INBOLA: sovuq oq fon, siyoh-ko'k matn, kubik ranglari faqat ma'no uchun.
+   Sariq — asosiy harakat, ko'k — havola, yashil — omborda bor, qizil — xato. */
+@theme {
+  --color-paper: #f5f7fb;
+  --color-ink: #1d2440;
+  --color-ink-soft: #545c7a;
+  --color-line: #dce2ee;
+  --color-block-yellow: #ffc93c;
+  --color-block-blue: #2f6bff;
+  --color-block-green: #1fa37a;
+  --color-block-red: #d93636;
+  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
+  --font-sans: var(--font-onest), system-ui, sans-serif;
+}
+
+/* base layer'da: aks holda layer'siz qoida Tailwind utility'larini (font-sans) bosib ketadi. */
+@layer base {
+  body {
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+    line-height: 1.1;
+    letter-spacing: -0.01em;
+  }
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-block-blue);
+  outline-offset: 2px;
+}
+
+/* Yog'och kubik: siyoh rangidagi siljigan soya — sahifadagi yagona "jasur" element. */
+.block-shadow {
+  box-shadow: 4px 4px 0 var(--color-ink);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.block-shadow:active {
+  transform: translate(3px, 3px);
+  box-shadow: 1px 1px 0 var(--color-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}

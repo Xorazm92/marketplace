@@ -11,37 +11,37 @@ const prisma = new PrismaClient();
 
 const REGIONS: Record<string, string[]> = {
   'Toshkent shahri': [
-    'Bektemir', 'Chilonzor', 'Mirobod', "Mirzo Ulug'bek", 'Olmazor', 'Sergeli',
+    'Bektemir', 'Chilonzor', 'Mirobod', "Mirzo Ulugʻbek", 'Olmazor', 'Sergeli',
     'Shayxontohur', 'Uchtepa', 'Yakkasaroy', 'Yangihayot', 'Yashnobod', 'Yunusobod',
   ],
   'Toshkent viloyati': [],
   'Andijon viloyati': [],
   'Buxoro viloyati': [],
-  "Farg'ona viloyati": [],
+  "Fargʻona viloyati": [],
   'Jizzax viloyati': [],
   'Xorazm viloyati': [],
   'Namangan viloyati': [],
   'Navoiy viloyati': [],
   'Qashqadaryo viloyati': [],
-  "Qoraqalpog'iston Respublikasi": [],
+  "Qoraqalpogʻiston Respublikasi": [],
   'Samarqand viloyati': [],
   'Sirdaryo viloyati': [],
   'Surxondaryo viloyati': [],
 };
 
 const CATEGORIES = [
-  { slug: 'oyinchoqlar', name: "O'yinchoqlar", description: "Har yoshdagi bolalar uchun o'yinchoqlar" },
-  { slug: 'talimiy', name: "Ta'limiy o'yinlar", description: "Mantiq, hisob va til o'rgatuvchi o'yinlar" },
-  { slug: 'konstruktorlar', name: 'Konstruktorlar', description: "Yig'iladigan to'plamlar" },
+  { slug: 'oyinchoqlar', name: 'Oʻyinchoqlar', description: 'Har yoshdagi bolalar uchun oʻyinchoqlar' },
+  { slug: 'talimiy', name: 'Taʼlimiy oʻyinlar', description: 'Mantiq, hisob va til oʻrgatuvchi oʻyinlar' },
+  { slug: 'konstruktorlar', name: 'Konstruktorlar', description: 'Yigʻiladigan toʻplamlar' },
   { slug: 'kitoblar', name: 'Kitoblar', description: 'Bolalar adabiyoti va rasmli kitoblar' },
   { slug: 'kiyim', name: 'Kiyim-kechak', description: 'Chaqaloq va bolalar kiyimlari' },
   { slug: 'chaqaloqlar', name: 'Chaqaloqlar uchun', description: 'Parvarish va gigiyena mahsulotlari' },
-  { slug: 'sport', name: "Sport va faol o'yin", description: "Velosiped, to'p va tashqi o'yinlar" },
-  { slug: 'ijodkorlik', name: 'Ijodkorlik', description: "Rasm, plastilin va qo'l mehnati" },
+  { slug: 'sport', name: 'Sport va faol oʻyin', description: 'Velosiped, toʻp va tashqi oʻyinlar' },
+  { slug: 'ijodkorlik', name: 'Ijodkorlik', description: 'Rasm, plastilin va qoʻl mehnati' },
 ];
 
 const DEMO_PRODUCTS = [
-  { title: "Yog'och kubiklar to'plami (30 dona)", category: 'oyinchoqlar', price: 89000, original: 110000, stock: 25, age: [12, 48] },
+  { title: 'Yogʻoch kubiklar toʻplami (30 dona)', category: 'oyinchoqlar', price: 89000, original: 110000, stock: 25, age: [12, 48] },
   { title: 'Magnitli harflar va raqamlar', category: 'talimiy', price: 65000, stock: 40, age: [36, 84] },
   { title: 'Konstruktor "Shahar" 250 detal', category: 'konstruktorlar', price: 245000, original: 290000, stock: 8, age: [60, 144] },
   { title: 'Rasmli ertaklar kitobi', category: 'kitoblar', price: 45000, stock: 60, age: [24, 96] },
@@ -71,7 +71,7 @@ async function main() {
   const currency = await prisma.currency.upsert({
     where: { code: 'UZS' },
     update: {},
-    create: { code: 'UZS', name: "O'zbek so'mi", symbol: "so'm" },
+    create: { code: 'UZS', name: 'Oʻzbek soʻmi', symbol: 'soʻm' },
   });
 
   if (process.env.SEED_DEMO === 'true') {
