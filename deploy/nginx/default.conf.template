@@ -1,7 +1,17 @@
 # nginx:alpine ishga tushishda ${DOMAIN} ni env'dan qo'yadi.
+
+# So'rov chegaralari — haqiqiy mijoz IP'si bo'yicha, eng chetda. Backend'dagi IP chegarasi
+# kirish/OTP kabi nozik yo'llar uchun qoladi; ochiq katalog esa faqat shu yerda cheklanadi
+# (web server SSR so'rovlarini bitta IP'dan yuboradi — backend ularni ajrata olmaydi).
+# Mobil operator NAT'i ortida ko'p xaridor bitta IP'da bo'lishi mumkin: qiymatlarni pasaytirmang.
+limit_req_zone $binary_remote_addr zone=inbola_api:10m rate=20r/s;
+limit_req_zone $binary_remote_addr zone=inbola_pages:10m rate=10r/s;
+limit_req_status 429;
+
 server {
     listen 80;
     server_name ${DOMAIN};
+    server_tokens off;
     location /.well-known/acme-challenge/ { root /var/www/certbot; }
     location / { return 301 https://$host$request_uri; }
 }
@@ -10,36 +20,60 @@ server {
     listen 443 ssl;
     http2 on;
     server_name ${DOMAIN};
+    server_tokens off;
 
     ssl_certificate /etc/letsencrypt/live/${DOMAIN}/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/${DOMAIN}/privkey.pem;
     ssl_protocols TLSv1.2 TLSv1.3;
     add_header Strict-Transport-Security "max-age=31536000" always;
+    # Backend (helmet) ham HSTS yuboradi — brauzerga bitta sarlavha yetsin.
+    proxy_hide_header Strict-Transport-Security;
 
     # Admin bir so'rovda 10 tagacha 5 MB rasm yuklaydi.
     client_max_body_size 55m;
+
+    # Konteyner nomlari har so'rovda Docker DNS orqali topiladi. proxy_pass'ga nom to'g'ridan-to'g'ri
+    # yozilsa, nginx uni faqat ishga tushishda bir marta o'qiydi: deploy'da backend/web konteyneri
+    # yangi IP olsa, nginx qayta yuklanmaguncha eski manzilga yuborib 502 qaytarardi.
+    resolver 127.0.0.11 valid=10s ipv6=off;
+    set $backend http://backend:4000;
+    set $web http://web:3000;
 
     proxy_set_header Host $host;
     # Backend `trust proxy 1`: oxirgi (nginx qo'shgan) IP haqiqiy mijoz IP'si.
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header X-Forwarded-Proto $scheme;
 
+    # To'lov provayderlari callback'lari: bitta IP'dan ko'p keladi — cheklanmaydi,
+    # himoyasi imzo/Basic auth (backend).
+    location /api/v1/payments/ {
+        proxy_pass $backend;
+        proxy_read_timeout 60s;
+    }
+
     location /api/ {
-        proxy_pass http://backend:4000;
+        limit_req zone=inbola_api burst=60 nodelay;
+        proxy_pass $backend;
         proxy_read_timeout 60s;
     }
 
     location /uploads/ {
-        proxy_pass http://backend:4000;
+        proxy_pass $backend;
         expires 7d;
     }
 
     # Tashqi monitoring uchun; ichki tafsilot qaytarmaydi.
     location = /health {
-        proxy_pass http://backend:4000;
+        proxy_pass $backend;
+    }
+
+    # Build'da nomiga xesh qo'shilgan statik fayllar: bitta sahifa o'nlab fayl so'raydi — cheklanmaydi.
+    location /_next/static/ {
+        proxy_pass $web;
     }
 
     location / {
-        proxy_pass http://web:3000;
+        limit_req zone=inbola_pages burst=40 nodelay;
+        proxy_pass $web;
     }
 }
