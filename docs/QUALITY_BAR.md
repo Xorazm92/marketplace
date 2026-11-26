@@ -20,7 +20,9 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 | S5 | Secret'lar uchun fallback yo'q, env Joi bilan tekshiriladi (C5, C9) | ✅ secret'siz server ishga tushmaydi; `.env.example` nusxasi (bo'sh ixtiyoriy kalitlar) bilan ishga tushadi — `environment.config.spec.ts` + haqiqiy `node dist/main` | 0 |
 | S6 | Bitta auth modul, bitta JWT env nomi (H1) | ✅ `identity/`: user OTP + admin parol; `kind` bo'yicha ajratilgan tokenlar; refresh rotatsiyasi (sha256) | 1 |
 | S7 | IDOR: egalik servisda tekshiriladi (H2) | ✅ buyurtma, manzil, checkout — e2e `orders.e2e-spec.ts` | 1 |
-| S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ⚠️ global 300/daq, auth 5/daq (IP); OTP: 60 s, 10/kun, 5 urinish. Xotirada — bitta jarayon uchun | 1 |
+| S10 | Bloklangan xaridor darhol to'xtatiladi; admin rollari ajratilgan | ✅ `UserGuard` holatni har so'rovda tekshiradi; MODERATOR standart holatda taqiq — 31 endpoint × 3 rol (`hardening.e2e-spec.ts`, `docs/PERMISSIONS.md`) | 7 |
+| S11 | Mijoz yuborgan `X-Forwarded-For` cheklovlarni aylanib o'tmaydi | ✅ Next proxy uni faqat `TRUST_PROXY_HEADERS=true` da uzatadi; Playwright: 8 urinishdan ≥3 tasi 429 (ilgari 0) | 7 |
+| S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ⚠️ global 300/daq, auth 5/daq (IP) — xotirada, bitta jarayon uchun. OTP: 60 s, 10/kun/raqam, 5 urinish + IP'dan soatiga 10 turli raqam + umumiy byudjet 300/soat, 2000/kun (bazada, env bilan sozlanadi); anomaliya logi `otp_limit`. Captcha yo'q — qaror kerak (§8) | 1-7 |
 | S9 | `npm audit --omit=dev` = 0 high/critical | ⚠️ 2026-11-27: backend **4 high, 0 critical** — hammasi S9a zanjiri (`npm audit fix`, faqat lockfile: 10 → 4). Web: **0** — Next 16.3.6 da critical advisory'lar (RCE, kesh zaharlash) chiqqani uchun **16.4.6** ga ko'tarildi. Advisory'lar vaqt o'tishi bilan paydo bo'ladi: reliz oldidan qayta ishga tushiring | 0.5-6 |
 | S9a | `deepmerge-ts <8`, `effect <=3.22` (`prisma` → `@prisma/config` zanjiri) | ⚠️ **qabul qilingan**: faqat Prisma CLI konfiguratsiyasini birlashtirishda, runtime'da foydalanuvchi ma'lumoti yetmaydi. Tuzatish — Prisma 7 (major) | keyin |
 
@@ -32,6 +34,7 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 | D2 | Parallel buyurtmada manfiy zaxira yo'q | ✅ haqiqiy Postgres: 3 parallel buyurtma, 1 dona → 1 ta o'tadi | 0-1 |
 | D3 | Takroriy callback holatni ikki marta o'zgartirmaydi | ✅ Payme/Click e2e (takroriy Create/Perform/Cancel/Complete) | 1 |
 | D5 | Bekor qilingan buyurtma to'langan bo'lib qolmaydi; to'langan buyurtma bekor bo'lmaydi | ✅ `markOrderPaid`/`cancel()` shartli yozuv; e2e: Create→bekor→Perform = -31008, Click = -9, parallel poyga 5 marta | 6 |
+| D7 | Admin zaxira tahriri parallel buyurtmani yo'qotmaydi | ✅ shartli yozuv (`expected_quantity`), 409; e2e poyga 5 marta | 7 |
 | D6 | Admin holat o'zgartirishi poygada buzilmaydi | ✅ e2e: 3 parallel "yetkazildi" → 1 ta naqd to'lov; tasdiqlash ↔ xaridor bekor qilishi; teskari tartibli buyurtmalar deadlock'siz | 6 |
 | D4 | Sxema = migratsiyalar (drift yo'q), bitta sxema fayli | ✅ oldinga migratsiya (DROP'siz), `migrate diff --exit-code` = 0 | 1 |
 
@@ -93,8 +96,10 @@ Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmag
 4. Yetkazish narxi qoidasi (`SHIPPING_FLAT_FEE`, `FREE_SHIPPING_FROM`) — hozir 0.
 5. Uzum: hujjat va kalitlar (ICEBOX).
 6. GitHub hisobidagi **billing blokini** yechish — busiz CI (T5) ishlamaydi.
-7. OTP yuborish faqat IP (5/daq) va raqam (10/kun) bo'yicha cheklangan: ko'p raqamga
-   SMS yuborib balansni yoqish (SMS pumping) uchun umumiy kunlik chegara yoki captcha — qaror kerak.
+7. **Captcha qarori.** OTP yuborishga IP va umumiy byudjet chegaralari qo'shildi, lekin ko'p IP'li
+   hujumda umumiy byudjet tugab, haqiqiy xaridorlar ham kira olmay qoladi. Buni faqat captcha
+   (Cloudflare Turnstile yoki hCaptcha) hal qiladi — variantlar yakuniy hisobotda.
+8. Moderator huquqlari (`docs/PERMISSIONS.md`) va OTP byudjeti raqamlarini tasdiqlash.
 
 ## 9. 2026-11-27 qayta auditda topilib, yopilgan nuqsonlar
 
