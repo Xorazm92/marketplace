@@ -51,7 +51,8 @@ bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
 
 `identity/` (auth, OTP, SMS, token) · `catalog/` (mahsulotlar) · `order/` · `payments/`
 (Payme, Click) · `account/` (manzillar) · `backoffice/` (admin dashboard, userlar) ·
-`cart/` · `wishlist/` · `category/` · `brand/` · `region/` · `district/` · `review/` · `health/`.
+`cart/` · `wishlist/` · `category/` · `brand/` · `region/` · `district/` · `review/` · `health/`
+(`/health`, `/ready` — baza bilan; `/health/live` — faqat jarayon).
 Eski modullar olib tashlangan (`docs/ICEBOX.md`); ularni git'dan qaytarishdan oldin
 o'sha ro'yxatdagi xavfsizlik sabablarini o'qing.
 
@@ -83,6 +84,14 @@ Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
   har so'rovda boshqa "IP" yuborib aylanib o'tilardi.
 - **OTP yuborishda uch chegara** (`identity/otp.service.ts`): raqam, IP'dan turli raqamlar, umumiy
   byudjet. Logga to'liq raqam, IP va kod tushmaydi (`common/security/mask.ts`).
+- **Ochiq katalog endpoint'lari `@SkipThrottle()`.** Web server SSR so'rovlarini bitta IP'dan yuboradi:
+  backend'dagi IP chegarasi 300 so'rov/daq dan keyin mahsulot sahifalarini hammaga 500 qilardi.
+  Tashqi mijozlar nginx `limit_req` bilan cheklanadi. Yangi ochiq o'qish endpoint'i SSR'da
+  ishlatilsa — shu dekorator kerak.
+- **nginx `proxy_pass` o'zgaruvchi orqali** (`set $backend ...` + `resolver 127.0.0.11`): nom
+  to'g'ridan-to'g'ri yozilsa, deploy'da konteyner IP'si o'zgarganda nginx 502 qaytarardi.
+- **Loglar tuzilmali va shaxsiy ma'lumotsiz.** Hodisa — `logger.log({ event: '...', ... })` obyekti;
+  telefon `maskPhone()` bilan, so'rov satri/token/parol/kod hech qachon. Prodda har satr JSON.
 - **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
 - **`.env*`, `*.db`, `dump.rdb` repoga qo'shilmaydi** — qo'riqchi to'sadi.

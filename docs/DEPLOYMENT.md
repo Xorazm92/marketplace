@@ -4,11 +4,21 @@ Bitta VPS'da: `postgres` + `backend` (NestJS) + `web` (Next.js) + `nginx` (TLS).
 Fayllar: `docker-compose.prod.yml`, `deploy/nginx/default.conf.template`,
 `scripts/deploy.sh`, `scripts/backup.sh`, `scripts/restore.sh`.
 
-> **Tekshirilganlik holati (2026-11-27):** ikkala image toza git nusxasidan lokal `docker build`
-> qilindi (ilgari `web/Dockerfile` yo'q `public/` papkasi sababli yiqilardi). Backend image
-> `NODE_ENV=production` da test bazaga ulanib `/health` qaytardi va secret'siz ishga tushmadi;
-> web image `/login` ni ochdi. **Sinalmagan:** `docker compose` to'liq steki, nginx + TLS,
-> `deploy.sh`, `backup.sh`/`restore.sh` — bular domen va VPS talab qiladi. Birinchi deploy staging'da qilinsin.
+> **Tekshirilganlik holati (2026-11-27).** Lokal mashinada, `docker run` bilan (compose plagini
+> u yerda yo'q edi) shu fayldagi stek takrorlandi: postgres + backend + web + nginx, o'z-o'zidan
+> imzolangan sertifikat bilan.
+>
+> **Tekshirildi:** ikkala image build; toza bazaga `prisma migrate deploy`; `seed:prod`,
+> `create-admin.js`; `nginx -t`; HTTPS orqali sahifalar, API, rasm yuklash/o'chirish (volume);
+> http→https; xavfsizlik sarlavhalari; nginx so'rov chegaralari; backend konteyneri yangi IP bilan
+> qayta yaratilganda nginx o'zi tiklanishi; baza to'xtab-yonganda backend qayta ishga
+> tushirilmasdan tiklanishi; `backup.sh`/`restore.sh` ichidagi buyruqlar bilan zaxira → buzish →
+> tiklash aylanasi (baza + rasmlar).
+>
+> **Tekshirilmadi:** `docker compose` buyrug'ining o'zi va shu sababli `docker-compose.prod.yml`,
+> `deploy.sh`, `backup.sh`, `restore.sh` skriptlari (faqat ichidagi buyruqlar va `bash -n`);
+> haqiqiy domen, Let's Encrypt, certbot yangilanishi; Payme/Click sandbox; haqiqiy SMS.
+> Birinchi deploy staging'da qilinsin — `docs/RELEASE_CHECKLIST.md`.
 
 ## 1. Server tayyorlash (bir marta)
 
@@ -104,14 +114,37 @@ bash scripts/backup.sh     # backups/<vaqt>/db.dump + uploads.tar.gz, 14 kundan 
 
 ## 7. Kuzatuv
 
-- `GET https://<domen>/health` → `{"status":"ok","database":"up"}`; baza yo'q bo'lsa 503.
-  Tashqi monitoring (UptimeRobot va h.k.) har daqiqada shuni tekshirsin.
-- Loglar: `docker compose -f docker-compose.prod.yml logs -f backend` (20 MB × 5 aylanma).
-- Xatolarni markazlashgan yig'ish (Sentry) hali ulanmagan — `docs/QUALITY_BAR.md` O5.
+| Endpoint | Nima | Kim ishlatadi |
+|---|---|---|
+| `GET /health` | baza javob beradimi (`SELECT 1`); yo'q bo'lsa 503 | tashqi monitoring (nginx orqali ochiq), `deploy.sh`, Docker HEALTHCHECK |
+| `GET /ready` | `/health` bilan bir xil | faqat ichki tarmoq (nginx tashqariga chiqarmaydi) |
+| `GET /health/live` | jarayon tirikmi, bazaga tegmaydi | "qayta ishga tushirish kerakmi" savoli uchun |
 
-## 8. Cheklovlar
+- Stekda Redis yo'q: rate limit backend xotirasida, OTP byudjeti bazada.
+- **Loglar:** prodda har satr — bitta JSON (`docker compose -f docker-compose.prod.yml logs -f backend`,
+  20 MB × 5 aylanma). Hodisalar `message.event` bo'yicha qidiriladi:
+  `order_created`, `order_paid`, `order_cancelled`, `payme`, `click`, `auth_login`, `admin_login`,
+  `otp_limit`, `sms_failed`, `http_error`. Telefon niqoblangan (`+99890*****67`); parol, token, kod,
+  to'lov kaliti va so'rov satri logga tushmaydi.
+  Misol: `... logs backend | grep '"event":"payme"' | grep '"ok":false'`.
+- **Xato kuzatuvi (Sentry va h.k.) ulanmagan.** Ulanish nuqtasi tayyor: `src/common/error-reporter.ts`
+  (har 5xx shu yerdan o'tadi). SDK qo'shish — yangi bog'liqlik, egasining qarori.
+- Tashqi monitoring (UptimeRobot va h.k.) har daqiqada `https://<domen>/health` ni tekshirsin.
 
-- Rate limit backend xotirasida: bitta `backend` konteyner uchun to'g'ri. Bir nechta
-  instansiyaga o'tilsa, Redis storage kerak.
+## 8. Cheklovlar va chegaralar
+
+- **So'rov chegaralari ikki qatlamda.** nginx (`deploy/nginx/default.conf.template`): bitta IP'dan
+  API 20 so'rov/s (burst 60), sahifalar 10 so'rov/s (burst 40); statik fayllar va to'lov
+  callback'lari cheklanmaydi. Backend: kirish/OTP 5/daq, qolgan himoyalangan yo'llar 300/daq (IP).
+  Ochiq katalog backend'da cheklanmaydi — web server SSR so'rovlarini bitta IP'dan yuboradi.
+- Backend chegarasi xotirada: bitta `backend` konteyner uchun to'g'ri. Bir nechta instansiyaga
+  o'tilsa, umumiy saqlagich (Redis) kerak bo'ladi.
+- **OTP byudjeti** (`OTP_IP_PHONES_PER_HOUR`, `OTP_GLOBAL_PER_HOUR`, `OTP_GLOBAL_PER_DAY`): umumiy chegara
+  tugasa hech kim kira olmaydi va logga `otp_limit` (`global_hour`/`global_day`) yoziladi —
+  `docs/RUNBOOK.md`.
+- `TRUST_PROXY_HEADERS=true` web konteynerida faqat oldida nginx turgani uchun yoqilgan.
 - To'lanmagan onlayn buyurtmalarni bekor qiluvchi taymer ham backend ichida — bir nechta
   instansiyada u har birida ishlaydi (idempotent, lekin ortiqcha).
+- Katalogga qo'shilgan mahsulot do'kon sahifasida 60 soniyagacha kechikib ko'rinadi (Next keshi).
+- Baza ulanishlari hovuzi: Prisma standarti (CPU × 2 + 1). O'zgartirish — `DATABASE_URL` ga
+  `?connection_limit=N` (`backend-main/.env.example`).

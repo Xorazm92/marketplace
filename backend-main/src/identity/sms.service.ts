@@ -1,6 +1,7 @@
 import { Injectable, Logger, ServiceUnavailableException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import axios from 'axios';
+import { maskPhone } from '../common/security/mask';
 
 // Eskiz.uz: token /auth/login bilan olinadi va ~30 kunda eskiradi. Uni env'da
 // qotirib qo'yish bir oydan keyin barcha kirishlarni jimgina to'xtatardi, shuning
@@ -34,7 +35,8 @@ export class SmsService {
         await this.post(phone, message);
         return;
       }
-      this.logger.error(`SMS yuborilmadi (${phone}): ${axios.isAxiosError(error) ? error.response?.status : error}`);
+      // Raqam niqoblangan, xabar matni (kod) umuman yozilmaydi.
+      this.logger.error({ event: 'sms_failed', phone: maskPhone(phone), status: axios.isAxiosError(error) ? (error.response?.status ?? 'network') : 'error' });
       throw new ServiceUnavailableException("SMS yuborib bo'lmadi, birozdan keyin urinib ko'ring");
     }
   }

@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { Request, Response } from 'express';
 import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { reportError } from '../error-reporter';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -63,24 +64,29 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       error = 'Internal Server Error';
     }
 
-    // Log the error
+    // So'rov satri logga tushmaydi: unda qidiruv matni bo'ladi (admin xaridorni telefon
+    // raqami bo'yicha qidiradi). Stek faqat server xatosida kerak.
+    const path = request.url.split('?')[0];
+    const userId: number | null = (request as any).user?.id ?? null;
     const errorLog = {
-      timestamp: new Date().toISOString(),
-      path: request.url,
+      event: 'http_error',
+      path,
       method: request.method,
       statusCode: status,
       message,
       error,
       userAgent: request.get('User-Agent'),
       ip: request.ip,
-      userId: (request as any).user?.id || null,
-      stack: exception instanceof Error ? exception.stack : null,
+      userId,
+      adminId: (request as any).admin?.id ?? null,
+      ...(status >= 500 ? { stack: exception instanceof Error ? exception.stack : null } : {}),
     };
 
     if (status >= 500) {
-      this.logger.error('Server Error', errorLog);
+      this.logger.error(errorLog);
+      reportError(exception, { method: request.method, path, status, userId });
     } else if (status >= 400) {
-      this.logger.warn('Client Error', errorLog);
+      this.logger.warn(errorLog);
     }
 
     // Send error response

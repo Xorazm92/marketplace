@@ -1,4 +1,4 @@
-import { INestApplication } from '@nestjs/common';
+import { INestApplication, ServiceUnavailableException } from '@nestjs/common';
 import { Test } from '@nestjs/testing';
 import { execSync } from 'child_process';
 import { createHash, randomBytes } from 'crypto';
@@ -58,16 +58,24 @@ export async function createTestApp() {
   const { SmsService } = await import('../../src/identity/sms.service');
 
   const sent: Array<{ phone: string; message: string }> = [];
+  // sms.fail = true — SMS provayderi ishlamayotgan holat (Eskiz 5xx / tarmoq uzilishi).
+  const sms = { fail: false };
   const moduleRef = await Test.createTestingModule({ imports: [AppModule] })
     .overrideProvider(SmsService)
-    .useValue({ isConfigured: true, send: async (phone: string, message: string) => void sent.push({ phone, message }) })
+    .useValue({
+      isConfigured: true,
+      send: async (phone: string, message: string) => {
+        if (sms.fail) throw new ServiceUnavailableException("SMS yuborib bo'lmadi, birozdan keyin urinib ko'ring");
+        sent.push({ phone, message });
+      },
+    })
     .compile();
 
   const app: INestApplication = moduleRef.createNestApplication({ logger: false });
   configureApp(app);
   await app.init();
   const prisma = moduleRef.get(PrismaService);
-  return { app, prisma, sent, http: () => request(app.getHttpServer()) };
+  return { app, prisma, sent, sms, http: () => request(app.getHttpServer()) };
 }
 
 export type TestApp = Awaited<ReturnType<typeof createTestApp>>;

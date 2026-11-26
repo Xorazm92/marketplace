@@ -1,5 +1,6 @@
 import { Body, Controller, Delete, Get, Param, ParseIntPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { Type } from 'class-transformer';
 import { IsInt, IsOptional, Max, Min } from 'class-validator';
 import { UserGuard } from '../guards/user.guard';
@@ -28,12 +29,15 @@ class PageQuery {
 export class ReviewController {
   constructor(private readonly reviews: ReviewService) {}
 
+  // Ochiq o'qish (SSR bitta IP'dan so'raydi) — IP chegarasidan tashqarida; qarang: catalog.controllers.ts.
   @Get('product/:productId')
+  @SkipThrottle()
   list(@Param('productId', ParseIntPipe) productId: number, @Query() query: PageQuery) {
     return this.reviews.listForProduct(productId, query.page, query.limit);
   }
 
   @Get('product/:productId/stats')
+  @SkipThrottle()
   stats(@Param('productId', ParseIntPipe) productId: number) {
     return this.reviews.stats(productId);
   }

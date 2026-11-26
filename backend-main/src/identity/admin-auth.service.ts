@@ -1,9 +1,10 @@
-import { BadRequestException, ConflictException, ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import * as bcrypt from 'bcrypt';
 import { PrismaService } from '../prisma/prisma.service';
 import { TokenService } from './token.service';
 import { normalizeUzPhone } from './phone';
+import { maskPhone } from '../common/security/mask';
 import { AdminLoginDto, CreateAdminDto } from './dto';
 
 const PUBLIC_ADMIN_SELECT = {
@@ -23,6 +24,8 @@ const DUMMY_HASH = bcrypt.hashSync('timing-equalizer', 10);
 
 @Injectable()
 export class AdminAuthService {
+  private readonly logger = new Logger(AdminAuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly tokens: TokenService,
@@ -38,8 +41,13 @@ export class AdminAuthService {
     }
     const admin = await this.prisma.admin.findUnique({ where: { phone_number: phone } });
     const ok = await bcrypt.compare(dto.password, admin?.hashed_password ?? DUMMY_HASH);
-    if (!admin || !ok) throw invalid;
+    if (!admin || !ok) {
+      // Parol tanlash urinishlari shu yerda ko'rinadi. Parolning o'zi hech qachon yozilmaydi.
+      this.logger.warn({ event: 'admin_login', ok: false, phone: maskPhone(phone) });
+      throw invalid;
+    }
     if (!admin.is_active) throw new ForbiddenException('Hisob faol emas');
+    this.logger.log({ event: 'admin_login', ok: true, admin_id: admin.id, role: admin.role });
 
     const pair = await this.issue(admin.id, admin.role);
     const profile = await this.prisma.admin.findUnique({ where: { id: admin.id }, select: PUBLIC_ADMIN_SELECT });

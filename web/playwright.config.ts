@@ -10,6 +10,9 @@ const WEB_PORT = 5100;
 // test-results/ ni Playwright ishga tushishda tozalaydi — log boshqa joyda turadi.
 export const API_LOG = ".e2e/api.log";
 const secret = () => randomBytes(24).toString("hex");
+// Payme kaliti testlarga ham kerak (provayder callbackʼlarini test yuboradi). Konfiguratsiya har
+// worker jarayonida qayta oʻqiladi, shuning uchun kalit bir marta yaratilib env orqali uzatiladi.
+process.env.E2E_PAYME_KEY ??= secret();
 
 export default defineConfig({
   testDir: "e2e",
@@ -43,7 +46,7 @@ export default defineConfig({
         // Onlayn to'lov oqimi (checkout → provayderga yo'naltirish) uchun: kalit tasodifiy,
         // to'lov sahifasi esa shu testning o'z manzili — tashqi tizimga hech narsa ketmaydi.
         PAYME_MERCHANT_ID: "e2e-merchant",
-        PAYME_SECRET_KEY: secret(),
+        PAYME_SECRET_KEY: process.env.E2E_PAYME_KEY,
         PAYME_CHECKOUT_URL: `http://localhost:${WEB_PORT}/e2e-payme`,
       },
     },

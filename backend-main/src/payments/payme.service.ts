@@ -23,6 +23,8 @@ const E = {
   ORDER: -31050,
 };
 
+const STATE_CHANGING = new Set(['CreateTransaction', 'PerformTransaction', 'CancelTransaction']);
+
 class PaymeError extends Error {
   constructor(
     readonly code: number,
@@ -74,9 +76,13 @@ export class PaymeService {
         throw new PaymeError(E.BAD_REQUEST, "So'rov noto'g'ri");
       }
       const result = await this.dispatch(body.method, body.params);
+      if (STATE_CHANGING.has(body.method)) this.logger.log(this.entry(body, { ok: true }));
       return { jsonrpc: '2.0', id, result };
     } catch (error) {
       if (error instanceof PaymeError) {
+        // Rad etilgan so'rovlar (noto'g'ri auth, summa, holat) — to'lov muammosini tekshirishdagi
+        // asosiy iz. Authorization sarlavhasi va kalit logga tushmaydi.
+        this.logger.warn(this.entry(body, { ok: false, code: error.code }));
         return {
           jsonrpc: '2.0',
           id,
@@ -86,6 +92,17 @@ export class PaymeService {
       this.logger.error('Payme callback xatosi', error as Error);
       return { jsonrpc: '2.0', id, error: { code: E.CANNOT_PERFORM, message: { uz: 'Ichki xato', ...MESSAGES[E.CANNOT_PERFORM] } } };
     }
+  }
+
+  private entry(body: any, outcome: object) {
+    const params = body && typeof body.params === 'object' && body.params !== null ? body.params : {};
+    return {
+      event: 'payme',
+      method: typeof body?.method === 'string' ? body.method : null,
+      tx: typeof params.id === 'string' ? params.id : null,
+      order_id: params.account?.order_id != null ? String(params.account.order_id) : null,
+      ...outcome,
+    };
   }
 
   private isAuthorized(authorization?: string): boolean {
@@ -172,6 +189,7 @@ export class PaymeService {
     }
 
     const performedAt = new Date();
+    let paid = false;
     await this.prisma.$transaction(async (db) => {
       // Shartli: parallel ikki PerformTransaction ikkalasi ham "bajarildi" yozmasin.
       const { count } = await db.orderPayment.updateMany({
@@ -185,7 +203,9 @@ export class PaymeService {
       if (!(await markOrderPaid(db, tx.order_id, 'Payme'))) {
         throw new PaymeError(E.CANNOT_PERFORM, "Buyurtma to'lov uchun mavjud emas");
       }
+      paid = true;
     });
+    if (paid) this.logger.log({ event: 'order_paid', order_id: tx.order_id, method: 'PAYME', amount: Number(tx.amount) });
     const fresh = await this.requireTx(params.id);
     return { transaction: String(fresh.id), perform_time: fresh.performed_at!.getTime(), state: 2 };
   }
