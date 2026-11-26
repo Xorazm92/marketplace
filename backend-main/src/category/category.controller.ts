@@ -1,5 +1,6 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AdminGuard } from '../guards/admin.guard';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -18,7 +19,9 @@ export class CategoryController {
     return this.categoryService.create(createCategoryDto);
   }
 
+  // Ochiq o'qish (SSR bitta IP'dan so'raydi) — IP chegarasidan tashqarida; qarang: catalog.controllers.ts.
   @Get()
+  @SkipThrottle()
   @ApiOperation({ summary: 'Get all categories' })
   findAll() {
     return this.categoryService.findAll();

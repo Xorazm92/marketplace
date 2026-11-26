@@ -15,6 +15,7 @@ import {
 } from '@nestjs/common';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, PartialType } from '@nestjs/swagger';
+import { SkipThrottle } from '@nestjs/throttler';
 import { AdminGuard } from '../guards/admin.guard';
 import { AllowModerator } from '../guards/allow-moderator.decorator';
 import { CurrentAdminRole } from '../decorators/current-admin-role.decorator';
@@ -24,7 +25,11 @@ import { AdminListProductsQuery, ListProductsQuery, SetStockDto, UpsertProductDt
 
 class UpdateProductDto extends PartialType(UpsertProductDto) {}
 
+// Ochiq o'qish: web server (SSR) barcha xaridorlar nomidan bitta IP'dan so'raydi, shuning uchun
+// IP bo'yicha chegara bu yerda butun saytni to'xtatardi (300 so'rov/daq dan keyin sahifalar 500).
+// Tashqi mijozlar nginx'dagi limit_req bilan cheklanadi (deploy/nginx).
 @ApiTags('Catalog')
+@SkipThrottle()
 @Controller('products')
 export class ProductsController {
   constructor(private readonly products: ProductsService) {}

@@ -77,18 +77,24 @@ export class OtpService {
     if (lastDay >= this.limits.globalPerDay) this.reject('global_day', phone, ipHash, lastDay, this.limits.globalPerDay, busy);
 
     const code = String(randomInt(100000, 1000000));
-    await this.prisma.$transaction([
-      // Yangi kod eskisini bekor qiladi: bir vaqtda faqat bitta kod amal qiladi.
-      this.prisma.otpVerification.updateMany({
-        where: { phone_number: phone, purpose, is_verified: false, expires_at: { gt: new Date(now) } },
-        data: { expires_at: new Date(now) },
-      }),
-      this.prisma.otpVerification.create({
-        data: { phone_number: phone, purpose, otp_code: this.hash(phone, code), expires_at: new Date(now + CODE_TTL_MS), ip_hash: ipHash },
-      }),
-    ]);
-
-    await this.sms.send(phone, `INBOLA: tasdiqlash kodi ${code}. Kodni hech kimga bermang.`);
+    const row = await this.prisma.otpVerification.create({
+      data: { phone_number: phone, purpose, otp_code: this.hash(phone, code), expires_at: new Date(now + CODE_TTL_MS), ip_hash: ipHash },
+      select: { id: true },
+    });
+    try {
+      await this.sms.send(phone, `INBOLA: tasdiqlash kodi ${code}. Kodni hech kimga bermang.`);
+    } catch (error) {
+      // SMS ketmadi (provayder xatosi): kod yozuvi qolsa, xaridor hech narsa olmagan holda
+      // 1 daqiqa kutishga va kunlik chegaraga tushardi, oldingi (yetib borgan) kodi esa
+      // bekor bo'lardi. Yozuv o'chiriladi — urinish hisobga kirmaydi.
+      await this.prisma.otpVerification.delete({ where: { id: row.id } }).catch(() => undefined);
+      throw error;
+    }
+    // Yangi kod yetib borgandan keyingina eskilari bekor bo'ladi: bir vaqtda bitta kod amal qiladi.
+    await this.prisma.otpVerification.updateMany({
+      where: { phone_number: phone, purpose, is_verified: false, id: { not: row.id }, expires_at: { gt: new Date(now) } },
+      data: { expires_at: new Date(now) },
+    });
     return { expires_in: CODE_TTL_MS / 1000 };
   }
 

@@ -1,7 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+
 import { PrismaService } from '../prisma/prisma.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+
+const CATEGORY_PRODUCTS_LIMIT = 24;
 
 @Injectable()
 export class CategoryService {
@@ -13,51 +16,40 @@ export class CategoryService {
     });
   }
 
+  // Bosh sahifa va katalog har ochilganda shu ro'yxatni so'raydi. Ilgari unga har bo'limning
+  // mahsulotlari (rasmlari bilan) ilashardi: Prisma `take` ni xotirada qo'llagani uchun butun
+  // katalog o'qilardi — 20 ming mahsulotda javob ~2 soniya. Mahsulotlar: GET /products?category=.
   async findAll() {
     return await this.prisma.category.findMany({
       where: { is_active: true },
-      include: {
-        products: {
-          where: { is_active: true, is_deleted: false },
-          take: 5,
-          include: {
-            product_image: true
-          }
-        }
-      }
+      orderBy: [{ sort_order: 'asc' }, { id: 'asc' }],
     });
   }
 
   async findOne(id: number) {
-    return await this.prisma.category.findUnique({
-      where: { id },
-      include: {
-        products: {
-          where: { is_active: true, is_deleted: false },
-          include: {
-            product_image: true,
-            brand: true,
-            currency: true
-          }
-        }
-      }
-    });
+    return this.withProducts({ id });
   }
 
   async findBySlug(slug: string) {
-    return await this.prisma.category.findUnique({
-      where: { slug },
+    return this.withProducts({ slug });
+  }
+
+  // Faqat xaridorga ko'rinadigan mahsulotlar va cheklangan sonda: to'liq ro'yxat
+  // (sahifalash, filtr) — GET /products?category=<slug>.
+  private async withProducts(where: { id: number } | { slug: string }) {
+    const category = await this.prisma.category.findUnique({
+      where,
       include: {
         products: {
-          where: { is_active: true, is_deleted: false },
-          include: {
-            product_image: true,
-            brand: true,
-            currency: true
-          }
-        }
-      }
+          where: { is_active: true, is_deleted: false, is_checked: 'APPROVED' },
+          orderBy: { createdAt: 'desc' },
+          take: CATEGORY_PRODUCTS_LIMIT,
+          include: { product_image: true, brand: true, currency: true },
+        },
+      },
     });
+    if (!category) throw new NotFoundException("Bo'lim topilmadi");
+    return category;
   }
 
   async update(id: number, updateCategoryDto: UpdateCategoryDto) {
