@@ -35,6 +35,9 @@ const NOTES: Record<number, string> = {
   [E.CANCELLED]: 'Transaction cancelled',
 };
 
+// Tranzaksiyani orqaga qaytarish uchun: buyurtma to'lovni qabul qila olmaydi.
+class OrderNotPayable extends Error {}
+
 export interface ClickRequest {
   click_trans_id: string | number;
   service_id: string | number;
@@ -125,8 +128,9 @@ export class ClickService {
       // Click o'z tomonida to'lov o'tmaganini bildirdi: tranzaksiya yopiladi,
       // buyurtma esa ochiq qoladi — xaridor qayta urinishi mumkin.
       if (Number(req.error) < 0) {
-        await this.prisma.orderPayment.update({
-          where: { id: row.id },
+        // Shartli: parallel muvaffaqiyatli Complete yozgan "to'landi" holatini bosib ketmasin.
+        await this.prisma.orderPayment.updateMany({
+          where: { id: row.id, provider_state: 0 },
           data: { provider_state: -1, status: 'CANCELLED', cancelled_at: new Date() },
         });
         return reply(E.CANCELLED);
@@ -135,13 +139,25 @@ export class ClickService {
       if (row.order.payment_status === 'PAID') return reply(E.ALREADY_PAID);
       if (row.order.status === 'CANCELLED') return reply(E.CANCELLED);
 
-      await this.prisma.$transaction(async (db) => {
+      // Yuqoridagi tekshiruvlar o'qilgan nusxa bo'yicha; hal qiluvchi shart — markOrderPaid
+      // ichidagi shartli yozuv. U o'tmasa (buyurtma shu orada bekor qilingan/to'langan)
+      // to'lov qatori ham orqaga qaytadi va Click to'lovni o'zi bekor qiladi.
+      const paid = await this.prisma.$transaction(async (db) => {
         const { count } = await db.orderPayment.updateMany({
           where: { id: row.id, provider_state: 0 },
           data: { provider_state: 1, status: 'PAID', performed_at: new Date() },
         });
-        if (count === 1) await markOrderPaid(db, row.order_id, 'Click');
+        if (count === 0) return true; // parallel Complete allaqachon yozgan
+        if (!(await markOrderPaid(db, row.order_id, 'Click'))) throw new OrderNotPayable();
+        return true;
+      }).catch((error) => {
+        if (error instanceof OrderNotPayable) return false;
+        throw error;
       });
+      if (!paid) {
+        const fresh = await this.prisma.order.findUnique({ where: { id: row.order_id }, select: { payment_status: true } });
+        return reply(fresh?.payment_status === 'PAID' ? E.ALREADY_PAID : E.CANCELLED);
+      }
       return reply(E.OK, { merchant_confirm_id: row.id });
     } catch (error) {
       this.logger.error('Click complete xatosi', error as Error);

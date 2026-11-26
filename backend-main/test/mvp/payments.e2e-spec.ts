@@ -88,6 +88,9 @@ describe("to'lovlar (e2e)", () => {
       await rpc('PerformTransaction', { id: 'pm-1' });
       await t.prisma.order.update({ where: { id: order.id }, data: { status: 'DELIVERED' } });
       expect((await rpc('CancelTransaction', { id: 'pm-1', reason: 5 })).body.error.code).toBe(-31007);
+      // Rad etilgan qaytarish hech narsani o'zgartirmaydi.
+      expect((await t.prisma.orderPayment.findFirstOrThrow()).status).toBe('PAID');
+      expect(await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } })).toEqual(expect.objectContaining({ status: 'DELIVERED', payment_status: 'PAID' }));
     });
 
     it('12 soatdan eski tranzaksiya bajarilmaydi, buyurtma qayta to\'lash uchun ochiq qoladi', async () => {
@@ -97,6 +100,78 @@ describe("to'lovlar (e2e)", () => {
       expect((await rpc('PerformTransaction', { id: 'pm-old' })).body.error.code).toBe(-31008);
       expect((await rpc('CheckTransaction', { id: 'pm-old' })).body.result).toEqual(expect.objectContaining({ state: -1, reason: 4 }));
       expect((await rpc('CreateTransaction', { id: 'pm-new', time: Date.now(), amount: 11500000, account })).body.result.state).toBe(1);
+    });
+
+    it("Create'dan keyin bekor qilingan buyurtma Perform bilan to'langan bo'lib qolmaydi (-31008)", async () => {
+      const { order, user } = await placeOrder('PAYME', 5);
+      const account = { order_id: String(order.id) };
+      await rpc('CreateTransaction', { id: 'pm-1', time: Date.now(), amount: 11500000, account });
+      await t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`).expect(201);
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(5);
+
+      // Takroriy urinish ham o'tmaydi.
+      expect((await rpc('PerformTransaction', { id: 'pm-1' })).body.error.code).toBe(-31008);
+      expect((await rpc('PerformTransaction', { id: 'pm-1' })).body.error.code).toBe(-31008);
+
+      const fresh = await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+      expect(fresh).toEqual(expect.objectContaining({ status: 'CANCELLED', payment_status: 'PENDING', paid_at: null }));
+      expect(await t.prisma.orderPayment.findFirstOrThrow()).toEqual(expect.objectContaining({ status: 'PENDING', provider_state: 1, performed_at: null }));
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(5);
+
+      // Payme bajarilmagan tranzaksiyani o'zi bekor qiladi; yangi tranzaksiya ham ochilmaydi.
+      expect((await rpc('CancelTransaction', { id: 'pm-1', reason: 3 })).body.result.state).toBe(-1);
+      expect((await rpc('CreateTransaction', { id: 'pm-2', time: Date.now(), amount: 11500000, account })).body.error.code).toBe(-31050);
+    });
+
+    it("Perform va xaridor bekor qilishi bir vaqtda kelsa: yo to'langan, yo bekor — ikkalasi emas", async () => {
+      for (let round = 0; round < 5; round++) {
+        await resetDatabase(t.prisma);
+        t.sent.length = 0;
+        const { order, user } = await placeOrder('PAYME', 5);
+        await rpc('CreateTransaction', { id: 'pm-1', time: Date.now(), amount: 11500000, account: { order_id: String(order.id) } });
+        await Promise.all([
+          rpc('PerformTransaction', { id: 'pm-1' }),
+          t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`),
+        ]);
+        const fresh = await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+        const payment = await t.prisma.orderPayment.findFirstOrThrow();
+        const stock = (await t.prisma.inventory.findFirst())!.stock_quantity;
+        if (fresh.status === 'CANCELLED') {
+          expect([fresh.payment_status, payment.status, stock]).toEqual(['PENDING', 'PENDING', 5]);
+        } else {
+          expect([fresh.status, fresh.payment_status, payment.status, stock]).toEqual(['CONFIRMED', 'PAID', 'PAID', 4]);
+        }
+      }
+    });
+
+    it("to'langan buyurtmani xaridor ham, cancel() ham bekor qila olmaydi", async () => {
+      const { order, user } = await placeOrder('PAYME', 5);
+      await rpc('CreateTransaction', { id: 'pm-1', time: Date.now(), amount: 11500000, account: { order_id: String(order.id) } });
+      await rpc('PerformTransaction', { id: 'pm-1' });
+      await t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`).expect(400);
+
+      const { OrderService } = await import('../../src/order/order.service');
+      const orders = t.app.get(OrderService);
+      expect(await t.prisma.$transaction((tx) => orders.cancel(tx, order.id, 'test'))).toBe(false);
+      expect(await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } })).toEqual(expect.objectContaining({ status: 'CONFIRMED', payment_status: 'PAID' }));
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(4);
+    });
+
+    it("markOrderPaid bekor qilingan buyurtmani o'zgartirmaydi va false qaytaradi", async () => {
+      const { order, user } = await placeOrder('PAYME', 5);
+      await t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`).expect(201);
+      const { markOrderPaid } = await import('../../src/payments/order-payment-state');
+      expect(await t.prisma.$transaction((tx) => markOrderPaid(tx, order.id, 'Payme'))).toBe(false);
+      expect(await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } })).toEqual(expect.objectContaining({ status: 'CANCELLED', payment_status: 'PENDING' }));
+      expect(await t.prisma.orderTracking.count({ where: { order_id: order.id, status: 'CONFIRMED' } })).toBe(0);
+    });
+
+    it("boshqa buyurtma summasi yoki boshqa usuldagi buyurtma bilan to'lab bo'lmaydi", async () => {
+      const { order } = await placeOrder('CLICK');
+      // CLICK buyurtmasi Payme orqali to'lanmaydi.
+      expect((await rpc('CheckPerformTransaction', { amount: 11500000, account: { order_id: String(order.id) } })).body.error.code).toBe(-31050);
+      expect((await rpc('CreateTransaction', { id: 'pm-x', time: Date.now(), amount: 11500000, account: { order_id: String(order.id) } })).body.error.code).toBe(-31050);
+      expect(await t.prisma.orderPayment.count()).toBe(0);
     });
 
     it('checkout URL summani buyurtmadan oladi', async () => {
@@ -142,6 +217,49 @@ describe("to'lovlar (e2e)", () => {
       expect(bad.body.error).toBe(-1);
       expect((await prepare(base(order.id, { amount: '11500000' }))).body.error).toBe(-2);
       expect(await t.prisma.orderPayment.count()).toBe(0);
+    });
+
+    it("Prepare'dan keyin bekor qilingan buyurtma Complete bilan to'langan bo'lib qolmaydi (-9)", async () => {
+      const { order, user } = await placeOrder('CLICK', 5);
+      const prep = await prepare(base(order.id));
+      await t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`).expect(201);
+      const done = await complete(base(order.id, { action: 1, merchant_prepare_id: prep.body.merchant_prepare_id })).expect(200);
+      expect(done.body.error).toBe(-9);
+      expect(await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } })).toEqual(expect.objectContaining({ status: 'CANCELLED', payment_status: 'PENDING' }));
+      expect((await t.prisma.orderPayment.findFirstOrThrow()).status).toBe('PENDING');
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(5);
+    });
+
+    it("Complete va xaridor bekor qilishi bir vaqtda kelsa: yo to'langan, yo bekor — ikkalasi emas", async () => {
+      for (let round = 0; round < 5; round++) {
+        await resetDatabase(t.prisma);
+        t.sent.length = 0;
+        const { order, user } = await placeOrder('CLICK', 5);
+        const prep = await prepare(base(order.id));
+        const [done] = await Promise.all([
+          complete(base(order.id, { action: 1, merchant_prepare_id: prep.body.merchant_prepare_id })),
+          t.http().post(`/api/v1/orders/${order.id}/cancel`).set('Authorization', `Bearer ${user.access_token}`),
+        ]);
+        const fresh = await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } });
+        const payment = await t.prisma.orderPayment.findFirstOrThrow();
+        const stock = (await t.prisma.inventory.findFirst())!.stock_quantity;
+        if (fresh.status === 'CANCELLED') {
+          expect([done.body.error, fresh.payment_status, payment.status, stock]).toEqual([-9, 'PENDING', 'PENDING', 5]);
+        } else {
+          expect([done.body.error, fresh.status, fresh.payment_status, payment.status, stock]).toEqual([0, 'CONFIRMED', 'PAID', 'PAID', 4]);
+        }
+      }
+    });
+
+    it("boshqa click_trans_id bilan takror to'lov ikkinchi marta yozilmaydi (-4)", async () => {
+      const { order } = await placeOrder('CLICK');
+      const first = await prepare(base(order.id));
+      const second = await prepare(base(order.id, { click_trans_id: 556 }));
+      expect((await complete(base(order.id, { action: 1, merchant_prepare_id: first.body.merchant_prepare_id }))).body.error).toBe(0);
+      const dup = await complete(base(order.id, { click_trans_id: 556, action: 1, merchant_prepare_id: second.body.merchant_prepare_id }));
+      expect(dup.body.error).toBe(-4);
+      expect(await t.prisma.orderPayment.count({ where: { status: 'PAID' } })).toBe(1);
+      expect(await t.prisma.orderTracking.count({ where: { order_id: order.id, status: 'CONFIRMED' } })).toBe(1);
     });
 
     it('Click xato bilan yakunlasa tranzaksiya yopiladi, buyurtma ochiq qoladi', async () => {
