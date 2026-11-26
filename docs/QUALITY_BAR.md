@@ -5,9 +5,10 @@
 
 **Holat belgilari:** ✅ bajarilgan · ⚠️ qisman · ❌ yo'q · ❔ o'lchanmagan
 
-Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta audit: quyidagi
-"✅" lar o'sha kuni lokal mashinada qayta ishga tushirilgan buyruqlar bilan tasdiqlangan
-(backend unit 28, e2e 50, Playwright 4, drift 0). Topilgan va yopilgan nuqsonlar — §9.
+Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 (qayta audit + prod
+tayyorgarligi). Quyidagi "✅" lar o'sha kuni lokal mashinada `scripts/verify-all.sh` va konteyner
+stekida ishga tushirilgan tekshiruvlar bilan tasdiqlangan: backend unit 37, e2e 71 (3 marta
+ketma-ket), Playwright 12, drift 0. Topilib yopilgan nuqsonlar — §9. Tekshirilmaganlar — §8.
 
 ## 1. Xavfsizlik
 
@@ -21,6 +22,8 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 | S6 | Bitta auth modul, bitta JWT env nomi (H1) | ✅ `identity/`: user OTP + admin parol; `kind` bo'yicha ajratilgan tokenlar; refresh rotatsiyasi (sha256) | 1 |
 | S7 | IDOR: egalik servisda tekshiriladi (H2) | ✅ buyurtma, manzil, checkout — e2e `orders.e2e-spec.ts` | 1 |
 | S10 | Bloklangan xaridor darhol to'xtatiladi; admin rollari ajratilgan | ✅ `UserGuard` holatni har so'rovda tekshiradi; MODERATOR standart holatda taqiq — 31 endpoint × 3 rol (`hardening.e2e-spec.ts`, `docs/PERMISSIONS.md`) | 7 |
+| S12 | Brauzer xavfsizlik sarlavhalari | ✅ web: CSP (`default-src 'self'`, `frame-ancestors 'none'`…), `X-Frame-Options`, `Permissions-Policy`; nginx: HSTS (bitta sarlavha); API: helmet. Playwright: 6 sahifada CSP buzilishi 0. Cookie ishlatilmaydi (token `localStorage`da — M5, CSP bilan cheklangan) | 8 |
+| S13 | Loglarda shaxsiy va maxfiy ma'lumot yo'q | ✅ so'rov satri, token, parol, OTP kodi, to'lov kaliti, to'liq telefon logga tushmaydi — `readiness.e2e-spec.ts`, `global-exception.filter.spec.ts`, `sms.service.spec.ts` | 8 |
 | S11 | Mijoz yuborgan `X-Forwarded-For` cheklovlarni aylanib o'tmaydi | ✅ Next proxy uni faqat `TRUST_PROXY_HEADERS=true` da uzatadi; Playwright: 8 urinishdan ≥3 tasi 429 (ilgari 0) | 7 |
 | S8 | Prodda rate limit; OTP yuborish cheklangan (H7) | ⚠️ global 300/daq, auth 5/daq (IP) — xotirada, bitta jarayon uchun. OTP: 60 s, 10/kun/raqam, 5 urinish + IP'dan soatiga 10 turli raqam + umumiy byudjet 300/soat, 2000/kun (bazada, env bilan sozlanadi); anomaliya logi `otp_limit`. Captcha yo'q — qaror kerak (§8) | 1-7 |
 | S9 | `npm audit --omit=dev` = 0 high/critical | ⚠️ 2026-11-27: backend **4 high, 0 critical** — hammasi S9a zanjiri (`npm audit fix`, faqat lockfile: 10 → 4). Web: **0** — Next 16.3.6 da critical advisory'lar (RCE, kesh zaharlash) chiqqani uchun **16.4.6** ga ko'tarildi. Advisory'lar vaqt o'tishi bilan paydo bo'ladi: reliz oldidan qayta ishga tushiring | 0.5-6 |
@@ -34,6 +37,8 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 | D2 | Parallel buyurtmada manfiy zaxira yo'q | ✅ haqiqiy Postgres: 3 parallel buyurtma, 1 dona → 1 ta o'tadi | 0-1 |
 | D3 | Takroriy callback holatni ikki marta o'zgartirmaydi | ✅ Payme/Click e2e (takroriy Create/Perform/Cancel/Complete) | 1 |
 | D5 | Bekor qilingan buyurtma to'langan bo'lib qolmaydi; to'langan buyurtma bekor bo'lmaydi | ✅ `markOrderPaid`/`cancel()` shartli yozuv; e2e: Create→bekor→Perform = -31008, Click = -9, parallel poyga 5 marta | 6 |
+| D8 | Asosiy so'rovlar indeksdan foydalanadi | ✅ 100 ming buyurtma / 20 ming mahsulotli sintetik bazada `EXPLAIN ANALYZE`: buyurtma qatorlari 68 → 0,9 ms, katalog ro'yxati 18 → 0,1 ms, sharh huquqi 24 → 0,3 ms. Matnli qidiruv (`ILIKE`) hamon to'liq skan (44 ms) — katalog o'sganda trigram indeks kerak | 8 |
+| D9 | Migratsiyalar toza bazadan o'tadi | ✅ bo'sh bazaga `migrate deploy` (6 ta), drift 0; konteyner ichida ham | 8 |
 | D7 | Admin zaxira tahriri parallel buyurtmani yo'qotmaydi | ✅ shartli yozuv (`expected_quantity`), 409; e2e poyga 5 marta | 7 |
 | D6 | Admin holat o'zgartirishi poygada buzilmaydi | ✅ e2e: 3 parallel "yetkazildi" → 1 ta naqd to'lov; tasdiqlash ↔ xaridor bekor qilishi; teskari tartibli buyurtmalar deadlock'siz | 6 |
 | D4 | Sxema = migratsiyalar (drift yo'q), bitta sxema fayli | ✅ oldinga migratsiya (DROP'siz), `migrate diff --exit-code` = 0 | 1 |
@@ -43,7 +48,7 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
 | F1 | Login (telefon+OTP) → savat → checkout → to'lov → buyurtmalarim | ✅ Playwright brauzerda (naqd); onlayn to'lov — provayder manziliga yo'naltirishgacha (summa serverdan), haqiqiy to'lov — F2 | 2 |
-| F2 | Payme, Click sandbox'da uchidan-uchiga | ⚠️ protokol e2e'da (imzo, summa, idempotentlik, taym-aut); haqiqiy sandbox kalitlari kerak. Uzum — ICEBOX | 4 |
+| F2 | Payme, Click sandbox'da uchidan-uchiga | ⚠️ protokolning biz tomondagi yarmi to'liq qamralgan: e2e (imzo/auth, summa, idempotentlik, takroriy va kechikkan callback, bekor qilish poygalari) + Playwright'da brauzer oqimi (checkout → provayder → callback → holat o'zi yangilanadi; to'lov boshlanib bekor qilingan buyurtma). Provayder o'rnida test — **haqiqiy sandbox sinalmagan**. Uzum — ICEBOX | 4-8 |
 | F3 | Naqd (yetkazganda) to'lov | ✅ backend: "yetkazildi" = to'landi (e2e) | 1-2 |
 | F5 | Sharhlar: faqat yetkazilgan xarid, bittadan, egasi tahrirlaydi | ✅ backend e2e + Playwright | 5 |
 | F4 | Admin: mahsulot, buyurtma holati, bo'limlar, xaridorlar, adminlar | ✅ `web/app/admin`; buyurtma o'tishlari Playwright'da, mahsulot/rasm/zaxira backend e2e'da | 2 |
@@ -54,20 +59,21 @@ Bazaviy holat — 2026-09-29 review. Oxirgi yangilanish — 2026-11-27 qayta aud
 |---|---|---|---|
 | T1 | Backend build va `tsc` toza | ✅ istisnosiz — eski kod olib tashlangan | 0-5 |
 | T2 | Frontend build, tip, lint | ✅ `web/`: tsc 0, eslint 0, build o'tadi | 2 |
-| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 28 (bazasiz) + e2e 50 (haqiqiy Postgres); yangi poyga testlari eski kodda yiqilishi tekshirilgan (9 ta) | 0-6 |
-| T4 | Playwright happy-path | ✅ 4/4: xaridor → naqd buyurtma → admin "yetkazildi" → sharh; onlayn to'lov (havola xatosi → bitta buyurtma, summa serverdan); mehmon yo'naltirilishi; 375px'da 9 sahifa gorizontal scroll'siz | 3-6 |
+| T3 | Har Critical tuzatishga regressiya testi | ✅ unit 37 (bazasiz) + e2e 71 (haqiqiy Postgres, 3 marta ketma-ket barqaror); har yangi test tuzatishdan oldingi kodda yiqilishi tekshirilgan | 0-8 |
+| T4 | Playwright: kritik oqimlar | ✅ 12/12: naqd buyurtma → admin → sharh; onlayn to'lov (to'lov tasdig'i, bekor qilish, havola xatosi); admin formasi va zaxira; moderator; CSP/sarlavhalar; robots/404; proxy IP; SSR chegarasi; 375px | 3-8 |
 | T6 | Lint | ✅ backend (ESLint 9 flat) va web — 0 xato; CI'da | 5 |
-| T5 | CI har PR'da (tsc + test + build) | ❌ `.github/workflows/ci.yml` bor, lekin GitHub'da **hech bir job ishga tushmagan**: hisob billing sababli bloklangan (`gh run view`, 2026-11-27). Workflow qadamlari lokal bajarilgan, GitHub'da tasdiqlanmagan | 3 |
+| T5 | CI har PR'da | ❌ GitHub'da **hech bir job ishga tushmagan**: hisob billing sababli bloklangan. O'rniga `scripts/verify-all.sh --docker` (CI qadamlari bilan bir xil) — lokal toza. `ci.yml` YAML sifatida yaroqli, GitHub'da sinalmagan | 3-9 |
 
 ## 5. Deploy va kuzatuv
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
 | O1 | Bitta bootstrap, prodda helmet (H6) | ✅ `start`/`start:prod` → `dist/main`; `CORS_ORIGIN` env'dan | 0 |
-| O2 | `docker-compose.prod.yml` + nginx + HTTPS | ⚠️ 2026-11-27: ikkala image toza git nusxasidan `docker build` bo'ldi; backend image prod rejimda test bazaga ulanib `/health` = ok, secret'siz ishga tushmaydi; web image `/login` = 200. `docker compose` to'liq steki, nginx va TLS — sinalmagan (domen/VPS kerak) | 4 |
-| O3 | `deploy.sh` (backup → build → migrate deploy → up → health) | ⚠️ yozildi, `bash -n` toza; VPS'da ishga tushirilmagan | 4 |
-| O4 | Backup (DB + uploads), tiklash bir marta sinovdan o'tgan | ⚠️ `backup.sh`/`restore.sh` yozildi; tiklash sinovi staging'da qilinishi kerak | 4 |
-| O5 | Xato kuzatuvi + `/health` bazani tekshiradi | ⚠️ `/health` haqiqiy `SELECT 1` (503), Docker healthcheck, log aylanishi; Sentry yo'q | 4 |
+| O2 | Konteyner steki + nginx + HTTPS | ⚠️ stek lokalda `docker run` bilan ko'tarildi (postgres, backend, web, nginx; o'z-o'zidan imzolangan TLS): `nginx -t`, marshrutlar, sarlavhalar, chegaralar, konteyner IP'si o'zgarganda o'zi tiklanish, baza uzilib-tiklanishi. **`docker compose` buyrug'i va `docker-compose.prod.yml` ning o'zi sinalmagan** (mashinada plagin yo'q). Image: backend 804 MB, web 425 MB, ikkalasi non-root | 4-8 |
+| O3 | `deploy.sh` (backup → build → migrate deploy → up → health) | ⚠️ `bash -n` toza, qadamlari alohida bajarilgan; skriptning o'zi (compose bilan) VPS'da ishga tushirilmagan | 4 |
+| O4 | Zaxira (baza + rasmlar) va tiklash | ⚠️ `backup.sh`/`restore.sh` ichidagi buyruqlar bilan lokal stekda zaxira → buzish → tiklash aylanasi o'tdi (baza va rasm fayllari aynan qaytdi). Skriptlarning o'zi va staging'dagi sinov — yo'q | 4-8 |
+| O5 | Kuzatuv | ⚠️ `/health`, `/ready` (baza), `/health/live`; prodda JSON log, hodisalar (`order_paid`, `payme`, `click`, `admin_login`, `otp_limit`…); SIGTERM'da toza to'xtash (205 ms). Xato kuzatuvi (Sentry) ulanmagan — ulanish nuqtasi bor (`common/error-reporter.ts`) | 4-8 |
+| O6 | Yuk ostida xatti-harakat | ⚠️ qisqa sinov (20 parallel, 20 ming mahsulot): mahsulot 454 so'rov/s (p95 62 ms), ro'yxat 262/s (p95 110 ms), qidiruv 71/s (p95 371 ms). Topilib tuzatildi: SSR'ning umumiy IP chegarasi (§9 R15), `GET /category` (R16). Uzoq muddatli yoki haqiqiy tarmoqdagi sinov o'tkazilmagan | 8 |
 
 ## 6. Kod tozaligi
 
@@ -99,7 +105,10 @@ Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmag
 7. **Captcha qarori.** OTP yuborishga IP va umumiy byudjet chegaralari qo'shildi, lekin ko'p IP'li
    hujumda umumiy byudjet tugab, haqiqiy xaridorlar ham kira olmay qoladi. Buni faqat captcha
    (Cloudflare Turnstile yoki hCaptcha) hal qiladi — variantlar yakuniy hisobotda.
-8. Moderator huquqlari (`docs/PERMISSIONS.md`) va OTP byudjeti raqamlarini tasdiqlash.
+8. Moderator huquqlari (`docs/PERMISSIONS.md`), OTP byudjeti va nginx chegaralari raqamlarini tasdiqlash.
+9. Serverga `docker compose` plagini bilan `docker-compose.prod.yml`, `deploy.sh`, `backup.sh`,
+   `restore.sh` ni staging'da ishga tushirish — lokalda faqat ichidagi buyruqlar sinalgan.
+10. Xato kuzatuvi (Sentry yoki boshqa) SDK'sini qo'shish qarori.
 
 ## 9. 2026-11-27 qayta auditda topilib, yopilgan nuqsonlar
 
@@ -116,3 +125,13 @@ Har biri regressiya testi bilan; poyga testlari eski kodda yiqilishi tekshirilga
 | R7 | P2 | Teskari tartibdagi parallel buyurtmalar deadlock (500) berardi | zaxira qatorlari `product_id` tartibida qulflanadi | `orders.e2e-spec.ts` |
 | R8 | P2 | `/login?next=/\\host` kirishdan keyin tashqi saytga yo'naltirishi mumkin edi; `create-admin.js` raqamni normallashtirmasdi (admin kira olmasdi); savat miqdori chegarasiz (500) | origin tekshiruvi; `+998…` ko'rinishi; `Max(999)` | Playwright; `auth-catalog.e2e-spec.ts` (savat); `create-admin.js` test bazada qo'lda |
 | R9 | P0 | `next@16.3.6` uchun critical advisory'lar (autentifikatsiyasiz RCE, kesh zaharlash, proxy javoblarining aralashishi) | `next` va `eslint-config-next` 16.4.6; web `npm audit` = 0 | typecheck, lint, build, Playwright 4/4 |
+| R10 | P2 | OTP faqat IP+raqam bo'yicha cheklangan (SMS balansini yoqish) | IP'dan turli raqamlar chegarasi + umumiy byudjet + `otp_limit` logi | `hardening.e2e-spec.ts` |
+| R11 | P3 | Bloklangan xaridor tokeni 15 daqiqa ishlardi; MODERATOR = ADMIN | `UserGuard` holatni tekshiradi; `@AllowModerator()` | `hardening.e2e-spec.ts` (31 endpoint × 3 rol) |
+| R12 | P3 | Next proxy mijozning `X-Forwarded-For` iga ishonardi (8 urinish, 0 ta 429) | `TRUST_PROXY_HEADERS` | Playwright |
+| R13 | P3 | Admin zaxirasi parallel buyurtmani bosib ketardi; `GET /category/abc` → 500; maydonni bo'shatib bo'lmasdi; rasm fayli diskda qolardi | shartli yozuv (409); `ParseIntPipe`; `null`; `unlink` | e2e + Playwright |
+| R14 | P1 | Deploy'da backend konteyneri yangi IP olsa nginx 502 qaytarardi (qayta yuklanmaguncha) | `resolver` + o'zgaruvchi orqali `proxy_pass` | lokal stek: eski konfiguratsiya 502, yangisi 4 s da 200 |
+| R15 | P1 | Web server SSR so'rovlari backend'da bitta IP chegarasiga (300/daq) tushardi: undan keyin mahsulot sahifalari hammaga 500 (1917 so'rovdan 1617 tasi) | ochiq katalog `@SkipThrottle()`, chegara nginx'da (`limit_req`) | Playwright (4 endpoint × 320 so'rov), lokal stek |
+| R16 | P2 | `GET /category` har so'rovda butun katalogni yuklardi (20 ming mahsulotda p50 ≈ 1,9 s) | ro'yxat mahsulotlarsiz; tafsilot 24 ta bilan cheklangan | `readiness.e2e-spec.ts` |
+| R17 | P2 | SMS ketmasa ham kod yozuvi qolardi: xaridor 1 daqiqa kutardi, yetib borgan eski kodi bekor bo'lardi | yozuv o'chiriladi; eski kod SMS ketgandan keyingina bekor bo'ladi | `readiness.e2e-spec.ts` |
+| R18 | P2 | Loglarda so'rov satri (qidiruvdagi telefon) va SMS xatosida to'liq raqam; FK ustunlarida indeks yo'q | yo'l so'rov satrisiz, `maskPhone`; 8 ta indeks | unit; `EXPLAIN ANALYZE` |
+
