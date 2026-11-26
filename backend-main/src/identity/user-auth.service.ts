@@ -26,8 +26,8 @@ export class UserAuthService {
     private readonly tokens: TokenService,
   ) {}
 
-  sendOtp(rawPhone: string) {
-    return this.otp.send(normalizeUzPhone(rawPhone));
+  sendOtp(rawPhone: string, ip?: string) {
+    return this.otp.send(normalizeUzPhone(rawPhone), ip);
   }
 
   // Kirish va ro'yxatdan o'tish bitta qadam: kod tasdiqlansa, hisob bo'lmasa ochiladi.

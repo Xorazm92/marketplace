@@ -1,9 +1,10 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, HttpStatus, Ip, Param, ParseIntPipe, Patch, Post, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { Throttle } from '@nestjs/throttler';
 import { UserGuard } from '../guards/user.guard';
 import { AdminGuard } from '../guards/admin.guard';
 import { SuperAdminGuard } from '../guards/superAdmin.guard';
+import { AllowModerator } from '../guards/allow-moderator.decorator';
 import { GetCurrentUserId } from '../decorators/get-current-user-id.decorator';
 import { CurrentAdminId } from '../decorators/current-admin-id.decorator';
 import { UserAuthService } from './user-auth.service';
@@ -29,8 +30,8 @@ export class UserAuthController {
   @Post('otp/send')
   @HttpCode(HttpStatus.OK)
   @Throttle(AUTH_THROTTLE)
-  sendOtp(@Body() dto: SendOtpDto) {
-    return this.auth.sendOtp(dto.phone_number);
+  sendOtp(@Body() dto: SendOtpDto, @Ip() ip: string) {
+    return this.auth.sendOtp(dto.phone_number, ip);
   }
 
   @Post('otp/verify')
@@ -91,6 +92,7 @@ export class AdminAuthController {
   @HttpCode(HttpStatus.OK)
   @ApiBearerAuth()
   @UseGuards(AdminGuard)
+  @AllowModerator()
   logout(@CurrentAdminId() adminId: number) {
     return this.auth.logout(adminId);
   }
@@ -98,6 +100,7 @@ export class AdminAuthController {
   @Get('me')
   @ApiBearerAuth()
   @UseGuards(AdminGuard)
+  @AllowModerator()
   me(@CurrentAdminId() adminId: number) {
     return this.auth.me(adminId);
   }

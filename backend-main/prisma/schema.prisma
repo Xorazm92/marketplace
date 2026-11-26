@@ -199,10 +199,16 @@ model OtpVerification {
   attempts     Int      @default(0)
   is_verified  Boolean  @default(false)
   user_id      Int?
+  // So'rov kelgan IP'ning HMAC'i (ochiq IP emas): bitta manzildan turli raqamlarga
+  // SMS yuborishni cheklash uchun. Eski qatorlarda NULL.
+  ip_hash      String?
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
   @@index([phone_number, purpose, createdAt])
+  // Umumiy (barcha raqamlar bo'yicha) soatlik/kunlik chegara shu indeks bilan sanaladi.
+  @@index([createdAt])
+  @@index([ip_hash, createdAt])
   @@map("otp_verification")
 }
 

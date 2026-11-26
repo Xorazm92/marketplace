@@ -1,10 +1,12 @@
-import { ExecutionContext, UnauthorizedException } from '@nestjs/common';
+import { ExecutionContext, ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { Reflector } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import { TokenService } from '../identity/token.service';
 import { UserGuard } from '../guards/user.guard';
 import { AdminGuard } from '../guards/admin.guard';
 import { SuperAdminGuard } from '../guards/superAdmin.guard';
+import { AllowModerator } from '../guards/allow-moderator.decorator';
 import { normalizeUzPhone } from '../identity/phone';
 
 // Guard'lar va token turlari (bazasiz). HTTP darajasi: test/mvp/*.e2e-spec.ts.
@@ -18,44 +20,76 @@ const config = {
 
 const tokens = new TokenService(new JwtService({}), config);
 
-function ctx(authorization?: string) {
-  const req: any = { headers: { authorization } };
-  return { req, context: { switchToHttp: () => ({ getRequest: () => req }) } as unknown as ExecutionContext };
+class Handlers {
+  adminOnly() {}
+  @AllowModerator()
+  moderatorToo() {}
 }
 
+function ctx(authorization?: string, handler: keyof Handlers = 'adminOnly') {
+  const req: any = { headers: { authorization } };
+  const context = { switchToHttp: () => ({ getRequest: () => req }), getHandler: () => Handlers.prototype[handler], getClass: () => Handlers };
+  return { req, context: context as unknown as ExecutionContext };
+}
+
+const activeUser: any = { user: { findUnique: jest.fn().mockResolvedValue({ is_active: true }) } };
+const userGuard = (prisma: any = activeUser) => new UserGuard(tokens, prisma);
+
 describe('TokenService va guard\'lar', () => {
-  it('user tokeni UserGuard dan o\'tadi va req.user.id ni to\'ldiradi', () => {
+  beforeEach(() => jest.clearAllMocks());
+
+  it('user tokeni UserGuard dan o\'tadi va req.user.id ni to\'ldiradi', async () => {
     const { access_token } = tokens.issue({ sub: 7, kind: 'user' });
     const { req, context } = ctx(`Bearer ${access_token}`);
-    expect(new UserGuard(tokens).canActivate(context)).toBe(true);
+    await expect(userGuard().canActivate(context)).resolves.toBe(true);
     expect(req.user.id).toBe(7);
   });
 
-  it('admin tokeni UserGuard dan o\'tmaydi', () => {
+  it('bloklangan yoki o\'chirilgan xaridorning yaroqli tokeni ham o\'tmaydi', async () => {
+    const { access_token } = tokens.issue({ sub: 7, kind: 'user' });
+    for (const row of [{ is_active: false }, null]) {
+      const prisma: any = { user: { findUnique: jest.fn().mockResolvedValue(row) } };
+      await expect(userGuard(prisma).canActivate(ctx(`Bearer ${access_token}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
+    }
+  });
+
+  it('admin tokeni UserGuard dan o\'tmaydi', async () => {
     const { access_token } = tokens.issue({ sub: 7, kind: 'admin', role: 'SUPER_ADMIN' });
-    expect(() => new UserGuard(tokens).canActivate(ctx(`Bearer ${access_token}`).context)).toThrow(UnauthorizedException);
+    await expect(userGuard().canActivate(ctx(`Bearer ${access_token}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
+    expect(activeUser.user.findUnique).not.toHaveBeenCalled();
   });
 
-  it('refresh token access sifatida ishlamaydi', () => {
+  it('refresh token access sifatida ishlamaydi', async () => {
     const { refresh_token } = tokens.issue({ sub: 7, kind: 'user' });
-    expect(() => new UserGuard(tokens).canActivate(ctx(`Bearer ${refresh_token}`).context)).toThrow(UnauthorizedException);
+    await expect(userGuard().canActivate(ctx(`Bearer ${refresh_token}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
-  it('boshqa secret bilan imzolangan token rad etiladi', () => {
+  it('boshqa secret bilan imzolangan token rad etiladi', async () => {
     const forged = new JwtService({}).sign({ sub: 1, kind: 'user' }, { secret: 'your-access-secret' });
-    expect(() => new UserGuard(tokens).canActivate(ctx(`Bearer ${forged}`).context)).toThrow(UnauthorizedException);
+    await expect(userGuard().canActivate(ctx(`Bearer ${forged}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
   });
 
   it('AdminGuard rolni tokendan emas, bazadan oladi va nofaol adminni to\'xtatadi', async () => {
     const { access_token } = tokens.issue({ sub: 3, kind: 'admin', role: 'SUPER_ADMIN' });
     const prisma: any = { admin: { findUnique: jest.fn().mockResolvedValue({ id: 3, role: 'ADMIN', is_active: true }) } };
     const { req, context } = ctx(`Bearer ${access_token}`);
-    await expect(new AdminGuard(tokens, prisma).canActivate(context)).resolves.toBe(true);
+    await expect(new AdminGuard(tokens, prisma, new Reflector()).canActivate(context)).resolves.toBe(true);
     expect(req.admin.role).toBe('ADMIN');
     expect(() => new SuperAdminGuard().canActivate(context)).toThrow();
 
     prisma.admin.findUnique.mockResolvedValue({ id: 3, role: 'SUPER_ADMIN', is_active: false });
-    await expect(new AdminGuard(tokens, prisma).canActivate(ctx(`Bearer ${access_token}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
+    await expect(new AdminGuard(tokens, prisma, new Reflector()).canActivate(ctx(`Bearer ${access_token}`).context)).rejects.toBeInstanceOf(UnauthorizedException);
+  });
+
+  it('MODERATOR faqat @AllowModerator() bilan belgilangan endpoint\'ga kiradi', async () => {
+    const { access_token } = tokens.issue({ sub: 4, kind: 'admin', role: 'MODERATOR' });
+    const prisma: any = { admin: { findUnique: jest.fn().mockResolvedValue({ id: 4, role: 'MODERATOR', is_active: true }) } };
+    const guard = new AdminGuard(tokens, prisma, new Reflector());
+    await expect(guard.canActivate(ctx(`Bearer ${access_token}`, 'adminOnly').context)).rejects.toBeInstanceOf(ForbiddenException);
+    await expect(guard.canActivate(ctx(`Bearer ${access_token}`, 'moderatorToo').context)).resolves.toBe(true);
+    // Tokendagi rol yolg'on bo'lsa ham (ADMIN deb yozilgan) bazadagi rol hal qiladi.
+    const forgedRole = tokens.issue({ sub: 4, kind: 'admin', role: 'ADMIN' }).access_token;
+    await expect(guard.canActivate(ctx(`Bearer ${forgedRole}`, 'adminOnly').context)).rejects.toBeInstanceOf(ForbiddenException);
   });
 
   it('refresh fingerprint faqat aynan shu tokenga mos keladi', () => {
