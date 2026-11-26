@@ -192,4 +192,11 @@ export class SetStockDto {
   @IsInt()
   @Min(0)
   stock_quantity: number;
+
+  // Admin sahifada ko'rgan qiymat. Zaxira mutlaq son bilan yozilgani uchun, shu orada
+  // buyurtma tushgan bo'lsa yozuv rad etiladi (409) — aks holda sotilgan dona "qaytib" qolardi.
+  @Type(() => Number)
+  @IsInt()
+  @Min(0)
+  expected_quantity: number;
 }

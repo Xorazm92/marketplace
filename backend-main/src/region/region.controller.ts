@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { RegionService } from './region.service';
 import { CreateRegionDto } from './dto/create-region.dto';
@@ -39,8 +40,8 @@ export class RegionController {
   @ApiOperation({ summary: 'Get a region by ID' })
   @ApiResponse({ status: 200, description: 'Region retrieved successfully' })
   @ApiResponse({ status: 404, description: 'Region not found' })
-  findOne(@Param('id') id: string) {
-    return this.regionService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.regionService.findOne(id);
   }
   
   @Put(':id')
@@ -48,8 +49,8 @@ export class RegionController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a region by ID' })
   @ApiResponse({ status: 200, description: 'Region updated successfully' })
-  update(@Param('id') id: string, @Body() updateRegionDto: UpdateRegionDto) {
-    return this.regionService.update(+id, updateRegionDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateRegionDto: UpdateRegionDto) {
+    return this.regionService.update(id, updateRegionDto);
   }
   
   @Delete(':id')
@@ -57,7 +58,7 @@ export class RegionController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a region by ID' })
   @ApiResponse({ status: 200, description: 'Region deleted successfully' })
-  remove(@Param('id') id: string) {
-    return this.regionService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.regionService.remove(id);
   }
 }

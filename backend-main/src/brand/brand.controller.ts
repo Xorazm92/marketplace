@@ -10,6 +10,7 @@ import {
   UseInterceptors,
   UploadedFile,
   BadRequestException,
+  ParseIntPipe,
 } from "@nestjs/common";
 import { BrandService } from "./brand.service";
 import { CreateBrandDto } from "./dto/create-brand.dto";
@@ -102,8 +103,8 @@ export class BrandController {
   @Get(":id")
   @ApiOperation({ summary: "Get brand by ID" })
   @ApiResponse({ status: 200, description: "Brand found" })
-  findOne(@Param("id") id: string) {
-    return this.brandService.findOne(+id);
+  findOne(@Param("id", ParseIntPipe) id: number) {
+    return this.brandService.findOne(id);
   }
 
   @Put(":id")
@@ -126,11 +127,11 @@ export class BrandController {
   @ApiResponse({ status: 200, description: "Brand updated successfully" })
   @UseInterceptors(FileInterceptor("image", multerOptions))
   update(
-    @Param("id") id: string,
+    @Param("id", ParseIntPipe) id: number,
     @Body() updateBrandDto: UpdateBrandDto,
     @UploadedFile() image: Express.Multer.File
   ) {
-    return this.brandService.update(+id, updateBrandDto, image);
+    return this.brandService.update(id, updateBrandDto, image);
   }
 
   @Delete(":id")
@@ -138,7 +139,7 @@ export class BrandController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: "Delete brand by ID" })
   @ApiResponse({ status: 200, description: "Brand deleted successfully" })
-  remove(@Param("id") id: string) {
-    return this.brandService.remove(+id);
+  remove(@Param("id", ParseIntPipe) id: number) {
+    return this.brandService.remove(id);
   }
 }

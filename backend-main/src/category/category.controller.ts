@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, NotFoundException, ParseIntPipe } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { AdminGuard } from '../guards/admin.guard';
 import { CategoryService } from './category.service';
@@ -44,23 +44,23 @@ export class CategoryController {
 
   @Get(':id')
   @ApiOperation({ summary: 'Get category by ID' })
-  findOne(@Param('id') id: string) {
-    return this.categoryService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.findOne(id);
   }
 
   @Patch(':id')
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update category' })
-  update(@Param('id') id: string, @Body() updateCategoryDto: UpdateCategoryDto) {
-    return this.categoryService.update(+id, updateCategoryDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateCategoryDto: UpdateCategoryDto) {
+    return this.categoryService.update(id, updateCategoryDto);
   }
 
   @Delete(':id')
   @ApiBearerAuth("inbola")
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete category' })
-  remove(@Param('id') id: string) {
-    return this.categoryService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.categoryService.remove(id);
   }
 }
