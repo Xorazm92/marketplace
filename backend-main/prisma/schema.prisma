@@ -163,6 +163,7 @@ model Address {
   shipping_orders Order[]   @relation("ShippingAddress")
   product         Product[]
 
+  @@index([user_id])
   @@map("address")
 }
 
@@ -301,6 +302,9 @@ model Product {
   reviews        Review[]
   wishlist_items WishlistItem[]
 
+  // Katalog ro'yxati: yangilari bo'yicha saralash va bo'lim filtri.
+  @@index([createdAt])
+  @@index([category_id])
   @@map("product")
 }
 
@@ -314,6 +318,7 @@ model ProductImage {
   updatedAt  DateTime @updatedAt
   product    Product  @relation(fields: [product_id], references: [id])
 
+  @@index([product_id])
   @@map("product_image")
 }
 
@@ -422,6 +427,7 @@ model Order {
 
   @@index([user_id])
   @@index([status, payment_status])
+  @@index([shipping_address_id])
   @@map("order")
 }
 
@@ -437,6 +443,10 @@ model OrderItem {
   order       Order    @relation(fields: [order_id], references: [id], onDelete: Cascade)
   product     Product  @relation(fields: [product_id], references: [id])
 
+  // Postgres FK ustunlariga indeksni o'zi qo'ymaydi: "buyurtmalarim" va sharh huquqi
+  // tekshiruvi butun jadvalni o'qirdi (100 ming buyurtmada 68 ms va 24 ms).
+  @@index([order_id])
+  @@index([product_id])
   @@map("order_item")
 }
 
@@ -474,6 +484,7 @@ model OrderTracking {
   createdAt   DateTime    @default(now())
   order       Order       @relation(fields: [order_id], references: [id], onDelete: Cascade)
 
+  @@index([order_id])
   @@map("order_tracking")
 }
 
