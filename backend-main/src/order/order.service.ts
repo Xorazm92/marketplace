@@ -147,6 +147,7 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
       return created;
     });
 
+    this.logger.log({ event: 'order_created', order_id: order.id, user_id: userId, amount: Number(order.final_amount), method: order.payment_method });
     return this.findMine(userId, order.id);
   }
 
@@ -293,6 +294,7 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
       });
     }
     await tx.orderTracking.create({ data: { order_id: orderId, status: 'CANCELLED', description: reason } });
+    this.logger.log({ event: 'order_cancelled', order_id: orderId, reason });
     return true;
   }
 

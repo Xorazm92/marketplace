@@ -154,6 +154,7 @@ export class ClickService {
         if (error instanceof OrderNotPayable) return false;
         throw error;
       });
+      if (paid) this.logger.log({ event: 'order_paid', order_id: row.order_id, method: 'CLICK', amount: Number(row.amount) });
       if (!paid) {
         const fresh = await this.prisma.order.findUnique({ where: { id: row.order_id }, select: { payment_status: true } });
         return reply(fresh?.payment_status === 'PAID' ? E.ALREADY_PAID : E.CANCELLED);
@@ -176,6 +177,10 @@ export class ClickService {
   }
 
   private reply(req: ClickRequest, error: number, extra: object) {
+    // Har Prepare/Complete natijasi — to'lov izi. Imzo (sign_string) va secret yozilmaydi.
+    const entry = { event: 'click', action: Number(req?.action) === 1 ? 'complete' : 'prepare', click_trans_id: String(req?.click_trans_id ?? ''), order_id: String(req?.merchant_trans_id ?? ''), error };
+    if (error === E.OK) this.logger.log(entry);
+    else this.logger.warn(entry);
     return {
       click_trans_id: req?.click_trans_id,
       merchant_trans_id: req?.merchant_trans_id,

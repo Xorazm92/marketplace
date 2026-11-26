@@ -1,4 +1,4 @@
-import { ForbiddenException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../prisma/prisma.service';
 import { OtpService } from './otp.service';
@@ -20,6 +20,8 @@ export const PUBLIC_USER_SELECT = {
 
 @Injectable()
 export class UserAuthService {
+  private readonly logger = new Logger(UserAuthService.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly otp: OtpService,
@@ -50,6 +52,7 @@ export class UserAuthService {
     if (!user.is_active) throw new ForbiddenException('Hisob bloklangan');
 
     const pair = await this.issue(user.id);
+    this.logger.log({ event: 'auth_login', user_id: user.id, is_new: isNew });
     const profile = await this.prisma.user.findUnique({ where: { id: user.id }, select: PUBLIC_USER_SELECT });
     return { user: profile, is_new: isNew, ...pair };
   }
