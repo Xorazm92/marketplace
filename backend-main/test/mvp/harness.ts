@@ -88,7 +88,7 @@ export async function loginUser(t: TestApp, phone = '+998901112233') {
   return res.body as { access_token: string; refresh_token: string; user: { id: number } };
 }
 
-export async function loginAdmin(t: TestApp, role: 'SUPER_ADMIN' | 'ADMIN' = 'SUPER_ADMIN', phone = '+998909990000') {
+export async function loginAdmin(t: TestApp, role: 'SUPER_ADMIN' | 'ADMIN' | 'MODERATOR' = 'SUPER_ADMIN', phone = '+998909990000') {
   await t.prisma.admin.create({
     data: { phone_number: phone, first_name: 'A', last_name: 'B', role, is_active: true, hashed_password: await bcrypt.hash('admin-password-123', 4) },
   });
