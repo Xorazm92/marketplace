@@ -7,6 +7,7 @@ import {
   Delete,
   Put,
   UseGuards,
+  ParseIntPipe,
 } from '@nestjs/common';
 import { DistrictService } from './district.service';
 import { CreateDistrictDto } from './dto/create-district.dto';
@@ -39,8 +40,8 @@ export class DistrictController {
   @ApiOperation({ summary: 'Get a district by ID' })
   @ApiResponse({ status: 200, description: 'District retrieved successfully' })
   @ApiResponse({ status: 404, description: 'District not found' })
-  findOne(@Param('id') id: string) {
-    return this.districtService.findOne(+id);
+  findOne(@Param('id', ParseIntPipe) id: number) {
+    return this.districtService.findOne(id);
   }
   
   @Put(':id')
@@ -48,8 +49,8 @@ export class DistrictController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Update a district by ID' })
   @ApiResponse({ status: 200, description: 'District updated successfully' })
-  update(@Param('id') id: string, @Body() updateDistrictDto: UpdateDistrictDto) {
-    return this.districtService.update(+id, updateDistrictDto);
+  update(@Param('id', ParseIntPipe) id: number, @Body() updateDistrictDto: UpdateDistrictDto) {
+    return this.districtService.update(id, updateDistrictDto);
   }
   
   @Delete(':id')
@@ -57,7 +58,7 @@ export class DistrictController {
   @UseGuards(AdminGuard)
   @ApiOperation({ summary: 'Delete a district by ID' })
   @ApiResponse({ status: 200, description: 'District deleted successfully' })
-  remove(@Param('id') id: string) {
-    return this.districtService.remove(+id);
+  remove(@Param('id', ParseIntPipe) id: number) {
+    return this.districtService.remove(id);
   }
 }

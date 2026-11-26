@@ -19,6 +19,8 @@ O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 - **Har yozuv endpoint'ida guard bor.** Egalik servisda `where: { id, user_id }`
   bilan tekshiriladi; UI hech qachon yagona to'siq emas. Foydalanuvchi — `UserGuard`,
   admin — `AdminGuard` (+ `SuperAdminGuard`); token turlari bir-birining o'rnida o'tmaydi.
+  `AdminGuard` MODERATOR'ni standart holatda rad etadi — unga ochiq endpoint `@AllowModerator()`
+  bilan belgilanadi va `docs/PERMISSIONS.md` + `hardening.e2e-spec.ts` ga qo'shiladi.
 - **Secret'lar uchun koddagi fallback yo'q.** Env yetishmasa server ishga tushmasligi kerak.
 
 ## Buyruqlar
@@ -74,6 +76,13 @@ Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 - **Buyurtma holati "o'qib, keyin yoz" bilan o'zgartirilmaydi.** Faqat shartli `updateMany`
   (`where: { id, status: <o'qilgan holat> }`) va `count` tekshiruvi: xaridor, admin va callback
   bir vaqtda kelganda zaxirasi qaytarilgan buyurtma "tasdiqlangan" bo'lib qolgan edi (2026-11-27).
+- **Zaxira mutlaq son bilan shartsiz yozilmaydi.** Admin `expected_quantity` (o'zi ko'rgan qiymat)
+  yuboradi; shu orada buyurtma tushgan bo'lsa 409. Buyurtma yo'lida — faqat shartli `decrement`.
+- **Mijoz yuborgan `X-Forwarded-For` ga ishonilmaydi.** `web/lib/proxy.ts` uni faqat
+  `TRUST_PROXY_HEADERS=true` (oldida nginx) bo'lganda uzatadi; aks holda kirish/OTP chegaralari
+  har so'rovda boshqa "IP" yuborib aylanib o'tilardi.
+- **OTP yuborishda uch chegara** (`identity/otp.service.ts`): raqam, IP'dan turli raqamlar, umumiy
+  byudjet. Logga to'liq raqam, IP va kod tushmaydi (`common/security/mask.ts`).
 - **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
 - **`.env*`, `*.db`, `dump.rdb` repoga qo'shilmaydi** — qo'riqchi to'sadi.

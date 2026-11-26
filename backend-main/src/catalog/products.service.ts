@@ -1,9 +1,12 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, ConflictException, ForbiddenException, Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
+import { unlink } from 'fs/promises';
+import { join } from 'path';
 import slugify from 'slugify';
 import { PrismaService } from '../prisma/prisma.service';
 import { defaultCurrencyId } from '../common/currency';
+import { UPLOADS_DIR } from '../config/multer.config';
 import { AdminListProductsQuery, ListProductsQuery, SetStockDto, UpsertProductDto } from './dto';
 
 const PRODUCT_INCLUDE = {
@@ -18,8 +21,16 @@ type ProductRow = Prisma.ProductGetPayload<{ include: typeof PRODUCT_INCLUDE }>;
 // Xaridorga ko'rinadigan mahsulot sharti — bitta joyda, ro'yxat va tafsilot bir xil ishlasin.
 const PUBLIC_WHERE: Prisma.ProductWhereInput = { is_active: true, is_deleted: false, is_checked: 'APPROVED' };
 
+// Bazada NOT NULL bo'lgan maydonlar. `null` — "bo'shatish" degani, bular esa bo'shatilmaydi:
+// validator (IsOptional) null'ni o'tkazib yuboradi va Prisma 500 berardi.
+const REQUIRED_FIELDS = ['title', 'description', 'price', 'min_order_quantity', 'is_active', 'is_featured', 'choking_hazard'] as const;
+// Faqat multer yaratgan nomlar (UUID + rasm kengaytmasi) diskdan o'chiriladi.
+const UPLOADED_FILE = /^\/uploads\/([0-9a-f-]{36}\.(?:jpg|png|webp))$/;
+
 @Injectable()
 export class ProductsService {
+  private readonly logger = new Logger(ProductsService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async listPublic(query: ListProductsQuery) {
@@ -96,6 +107,7 @@ export class ProductsService {
   }
 
   async create(dto: UpsertProductDto) {
+    this.rejectNulls(dto);
     this.checkPrices(dto);
     const product = await this.prisma.product.create({
       data: {
@@ -111,7 +123,12 @@ export class ProductsService {
     return this.findAdmin(product.id);
   }
 
-  async update(id: number, dto: Partial<UpsertProductDto>) {
+  async update(id: number, dto: Partial<UpsertProductDto>, role?: string) {
+    // Narx — pul qarori: moderator kontentni tahrirlaydi, narxni emas (docs/PERMISSIONS.md).
+    if (role === 'MODERATOR' && (dto.price !== undefined || dto.original_price !== undefined)) {
+      throw new ForbiddenException("Narxni o'zgartirish uchun ruxsatingiz yo'q");
+    }
+    this.rejectNulls(dto);
     const current = await this.getRow(id);
     const price = dto.price ?? Number(current.price);
     const original = dto.original_price !== undefined ? dto.original_price : current.original_price != null ? Number(current.original_price) : undefined;
@@ -150,20 +167,39 @@ export class ProductsService {
   }
 
   async removeImage(id: number, imageId: number) {
-    const { count } = await this.prisma.productImage.deleteMany({ where: { id: imageId, product_id: id } });
-    if (count === 0) throw new NotFoundException('Rasm topilmadi');
+    const image = await this.prisma.productImage.findFirst({ where: { id: imageId, product_id: id } });
+    if (!image) throw new NotFoundException('Rasm topilmadi');
+    await this.prisma.productImage.delete({ where: { id: image.id } });
+    // Avval baza, keyin disk: fayl o'chmay qolsa — faqat ortiqcha fayl, aksi bo'lsa
+    // katalogda singan rasm qolardi. Fayl yo'qligi xato emas.
+    const file = UPLOADED_FILE.exec(image.url)?.[1];
+    if (file) {
+      await unlink(join(UPLOADS_DIR, file)).catch((error: NodeJS.ErrnoException) => {
+        if (error.code !== 'ENOENT') this.logger.warn(`Rasm fayli o'chmadi (${file}): ${error.code}`);
+      });
+    }
     return this.findAdmin(id);
   }
 
+  // Zaxira mutlaq son bilan yoziladi, shuning uchun yozuv shartli: faqat admin ko'rgan
+  // qiymat hali o'zgarmagan bo'lsa. Aks holda admin sahifani ochgandan keyin tushgan
+  // buyurtmaning kamaytirishi ustidan yozilib, sotilgan dona zaxiraga "qaytib" qolardi.
   async setStock(id: number, dto: SetStockDto) {
     await this.getRow(id);
-    const inventory = await this.prisma.inventory.upsert({
-      where: { product_id: id },
-      create: { product_id: id, stock_quantity: dto.stock_quantity, is_in_stock: dto.stock_quantity > 0 },
-      update: { stock_quantity: dto.stock_quantity, is_in_stock: dto.stock_quantity > 0 },
-    });
-    await this.prisma.inventoryMovement.create({
-      data: { inventory_id: inventory.id, type: 'ADJUSTMENT', quantity: dto.stock_quantity, reason: 'admin' },
+    await this.prisma.$transaction(async (tx) => {
+      const data = { stock_quantity: dto.stock_quantity, is_in_stock: dto.stock_quantity > 0 };
+      const { count } = await tx.inventory.updateMany({ where: { product_id: id, stock_quantity: dto.expected_quantity }, data });
+      let inventory = await tx.inventory.findUnique({ where: { product_id: id } });
+      if (count === 0) {
+        if (inventory || dto.expected_quantity !== 0) {
+          throw new ConflictException(`Zaxira shu orada o'zgardi: hozir ${inventory?.stock_quantity ?? 0} dona. Sahifani yangilab, qayta kiriting`);
+        }
+        // Eski mahsulotlarda zaxira qatori bo'lmasligi mumkin (ular 0 deb ko'rsatiladi).
+        inventory = await tx.inventory.create({ data: { product_id: id, ...data } });
+      }
+      await tx.inventoryMovement.create({
+        data: { inventory_id: inventory!.id, type: 'ADJUSTMENT', quantity: dto.stock_quantity, reason: `admin: ${dto.expected_quantity} → ${dto.stock_quantity}` },
+      });
     });
     return this.findAdmin(id);
   }
@@ -172,6 +208,11 @@ export class ProductsService {
     const product = await this.prisma.product.findFirst({ where: { id, is_deleted: false }, include: PRODUCT_INCLUDE });
     if (!product) throw new NotFoundException('Mahsulot topilmadi');
     return product;
+  }
+
+  private rejectNulls(dto: Partial<UpsertProductDto>) {
+    const empty = REQUIRED_FIELDS.filter((field) => (dto as Record<string, unknown>)[field] === null);
+    if (empty.length) throw new BadRequestException(`Bu maydonlar bo'sh bo'lishi mumkin emas: ${empty.join(', ')}`);
   }
 
   private checkPrices(dto: { price: number; original_price?: number | null; min_order_quantity?: number; max_order_quantity?: number }) {

@@ -20,14 +20,24 @@ function Shell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const onLogin = pathname === "/admin/login";
 
+  // Moderator faqat mahsulot kontenti bilan ishlaydi (docs/PERMISSIONS.md). Bu — qulaylik:
+  // haqiqiy toʻsiq serverda (AdminGuard), boshqa sahifalar baribir 403 olardi.
+  const moderator = admin?.role === "MODERATOR";
+  const allowed = !moderator || (pathname.startsWith("/admin/products") && pathname !== "/admin/products/new");
+
   useEffect(() => {
     if (ready && !admin && !onLogin) router.replace("/admin/login");
-  }, [ready, admin, onLogin, router]);
+    else if (ready && admin && !onLogin && !allowed) router.replace("/admin/products");
+  }, [ready, admin, onLogin, allowed, router]);
 
   if (onLogin) return <>{children}</>;
-  if (!ready || !admin) return <Spinner />;
+  if (!ready || !admin || !allowed) return <Spinner />;
 
-  const nav = admin.role === "SUPER_ADMIN" ? [...NAV, { href: "/admin/admins", label: "Adminlar" }] : NAV;
+  const nav = moderator
+    ? NAV.filter((item) => item.href === "/admin/products")
+    : admin.role === "SUPER_ADMIN"
+      ? [...NAV, { href: "/admin/admins", label: "Adminlar" }]
+      : NAV;
   const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname.startsWith(href));
 
   return (

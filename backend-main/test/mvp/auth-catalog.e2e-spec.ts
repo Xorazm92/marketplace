@@ -168,7 +168,7 @@ describe('auth va katalog (e2e)', () => {
       expect(created.body.discount_percentage).toBe(20);
       expect(created.body.in_stock).toBe(false);
 
-      await t.http().put(`/api/v1/admin/products/${created.body.id}/stock`).set('Authorization', `Bearer ${admin}`).send({ stock_quantity: 3 }).expect(200);
+      await t.http().put(`/api/v1/admin/products/${created.body.id}/stock`).set('Authorization', `Bearer ${admin}`).send({ stock_quantity: 3, expected_quantity: 0 }).expect(200);
       const list = await t.http().get('/api/v1/products').expect(200);
       expect(list.body.items).toHaveLength(1);
       expect(list.body.items[0]).toEqual(expect.objectContaining({ title: 'Konstruktor', price: 120000, in_stock: true }));

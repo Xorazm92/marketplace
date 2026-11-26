@@ -16,6 +16,8 @@ import {
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { ApiBearerAuth, ApiTags, PartialType } from '@nestjs/swagger';
 import { AdminGuard } from '../guards/admin.guard';
+import { AllowModerator } from '../guards/allow-moderator.decorator';
+import { CurrentAdminRole } from '../decorators/current-admin-role.decorator';
 import { multerOptions } from '../config/multer.config';
 import { ProductsService } from './products.service';
 import { AdminListProductsQuery, ListProductsQuery, SetStockDto, UpsertProductDto } from './dto';
@@ -46,11 +48,13 @@ export class AdminProductsController {
   constructor(private readonly products: ProductsService) {}
 
   @Get()
+  @AllowModerator()
   list(@Query() query: AdminListProductsQuery) {
     return this.products.listAdmin(query);
   }
 
   @Get(':id')
+  @AllowModerator()
   findOne(@Param('id', ParseIntPipe) id: number) {
     return this.products.findAdmin(id);
   }
@@ -60,9 +64,11 @@ export class AdminProductsController {
     return this.products.create(dto);
   }
 
+  // Moderator kontentni tahrirlaydi; narx maydonlari unga yopiq (ProductsService.update).
   @Patch(':id')
-  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProductDto) {
-    return this.products.update(id, dto);
+  @AllowModerator()
+  update(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateProductDto, @CurrentAdminRole() role: string) {
+    return this.products.update(id, dto, role);
   }
 
   @Delete(':id')
@@ -71,12 +77,14 @@ export class AdminProductsController {
   }
 
   @Post(':id/images')
+  @AllowModerator()
   @UseInterceptors(FilesInterceptor('images', 10, multerOptions))
   addImages(@Param('id', ParseIntPipe) id: number, @UploadedFiles() files: Express.Multer.File[]) {
     return this.products.addImages(id, files);
   }
 
   @Delete(':id/images/:imageId')
+  @AllowModerator()
   removeImage(@Param('id', ParseIntPipe) id: number, @Param('imageId', ParseIntPipe) imageId: number) {
     return this.products.removeImage(id, imageId);
   }

@@ -27,6 +27,11 @@ export const validationSchema = Joi.object({
   ESKIZ_EMAIL: inProduction(),
   ESKIZ_PASSWORD: inProduction(),
   SMS_FROM: optional(),
+  // OTP yuborish byudjeti (identity/otp.service.ts). Kutilgan haqiqiy oqimdan yuqoriroq qo'ying:
+  // umumiy chegara tugasa, hech kim kira olmaydi.
+  OTP_IP_PHONES_PER_HOUR: Joi.number().empty('').integer().min(1).default(10),
+  OTP_GLOBAL_PER_HOUR: Joi.number().empty('').integer().min(1).default(300),
+  OTP_GLOBAL_PER_DAY: Joi.number().empty('').integer().min(1).default(2000),
 
   // To'lov: merchant/servis id berilgan provayderning secret'i majburiy.
   PAYME_MERCHANT_ID: optional(),
