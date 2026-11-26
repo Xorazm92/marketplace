@@ -54,7 +54,7 @@ export class CartService {
     });
 
     if (!product) {
-      throw new NotFoundException('Product not found');
+      throw new NotFoundException('Mahsulot topilmadi yoki sotuvdan olingan');
     }
 
     // Get or create cart
@@ -114,11 +114,11 @@ export class CartService {
     });
 
     if (!cartItem) {
-      throw new NotFoundException('Cart item not found');
+      throw new NotFoundException("Savatda bunday mahsulot yo'q");
     }
 
     if (cartItem.cart.user_id !== userId) {
-      throw new BadRequestException('Unauthorized to update this cart item');
+      throw new BadRequestException("Savatda bunday mahsulot yo'q");
     }
 
     await this.prisma.cartItem.update({
@@ -138,11 +138,11 @@ export class CartService {
     });
 
     if (!cartItem) {
-      throw new NotFoundException('Cart item not found');
+      throw new NotFoundException("Savatda bunday mahsulot yo'q");
     }
 
     if (cartItem.cart.user_id !== userId) {
-      throw new BadRequestException('Unauthorized to remove this cart item');
+      throw new BadRequestException("Savatda bunday mahsulot yo'q");
     }
 
     await this.prisma.cartItem.delete({
@@ -158,7 +158,7 @@ export class CartService {
     });
 
     if (!cart) {
-      throw new NotFoundException('Cart not found');
+      throw new NotFoundException("Savat bo'sh");
     }
 
     await this.prisma.cartItem.deleteMany({

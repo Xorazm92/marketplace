@@ -12,11 +12,16 @@ const bcrypt = require('bcrypt');
 const prisma = new PrismaClient();
 
 async function createAdmin() {
-  const phone = process.env.ADMIN_PHONE;
+  // Kirish raqamni +998XXXXXXXXX ko'rinishiga keltirib qidiradi (src/identity/phone.ts).
+  // Bu yerda boshqacha (masalan "+"siz yoki bo'sh joy bilan) saqlansa, admin hech qachon
+  // kira olmaydi — shuning uchun aynan shu qoida bilan normallashtiriladi.
+  const digits = String(process.env.ADMIN_PHONE ?? '').replace(/\D/g, '');
+  const full = digits.length === 9 ? `998${digits}` : digits;
+  const phone = /^998\d{9}$/.test(full) ? `+${full}` : null;
   const password = process.env.ADMIN_PASSWORD;
 
   if (!phone || !password || password.length < 12) {
-    console.error('❌ ADMIN_PHONE va kamida 12 belgili ADMIN_PASSWORD berilishi shart.');
+    console.error('❌ ADMIN_PHONE (+998XXXXXXXXX) va kamida 12 belgili ADMIN_PASSWORD berilishi shart.');
     process.exitCode = 1;
     return;
   }
