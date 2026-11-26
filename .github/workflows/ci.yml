@@ -1,3 +1,5 @@
+# Bu qadamlar lokal `bash scripts/verify-all.sh --docker` bilan bir xil: workflow o'zgarsa,
+# skript ham o'zgarsin (GitHub Actions ishlamay qolganda yagona dalil — o'sha skript).
 name: CI
 
 on:
@@ -37,6 +39,7 @@ jobs:
           cache-dependency-path: backend-main/package-lock.json
       - run: npm ci
       - run: npx prisma generate
+      - run: npx tsc --noEmit -p tsconfig.build.json
       - run: npx tsc --noEmit -p tsconfig.json
       - run: npm run lint
       - run: npm test
@@ -113,3 +116,26 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
+      - name: Skriptlar sintaksisi
+        run: for f in scripts/*.sh .claude/hooks/*.sh; do bash -n "$f"; done
+      - name: Repoda maxfiy fayl yo'q
+        run: |
+          bad=$(git ls-files | grep -E '(^|/)\.env($|\.)' | grep -v -E '\.example$' || true)
+          [ -z "$bad" ] || { echo "Kuzatilayotgan env fayllar: $bad"; exit 1; }
+
+  # Toza klondan image build: lokalda mavjud bo'lgan (repoda yo'q) fayllarga tayanib qolgan
+  # Dockerfile shu yerda yiqiladi (web/Dockerfile bilan shunday bo'lgan).
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: docker build -t inbola-backend ./backend-main
+      - run: docker build -t inbola-web ./web
+      - name: Compose fayli yaroqli
+        run: docker compose -f docker-compose.prod.yml --env-file .env.prod.example config --quiet
+      - name: Backend image secret'siz ishga tushmaydi
+        run: |
+          if docker run --rm -e DATABASE_URL=postgresql://x@localhost/x inbola-backend > out.log 2>&1; then
+            echo "Secret'siz ishga tushdi"; exit 1
+          fi
+          grep -q "Config validation error" out.log

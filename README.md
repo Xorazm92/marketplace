@@ -42,6 +42,14 @@ cd web && npm run build && npx playwright test                          # brauze
 ```
 
 E2E testlar bazani tozalaydi, shuning uchun faqat nomi `_test` bilan tugaydigan bazada ishlaydi.
+
+Hammasi bitta buyruq bilan (CI qadamlari bilan bir xil; reliz oldidan shu ishga tushiriladi):
+
+```bash
+TEST_DATABASE_URL=postgresql://.../nomi_test E2E_DATABASE_URL=postgresql://.../nomi_pw_test \
+  bash scripts/verify-all.sh --docker
+```
+
 CI: `.github/workflows/ci.yml`.
 
 ## Hujjatlar
@@ -49,5 +57,8 @@ CI: `.github/workflows/ci.yml`.
 - `docs/plan/MVP_ROADMAP.md` — review va bosqichlar
 - `docs/QUALITY_BAR.md` — o'lchanadigan tayyorlik holati
 - `docs/DEPLOYMENT.md` — prod deploy, to'lov kabinetlari, zaxira, rollback
+- `docs/RELEASE_CHECKLIST.md` — reliz oldi/keyin qadamlar, tutun sinovi, birinchi 24 soat
+- `docs/RUNBOOK.md` — nosozlikda nima qilish (to'lov, baza, SMS, tiklash)
+- `docs/PERMISSIONS.md` — admin rollari matritsasi
 - `docs/ICEBOX.md` — olib tashlangan eski kod va uni qaytarish
 - `AGENTS.md` — kod yozish qoidalari va tuzoqlar

@@ -2,7 +2,7 @@
 
 NestJS 11 + Prisma 6 + PostgreSQL (`backend-main/`) va Next.js 16 App Router
 (`web/`). Olib tashlangan eski kod va uni qaytarish: `docs/ICEBOX.md`.
-Deploy: `docs/DEPLOYMENT.md`. Birinchi reliz qamrovi va bosqichlari: `docs/plan/MVP_ROADMAP.md`.
+Deploy: `docs/DEPLOYMENT.md`, reliz: `docs/RELEASE_CHECKLIST.md`, nosozliklar: `docs/RUNBOOK.md`. Birinchi reliz qamrovi va bosqichlari: `docs/plan/MVP_ROADMAP.md`.
 O'lchanadigan tayyorlik mezonlari: `docs/QUALITY_BAR.md`.
 
 ## Uy qoidalari
@@ -45,6 +45,9 @@ npx playwright test                  # backend va web build qilingan bo'lsin; PW
 
 # ildiz
 bash .claude/hooks/guard-bash.test.sh .claude/hooks/guard-bash.sh
+# CI'dagi barcha qadamlar (PR oldidan; ikkala baza nomi `_test` bilan tugashi shart):
+TEST_DATABASE_URL=... E2E_DATABASE_URL=... bash scripts/verify-all.sh [--docker]
+node scripts/load-smoke.mjs <url> [--c 20] [--d 10]   # qisqa yuk sinovi, faqat o'z muhitingizga
 ```
 
 ## Modullar (MVP)
