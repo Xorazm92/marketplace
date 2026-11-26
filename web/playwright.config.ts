@@ -25,7 +25,9 @@ export default defineConfig({
   webServer: [
     {
       // development: SMS o'rniga kod log'ga yoziladi va test uni shu fayldan o'qiydi.
-      command: `mkdir -p .e2e && node ../backend-main/dist/main > ${API_LOG} 2>&1`,
+      // Backend o'z papkasidan ishga tushadi: u `./public/uploads` ni joriy papkada yaratadi va
+      // web/ ichida paydo bo'lgan bo'sh `public/` Dockerfile'dagi xatoni lokalda yashirib turgan edi.
+      command: `mkdir -p .e2e && LOG="$PWD/${API_LOG}" && cd ../backend-main && node dist/main > "$LOG" 2>&1`,
       url: `http://localhost:${API_PORT}/health`,
       reuseExistingServer: false,
       env: {
@@ -38,6 +40,11 @@ export default defineConfig({
         FRONTEND_URL: `http://localhost:${WEB_PORT}`,
         CORS_ORIGIN: `http://localhost:${WEB_PORT}`,
         SHIPPING_FLAT_FEE: "20000",
+        // Onlayn to'lov oqimi (checkout → provayderga yo'naltirish) uchun: kalit tasodifiy,
+        // to'lov sahifasi esa shu testning o'z manzili — tashqi tizimga hech narsa ketmaydi.
+        PAYME_MERCHANT_ID: "e2e-merchant",
+        PAYME_SECRET_KEY: secret(),
+        PAYME_CHECKOUT_URL: `http://localhost:${WEB_PORT}/e2e-payme`,
       },
     },
     {

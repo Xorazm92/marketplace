@@ -40,6 +40,9 @@ export default function AdminOrderPage() {
       setNote("");
     } catch (e) {
       setError(errorText(e));
+      // Rad etilishining odatiy sababi — holat shu orada oʻzgargan (xaridor bekor qildi,
+      // toʻlov tushdi): ekrandagi eski holat va tugmalar yangilanadi.
+      await load();
     } finally {
       setBusy(false);
     }
