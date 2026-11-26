@@ -262,6 +262,34 @@ describe("to'lovlar (e2e)", () => {
       expect(await t.prisma.orderTracking.count({ where: { order_id: order.id, status: 'CONFIRMED' } })).toBe(1);
     });
 
+    it("kechikkan Complete: muddati o'tib bekor bo'lgan buyurtmaga kelgan to'lov rad etiladi (-9)", async () => {
+      const { order } = await placeOrder('CLICK', 5);
+      const prep = await prepare(base(order.id));
+      // Xaridor Click oynasini yopdi; 25 soatdan keyin buyurtma muddati o'tdi.
+      await t.prisma.order.update({ where: { id: order.id }, data: { createdAt: new Date(Date.now() - 25 * 3600_000) } });
+      await t.prisma.orderPayment.updateMany({ data: { createdAt: new Date(Date.now() - 2 * 3600_000) } });
+      const { OrderService } = await import('../../src/order/order.service');
+      expect(await t.app.get(OrderService).expireUnpaidOrders()).toBe(1);
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(5);
+
+      const late = await complete(base(order.id, { action: 1, merchant_prepare_id: prep.body.merchant_prepare_id })).expect(200);
+      expect(late.body.error).toBe(-9);
+      expect(await t.prisma.order.findUniqueOrThrow({ where: { id: order.id } })).toEqual(expect.objectContaining({ status: 'CANCELLED', payment_status: 'PENDING' }));
+      expect((await t.prisma.inventory.findFirst())!.stock_quantity).toBe(5);
+      // Bekor bo'lgan buyurtma uchun yangi Prepare ham ochilmaydi.
+      expect((await prepare(base(order.id, { click_trans_id: 777 }))).body.error).toBe(-9);
+    });
+
+    it("boshqa service_id yoki boshqa buyurtma imzosi bilan kelgan so'rov rad etiladi", async () => {
+      const { order } = await placeOrder('CLICK');
+      expect((await prepare(base(order.id, { service_id: '9999' }))).body.error).toBe(-8);
+      // Imzo boshqa buyurtma (merchant_trans_id) uchun hisoblangan — tanani almashtirib bo'lmaydi.
+      const forged = base(order.id);
+      const res = await t.http().post('/api/v1/payments/click/prepare').type('form').send({ ...forged, sign_string: clickSign({ ...forged, merchant_trans_id: '999' }, false) });
+      expect(res.body.error).toBe(-1);
+      expect(await t.prisma.orderPayment.count()).toBe(0);
+    });
+
     it('Click xato bilan yakunlasa tranzaksiya yopiladi, buyurtma ochiq qoladi', async () => {
       const { order } = await placeOrder('CLICK');
       const prep = await prepare(base(order.id));
