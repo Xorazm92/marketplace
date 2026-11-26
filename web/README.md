@@ -15,6 +15,9 @@ PW_CHANNEL=chrome npm run test:e2e   # Playwright brauzerini yuklab bo'lmasa, ti
 - `API_URL` — backend manzili, **ishga tushish paytida** o'qiladi (`lib/proxy.ts`).
   Brauzer `/api/*` va `/uploads/*` ga murojaat qiladi; prodda ularni nginx to'g'ridan-to'g'ri
   backend'ga yuboradi, Next proxy — dev va nginx'siz holat uchun.
+- `TRUST_PROXY_HEADERS=true` — faqat web oldida `X-Forwarded-For` ni o'zi yozadigan proksi (nginx)
+  turganda. Busiz Next proxy mijoz yuborgan `X-Forwarded-For` ni backend'ga uzatmaydi (aks holda
+  kirish va OTP chegaralarini aylanib o'tish mumkin edi); cheklovlar barcha mijozlar uchun umumiy bo'ladi.
 - Sahifalar: `/`, `/catalog`, `/p/[slug]`, `/login`, `/cart`, `/checkout`, `/orders`, `/orders/[id]`, `/profile`;
   admin: `/admin/*` (alohida sessiya, `inbola.admin`).
 - `E2E_DATABASE_URL` nomi `_test` bilan tugashi shart — Playwright uni har safar tozalaydi.

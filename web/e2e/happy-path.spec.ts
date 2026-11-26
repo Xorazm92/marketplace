@@ -1,24 +1,11 @@
 import { expect, test } from "@playwright/test";
-import { readFileSync } from "fs";
+import { lastOtp } from "./helpers";
 
 // SHOTS=papka — dizaynni ko'z bilan tekshirish uchun asosiy qadamlarda skrinshot.
 const shot = async (page: import("@playwright/test").Page, name: string) => {
   if (process.env.SHOTS) await page.screenshot({ path: `${process.env.SHOTS}/${name}.png`, fullPage: true });
 };
 
-
-// Backend log faylga biroz kechikib yozadi — kod paydo bo'lguncha kutiladi.
-async function lastOtp(phone = "+998901234567"): Promise<string> {
-  let code = "";
-  await expect.poll(() => (code = readOtp(phone)), { timeout: 5_000 }).not.toBe("");
-  return code;
-}
-
-function readOtp(phone: string): string {
-  const log = readFileSync(".e2e/api.log", "utf8");
-  const codes = [...log.matchAll(new RegExp(`\\[DEV SMS\\] \\${phone}: INBOLA: tasdiqlash kodi (\\d{6})`, "g"))];
-  return codes.length ? codes[codes.length - 1][1] : "";
-}
 
 test("xaridor: yosh → mahsulot → kirish → savat → naqd buyurtma; admin: yetkazildi", async ({ page }) => {
   // Bosh sahifadan yosh bo'yicha katalogga

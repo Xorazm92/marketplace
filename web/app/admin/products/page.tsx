@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { adminApi } from "@/components/admin/admin-session";
+import { adminApi, useAdmin } from "@/components/admin/admin-session";
 import { Pager, Table } from "@/components/admin/table";
 import { ButtonLink, ErrorNote, inputStyles, Spinner } from "@/components/ui";
 import { errorText } from "@/lib/client-api";
@@ -15,6 +15,7 @@ export default function AdminProductsPage() {
   const [page, setPage] = useState(1);
   const [data, setData] = useState<Page<AdminProduct> | null>(null);
   const [error, setError] = useState("");
+  const canCreate = useAdmin().admin?.role !== "MODERATOR";
 
   useEffect(() => {
     const params = new URLSearchParams({ page: String(page), limit: "30", status });
@@ -29,7 +30,7 @@ export default function AdminProductsPage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-4xl font-extrabold">Mahsulotlar</h1>
-        <ButtonLink href="/admin/products/new">Mahsulot qoʻshish</ButtonLink>
+        {canCreate && <ButtonLink href="/admin/products/new">Mahsulot qoʻshish</ButtonLink>}
       </div>
       <div className="flex flex-wrap gap-2">
         <input className={`${inputStyles} max-w-xs`} placeholder="Nomi yoki SKU" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} />

@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { adminApi } from "./admin-session";
+import { adminApi, useAdmin } from "./admin-session";
 import { Button, ErrorNote, Field, inputStyles } from "@/components/ui";
 import { ProductImage } from "@/components/product-card";
 import { errorText } from "@/lib/client-api";
@@ -26,21 +26,30 @@ function toForm(p: AdminProduct): typeof empty {
   };
 }
 
-// Boʻsh maydon backendʼga yuborilmaydi; raqamli maydonlar raqamga aylantiriladi.
-function toPayload(f: typeof empty) {
-  const num = (v: string) => (v === "" ? undefined : Number(v));
-  const str = (v: string) => (v.trim() === "" ? undefined : v.trim());
+// Raqamli maydonlar raqamga aylantiriladi. Boʻsh ixtiyoriy maydon: yaratishda yuborilmaydi,
+// tahrirlashda esa `null` yuboriladi — aks holda maydonni boʻshatib boʻlmasdi (PATCH yuborilmagan
+// maydonni oʻzgartirmaydi va masalan eski narx/chegirma abadiy qolardi).
+// `withPrice=false` — moderator: narx maydonlari umuman yuborilmaydi (server 403 qaytaradi).
+function toPayload(f: typeof empty, editing: boolean, withPrice: boolean) {
+  const blank = editing ? null : undefined;
+  const num = (v: string) => (v === "" ? blank : Number(v));
+  const str = (v: string) => (v.trim() === "" ? blank : v.trim());
   return {
-    title: f.title.trim(), description: f.description.trim(), short_description: str(f.short_description), price: Number(f.price),
-    original_price: num(f.original_price), category_id: num(f.category_id), brand_id: num(f.brand_id), sku: str(f.sku),
+    title: f.title.trim(), description: f.description.trim(), short_description: str(f.short_description),
+    ...(withPrice ? { price: Number(f.price), original_price: num(f.original_price) } : {}),
+    category_id: num(f.category_id), brand_id: num(f.brand_id), sku: str(f.sku),
     recommended_age_min: num(f.recommended_age_min), recommended_age_max: num(f.recommended_age_max), material: str(f.material),
-    safety_warnings: str(f.safety_warnings), choking_hazard: f.choking_hazard, min_order_quantity: num(f.min_order_quantity),
+    safety_warnings: str(f.safety_warnings), choking_hazard: f.choking_hazard,
+    // Bazada majburiy: boʻsh qolsa oʻzgartirilmaydi.
+    min_order_quantity: f.min_order_quantity === "" ? undefined : Number(f.min_order_quantity),
     max_order_quantity: num(f.max_order_quantity), is_active: f.is_active, is_featured: f.is_featured,
   };
 }
 
 export function ProductForm({ product }: { product?: AdminProduct }) {
   const router = useRouter();
+  // Moderator kontentni tahrirlaydi; narx, zaxira va oʻchirish — admin ishi (toʻsiq serverda).
+  const moderator = useAdmin().admin?.role === "MODERATOR";
   const [form, setForm] = useState(product ? toForm(product) : empty);
   const [current, setCurrent] = useState(product);
   const [categories, setCategories] = useState<Category[]>([]);
@@ -79,17 +88,34 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
     event.preventDefault();
     run(async () => {
       if (current) {
-        setCurrent(await adminApi<AdminProduct>(`/admin/products/${current.id}`, { method: "PATCH", body: toPayload(form) }));
+        setCurrent(await adminApi<AdminProduct>(`/admin/products/${current.id}`, { method: "PATCH", body: toPayload(form, true, !moderator) }));
       } else {
-        const created = await adminApi<AdminProduct>("/admin/products", { body: toPayload(form) });
+        const created = await adminApi<AdminProduct>("/admin/products", { body: toPayload(form, false, true) });
         router.replace(`/admin/products/${created.id}`);
       }
     }, "Saqlandi");
   };
 
+  // Server faqat biz koʻrgan qiymat hali oʻzgarmagan boʻlsa yozadi (expected_quantity): sahifa
+  // ochiq turganda buyurtma tushgan boʻlsa, kiritilgan son sotilgan donani "qaytarib" qoʻymaydi.
   const saveStock = () =>
     run(async () => {
-      setCurrent(await adminApi<AdminProduct>(`/admin/products/${current!.id}/stock`, { method: "PUT", body: { stock_quantity: Number(stock) } }));
+      try {
+        setCurrent(
+          await adminApi<AdminProduct>(`/admin/products/${current!.id}/stock`, {
+            method: "PUT",
+            body: { stock_quantity: Number(stock), expected_quantity: current!.stock_quantity ?? 0 },
+          }),
+        );
+      } catch (e) {
+        // Rad etilgan boʻlsa ekrandagi eski son yangilanadi — admin haqiqiy qoldiqni koʻrib qayta kiritadi.
+        const fresh = await adminApi<AdminProduct>(`/admin/products/${current!.id}`).catch(() => null);
+        if (fresh) {
+          setCurrent(fresh);
+          setStock(String(fresh.stock_quantity ?? 0));
+        }
+        throw e;
+      }
     }, "Zaxira yangilandi");
 
   const upload = (files: FileList | null) => {
@@ -117,8 +143,8 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
         <Field label="Qisqa tavsif" hint="Kartada va qidiruvda koʻrinadi"><input className={inputStyles} value={form.short_description} onChange={set("short_description")} maxLength={300} /></Field>
         <Field label="Toʻliq tavsif"><textarea className={inputStyles} rows={6} value={form.description} onChange={set("description")} required /></Field>
         <div className="grid gap-3 sm:grid-cols-2">
-          <Field label="Narx, soʻm"><input className={inputStyles} type="number" min={1} step="0.01" value={form.price} onChange={set("price")} required /></Field>
-          <Field label="Eski narx" hint="Chegirma koʻrsatish uchun"><input className={inputStyles} type="number" min={1} step="0.01" value={form.original_price} onChange={set("original_price")} /></Field>
+          <Field label="Narx, soʻm"><input className={inputStyles} type="number" min={1} step="0.01" value={form.price} onChange={set("price")} required disabled={moderator} /></Field>
+          <Field label="Eski narx" hint="Chegirma koʻrsatish uchun"><input className={inputStyles} type="number" min={1} step="0.01" value={form.original_price} onChange={set("original_price")} disabled={moderator} /></Field>
           <Field label="Boʻlim">
             <select className={inputStyles} value={form.category_id} onChange={set("category_id")}>
               <option value="">Tanlanmagan</option>
@@ -148,19 +174,21 @@ export function ProductForm({ product }: { product?: AdminProduct }) {
         {message && <p className="text-sm font-semibold text-block-green">{message}</p>}
         <div className="flex gap-2">
           <Button type="submit" disabled={busy}>{current ? "Saqlash" : "Yaratish"}</Button>
-          {current && <Button type="button" variant="danger" onClick={remove} disabled={busy}>Oʻchirish</Button>}
+          {current && !moderator && <Button type="button" variant="danger" onClick={remove} disabled={busy}>Oʻchirish</Button>}
         </div>
       </form>
 
       {current ? (
         <aside className="space-y-4">
-          <section className="space-y-2 rounded-2xl border-2 border-line bg-white p-4">
-            <h2 className="font-sans text-base font-bold">Omborda</h2>
-            <div className="flex gap-2">
-              <input className={inputStyles} type="number" min={0} value={stock} onChange={(e) => setStock(e.target.value)} aria-label="Zaxira soni" />
-              <Button type="button" variant="secondary" onClick={saveStock} disabled={busy}>Yangilash</Button>
-            </div>
-          </section>
+          {!moderator && (
+            <section className="space-y-2 rounded-2xl border-2 border-line bg-white p-4">
+              <h2 className="font-sans text-base font-bold">Omborda</h2>
+              <div className="flex gap-2">
+                <input className={inputStyles} type="number" min={0} value={stock} onChange={(e) => setStock(e.target.value)} aria-label="Zaxira soni" />
+                <Button type="button" variant="secondary" onClick={saveStock} disabled={busy}>Yangilash</Button>
+              </div>
+            </section>
+          )}
           <section className="space-y-2 rounded-2xl border-2 border-line bg-white p-4">
             <h2 className="font-sans text-base font-bold">Rasmlar</h2>
             <div className="grid grid-cols-3 gap-2">

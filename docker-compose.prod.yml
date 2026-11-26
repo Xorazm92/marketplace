@@ -42,6 +42,8 @@ services:
     restart: unless-stopped
     environment:
       API_URL: http://backend:4000
+      # nginx X-Forwarded-For ga haqiqiy mijoz IP'sini qo'shadi; nginx'siz rejimda bu yoqilmaydi (web/lib/proxy.ts).
+      TRUST_PROXY_HEADERS: "true"
     depends_on: [backend]
     logging: *logging
 

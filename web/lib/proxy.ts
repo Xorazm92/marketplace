@@ -17,9 +17,16 @@ export async function forward(request: Request, prefix: "/api" | "/uploads", pat
     const value = request.headers.get(name);
     if (value) headers.set(name, value);
   }
-  // Backend rate limit haqiqiy mijoz IP'si bo'yicha ishlashi uchun.
-  const clientIp = request.headers.get("x-forwarded-for") ?? request.headers.get("x-real-ip");
-  if (clientIp) headers.set("x-forwarded-for", clientIp);
+  // Backend so'rov cheklovlarini (kirish urinishlari, OTP) X-Forwarded-For dagi IP bo'yicha
+  // hisoblaydi. Bu sarlavhani brauzer ham yubora oladi va Next uni o'zgartirmaydi — unga
+  // ishonilsa, har so'rovda boshqa "IP" yuborib barcha cheklovlarni aylanib o'tish mumkin edi.
+  // Shuning uchun u faqat oldimizda ishonchli proksi (nginx) turganda uzatiladi va faqat
+  // proksining o'zi qo'shgan oxirgi manzil olinadi. Aks holda backend barcha so'rovni shu
+  // server manzilidan ko'radi: cheklovlar umumiy bo'ladi, lekin aylanib o'tilmaydi.
+  if (process.env.TRUST_PROXY_HEADERS === "true") {
+    const clientIp = (request.headers.get("x-forwarded-for") ?? "").split(",").map((hop) => hop.trim()).filter(Boolean).at(-1);
+    if (clientIp) headers.set("x-forwarded-for", clientIp);
+  }
 
   const hasBody = !["GET", "HEAD"].includes(request.method);
   let upstream: Response;
