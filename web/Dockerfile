@@ -5,7 +5,9 @@ ENV NEXT_TELEMETRY_DISABLED=1
 COPY package.json package-lock.json ./
 RUN npm ci
 COPY . .
-RUN npm run build
+# public/ hozircha repoda yo'q (git bo'sh papkani saqlamaydi); usiz quyidagi
+# `COPY --from=build /app/public` butun build'ni yiqitadi.
+RUN mkdir -p public && npm run build
 
 FROM node:22-bookworm-slim
 WORKDIR /app

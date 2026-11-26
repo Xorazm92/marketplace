@@ -19,7 +19,17 @@ function LoginForm() {
   const [error, setError] = useState("");
 
   // Faqat ichki manzilga qaytaramiz: `next=https://...` bilan tashqi saytga yoʻnaltirib boʻlmasin.
-  const target = next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
+  // Satr boshini tekshirish yetmaydi: brauzer `/\evil.com` ni ham `//evil.com` deb oʻqiydi,
+  // shuning uchun manzil brauzerning oʻzi bilan tahlil qilinib, origin solishtiriladi.
+  const safeTarget = () => {
+    if (!next || !next.startsWith("/")) return "/";
+    try {
+      const url = new URL(next, window.location.origin);
+      return url.origin === window.location.origin ? url.pathname + url.search + url.hash : "/";
+    } catch {
+      return "/";
+    }
+  };
 
   const sendCode = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -44,7 +54,7 @@ function LoginForm() {
         body: { phone_number: phone, code, first_name: firstName || undefined },
       });
       signIn(res, res.user);
-      router.replace(target);
+      router.replace(safeTarget());
     } catch (e) {
       setError(errorText(e));
     } finally {

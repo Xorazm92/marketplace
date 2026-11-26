@@ -54,8 +54,9 @@ function Checkout() {
     if (!addressId || !method) return;
     setBusy(true);
     setError("");
+    let order: Order;
     try {
-      const order = await api<Order>("/orders", {
+      order = await api<Order>("/orders", {
         body: {
           items: cart.items.map((item) => ({ product_id: item.product.id, quantity: item.quantity })),
           address_id: addressId,
@@ -63,16 +64,24 @@ function Checkout() {
           notes: notes || undefined,
         },
       });
-      await reloadCart();
-      if (method === "CASH") {
-        router.replace(`/orders/${order.id}?new=1`);
-        return;
-      }
-      const { payment_url } = await api<{ payment_url: string }>(`/payments/checkout/${order.id}`, { method: "POST" });
-      window.location.assign(payment_url);
     } catch (e) {
       setError(errorText(e));
       setBusy(false);
+      return;
+    }
+    // Shu yerdan boshlab buyurtma yaratilgan va savat serverda boʻshagan. Keyingi qadam
+    // xato bersa ham bu sahifada qolinmaydi: tugma qayta bosilsa, ekrandagi eski savat
+    // bilan ikkinchi buyurtma ochilib, zaxira ikki marta band boʻlardi.
+    await reloadCart();
+    if (method === "CASH") {
+      router.replace(`/orders/${order.id}?new=1`);
+      return;
+    }
+    try {
+      const { payment_url } = await api<{ payment_url: string }>(`/payments/checkout/${order.id}`, { method: "POST" });
+      window.location.assign(payment_url);
+    } catch {
+      router.replace(`/orders/${order.id}?pay=failed`);
     }
   };
 

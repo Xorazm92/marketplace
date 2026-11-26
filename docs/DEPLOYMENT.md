@@ -4,10 +4,11 @@ Bitta VPS'da: `postgres` + `backend` (NestJS) + `web` (Next.js) + `nginx` (TLS).
 Fayllar: `docker-compose.prod.yml`, `deploy/nginx/default.conf.template`,
 `scripts/deploy.sh`, `scripts/backup.sh`, `scripts/restore.sh`.
 
-> **Tekshirilganlik holati (2026-09-29):** Docker image'lar bu yerda build qilinmagan
-> (ish mashinasida Docker yo'q). Image ichidagi har bir qadam alohida sinovdan o'tgan:
-> backend build + `node dist/main`, JS seed, `next` standalone `server.js` + statik fayllar
-> + API proxy, `prisma migrate deploy`. Birinchi deploy staging'da qilinsin.
+> **Tekshirilganlik holati (2026-11-27):** ikkala image toza git nusxasidan lokal `docker build`
+> qilindi (ilgari `web/Dockerfile` yo'q `public/` papkasi sababli yiqilardi). Backend image
+> `NODE_ENV=production` da test bazaga ulanib `/health` qaytardi va secret'siz ishga tushmadi;
+> web image `/login` ni ochdi. **Sinalmagan:** `docker compose` to'liq steki, nginx + TLS,
+> `deploy.sh`, `backup.sh`/`restore.sh` — bular domen va VPS talab qiladi. Birinchi deploy staging'da qilinsin.
 
 ## 1. Server tayyorlash (bir marta)
 
@@ -66,6 +67,9 @@ Kabinetlarda ko'rsatiladigan manzillar:
 - **Uzum:** ulanmagan (`docs/ICEBOX.md`).
 - `.env.prod` da provayder id'si bo'sh bo'lsa, u checkout'da ko'rinmaydi. Naqd to'lov —
   `CASH_ON_DELIVERY_ENABLED`.
+- To'lov tasdiqlanmasdan oldin bekor qilingan buyurtmaga kelgan to'lovni server rad etadi
+  (Payme `-31008`, Click `-9`) — pulni provayder qaytaradi. Sandbox'da shu holatni ham sinang:
+  to'lovni boshlab, tasdiqlashdan oldin buyurtmani bekor qiling.
 
 ## 4. Oddiy deploy
 

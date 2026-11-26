@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, Logger, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, Logger, NotFoundException, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { OrderStatus, Prisma } from '@prisma/client';
 import { randomBytes } from 'crypto';
@@ -37,6 +37,7 @@ const TRANSITIONS: Record<string, OrderStatus[]> = {
 };
 
 const UNPAID_EXPIRY_MS = 24 * 3600_000;
+const CLICK_PREPARE_WAIT_MS = 3600_000;
 
 @Injectable()
 export class OrderService implements OnModuleInit, OnModuleDestroy {
@@ -81,7 +82,10 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
       let total_amount = 0;
       const lines: Array<{ product_id: number; quantity: number; unit_price: number; total_price: number }> = [];
 
-      for (const [product_id, quantity] of quantities) {
+      // Zaxira qatorlari har doim bir xil (id o'sish) tartibida qulflanadi: ikki xaridor
+      // bir xil mahsulotlarni teskari tartibda buyurtma qilsa, Postgres deadlock bermasin.
+      const ordered = [...quantities].sort(([a], [b]) => a - b);
+      for (const [product_id, quantity] of ordered) {
         const product = await tx.product.findFirst({
           where: { id: product_id, is_active: true, is_deleted: false, is_checked: 'APPROVED' },
           include: { inventory: true },
@@ -166,10 +170,12 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
   async cancelMine(userId: number, orderId: number) {
     const order = await this.prisma.order.findFirst({ where: { id: orderId, user_id: userId } });
     if (!order) throw new NotFoundException('Buyurtma topilmadi');
-    if (order.status !== 'PENDING' || order.payment_status === 'PAID') {
-      throw new BadRequestException("Bu buyurtmani bekor qilib bo'lmaydi. Operator bilan bog'laning");
-    }
-    await this.prisma.$transaction((tx) => this.cancel(tx, orderId, 'Mijoz bekor qildi'));
+    const refused = new BadRequestException("Bu buyurtmani bekor qilib bo'lmaydi. Operator bilan bog'laning");
+    if (order.status !== 'PENDING' || order.payment_status === 'PAID') throw refused;
+    // Yuqoridagi tekshiruv o'qilgan nusxa bo'yicha; shu orada to'lov tushgan yoki admin
+    // tasdiqlagan bo'lsa, cancel() ichidagi shartli yozuv o'tmaydi.
+    const cancelled = await this.prisma.$transaction((tx) => this.cancel(tx, orderId, 'Mijoz bekor qildi', 'PENDING'));
+    if (!cancelled) throw refused;
     return this.findMine(userId, orderId);
   }
 
@@ -225,6 +231,11 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
         throw new BadRequestException(`${order.status} → ${dto.status} o'tishi mumkin emas`);
       }
       const online = ONLINE_METHODS.includes(order.payment_method as PaymentMethod);
+      // Yuqoridagi tekshiruvlar o'qilgan nusxa bo'yicha. Shu orada xaridor bekor qilgan,
+      // to'lov tushgan yoki boshqa admin holatni o'zgartirgan bo'lsa, quyidagi shartli
+      // yozuvlar o'tmaydi — aks holda zaxirasi qaytarilgan buyurtma "tasdiqlangan"
+      // bo'lib qolardi yoki naqd to'lov ikki marta yozilardi.
+      const changed = new ConflictException("Buyurtma holati shu orada o'zgardi. Sahifani yangilab, qayta urinib ko'ring");
 
       if (dto.status === 'CANCELLED') {
         // Pul qaytarish faqat provayder orqali: Payme/Click kabinetidan bekor qilinsa,
@@ -232,23 +243,25 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
         if (online && order.payment_status === 'PAID') {
           throw new BadRequestException("To'langan buyurtmani avval to'lov tizimi orqali qaytaring");
         }
-        await this.cancel(tx, orderId, dto.note || 'Admin bekor qildi');
+        if (!(await this.cancel(tx, orderId, dto.note || 'Admin bekor qildi', order.status))) throw changed;
         return;
       }
       if (online && order.payment_status !== 'PAID') {
         throw new BadRequestException("Onlayn to'lov hali tushmagan");
       }
 
-      const data: Prisma.OrderUpdateInput = { status: dto.status };
       // Naqd to'lov yetkazib berishda olinadi: "yetkazildi" = pul olindi.
-      if (dto.status === 'DELIVERED' && order.payment_method === 'CASH') {
-        data.payment_status = 'PAID';
-        data.paid_at = new Date();
+      const cashCollected = dto.status === 'DELIVERED' && order.payment_method === 'CASH';
+      const { count } = await tx.order.updateMany({
+        where: { id: orderId, status: order.status, payment_status: order.payment_status },
+        data: { status: dto.status, ...(cashCollected ? { payment_status: 'PAID', paid_at: new Date() } : {}) },
+      });
+      if (count === 0) throw changed;
+      if (cashCollected) {
         await tx.orderPayment.create({
           data: { order_id: orderId, amount: order.final_amount, payment_method: 'CASH', status: 'PAID', performed_at: new Date() },
         });
       }
-      await tx.order.update({ where: { id: orderId }, data });
       await tx.orderTracking.create({ data: { order_id: orderId, status: dto.status, description: dto.note } });
     });
     return this.findAdmin(orderId);
@@ -256,14 +269,21 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
 
   // Zaxirani qaytaradi va buyurtmani bekor qiladi. To'lov provayderi ham shu
   // funksiyani chaqiradi, shuning uchun takroriy chaqiruv zaxirani ikki marta qaytarmaydi.
-  async cancel(tx: Tx, orderId: number, reason: string): Promise<boolean> {
+  //
+  // To'langan (PAID) buyurtma bu yerda hech qachon bekor bo'lmaydi: avval pul
+  // provayder orqali qaytariladi (payment_status = REFUNDED), keyin bekor qilinadi.
+  // Shart yozuv bilan bitta SQL'da — bekor qilish va to'lov callback'i bir vaqtda
+  // kelsa, faqat bittasi o'tadi (ikkinchisi `false` / markOrderPaid `false` oladi).
+  // `from` berilsa, buyurtma aynan shu holatda bo'lgandagina bekor qilinadi.
+  async cancel(tx: Tx, orderId: number, reason: string, from?: OrderStatus): Promise<boolean> {
     const { count } = await tx.order.updateMany({
-      where: { id: orderId, status: { not: 'CANCELLED' } },
+      where: { id: orderId, status: from ?? { not: 'CANCELLED' }, payment_status: { not: 'PAID' } },
       data: { status: 'CANCELLED', cancelled_at: new Date(), cancel_reason: reason },
     });
     if (count === 0) return false;
 
-    const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: true } });
+    // createOrder bilan bir xil tartib (product_id o'sish) — deadlock bo'lmasin.
+    const order = await tx.order.findUniqueOrThrow({ where: { id: orderId }, include: { items: { orderBy: { product_id: 'asc' } } } });
     for (const item of order.items) {
       const inventory = await tx.inventory.findUnique({ where: { product_id: item.product_id } });
       if (!inventory) continue;
@@ -278,6 +298,9 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
 
   // Onlayn to'lovi kelmagan buyurtma zaxirani cheksiz band qilib turmasin.
   // Payme'da ochiq tranzaksiya (state 1) bo'lsa tegilmaydi — Payme o'zi 12 soatda bekor qiladi.
+  // Click'da Prepare (state 0) dan keyin Complete umuman kelmasligi mumkin (xaridor oynani
+  // yopdi): bunday qator faqat yangi bo'lsa kutiladi, aks holda buyurtma abadiy PENDING
+  // qolardi. Kechikkan Complete kelsa, markOrderPaid uni rad etadi (Click'ga -9).
   async expireUnpaidOrders(now = new Date()): Promise<number> {
     const stale = await this.prisma.order.findMany({
       where: {
@@ -285,13 +308,20 @@ export class OrderService implements OnModuleInit, OnModuleDestroy {
         payment_status: { not: 'PAID' },
         payment_method: { in: [...ONLINE_METHODS] },
         createdAt: { lt: new Date(now.getTime() - UNPAID_EXPIRY_MS) },
-        payments: { none: { provider_state: { in: [0, 1] } } },
+        payments: {
+          none: {
+            OR: [
+              { payment_method: 'PAYME', provider_state: 1 },
+              { payment_method: 'CLICK', provider_state: 0, createdAt: { gte: new Date(now.getTime() - CLICK_PREPARE_WAIT_MS) } },
+            ],
+          },
+        },
       },
       select: { id: true },
     });
     let expired = 0;
     for (const { id } of stale) {
-      if (await this.prisma.$transaction((tx) => this.cancel(tx, id, "To'lov muddati o'tdi"))) expired++;
+      if (await this.prisma.$transaction((tx) => this.cancel(tx, id, "To'lov muddati o'tdi", 'PENDING'))) expired++;
     }
     if (expired) this.logger.log(`To'lanmagan ${expired} ta buyurtma bekor qilindi`);
     return expired;

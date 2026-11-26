@@ -1,4 +1,4 @@
-import { createTestApp, loginAdmin, loginUser, resetDatabase, seedCatalog, TestApp } from './harness';
+import { createAddress, createTestApp, loginAdmin, loginUser, resetDatabase, seedCatalog, TestApp } from './harness';
 
 describe('auth va katalog (e2e)', () => {
   let t: TestApp;
@@ -72,6 +72,68 @@ describe('auth va katalog (e2e)', () => {
       await t.http().get('/api/v1/admin/dashboard').set('Authorization', `Bearer ${admin}`).expect(200);
     });
 
+    it('admin yozuv endpoint\'lari tokensiz va xaridor tokeni bilan 401 qaytaradi, bazaga tegmaydi', async () => {
+      const { product, region } = await seedCatalog(t);
+      const user = await loginUser(t);
+      const addressId = await createAddress(t, user.access_token, region.id);
+      const order = await t.http()
+        .post('/api/v1/orders')
+        .set('Authorization', `Bearer ${user.access_token}`)
+        .send({ items: [{ product_id: product.id, quantity: 1 }], address_id: addressId, payment_method: 'CASH' })
+        .expect(201);
+      const before = JSON.stringify(await snapshot());
+
+      const writes: Array<[method: 'post' | 'patch' | 'put' | 'delete', path: string, body?: object]> = [
+        ['post', '/admin/products', { title: 'Soxta', description: 'x', price: 1 }],
+        ['patch', `/admin/products/${product.id}`, { price: 1 }],
+        ['delete', `/admin/products/${product.id}`],
+        ['put', `/admin/products/${product.id}/stock`, { stock_quantity: 999 }],
+        ['post', `/admin/products/${product.id}/images`],
+        ['delete', `/admin/products/${product.id}/images/1`],
+        ['patch', `/admin/orders/${order.body.id}/status`, { status: 'DELIVERED' }],
+        ['patch', `/admin/users/${user.user.id}/active`, { is_active: false }],
+        ['post', '/admin/admins', { phone_number: '+998909990009', password: 'long-password-123', first_name: 'X', last_name: 'Y', role: 'ADMIN' }],
+        ['patch', '/admin/admins/1/active', { is_active: false }],
+        ['post', '/category', { name: 'Soxta', slug: 'soxta' }],
+        ['patch', '/category/1', { name: 'Soxta' }],
+        ['delete', '/category/1'],
+        ['post', '/category/seed'],
+        ['post', '/brand', { name: 'Soxta', logo: 'x' }],
+        ['post', '/brand/seed'],
+        ['put', '/brand/1', { name: 'Soxta' }],
+        ['delete', '/brand/1'],
+        ['post', '/region', { name: 'Soxta' }],
+        ['put', `/region/${region.id}`, { name: 'Soxta' }],
+        ['delete', `/region/${region.id}`],
+        ['post', '/district', { name: 'Soxta', region_id: region.id }],
+        ['put', '/district/1', { name: 'Soxta' }],
+        ['delete', '/district/1'],
+      ];
+      for (const [method, path, body] of writes) {
+        for (const auth of [undefined, `Bearer ${user.access_token}`]) {
+          const req = t.http()[method](`/api/v1${path}`);
+          if (auth) req.set('Authorization', auth);
+          const res = await req.send(body);
+          expect([method, path, auth ? 'user' : 'anon', res.status]).toEqual([method, path, auth ? 'user' : 'anon', 401]);
+        }
+      }
+      // Admin o'qish endpoint'lari ham yopiq: xaridorlar ro'yxati va buyurtmalar — shaxsiy ma'lumot.
+      for (const path of ['/admin/orders', `/admin/orders/${order.body.id}`, '/admin/users', '/admin/products', '/admin/admins', '/admin/auth/me']) {
+        await t.http().get(`/api/v1${path}`).set('Authorization', `Bearer ${user.access_token}`).expect(401);
+      }
+      expect(JSON.stringify(await snapshot())).toBe(before);
+
+      async function snapshot() {
+        return {
+          products: await t.prisma.product.findMany({ select: { id: true, price: true, is_deleted: true, is_active: true }, orderBy: { id: 'asc' } }),
+          stock: await t.prisma.inventory.findMany({ select: { stock_quantity: true } }),
+          orders: await t.prisma.order.findMany({ select: { status: true, payment_status: true } }),
+          users: await t.prisma.user.findMany({ select: { is_active: true } }),
+          counts: [await t.prisma.admin.count(), await t.prisma.category.count(), await t.prisma.brand.count(), await t.prisma.region.count(), await t.prisma.district.count()],
+        };
+      }
+    });
+
     it("o'chirilgan admin tokeni darhol ishlamay qoladi", async () => {
       const admin = await loginAdmin(t);
       await t.prisma.admin.updateMany({ data: { is_active: false } });
@@ -130,6 +192,9 @@ describe('auth va katalog (e2e)', () => {
       const cart = await t.http().get('/api/v1/cart').set(auth).expect(200);
       expect(cart.body).toEqual(expect.objectContaining({ total_items: 2, total_amount: 130000 }));
       expect(cart.body.items[0].product.product_image).toEqual([]);
+      // Chegarasiz miqdor int32 dan oshib 500 berardi.
+      await t.http().post('/api/v1/cart/add').set(auth).send({ product_id: product.id, quantity: 3_000_000_000 }).expect(400);
+      await t.http().put('/api/v1/cart/update').set(auth).send({ cart_item_id: cart.body.items[0].id, quantity: 1000 }).expect(400);
     });
 
     it('noma\'lum baza xatosi 500, 400 emas', async () => {

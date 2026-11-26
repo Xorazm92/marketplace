@@ -13,7 +13,9 @@ import { Button, ErrorNote, Spinner } from "@/components/ui";
 
 function OrderView() {
   const { id } = useParams<{ id: string }>();
-  const isNew = useSearchParams().get("new") === "1";
+  const search = useSearchParams();
+  const isNew = search.get("new") === "1";
+  const payFailed = search.get("pay") === "failed";
   const [order, setOrder] = useState<Order | null>(null);
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
@@ -24,9 +26,21 @@ function OrderView() {
     load();
   }, [load]);
 
+  // Provayder callbackʼi xaridor qaytganidan keyin kelishi mumkin: holat bir daqiqa
+  // davomida qayta soʻraladi, aks holda toʻlangan buyurtma "toʻlanmagan" boʻlib koʻrinardi.
+  const awaitingPayment = !!order && order.payment_method !== "CASH" && order.status === "PENDING" && order.payment_status !== "PAID";
+  useEffect(() => {
+    if (!awaitingPayment) return;
+    let left = 12;
+    const timer = setInterval(() => {
+      if (--left < 0) clearInterval(timer);
+      else load();
+    }, 5000);
+    return () => clearInterval(timer);
+  }, [awaitingPayment, load]);
+
   if (!order) return error ? <ErrorNote>{error}</ErrorNote> : <Spinner />;
-  const online = order.payment_method !== "CASH";
-  const canPay = online && order.status === "PENDING" && order.payment_status !== "PAID";
+  const canPay = awaitingPayment;
   const canCancel = order.status === "PENDING" && order.payment_status !== "PAID";
 
   const pay = async () => {
@@ -57,6 +71,9 @@ function OrderView() {
     <div className="space-y-6">
       {isNew && order.payment_method === "CASH" && (
         <p className="rounded-2xl border-2 border-block-green bg-green-50 p-4 font-semibold">Buyurtma qabul qilindi. Operator tez orada qoʻngʻiroq qiladi.</p>
+      )}
+      {payFailed && canPay && (
+        <ErrorNote>Buyurtma yaratildi, lekin toʻlov sahifasi ochilmadi. «Toʻlash» tugmasi bilan qayta urinib koʻring.</ErrorNote>
       )}
       <div className="flex flex-wrap items-center gap-3">
         <h1 className="text-4xl font-extrabold">{order.order_number}</h1>
@@ -91,6 +108,7 @@ function OrderView() {
             </p>
           )}
           <ErrorNote>{error}</ErrorNote>
+          {canPay && <p className="text-ink-soft">Toʻlagan boʻlsangiz, tasdiq bir necha daqiqada keladi — sahifa oʻzi yangilanadi.</p>}
           {canPay && <Button className="w-full" onClick={pay} disabled={busy}>Toʻlash</Button>}
           {canCancel && <Button variant="danger" className="w-full" onClick={cancel} disabled={busy}>Bekor qilish</Button>}
         </aside>

@@ -56,7 +56,7 @@ test("xaridor: yosh → mahsulot → kirish → savat → naqd buyurtma; admin: 
   await page.getByLabel("Manzil", { exact: true }).fill("Chilonzor 9-kvartal, 12-uy");
   await page.getByRole("button", { name: "Manzilni saqlash" }).click();
   await expect(page.getByText("Chilonzor 9-kvartal, 12-uy")).toBeVisible();
-  await expect(page.getByText("Naqd, yetkazganda")).toBeVisible();
+  await page.getByLabel("Naqd, yetkazganda").check();
   // 130 000 + 20 000 yetkazish
   await expect(page.getByText("150 000 soʻm")).toBeVisible();
   await shot(page, "checkout");
@@ -100,6 +100,48 @@ test("xaridor: yosh → mahsulot → kirish → savat → naqd buyurtma; admin: 
   await expect(page.getByText("Bolam juda yaxshi koʻrdi")).toBeVisible();
   await expect(page.getByText("Xarid qilgan")).toBeVisible();
   await shot(page, "product-review");
+});
+
+test("onlayn toʻlov: havola olinmasa ham bitta buyurtma; summa serverdan; login tashqi saytga yoʻnaltirmaydi", async ({ page }) => {
+  // `/\host` brauzerda `//host` deb oʻqiladi — kirishdan keyin tashqi saytga ketmasligi kerak.
+  await page.goto("/login?next=/%5Cexample.com");
+  await page.getByLabel("Telefon raqam").fill("+998977770011");
+  await page.getByRole("button", { name: "Kod olish" }).click();
+  await page.getByLabel("SMS kod").fill(await lastOtp("+998977770011"));
+  await page.getByRole("button", { name: "Kirish" }).click();
+  await expect(page.getByRole("heading", { name: "Bolangiz necha yoshda?" })).toBeVisible();
+  expect(new URL(page.url()).host).toBe("localhost:5100");
+
+  await page.goto("/p/demo-6");
+  await page.getByRole("button", { name: "Savatga qoʻshish" }).click();
+  await expect(page.getByText("Savatga qoʻshildi")).toBeVisible();
+  await page.goto("/checkout");
+  await page.getByLabel("Viloyat").selectOption({ label: "Toshkent shahri" });
+  await page.getByLabel("Manzil", { exact: true }).fill("Yunusobod 4-kvartal, 7-uy");
+  await page.getByRole("button", { name: "Manzilni saqlash" }).click();
+  await page.getByLabel("Payme").check();
+
+  // Buyurtma yaratildi, lekin toʻlov havolasi kelmadi: checkoutʼda qolib qayta bosish
+  // ikkinchi buyurtma ochardi — foydalanuvchi buyurtma sahifasiga oʻtkaziladi.
+  await page.route("**/api/v1/payments/checkout/*", (route) => route.fulfill({ status: 502, json: { message: "Server vaqtincha javob bermayapti" } }));
+  await page.getByRole("button", { name: "Toʻlovga oʻtish" }).click();
+  await expect(page).toHaveURL(/\/orders\/\d+\?pay=failed/);
+  await expect(page.getByText("toʻlov sahifasi ochilmadi")).toBeVisible();
+  await expect(page.getByText("Toʻlanmagan")).toBeVisible();
+  const orderUrl = page.url();
+
+  await page.goto("/orders");
+  await expect(page.getByRole("link", { name: /^INB-/ })).toHaveCount(1);
+  await page.goto("/cart");
+  await expect(page.getByText("Savat boʻsh")).toBeVisible();
+
+  // Qayta urinish: provayder manzili va summa serverdan (28 000 + 20 000 soʻm = 4 800 000 tiyin).
+  await page.unroute("**/api/v1/payments/checkout/*");
+  await page.goto(orderUrl);
+  await page.getByRole("button", { name: "Toʻlash" }).click();
+  await page.waitForURL(/\/e2e-payme\//);
+  const params = Buffer.from(decodeURIComponent(page.url().split("/e2e-payme/")[1]), "base64").toString();
+  expect(params).toMatch(/^m=e2e-merchant;ac\.order_id=\d+;a=4800000;c=http:\/\/localhost:5100\/orders\/\d+$/);
 });
 
 test("mehmon savat va buyurtmalar sahifasiga kira olmaydi", async ({ page }) => {

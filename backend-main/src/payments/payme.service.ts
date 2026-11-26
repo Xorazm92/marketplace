@@ -178,7 +178,13 @@ export class PaymeService {
         where: { id: tx.id, provider_state: 1 },
         data: { provider_state: 2, status: 'PAID', performed_at: performedAt },
       });
-      if (count === 1) await markOrderPaid(db, tx.order_id, 'Payme');
+      if (count === 0) return;
+      // CreateTransaction va PerformTransaction orasida buyurtma bekor qilingan bo'lishi
+      // mumkin (zaxira qaytgan). Xato tranzaksiyani orqaga qaytaradi — to'lov qatori
+      // "bajarildi" bo'lib qolmaydi; Payme -31008 ni olib pulni o'zi qaytaradi.
+      if (!(await markOrderPaid(db, tx.order_id, 'Payme'))) {
+        throw new PaymeError(E.CANNOT_PERFORM, "Buyurtma to'lov uchun mavjud emas");
+      }
     });
     const fresh = await this.requireTx(params.id);
     return { transaction: String(fresh.id), perform_time: fresh.performed_at!.getTime(), state: 2 };
@@ -200,7 +206,13 @@ export class PaymeService {
           data: { provider_state: -2, status: 'REFUNDED', cancelled_at: new Date(), cancel_reason: Number(params.reason) || null },
         });
         if (count === 0) return;
-        await db.order.update({ where: { id: tx.order_id }, data: { payment_status: 'REFUNDED' } });
+        // Yuqoridagi holat tekshiruvi o'qilgan nusxa bo'yicha: admin shu orada "yo'lda" deb
+        // belgilagan bo'lsa, shartli yozuv o'tmaydi va pul qaytarish butunlay bekor bo'ladi.
+        const refunded = await db.order.updateMany({
+          where: { id: tx.order_id, status: { notIn: ['SHIPPED', 'DELIVERED'] } },
+          data: { payment_status: 'REFUNDED' },
+        });
+        if (refunded.count === 0) throw new PaymeError(E.CANNOT_CANCEL, 'Buyurtma yetkazilgan, bekor qilib bo\'lmaydi');
         await this.orders.cancel(db, tx.order_id, "Payme orqali pul qaytarildi");
       });
     }

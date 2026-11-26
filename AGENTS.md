@@ -66,7 +66,14 @@ Har biri 2026-09-29 review'ida kodda topilgan (`docs/plan/MVP_ROADMAP.md` §2).
 - **To'lov callback'lari takror keladi.** Holat o'zgarishi shartli `updateMany`
   (`where: { provider_state: 1 }`) bilan yoziladi — oddiy `update` ikki marta ishlaydi.
 - **`OrderService.cancel()` zaxirani qaytaradi** va takroriy chaqiruvda hech narsa qilmaydi.
-  Buyurtmani bekor qilishning boshqa yo'lini yozmang.
+  Buyurtmani bekor qilishning boshqa yo'lini yozmang. To'langan (`PAID`) buyurtmani u bekor
+  qilmaydi va `false` qaytaradi — natijani tekshiring; avval pul provayder orqali qaytariladi.
+- **`markOrderPaid()` `false` qaytarsa tranzaksiyani orqaga qaytaring.** U faqat `PENDING` va
+  to'lanmagan buyurtmani to'langan qiladi; `false` — buyurtma shu orada bekor qilingan. To'lov
+  qatori `PAID` bo'lib qolmasin va provayderga xato qayting (Payme `-31008`, Click `-9`).
+- **Buyurtma holati "o'qib, keyin yoz" bilan o'zgartirilmaydi.** Faqat shartli `updateMany`
+  (`where: { id, status: <o'qilgan holat> }`) va `count` tekshiruvi: xaridor, admin va callback
+  bir vaqtda kelganda zaxirasi qaytarilgan buyurtma "tasdiqlangan" bo'lib qolgan edi (2026-11-27).
 - **Eski `.env` kalitlari** (`ACCESS_TOKEN_KEY`, `SESSION_SECRET`, `UZUM_*`) endi o'qilmaydi.
 - **`prisma migrate reset` / `db push --force-reset` ishlatilmaydi** — qo'riqchi to'sadi.
 - **`.env*`, `*.db`, `dump.rdb` repoga qo'shilmaydi** — qo'riqchi to'sadi.
