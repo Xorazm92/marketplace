@@ -4,21 +4,17 @@ Bitta VPS'da: `postgres` + `backend` (NestJS) + `web` (Next.js) + `nginx` (TLS).
 Fayllar: `docker-compose.prod.yml`, `deploy/nginx/default.conf.template`,
 `scripts/deploy.sh`, `scripts/backup.sh`, `scripts/restore.sh`.
 
-> **Tekshirilganlik holati (2026-11-27).** Lokal mashinada, `docker run` bilan (compose plagini
-> u yerda yo'q edi) shu fayldagi stek takrorlandi: postgres + backend + web + nginx, o'z-o'zidan
-> imzolangan sertifikat bilan.
+> **Tekshirilganlik holati (2026-11-27).** Lokal mashinada `docker compose` (v5.8) bilan shu
+> fayldagi to'liq stek ko'tarildi (o'z-o'zidan imzolangan sertifikat, 8080/8443 portlari):
+> `deploy.sh` (birinchi va oddiy deploy), `seed:prod`, `create-admin.js`, `nginx -t`, tutun sinovi,
+> `backup.sh` → buzish → `restore.sh` (baza va rasmlar aynan qaytdi). Shuningdek: nginx so'rov
+> chegaralari, konteyner IP'si o'zgarganda o'zi tiklanish, baza uzilib-tiklanishi.
 >
-> **Tekshirildi:** ikkala image build; toza bazaga `prisma migrate deploy`; `seed:prod`,
-> `create-admin.js`; `nginx -t`; HTTPS orqali sahifalar, API, rasm yuklash/o'chirish (volume);
-> http→https; xavfsizlik sarlavhalari; nginx so'rov chegaralari; backend konteyneri yangi IP bilan
-> qayta yaratilganda nginx o'zi tiklanishi; baza to'xtab-yonganda backend qayta ishga
-> tushirilmasdan tiklanishi; `backup.sh`/`restore.sh` ichidagi buyruqlar bilan zaxira → buzish →
-> tiklash aylanasi (baza + rasmlar).
+> **Tekshirilmadi:** haqiqiy VPS, domen, Let's Encrypt va certbot yangilanishi; Payme/Click
+> sandbox; haqiqiy SMS. Birinchi deploy staging'da qilinsin — `docs/RELEASE_CHECKLIST.md`.
 >
-> **Tekshirilmadi:** `docker compose` buyrug'ining o'zi va shu sababli `docker-compose.prod.yml`,
-> `deploy.sh`, `backup.sh`, `restore.sh` skriptlari (faqat ichidagi buyruqlar va `bash -n`);
-> haqiqiy domen, Let's Encrypt, certbot yangilanishi; Payme/Click sandbox; haqiqiy SMS.
-> Birinchi deploy staging'da qilinsin — `docs/RELEASE_CHECKLIST.md`.
+> Skriptlarni boshqa env fayl yoki override bilan sinash (standart — `.env.prod`):
+> `ENV_FILE=/yo'l/env COMPOSE_OVERRIDE=/yo'l/override.yml COMPOSE_PROJECT_NAME=staging bash scripts/deploy.sh`
 
 ## 1. Server tayyorlash (bir marta)
 

@@ -1,6 +1,6 @@
 # Reliz ro'yxati
 
-Har relizda yuqoridan pastga. Belgilar: **[T]** — shu qadam 2026-11-27 da lokal stekda
+Har relizda yuqoridan pastga. Belgilar: **[T]** — shu qadam 2026-11-27 da lokal `docker compose` stekda
 sinab ko'rilgan; **[S]** — faqat staging/VPS'da sinaladi, hali sinalmagan.
 Tafsilotlar: `docs/DEPLOYMENT.md`; nosozliklar: `docs/RUNBOOK.md`.
 
@@ -54,7 +54,7 @@ Tafsilotlar: `docs/DEPLOYMENT.md`; nosozliklar: `docs/RUNBOOK.md`.
 
 ```bash
 cd /opt/inbola && git fetch && git checkout <reliz-commit>
-bash scripts/deploy.sh          # zaxira → build → migratsiya → up → /health   [S]
+bash scripts/deploy.sh          # zaxira → build → migratsiya → up → /health   [T] (lokal compose)
 ```
 
 Birinchi deploy'da qo'shimcha (`DEPLOYMENT.md` §2): `seed:prod` **[T]**, `create-admin.js` **[T]**.

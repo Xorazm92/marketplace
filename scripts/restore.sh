@@ -9,9 +9,13 @@ dir="${1:?Zaxira papkasini bering: backups/YYYYmmdd-HHMMSS}"
 read -r -p "Joriy baza va rasmlar $dir bilan almashtiriladi. Davom etish uchun 'tiklash' deb yozing: " answer
 [ "$answer" = "tiklash" ] || { echo "Bekor qilindi"; exit 1; }
 
-COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
+# Standart: .env.prod va docker-compose.prod.yml. Sinov uchun (staging, lokal) almashtirish mumkin:
+#   ENV_FILE=/yo'l/env COMPOSE_OVERRIDE=/yo'l/override.yml COMPOSE_PROJECT_NAME=nom bash scripts/...
+ENV_FILE="${ENV_FILE:-.env.prod}"
+export ENV_FILE
+COMPOSE="docker compose -f docker-compose.prod.yml${COMPOSE_OVERRIDE:+ -f $COMPOSE_OVERRIDE} --env-file $ENV_FILE"
 # shellcheck disable=SC1091
-set -a; . ./.env.prod; set +a
+set -a; . "$ENV_FILE"; set +a
 
 $COMPOSE stop backend web
 $COMPOSE exec -T postgres pg_restore -U "$POSTGRES_USER" -d "$POSTGRES_DB" --clean --if-exists --no-owner < "$dir/db.dump"

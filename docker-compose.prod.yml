@@ -25,7 +25,9 @@ services:
   backend:
     build: ./backend-main
     restart: unless-stopped
-    env_file: .env.prod
+    # ENV_FILE — faqat tekshiruv uchun (`ENV_FILE=.env.prod.example docker compose ... config`);
+    # prodda standart .env.prod ishlatiladi.
+    env_file: ${ENV_FILE:-.env.prod}
     environment:
       NODE_ENV: production
       PORT: "4000"

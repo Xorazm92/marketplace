@@ -35,6 +35,12 @@ for var in TEST_DATABASE_URL E2E_DATABASE_URL; do
   [ "$var" = E2E_DATABASE_URL ] && [ "$BROWSER" = 0 ] && continue
   url="${!var:-}"
   [ -n "$url" ] || { echo "XATO: $var berilmagan" >&2; exit 2; }
+  # Hujjatdagi namuna (postgresql://.../nomi_test) so'zma-so'z berilsa, keyingi 6 qadam
+  # "Can't reach database server" bilan chalkash yiqilardi — boshidanoq aniq aytiladi.
+  case "$url" in
+    *...*|*USER@HOST*) echo "XATO: $var — namunaviy manzil. Haqiqiy test bazasini bering, masalan:
+  $var='postgresql://<user>@localhost/<nomi>_test?host=/var/run/postgresql'" >&2; exit 2 ;;
+  esac
   case "$(db_name "$url")" in
     *_test) ;;
     *) echo "XATO: $var bazasi nomi \"_test\" bilan tugashi kerak (testlar bazani tozalaydi)" >&2; exit 2 ;;
@@ -111,7 +117,7 @@ if [ "$DOCKER" = 1 ] && command -v docker >/dev/null 2>&1; then
   step "docker: web image" . docker build -q -t inbola-verify-web ./web
   if docker compose version >/dev/null 2>&1; then
     # Faqat sintaksis va o'zgaruvchilar: haqiqiy qiymatlar o'rniga namuna fayl.
-    step "docker: compose config" . docker compose -f docker-compose.prod.yml --env-file .env.prod.example config --quiet
+    step "docker: compose config" . env ENV_FILE=.env.prod.example docker compose -f docker-compose.prod.yml --env-file .env.prod.example config --quiet
   else
     skip "docker: compose config" "docker compose plagini o'rnatilmagan"
   fi
