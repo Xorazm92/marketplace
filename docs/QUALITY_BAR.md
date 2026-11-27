@@ -62,16 +62,16 @@ ketma-ket), Playwright 12, drift 0. Topilib yopilgan nuqsonlar — §9. Tekshiri
 | T3 | Har Critical tuzatishga regressiya testi | ✅ unit 37 (bazasiz) + e2e 71 (haqiqiy Postgres, 3 marta ketma-ket barqaror); har yangi test tuzatishdan oldingi kodda yiqilishi tekshirilgan | 0-8 |
 | T4 | Playwright: kritik oqimlar | ✅ 12/12: naqd buyurtma → admin → sharh; onlayn to'lov (to'lov tasdig'i, bekor qilish, havola xatosi); admin formasi va zaxira; moderator; CSP/sarlavhalar; robots/404; proxy IP; SSR chegarasi; 375px | 3-8 |
 | T6 | Lint | ✅ backend (ESLint 9 flat) va web — 0 xato; CI'da | 5 |
-| T5 | CI har PR'da | ❌ GitHub'da **hech bir job ishga tushmagan**: hisob billing sababli bloklangan. O'rniga `scripts/verify-all.sh --docker` (CI qadamlari bilan bir xil) — lokal toza. `ci.yml` YAML sifatida yaroqli, GitHub'da sinalmagan | 3-9 |
+| T5 | CI har PR'da | ❌ GitHub'da hech bir job ishga tushmagan (hisob billing sababli bloklangan). O'rniga `scripts/verify-all.sh --docker` — 23/23 qadam toza, o'tkazib yuborilgan yo'q (2026-11-27) | 3-10 |
 
 ## 5. Deploy va kuzatuv
 
 | # | Chegara | Holat | Faza |
 |---|---|---|---|
 | O1 | Bitta bootstrap, prodda helmet (H6) | ✅ `start`/`start:prod` → `dist/main`; `CORS_ORIGIN` env'dan | 0 |
-| O2 | Konteyner steki + nginx + HTTPS | ⚠️ stek lokalda `docker run` bilan ko'tarildi (postgres, backend, web, nginx; o'z-o'zidan imzolangan TLS): `nginx -t`, marshrutlar, sarlavhalar, chegaralar, konteyner IP'si o'zgarganda o'zi tiklanish, baza uzilib-tiklanishi. **`docker compose` buyrug'i va `docker-compose.prod.yml` ning o'zi sinalmagan** (mashinada plagin yo'q). Image: backend 804 MB, web 425 MB, ikkalasi non-root | 4-8 |
-| O3 | `deploy.sh` (backup → build → migrate deploy → up → health) | ⚠️ `bash -n` toza, qadamlari alohida bajarilgan; skriptning o'zi (compose bilan) VPS'da ishga tushirilmagan | 4 |
-| O4 | Zaxira (baza + rasmlar) va tiklash | ⚠️ `backup.sh`/`restore.sh` ichidagi buyruqlar bilan lokal stekda zaxira → buzish → tiklash aylanasi o'tdi (baza va rasm fayllari aynan qaytdi). Skriptlarning o'zi va staging'dagi sinov — yo'q | 4-8 |
+| O2 | Konteyner steki + nginx + HTTPS | ✅ 2026-11-27: `docker compose` (v5.8) bilan to'liq stek (postgres, backend, web, nginx) lokalda ko'tarildi, o'z-o'zidan imzolangan TLS: `nginx -t`, tutun sinovi (sahifalar, API, Swagger 404, http→https, xavfsizlik sarlavhalari, Payme kalitsiz -32504), barcha konteynerlar healthy, error log 0. Haqiqiy domen va Let's Encrypt — sinalmagan | 4-10 |
+| O3 | `deploy.sh` (backup → build → migrate deploy → up → health) | ✅ skriptning o'zi compose bilan ikki marta: birinchi deploy (toza baza) va oddiy deploy (zaxira bilan). VPS'da — sinalmagan | 4-10 |
+| O4 | Zaxira (baza + rasmlar) va tiklash | ✅ `backup.sh` → buzish (nom, ortiqcha mahsulot, rasm fayli va qatori) → `restore.sh`: hammasi aynan qaytdi. Lokal compose stekda; staging'da — sinalmagan | 4-10 |
 | O5 | Kuzatuv | ⚠️ `/health`, `/ready` (baza), `/health/live`; prodda JSON log, hodisalar (`order_paid`, `payme`, `click`, `admin_login`, `otp_limit`…); SIGTERM'da toza to'xtash (205 ms). Xato kuzatuvi (Sentry) ulanmagan — ulanish nuqtasi bor (`common/error-reporter.ts`) | 4-8 |
 | O6 | Yuk ostida xatti-harakat | ⚠️ qisqa sinov (20 parallel, 20 ming mahsulot): mahsulot 454 so'rov/s (p95 62 ms), ro'yxat 262/s (p95 110 ms), qidiruv 71/s (p95 371 ms). Topilib tuzatildi: SSR'ning umumiy IP chegarasi (§9 R15), `GET /category` (R16). Uzoq muddatli yoki haqiqiy tarmoqdagi sinov o'tkazilmagan | 8 |
 
@@ -106,8 +106,8 @@ Kod bilan emas, muhit va qaror bilan bog'liq — shu sababli bu yerda bajarilmag
    hujumda umumiy byudjet tugab, haqiqiy xaridorlar ham kira olmay qoladi. Buni faqat captcha
    (Cloudflare Turnstile yoki hCaptcha) hal qiladi — variantlar yakuniy hisobotda.
 8. Moderator huquqlari (`docs/PERMISSIONS.md`), OTP byudjeti va nginx chegaralari raqamlarini tasdiqlash.
-9. Serverga `docker compose` plagini bilan `docker-compose.prod.yml`, `deploy.sh`, `backup.sh`,
-   `restore.sh` ni staging'da ishga tushirish — lokalda faqat ichidagi buyruqlar sinalgan.
+9. `deploy.sh`, `backup.sh`, `restore.sh` lokal compose stekda o'tdi; haqiqiy VPS va domen bilan
+   staging'da bir marta takrorlash.
 10. Xato kuzatuvi (Sentry yoki boshqa) SDK'sini qo'shish qarori.
 
 ## 9. 2026-11-27 qayta auditda topilib, yopilgan nuqsonlar
@@ -134,4 +134,4 @@ Har biri regressiya testi bilan; poyga testlari eski kodda yiqilishi tekshirilga
 | R16 | P2 | `GET /category` har so'rovda butun katalogni yuklardi (20 ming mahsulotda p50 ≈ 1,9 s) | ro'yxat mahsulotlarsiz; tafsilot 24 ta bilan cheklangan | `readiness.e2e-spec.ts` |
 | R17 | P2 | SMS ketmasa ham kod yozuvi qolardi: xaridor 1 daqiqa kutardi, yetib borgan eski kodi bekor bo'lardi | yozuv o'chiriladi; eski kod SMS ketgandan keyingina bekor bo'ladi | `readiness.e2e-spec.ts` |
 | R18 | P2 | Loglarda so'rov satri (qidiruvdagi telefon) va SMS xatosida to'liq raqam; FK ustunlarida indeks yo'q | yo'l so'rov satrisiz, `maskPhone`; 8 ta indeks | unit; `EXPLAIN ANALYZE` |
-
+| R19 | P1 | `docker-compose.prod.yml` da `env_file: .env.prod` qattiq yozilgan: `.env.prod.example` bilan ham `config` yiqilardi (CI'dagi docker job ham yiqilardi); skriptlarni staging nusxasida sinab bo'lmasdi | `env_file: ${ENV_FILE:-.env.prod}`; skriptlar `ENV_FILE`/`COMPOSE_OVERRIDE` qabul qiladi (standart o'zgarmagan) | `verify-all.sh` compose config qadami (avval XATO, endi OK) |

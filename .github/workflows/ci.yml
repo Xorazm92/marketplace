@@ -132,7 +132,7 @@ jobs:
       - run: docker build -t inbola-backend ./backend-main
       - run: docker build -t inbola-web ./web
       - name: Compose fayli yaroqli
-        run: docker compose -f docker-compose.prod.yml --env-file .env.prod.example config --quiet
+        run: ENV_FILE=.env.prod.example docker compose -f docker-compose.prod.yml --env-file .env.prod.example config --quiet
       - name: Backend image secret'siz ishga tushmaydi
         run: |
           if docker run --rm -e DATABASE_URL=postgresql://x@localhost/x inbola-backend > out.log 2>&1; then

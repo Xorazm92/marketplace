@@ -92,7 +92,7 @@ zaxiradan keyingi buyurtma va to'lovlar yo'qoladi.
 3. `bash scripts/restore.sh backups/<vaqt>` — `tiklash` deb yozib tasdiqlaysiz. Skript backend va
    web'ni to'xtatadi, bazani `pg_restore --clean` bilan, rasmlarni arxivdan tiklaydi, qayta yoqadi.
    Ichidagi buyruqlar bilan aylana sinalgan: nom, mahsulotlar soni, rasm qatori va fayli
-   aynan zaxiradagi holatga qaytdi **[T]**; skriptning o'zi (`docker compose` bilan) — **[S]**.
+   aynan zaxiradagi holatga qaytdi — skriptning o'zi lokal `docker compose` stekda **[T]**, staging'da **[S]**.
 4. Tekshirish: `curl $D/health`; admin panelda oxirgi buyurtmalar; biror mahsulot rasmi ochiladi.
 5. Yo'qolgan oraliq uchun provayder kabinetidagi to'lovlarni 1-qadamdagi nusxa bilan solishtiring
    va xaridorlar bilan bog'laning.

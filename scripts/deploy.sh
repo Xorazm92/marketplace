@@ -6,8 +6,12 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-COMPOSE="docker compose -f docker-compose.prod.yml --env-file .env.prod"
-[ -f .env.prod ] || { echo "XATO: .env.prod yo'q (namuna: .env.prod.example)" >&2; exit 1; }
+# Standart: .env.prod va docker-compose.prod.yml. Sinov uchun (staging, lokal) almashtirish mumkin:
+#   ENV_FILE=/yo'l/env COMPOSE_OVERRIDE=/yo'l/override.yml COMPOSE_PROJECT_NAME=nom bash scripts/...
+ENV_FILE="${ENV_FILE:-.env.prod}"
+export ENV_FILE
+COMPOSE="docker compose -f docker-compose.prod.yml${COMPOSE_OVERRIDE:+ -f $COMPOSE_OVERRIDE} --env-file $ENV_FILE"
+[ -f "$ENV_FILE" ] || { echo "XATO: $ENV_FILE yo'q (namuna: .env.prod.example)" >&2; exit 1; }
 
 echo "== 1/5 Zaxira"
 if $COMPOSE ps --status running postgres | grep -q postgres; then
